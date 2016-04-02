@@ -30,11 +30,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4d0a26da-9aff-4949-99ab-2bce73b8cffc" name="Default" comment="Further code cleanup &#10;* fix potential issue: mixed up “ip” w/ “id”?&#10;* private methods cannot be overridden, hence making them final is just noisy">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../.gitignore" afterPath="$PROJECT_DIR$/../.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mvn-make.sh" afterPath="$PROJECT_DIR$/mvn-make.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/run.sh" afterPath="$PROJECT_DIR$/run.sh" />
     </list>
     <ignored path="ethereumj-core.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -61,7 +57,7 @@
         <entry file="file://$PROJECT_DIR$/mvn-make.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="30">
-              <caret line="2" column="49" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
+              <caret line="2" column="17" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -881,7 +877,7 @@
       <workItem from="1459584278010" duration="45000" />
       <workItem from="1459598374261" duration="293000" />
       <workItem from="1459598689372" duration="1190000" />
-      <workItem from="1459602273737" duration="10812000" />
+      <workItem from="1459602273737" duration="10906000" />
     </task>
     <task id="LOCAL-00001" summary="* use of '_' as an identifier might not be supported in releases after Java SE 8&#10;* varargs should be a single Object xor Object[]&#10;* junit.framework.Assert is deprecated, also the entire Test could be deleted as it’s dead code">
       <created>1458490849048</created>
@@ -988,7 +984,14 @@
       <option name="project" value="LOCAL" />
       <updated>1459610302461</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="fix Maven configuration">
+      <created>1459613926146</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1459613926146</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1024,7 +1027,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="74644000" />
+    <option name="totallyTimeSpent" value="74738000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1680" height="1023" extended-state="6" />
@@ -1107,7 +1110,8 @@
     <MESSAGE value="#367 fix Solidity compilation issue on Macs" />
     <MESSAGE value="Code cleanup, reduction of potentially undefined behavior, and a performance improvement &#10;&#10;* introduce RoundingMode to prevent ArithmeticError exceptions (because of non-deterministic decimal expansion)&#10;* fix erroneous overriding (potential runtime issues) of equals (if an obj is an instance of something, it cannot be null)&#10;* fix clone signature&#10;* make pseudo-constants actual constants&#10;* replace manual array copy (performance issue)" />
     <MESSAGE value="Further code cleanup &#10;* fix potential issue: mixed up “ip” w/ “id”?&#10;* private methods cannot be overridden, hence making them final is just noisy" />
-    <option name="LAST_COMMIT_MESSAGE" value="Further code cleanup &#10;* fix potential issue: mixed up “ip” w/ “id”?&#10;* private methods cannot be overridden, hence making them final is just noisy" />
+    <MESSAGE value="fix Maven configuration" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix Maven configuration" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -11836,7 +11840,7 @@
     <entry file="file://$PROJECT_DIR$/mvn-make.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
-          <caret line="2" column="49" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
+          <caret line="2" column="17" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
           <folding />
         </state>
       </provider>
