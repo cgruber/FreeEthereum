@@ -1,3 +1,8 @@
+This is the last commit of the MIT-licensed version of the Java implementation of the Ethereum protocol.
+=
+
+The original EthereumJ Ethereum implemetation is now licensed under a commercially problematic GPL v3 license. This version is supposed to stay MIT.
+
 # Welcome to ethereumj
 
 [![Slack Status](http://harmony-slack-ether-camp.herokuapp.com/badge.svg)](http://ether.camp) 
