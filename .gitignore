@@ -8,11 +8,7 @@ credentials.properties
 .gradle
 build
 
-# IDEA
-.idea
-!.idea/codeStyleSettings.xml
-*.iml
-*.iws
+.idea/workspace.xml
 
 # Eclipse
 .project
@@ -31,10 +27,6 @@ logs
 test_db*
 testnetSampleDb
 sampleDB*
-
-# Mac
-.DS_Store
-
 
 # Local configuration
 **/user.conf
