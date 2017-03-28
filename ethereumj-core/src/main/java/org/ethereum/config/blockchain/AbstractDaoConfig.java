@@ -1,6 +1,5 @@
 package org.ethereum.config.blockchain;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ethereum.config.BlockchainConfig;
 import org.ethereum.core.BlockHeader;
@@ -11,8 +10,6 @@ import org.ethereum.validator.ExtraDataPresenceRule;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by Stan Reshetnyk on 26.12.16.

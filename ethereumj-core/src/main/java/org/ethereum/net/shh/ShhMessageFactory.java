@@ -1,7 +1,7 @@
 package org.ethereum.net.shh;
 
-import org.ethereum.net.message.*;
 import org.ethereum.net.message.Message;
+import org.ethereum.net.message.MessageFactory;
 
 /**
  * @author Mikhail Kalinin

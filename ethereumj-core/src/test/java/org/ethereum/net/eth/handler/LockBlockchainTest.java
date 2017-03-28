@@ -1,6 +1,5 @@
 package org.ethereum.net.eth.handler;
 
-import org.ethereum.config.CommonConfig;
 import org.ethereum.config.NoAutoscan;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.Block;
@@ -15,7 +14,6 @@ import org.ethereum.net.eth.message.GetBlockBodiesMessage;
 import org.ethereum.net.eth.message.GetBlockHeadersMessage;
 import org.ethereum.sync.SyncManager;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.spongycastle.util.encoders.Hex;
@@ -35,11 +33,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class LockBlockchainTest {
 
-    private final AtomicBoolean result = new AtomicBoolean();
-    private Blockchain blockchain;
-
     private final static long DELAY = 1000;  //Default delay in ms
     private final static String BLOCK_RLP = "f901f8f901f3a00000000000000000000000000000000000000000000000000000000000000000a01dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347940000000000000000000000000000000000000000a09178d0f23c965d81f0834a4c72c6253ce6830f4022b1359aaebfc1ecba442d4ea056e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421a056e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421b90100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008302000080832fefd8808080a0000000000000000000000000000000000000000000000000000000000000000088000000000000002ac0c0";
+    private final AtomicBoolean result = new AtomicBoolean();
+    private Blockchain blockchain;
 
     public LockBlockchainTest() {
 
@@ -102,25 +99,6 @@ public class LockBlockchainTest {
     @Before
     public void setUp() throws Exception {
         result.set(false);
-    }
-
-    @Configuration
-    @NoAutoscan
-    public static class SysPropConfig1 {
-        static Eth62 testHandler = null;
-
-        @Bean
-        @Scope("prototype")
-        public Eth62 eth62() {
-            return testHandler;
-        }
-
-        static SystemProperties props = new SystemProperties();
-
-        @Bean
-        public SystemProperties systemProperties() {
-            return props;
-        }
     }
 
     @Test
@@ -223,5 +201,23 @@ public class LockBlockchainTest {
         );
         this.wait(DELAY);
         assert result.get();
+    }
+
+    @Configuration
+    @NoAutoscan
+    public static class SysPropConfig1 {
+        static Eth62 testHandler = null;
+        static SystemProperties props = new SystemProperties();
+
+        @Bean
+        @Scope("prototype")
+        public Eth62 eth62() {
+            return testHandler;
+        }
+
+        @Bean
+        public SystemProperties systemProperties() {
+            return props;
+        }
     }
 }

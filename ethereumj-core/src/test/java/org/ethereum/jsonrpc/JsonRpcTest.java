@@ -5,26 +5,35 @@ import org.ethereum.config.SystemProperties;
 import org.ethereum.config.blockchain.FrontierConfig;
 import org.ethereum.core.CallTransaction;
 import org.ethereum.core.Transaction;
-import org.ethereum.datasource.DbSource;
-import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.facade.EthereumFactory;
 import org.ethereum.facade.EthereumImpl;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
 
 import java.math.BigInteger;
 
 import static java.math.BigInteger.valueOf;
 import static org.ethereum.crypto.HashUtil.sha3;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Anton Nashatyrev on 19.04.2016.
  */
 public class JsonRpcTest {
+
+    @Test
+    public void complexTest() throws Exception {
+        System.out.println("Starting Ethereum...");
+        Ethereum ethereum = EthereumFactory.createEthereum(TestConfig.class);
+        System.out.println("Ethereum started");
+        TestRunner testRunner = ((EthereumImpl) ethereum).getApplicationContext().getBean(TestRunner.class);
+        System.out.println("Starting test...");
+        testRunner.runTests();
+        System.out.println("Test complete.");
+    }
 
     private static class TestConfig {
 
@@ -232,16 +241,5 @@ public class JsonRpcTest {
             assertTrue(b);
             return hash1;
         }
-    }
-
-    @Test
-    public void complexTest() throws Exception {
-        System.out.println("Starting Ethereum...");
-        Ethereum ethereum = EthereumFactory.createEthereum(TestConfig.class);
-        System.out.println("Ethereum started");
-        TestRunner testRunner = ((EthereumImpl) ethereum).getApplicationContext().getBean(TestRunner.class);
-        System.out.println("Starting test...");
-        testRunner.runTests();
-        System.out.println("Test complete.");
     }
 }

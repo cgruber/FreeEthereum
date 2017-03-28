@@ -1,13 +1,14 @@
 package org.ethereum.datasource;
 
 import com.google.common.util.concurrent.*;
-import org.apache.commons.lang3.concurrent.ConcurrentUtils;
 import org.ethereum.util.ALock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collection;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -19,16 +20,12 @@ public abstract class AsyncWriteCache<Key, Value> extends AbstractCachedSource<K
 
     private static ListeningExecutorService flushExecutor = MoreExecutors.listeningDecorator(
             Executors.newFixedThreadPool(2, new ThreadFactoryBuilder().setNameFormat("AsyncWriteCacheThread-%d").build()));
-
-    protected volatile WriteCache<Key, Value> curCache;
-    protected WriteCache<Key, Value> flushingCache;
-
-    private ListenableFuture<Boolean> lastFlush = Futures.immediateFuture(false);
-
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
     private final ALock rLock = new ALock(rwLock.readLock());
     private final ALock wLock = new ALock(rwLock.writeLock());
-
+    protected volatile WriteCache<Key, Value> curCache;
+    protected WriteCache<Key, Value> flushingCache;
+    private ListenableFuture<Boolean> lastFlush = Futures.immediateFuture(false);
     private String name = "<null>";
 
     public AsyncWriteCache(Source<Key, Value> source) {

@@ -2,7 +2,6 @@ package org.ethereum.net.shh;
 
 
 import org.apache.commons.collections4.map.LRUMap;
-import org.ethereum.config.SystemProperties;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.util.ByteUtil;
 import org.slf4j.Logger;
@@ -10,25 +9,32 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
 public class WhisperImpl extends Whisper {
     private final static Logger logger = LoggerFactory.getLogger("net.shh");
-
+    BloomFilter hostBloomFilter = BloomFilter.createAll();
     private Set<MessageWatcher> filters = new HashSet<>();
     private List<Topic> knownTopics = new ArrayList<>();
-
     private Map<WhisperMessage, ?> known = new LRUMap<>(1024); // essentially Set
-
     private Map<String, ECKey> identities = new HashMap<>();
-
     private List<ShhHandler> activePeers = new ArrayList<>();
 
-    BloomFilter hostBloomFilter = BloomFilter.createAll();
-
     public WhisperImpl() {
+    }
+
+    public static String toIdentity(ECKey key) {
+        return Hex.toHexString(key.getNodeId());
+    }
+
+    public static ECKey fromIdentityToPub(String identity) {
+        try {
+            return identity == null ? null :
+                    ECKey.fromPublicOnly(ByteUtil.merge(new byte[]{0x04}, Hex.decode(identity)));
+        } catch (Exception e) {
+            throw new RuntimeException("Converting identity '" + identity + "'", e);
+        }
     }
 
     @Override
@@ -116,19 +122,6 @@ public class WhisperImpl extends Whisper {
             if (f.match(m.getTo(), m.getFrom(), m.getTopics())) {
                 f.newMessage(m);
             }
-        }
-    }
-
-    public static String toIdentity(ECKey key) {
-        return Hex.toHexString(key.getNodeId());
-    }
-
-    public static ECKey fromIdentityToPub(String identity) {
-        try {
-            return identity == null ? null :
-                    ECKey.fromPublicOnly(ByteUtil.merge(new byte[] {0x04}, Hex.decode(identity)));
-        } catch (Exception e) {
-            throw new RuntimeException("Converting identity '" + identity + "'", e);
         }
     }
 

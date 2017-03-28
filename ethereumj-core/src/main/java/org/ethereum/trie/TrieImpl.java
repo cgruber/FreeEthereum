@@ -650,25 +650,25 @@ public class TrieImpl implements Trie<byte[]> {
         /***********  Dump methods  ************/
 
         public String dumpStruct(String indent, String prefix) {
-            String ret = indent + prefix + getType() + (dirty ? " *" : "") +
-                    (hash == null ? "" : "(hash: " + Hex.toHexString(hash).substring(0, 6) + ")");
+            StringBuilder ret = new StringBuilder(indent + prefix + getType() + (dirty ? " *" : "") +
+                    (hash == null ? "" : "(hash: " + Hex.toHexString(hash).substring(0, 6) + ")"));
             if (getType() == NodeType.BranchNode) {
                 byte[] value = branchNodeGetValue();
-                ret += (value == null ? "" : " [T] = " + Hex.toHexString(value)) + "\n";
+                ret.append(value == null ? "" : " [T] = " + Hex.toHexString(value)).append("\n");
                 for (int i = 0; i < 16; i++) {
                     Node child = branchNodeGetChild(i);
                     if (child != null) {
-                        ret += child.dumpStruct(indent + "  ", "[" + i + "] ");
+                        ret.append(child.dumpStruct(indent + "  ", "[" + i + "] "));
                     }
                 }
 
             } else if (getType() == NodeType.KVNodeNode) {
-                ret += " [" + kvNodeGetKey() + "]\n";
-                ret += kvNodeGetChildNode().dumpStruct(indent + "  ", "");
+                ret.append(" [").append(kvNodeGetKey()).append("]\n");
+                ret.append(kvNodeGetChildNode().dumpStruct(indent + "  ", ""));
             } else {
-                ret += " [" + kvNodeGetKey() + "] = " + Hex.toHexString(kvNodeGetValue()) + "\n";
+                ret.append(" [").append(kvNodeGetKey()).append("] = ").append(Hex.toHexString(kvNodeGetValue())).append("\n");
             }
-            return ret;
+            return ret.toString();
         }
 
         public List<String> dumpTrieNode(boolean compact) {
@@ -690,23 +690,23 @@ public class TrieImpl implements Trie<byte[]> {
 
         private String dumpContent(boolean recursion, boolean compact) {
             if (recursion && hash != null) return hash2str(hash, compact);
-            String ret;
+            StringBuilder ret;
             if (getType() == NodeType.BranchNode) {
-                ret = "[";
+                ret = new StringBuilder("[");
                 for (int i = 0; i < 16; i++) {
                     Node child = branchNodeGetChild(i);
-                    ret += i == 0 ? "" : ",";
-                    ret += child == null ? "" : child.dumpContent(true, compact);
+                    ret.append(i == 0 ? "" : ",");
+                    ret.append(child == null ? "" : child.dumpContent(true, compact));
                 }
                 byte[] value = branchNodeGetValue();
-                ret += value == null ? "" : ", " + val2str(value, compact);
-                ret += "]";
+                ret.append(value == null ? "" : ", " + val2str(value, compact));
+                ret.append("]");
             } else if (getType() == NodeType.KVNodeNode) {
-                ret = "[<" + kvNodeGetKey() + ">, " + kvNodeGetChildNode().dumpContent(true, compact) + "]";
+                ret = new StringBuilder("[<" + kvNodeGetKey() + ">, " + kvNodeGetChildNode().dumpContent(true, compact) + "]");
             } else {
-                ret = "[<" + kvNodeGetKey() + ">, " + val2str(kvNodeGetValue(), compact) + "]";
+                ret = new StringBuilder("[<" + kvNodeGetKey() + ">, " + val2str(kvNodeGetValue(), compact) + "]");
             }
-            return ret;
+            return ret.toString();
         }
 
         @Override

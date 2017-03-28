@@ -2,7 +2,6 @@ package org.ethereum.listener;
 
 import org.ethereum.core.BlockSummary;
 import org.ethereum.core.Transaction;
-import org.ethereum.core.TransactionExecutionSummary;
 import org.ethereum.util.ByteUtil;
 
 import java.util.Arrays;

@@ -1,9 +1,9 @@
 package org.ethereum.util;
 
-import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Created by Anton Nashatyrev on 08.12.2016.

@@ -7,7 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.asn1.sec.SECNamedCurves;
 import org.spongycastle.asn1.x9.X9ECParameters;
-import org.spongycastle.crypto.*;
+import org.spongycastle.crypto.AsymmetricCipherKeyPair;
+import org.spongycastle.crypto.BufferedBlockCipher;
+import org.spongycastle.crypto.InvalidCipherTextException;
+import org.spongycastle.crypto.KeyGenerationParameters;
 import org.spongycastle.crypto.agreement.ECDHBasicAgreement;
 import org.spongycastle.crypto.digests.SHA256Digest;
 import org.spongycastle.crypto.engines.AESFastEngine;
@@ -23,17 +26,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.security.Security;
 
 import static org.junit.Assert.assertArrayEquals;
 
 public class ECIESTest {
     public static final int KEY_SIZE = 128;
-    static Logger log = LoggerFactory.getLogger("test");
-    private static ECDomainParameters curve;
     private static final String CIPHERTEXT1 = "042a851331790adacf6e64fcb19d0872fcdf1285a899a12cdc897da941816b0ea6485402aaf6c2e0a5d98ae3af1b05c68b307d1e0eb7a426a46f1617ba5b94f90b606eee3b5e9d2b527a9ee52cfa377bcd118b9390ed27ffe7d48e8155004375cae209012c3e057bb13a478a64a201d79ad4ae83";
     private static final X9ECParameters IES_CURVE_PARAM = SECNamedCurves.getByName("secp256r1");
     private static final BigInteger PRIVATE_KEY1 = new BigInteger("51134539186617376248226283012294527978458758538121566045626095875284492680246");
+    static Logger log = LoggerFactory.getLogger("test");
+    private static ECDomainParameters curve;
 
     private static ECPoint pub(BigInteger d) {
         return curve.getG().multiply(d);
@@ -42,32 +44,6 @@ public class ECIESTest {
     @BeforeClass
     public static void beforeAll() {
         curve = new ECDomainParameters(IES_CURVE_PARAM.getCurve(), IES_CURVE_PARAM.getG(), IES_CURVE_PARAM.getN(), IES_CURVE_PARAM.getH());
-    }
-
-    @Test
-    public void testKDF() {
-        ConcatKDFBytesGenerator kdf = new ConcatKDFBytesGenerator(new SHA256Digest());
-        kdf.init(new KDFParameters("Hello".getBytes(), new byte[0]));
-        byte[] bytes = new byte[2];
-        kdf.generateBytes(bytes, 0, bytes.length);
-        assertArrayEquals(new byte[]{-66, -89}, bytes);
-    }
-
-    @Test
-    public void testDecryptTestVector() throws IOException, InvalidCipherTextException {
-        ECPoint pub1 = pub(PRIVATE_KEY1);
-        byte[] ciphertext = Hex.decode(CIPHERTEXT1);
-        byte[] plaintext = decrypt(PRIVATE_KEY1, ciphertext);
-        assertArrayEquals(new byte[]{1,1,1}, plaintext);
-    }
-
-    @Test
-    public void testRoundTrip() throws InvalidCipherTextException, IOException {
-        ECPoint pub1 = pub(PRIVATE_KEY1);
-        byte[] plaintext = "Hello world".getBytes();
-        byte[] ciphertext = encrypt(pub1, plaintext);
-        byte[] plaintext1 = decrypt(PRIVATE_KEY1, ciphertext);
-        assertArrayEquals(plaintext, plaintext1);
     }
 
     public static byte[] decrypt(BigInteger prv, byte[] cipher) throws InvalidCipherTextException, IOException {
@@ -137,6 +113,32 @@ public class ECIESTest {
 
         iesEngine.init(isEncrypt, new ECPrivateKeyParameters(prv, curve), new ECPublicKeyParameters(pub, curve), parametersWithIV);
         return iesEngine;
+    }
+
+    @Test
+    public void testKDF() {
+        ConcatKDFBytesGenerator kdf = new ConcatKDFBytesGenerator(new SHA256Digest());
+        kdf.init(new KDFParameters("Hello".getBytes(), new byte[0]));
+        byte[] bytes = new byte[2];
+        kdf.generateBytes(bytes, 0, bytes.length);
+        assertArrayEquals(new byte[]{-66, -89}, bytes);
+    }
+
+    @Test
+    public void testDecryptTestVector() throws IOException, InvalidCipherTextException {
+        ECPoint pub1 = pub(PRIVATE_KEY1);
+        byte[] ciphertext = Hex.decode(CIPHERTEXT1);
+        byte[] plaintext = decrypt(PRIVATE_KEY1, ciphertext);
+        assertArrayEquals(new byte[]{1, 1, 1}, plaintext);
+    }
+
+    @Test
+    public void testRoundTrip() throws InvalidCipherTextException, IOException {
+        ECPoint pub1 = pub(PRIVATE_KEY1);
+        byte[] plaintext = "Hello world".getBytes();
+        byte[] ciphertext = encrypt(pub1, plaintext);
+        byte[] plaintext1 = decrypt(PRIVATE_KEY1, ciphertext);
+        assertArrayEquals(plaintext, plaintext1);
     }
 
 }

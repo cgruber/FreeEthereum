@@ -2,7 +2,6 @@ package org.ethereum.util;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.util.ContextInitializer;
-import ch.qos.logback.core.joran.spi.JoranException;
 import org.ethereum.config.SystemProperties;
 import org.slf4j.LoggerFactory;
 

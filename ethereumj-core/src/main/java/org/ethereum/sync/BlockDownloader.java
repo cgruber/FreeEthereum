@@ -5,14 +5,16 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.ethereum.core.*;
 import org.ethereum.net.server.Channel;
-import org.ethereum.util.ByteArrayMap;
 import org.ethereum.validator.BlockHeaderValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
@@ -24,30 +26,21 @@ import static java.util.Collections.singletonList;
 public abstract class BlockDownloader {
 
     private final static Logger logger = LoggerFactory.getLogger("sync");
-
-    private int blockQueueLimit = 2000;
-    private int headerQueueLimit = 10000;
-
     // Max number of Blocks / Headers in one request
     private static int MAX_IN_REQUEST = 192;
     private static int REQUESTS = 32;
-
+    protected boolean headersDownloadComplete;
+    private int blockQueueLimit = 2000;
+    private int headerQueueLimit = 10000;
     private BlockHeaderValidator headerValidator;
-
     private SyncPool pool;
-
     private SyncQueueIfc syncQueue;
-
     private boolean headersDownload = true;
     private boolean blockBodiesDownload = true;
-
     private CountDownLatch receivedHeadersLatch = new CountDownLatch(0);
     private CountDownLatch receivedBlocksLatch = new CountDownLatch(0);
-
     private Thread getHeadersThread;
     private Thread getBodiesThread;
-
-    protected boolean headersDownloadComplete;
     private boolean downloadComplete;
 
     private CountDownLatch stopLatch = new CountDownLatch(1);
@@ -143,11 +136,11 @@ public abstract class BlockDownloader {
                                 }
                                 return;
                             }
-                            String l = "##########  New header requests (" + hReq.size() + "):\n";
+                            StringBuilder l = new StringBuilder("##########  New header requests (" + hReq.size() + "):\n");
                             for (SyncQueueIfc.HeadersRequest request : hReq) {
-                                l += "    " + request + "\n";
+                                l.append("    ").append(request).append("\n");
                             }
-                            logger.debug(l);
+                            logger.debug(l.toString());
                         }
                     }
                     int reqHeadersCounter = 0;

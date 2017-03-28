@@ -1,51 +1,12 @@
 package org.ethereum.net.swarm;
 
-import org.junit.*;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Created by Admin on 11.06.2015.
  */
 public class StringTrieTest {
-
-    class A extends StringTrie.TrieNode<A> {
-        String id;
-
-        public A() {
-        }
-
-        public A(A parent, String relPath) {
-            super(parent, relPath);
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        @Override
-        protected A createNode(A parent, String path) {
-            return new A(parent, path);
-        }
-
-        @Override
-        public String toString() {
-            return "A[" + (id != null ? id : "") + "]";
-        }
-    }
-
-    class T extends StringTrie<A> {
-
-        public T() {
-            super(new A());
-        }
-
-        @Override
-        public A add(String path) {
-            A ret = super.add(path);
-            ret.setId(path);
-            return ret;
-        }
-    };
 
     @Test
     public void testAdd() {
@@ -111,5 +72,44 @@ public class StringTrieTest {
         System.out.println(Util.dumpTree(trie.rootNode));
         trie.delete("aaaaxxxx");
         System.out.println(Util.dumpTree(trie.rootNode));
+    }
+
+    class A extends StringTrie.TrieNode<A> {
+        String id;
+
+        public A() {
+        }
+
+        public A(A parent, String relPath) {
+            super(parent, relPath);
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        @Override
+        protected A createNode(A parent, String path) {
+            return new A(parent, path);
+        }
+
+        @Override
+        public String toString() {
+            return "A[" + (id != null ? id : "") + "]";
+        }
+    }
+
+    class T extends StringTrie<A> {
+
+        public T() {
+            super(new A());
+        }
+
+        @Override
+        public A add(String path) {
+            A ret = super.add(path);
+            ret.setId(path);
+            return ret;
+        }
     }
 }

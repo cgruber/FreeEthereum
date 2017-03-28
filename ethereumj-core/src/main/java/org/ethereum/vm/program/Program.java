@@ -11,21 +11,23 @@ import org.ethereum.util.ByteArraySet;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.FastByteComparisons;
 import org.ethereum.util.Utils;
-import org.ethereum.vm.*;
+import org.ethereum.vm.DataWord;
+import org.ethereum.vm.MessageCall;
 import org.ethereum.vm.MessageCall.MsgType;
+import org.ethereum.vm.OpCode;
 import org.ethereum.vm.PrecompiledContracts.PrecompiledContract;
+import org.ethereum.vm.VM;
 import org.ethereum.vm.program.invoke.ProgramInvoke;
 import org.ethereum.vm.program.invoke.ProgramInvokeFactory;
 import org.ethereum.vm.program.invoke.ProgramInvokeFactoryImpl;
 import org.ethereum.vm.program.listener.CompositeProgramListener;
 import org.ethereum.vm.program.listener.ProgramListenerAware;
 import org.ethereum.vm.program.listener.ProgramStorageChangeListener;
-import org.ethereum.vm.trace.ProgramTraceListener;
 import org.ethereum.vm.trace.ProgramTrace;
+import org.ethereum.vm.trace.ProgramTraceListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
@@ -56,24 +58,21 @@ public class Program {
 
     //Max size for stack checks
     private static final int MAX_STACKSIZE = 1024;
-
+    private final SystemProperties config;
+    private final BlockchainConfig blockchainConfig;
+    CommonConfig commonConfig = CommonConfig.getDefault();
     private Transaction transaction;
-
     private ProgramInvoke invoke;
     private ProgramInvokeFactory programInvokeFactory = new ProgramInvokeFactoryImpl();
-
     private ProgramOutListener listener;
     private ProgramTraceListener traceListener;
     private ProgramStorageChangeListener storageDiffListener = new ProgramStorageChangeListener();
     private CompositeProgramListener programListener = new CompositeProgramListener();
-
     private Stack stack;
     private Memory memory;
     private Storage storage;
-
     private ProgramResult result = new ProgramResult();
     private ProgramTrace trace = new ProgramTrace();
-
     private byte[] codeHash;
     private byte[] ops;
     private int pc;
@@ -81,14 +80,7 @@ public class Program {
     private byte previouslyExecutedOp;
     private boolean stopped;
     private ByteArraySet touchedAccounts = new ByteArraySet();
-
     private ProgramPrecompile programPrecompile;
-
-    CommonConfig commonConfig = CommonConfig.getDefault();
-
-    private final SystemProperties config;
-
-    private final BlockchainConfig blockchainConfig;
 
     public Program(byte[] ops, ProgramInvoke programInvoke) {
         this(ops, programInvoke, null);
@@ -116,6 +108,140 @@ public class Program {
         this.storage = setupProgramListener(new Storage(programInvoke));
         this.trace = new ProgramTrace(config, programInvoke);
         this.blockchainConfig = config.getBlockchainConfig().getConfigForBlock(programInvoke.getNumber().longValue());
+    }
+
+    static String formatBinData(byte[] binData, int startPC) {
+        StringBuilder ret = new StringBuilder();
+        for (int i = 0; i < binData.length; i += 16) {
+            ret.append(Utils.align("" + Integer.toHexString(startPC + (i)) + ":", ' ', 8, false));
+            ret.append(Hex.toHexString(binData, i, min(16, binData.length - i))).append('\n');
+        }
+        return ret.toString();
+    }
+
+    public static String stringifyMultiline(byte[] code) {
+        int index = 0;
+        StringBuilder sb = new StringBuilder();
+        BitSet mask = buildReachableBytecodesMask(code);
+        ByteArrayOutputStream binData = new ByteArrayOutputStream();
+        int binDataStartPC = -1;
+
+        while (index < code.length) {
+            final byte opCode = code[index];
+            OpCode op = OpCode.code(opCode);
+
+            if (!mask.get(index)) {
+                if (binDataStartPC == -1) {
+                    binDataStartPC = index;
+                }
+                binData.write(code[index]);
+                index++;
+                if (index < code.length) continue;
+            }
+
+            if (binDataStartPC != -1) {
+                sb.append(formatBinData(binData.toByteArray(), binDataStartPC));
+                binDataStartPC = -1;
+                binData = new ByteArrayOutputStream();
+                if (index == code.length) continue;
+            }
+
+            sb.append(Utils.align("" + Integer.toHexString(index) + ":", ' ', 8, false));
+
+            if (op == null) {
+                sb.append("<UNKNOWN>: ").append(0xFF & opCode).append("\n");
+                index++;
+                continue;
+            }
+
+            if (op.name().startsWith("PUSH")) {
+                sb.append(' ').append(op.name()).append(' ');
+
+                int nPush = op.val() - OpCode.PUSH1.val() + 1;
+                byte[] data = Arrays.copyOfRange(code, index + 1, index + nPush + 1);
+                BigInteger bi = new BigInteger(1, data);
+                sb.append("0x").append(bi.toString(16));
+                if (bi.bitLength() <= 32) {
+                    sb.append(" (").append(new BigInteger(1, data).toString()).append(") ");
+                }
+
+                index += nPush + 1;
+            } else {
+                sb.append(' ').append(op.name());
+                index++;
+            }
+            sb.append('\n');
+        }
+
+        return sb.toString();
+    }
+
+    static BitSet buildReachableBytecodesMask(byte[] code) {
+        NavigableSet<Integer> gotos = new TreeSet<>();
+        ByteCodeIterator it = new ByteCodeIterator(code);
+        BitSet ret = new BitSet(code.length);
+        int lastPush = 0;
+        int lastPushPC = 0;
+        do {
+            ret.set(it.getPC()); // reachable bytecode
+            if (it.isPush()) {
+                lastPush = new BigInteger(1, it.getCurOpcodeArg()).intValue();
+                lastPushPC = it.getPC();
+            }
+            if (it.getCurOpcode() == OpCode.JUMP || it.getCurOpcode() == OpCode.JUMPI) {
+                if (it.getPC() != lastPushPC + 1) {
+                    // some PC arithmetic we totally can't deal with
+                    // assuming all bytecodes are reachable as a fallback
+                    ret.set(0, code.length);
+                    return ret;
+                }
+                int jumpPC = lastPush;
+                if (!ret.get(jumpPC)) {
+                    // code was not explored yet
+                    gotos.add(jumpPC);
+                }
+            }
+            if (it.getCurOpcode() == OpCode.JUMP || it.getCurOpcode() == OpCode.RETURN ||
+                    it.getCurOpcode() == OpCode.STOP) {
+                if (gotos.isEmpty()) break;
+                it.setPC(gotos.pollFirst());
+            }
+        } while (it.next());
+        return ret;
+    }
+
+    public static String stringify(byte[] code) {
+        int index = 0;
+        StringBuilder sb = new StringBuilder();
+        BitSet mask = buildReachableBytecodesMask(code);
+        String binData = "";
+
+        while (index < code.length) {
+            final byte opCode = code[index];
+            OpCode op = OpCode.code(opCode);
+
+            if (op == null) {
+                sb.append(" <UNKNOWN>: ").append(0xFF & opCode).append(" ");
+                index++;
+                continue;
+            }
+
+            if (op.name().startsWith("PUSH")) {
+                sb.append(' ').append(op.name()).append(' ');
+
+                int nPush = op.val() - OpCode.PUSH1.val() + 1;
+                byte[] data = Arrays.copyOfRange(code, index + 1, index + nPush + 1);
+                BigInteger bi = new BigInteger(1, data);
+                sb.append("0x").append(bi.toString(16)).append(" ");
+
+                index += nPush + 1;
+            } else {
+                sb.append(' ').append(op.name());
+                index++;
+            }
+        }
+
+        return sb.toString();
     }
 
     public ProgramPrecompile getProgramPrecompile() {
@@ -188,17 +314,17 @@ public class Program {
     }
 
     /**
-     * Should be set only after the OP is fully executed.
-     */
-    public void setPreviouslyExecutedOp(byte op) {
-        this.previouslyExecutedOp = op;
-    }
-
-    /**
      * Returns the last fully executed OP.
      */
     public byte getPreviouslyExecutedOp() {
         return this.previouslyExecutedOp;
+    }
+
+    /**
+     * Should be set only after the OP is fully executed.
+     */
+    public void setPreviouslyExecutedOp(byte op) {
+        this.previouslyExecutedOp = op;
     }
 
     public void stackPush(byte[] data) {
@@ -227,16 +353,16 @@ public class Program {
         return pc;
     }
 
-    public void setPC(DataWord pc) {
-        this.setPC(pc.intValue());
-    }
-
     public void setPC(int pc) {
         this.pc = pc;
 
         if (this.pc >= ops.length) {
             stop();
         }
+    }
+
+    public void setPC(DataWord pc) {
+        this.setPC(pc.intValue());
     }
 
     public boolean isStopped() {
@@ -323,7 +449,6 @@ public class Program {
         memory.extendAndWrite(addr, allocSize, value);
     }
 
-
     public DataWord memoryLoad(DataWord addr) {
         return memory.readWord(addr.intValue());
     }
@@ -346,7 +471,6 @@ public class Program {
     public void allocateMemory(int offset, int size) {
         memory.extend(offset, size);
     }
-
 
     public void suicide(DataWord obtainerAddress) {
 
@@ -877,181 +1001,6 @@ public class Program {
         return trace;
     }
 
-    static String formatBinData(byte[] binData, int startPC) {
-        StringBuilder ret = new StringBuilder();
-        for (int i = 0; i < binData.length; i += 16) {
-            ret.append(Utils.align("" + Integer.toHexString(startPC + (i)) + ":", ' ', 8, false));
-            ret.append(Hex.toHexString(binData, i, min(16, binData.length - i))).append('\n');
-        }
-        return ret.toString();
-    }
-
-    public static String stringifyMultiline(byte[] code) {
-        int index = 0;
-        StringBuilder sb = new StringBuilder();
-        BitSet mask = buildReachableBytecodesMask(code);
-        ByteArrayOutputStream binData = new ByteArrayOutputStream();
-        int binDataStartPC = -1;
-
-        while (index < code.length) {
-            final byte opCode = code[index];
-            OpCode op = OpCode.code(opCode);
-
-            if (!mask.get(index)) {
-                if (binDataStartPC == -1) {
-                    binDataStartPC = index;
-                }
-                binData.write(code[index]);
-                index++;
-                if (index < code.length) continue;
-            }
-
-            if (binDataStartPC != -1) {
-                sb.append(formatBinData(binData.toByteArray(), binDataStartPC));
-                binDataStartPC = -1;
-                binData = new ByteArrayOutputStream();
-                if (index == code.length) continue;
-            }
-
-            sb.append(Utils.align("" + Integer.toHexString(index) + ":", ' ', 8, false));
-
-            if (op == null) {
-                sb.append("<UNKNOWN>: ").append(0xFF & opCode).append("\n");
-                index++;
-                continue;
-            }
-
-            if (op.name().startsWith("PUSH")) {
-                sb.append(' ').append(op.name()).append(' ');
-
-                int nPush = op.val() - OpCode.PUSH1.val() + 1;
-                byte[] data = Arrays.copyOfRange(code, index + 1, index + nPush + 1);
-                BigInteger bi = new BigInteger(1, data);
-                sb.append("0x").append(bi.toString(16));
-                if (bi.bitLength() <= 32) {
-                    sb.append(" (").append(new BigInteger(1, data).toString()).append(") ");
-                }
-
-                index += nPush + 1;
-            } else {
-                sb.append(' ').append(op.name());
-                index++;
-            }
-            sb.append('\n');
-        }
-
-        return sb.toString();
-    }
-
-    static class ByteCodeIterator {
-        byte[] code;
-        int pc;
-
-        public ByteCodeIterator(byte[] code) {
-            this.code = code;
-        }
-
-        public void setPC(int pc) {
-            this.pc = pc;
-        }
-
-        public int getPC() {
-            return pc;
-        }
-
-        public OpCode getCurOpcode() {
-            return pc < code.length ? OpCode.code(code[pc]) : null;
-        }
-
-        public boolean isPush() {
-            return getCurOpcode() != null ? getCurOpcode().name().startsWith("PUSH") : false;
-        }
-
-        public byte[] getCurOpcodeArg() {
-            if (isPush()) {
-                int nPush = getCurOpcode().val() - OpCode.PUSH1.val() + 1;
-                byte[] data = Arrays.copyOfRange(code, pc + 1, pc + nPush + 1);
-                return data;
-            } else {
-                return new byte[0];
-            }
-        }
-
-        public boolean next() {
-            pc += 1 + getCurOpcodeArg().length;
-            return pc < code.length;
-        }
-    }
-
-    static BitSet buildReachableBytecodesMask(byte[] code) {
-        NavigableSet<Integer> gotos = new TreeSet<>();
-        ByteCodeIterator it = new ByteCodeIterator(code);
-        BitSet ret = new BitSet(code.length);
-        int lastPush = 0;
-        int lastPushPC = 0;
-        do {
-            ret.set(it.getPC()); // reachable bytecode
-            if (it.isPush()) {
-                lastPush = new BigInteger(1, it.getCurOpcodeArg()).intValue();
-                lastPushPC = it.getPC();
-            }
-            if (it.getCurOpcode() == OpCode.JUMP || it.getCurOpcode() == OpCode.JUMPI) {
-                if (it.getPC() != lastPushPC + 1) {
-                    // some PC arithmetic we totally can't deal with
-                    // assuming all bytecodes are reachable as a fallback
-                    ret.set(0, code.length);
-                    return ret;
-                }
-                int jumpPC = lastPush;
-                if (!ret.get(jumpPC)) {
-                    // code was not explored yet
-                    gotos.add(jumpPC);
-                }
-            }
-            if (it.getCurOpcode() == OpCode.JUMP || it.getCurOpcode() == OpCode.RETURN ||
-                    it.getCurOpcode() == OpCode.STOP) {
-                if (gotos.isEmpty()) break;
-                it.setPC(gotos.pollFirst());
-            }
-        } while (it.next());
-        return ret;
-    }
-
-    public static String stringify(byte[] code) {
-        int index = 0;
-        StringBuilder sb = new StringBuilder();
-        BitSet mask = buildReachableBytecodesMask(code);
-        String binData = "";
-
-        while (index < code.length) {
-            final byte opCode = code[index];
-            OpCode op = OpCode.code(opCode);
-
-            if (op == null) {
-                sb.append(" <UNKNOWN>: ").append(0xFF & opCode).append(" ");
-                index++;
-                continue;
-            }
-
-            if (op.name().startsWith("PUSH")) {
-                sb.append(' ').append(op.name()).append(' ');
-
-                int nPush = op.val() - OpCode.PUSH1.val() + 1;
-                byte[] data = Arrays.copyOfRange(code, index + 1, index + nPush + 1);
-                BigInteger bi = new BigInteger(1, data);
-                sb.append("0x").append(bi.toString(16)).append(" ");
-
-                index += nPush + 1;
-            } else {
-                sb.append(' ').append(op.name());
-                index++;
-            }
-        }
-
-        return sb.toString();
-    }
-
-
     public void addListener(ProgramOutListener listener) {
         this.listener = listener;
     }
@@ -1129,8 +1078,62 @@ public class Program {
         return invoke.byTestingSuite();
     }
 
+    /**
+     * used mostly for testing reasons
+     */
+    public byte[] getMemory() {
+        return memory.read(0, memory.size());
+    }
+
+    /**
+     * used mostly for testing reasons
+     */
+    public void initMem(byte[] data) {
+        this.memory.write(0, data, data.length, false);
+    }
+
     public interface ProgramOutListener {
         void output(String out);
+    }
+
+    static class ByteCodeIterator {
+        byte[] code;
+        int pc;
+
+        public ByteCodeIterator(byte[] code) {
+            this.code = code;
+        }
+
+        public int getPC() {
+            return pc;
+        }
+
+        public void setPC(int pc) {
+            this.pc = pc;
+        }
+
+        public OpCode getCurOpcode() {
+            return pc < code.length ? OpCode.code(code[pc]) : null;
+        }
+
+        public boolean isPush() {
+            return getCurOpcode() != null && getCurOpcode().name().startsWith("PUSH");
+        }
+
+        public byte[] getCurOpcodeArg() {
+            if (isPush()) {
+                int nPush = getCurOpcode().val() - OpCode.PUSH1.val() + 1;
+                byte[] data = Arrays.copyOfRange(code, pc + 1, pc + nPush + 1);
+                return data;
+            } else {
+                return new byte[0];
+            }
+        }
+
+        public boolean next() {
+            pc += 1 + getCurOpcodeArg().length;
+            return pc < code.length;
+        }
     }
 
     /**
@@ -1218,20 +1221,6 @@ public class Program {
         public StackTooLargeException(String message) {
             super(message);
         }
-    }
-
-    /**
-     * used mostly for testing reasons
-     */
-    public byte[] getMemory() {
-        return memory.read(0, memory.size());
-    }
-
-    /**
-     * used mostly for testing reasons
-     */
-    public void initMem(byte[] data) {
-        this.memory.write(0, data, data.length, false);
     }
 
 

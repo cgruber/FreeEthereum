@@ -10,18 +10,12 @@ import org.ethereum.db.BlockStore;
 import org.ethereum.db.StateSource;
 import org.ethereum.listener.CompositeEthereumListener;
 import org.ethereum.net.eth.EthVersion;
-import org.ethereum.net.eth.message.EthMessage;
-import org.ethereum.net.eth.message.GetNodeDataMessage;
-import org.ethereum.net.eth.message.GetReceiptsMessage;
-import org.ethereum.net.eth.message.NodeDataMessage;
-import org.ethereum.net.eth.message.ReceiptsMessage;
-
+import org.ethereum.net.eth.message.*;
 import org.ethereum.sync.PeerState;
 import org.ethereum.util.ByteArraySet;
 import org.ethereum.util.Value;
 import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.net.eth.EthVersion.V63;
 
 /**

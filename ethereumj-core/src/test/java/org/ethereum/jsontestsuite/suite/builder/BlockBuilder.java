@@ -11,7 +11,6 @@ import org.ethereum.util.ByteUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ethereum.util.BIUtil.toBI;
 import static org.ethereum.util.ByteUtil.byteArrayToLong;
 
 public class BlockBuilder {

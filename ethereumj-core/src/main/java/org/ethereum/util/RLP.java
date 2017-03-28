@@ -46,15 +46,10 @@ import static org.spongycastle.util.BigIntegers.asUnsignedByteArray;
 public class RLP {
 
     private static final Logger logger = LoggerFactory.getLogger("rlp");
-
-
-    public static final byte[] EMPTY_ELEMENT_RLP = encodeElement(new byte[0]);
-
     /**
      * Allow for content up to size of 2^64 bytes *
      */
     private static final double MAX_ITEM_LENGTH = Math.pow(256, 8);
-
     /**
      * Reason for threshold according to Vitalik Buterin:
      * - 56 bytes maximizes the benefit of both options
@@ -65,14 +60,6 @@ public class RLP {
      * - also, that's where Bitcoin's varint does the cutof
      */
     private static final int SIZE_THRESHOLD = 56;
-
-    /** RLP encoding rules are defined as follows: */
-
-    /*
-     * For a single byte whose value is in the [0x00, 0x7f] range, that byte is
-     * its own RLP encoding.
-     */
-
     /**
      * [0x80]
      * If a string is 0-55 bytes long, the RLP encoding consists of a single
@@ -81,6 +68,12 @@ public class RLP {
      */
     private static final int OFFSET_SHORT_ITEM = 0x80;
 
+    /** RLP encoding rules are defined as follows: */
+
+    /*
+     * For a single byte whose value is in the [0x00, 0x7f] range, that byte is
+     * its own RLP encoding.
+     */
     /**
      * [0xb7]
      * If a string is more than 55 bytes long, the RLP encoding consists of a
@@ -91,7 +84,7 @@ public class RLP {
      * [0xb8, 0xbf].
      */
     private static final int OFFSET_LONG_ITEM = 0xb7;
-
+    public static final byte[] EMPTY_ELEMENT_RLP = encodeElement(new byte[0]);
     /**
      * [0xc0]
      * If the total payload of a list (i.e. the combined length of all its
@@ -425,7 +418,6 @@ public class RLP {
                     System.out.println("-- level: [" + level
                             + "] Found single item: ");
                     pos += 1;
-                    continue;
                 }
             }
         } catch (Throwable th) {
@@ -645,43 +637,6 @@ public class RLP {
         }
     }
 
-    public static final class LList {
-        private final byte[] rlp;
-        private final int[] offsets = new int[32];
-        private final int[] lens = new int[32];
-        private int cnt;
-
-        public LList(byte[] rlp) {
-            this.rlp = rlp;
-        }
-
-        public void add(int off, int len, boolean isList) {
-            offsets[cnt] = off;
-            lens[cnt] = isList ? (-1 - len) : len;
-            cnt++;
-        }
-
-        public byte[] getBytes(int idx) {
-            int len = lens[idx];
-            len = len < 0 ? (-len - 1) : len;
-            byte[] ret = new byte[len];
-            System.arraycopy(rlp, offsets[idx], ret, 0, len);
-            return ret;
-        }
-
-        public LList getList(int idx) {
-            return decodeLazyList(rlp, offsets[idx], -lens[idx] - 1);
-        }
-
-        public boolean isList(int idx) {
-            return lens[idx] < 0;
-        }
-
-        public int size() {
-            return cnt;
-        }
-    }
-
     public static LList decodeLazyList(byte[] data) {
         return decodeLazyList(data, 0, data.length).getList(0);
     }
@@ -726,7 +681,6 @@ public class RLP {
         return ret;
     }
 
-
     private static DecodeResult decodeList(byte[] data, int pos, int prevPos, int len) {
         List<Object> slice = new ArrayList<>();
         for (int i = 0; i < len; ) {
@@ -740,10 +694,6 @@ public class RLP {
         }
         return new DecodeResult(pos, slice.toArray());
     }
-
-    /* ******************************************************
-     *                      ENCODING                        *
-     * ******************************************************/
 
     /**
      * Turn Object into its RLP encoded equivalent of a byte-array
@@ -775,6 +725,10 @@ public class RLP {
             }
         }
     }
+
+    /* ******************************************************
+     *                      ENCODING                        *
+     * ******************************************************/
 
     /**
      * Integer limitation goes up to 2^31-1 so length can never be bigger than MAX_ITEM_LENGTH
@@ -812,7 +766,7 @@ public class RLP {
         else {
             return new byte[]{(byte) (OFFSET_SHORT_ITEM + 2),
                     (byte) (singleShort >> 8 & 0xFF),
-                    (byte) (singleShort >> 0 & 0xFF)};
+                    (byte) (singleShort & 0xFF)};
         }
     }
 
@@ -909,7 +863,6 @@ public class RLP {
         }
     }
 
-
     public static byte[] encodeListHeader(int size) {
 
         if (size == 0) {
@@ -947,7 +900,6 @@ public class RLP {
 
         return header;
     }
-
 
     public static byte[] encodeLongElementHeader(int length) {
 
@@ -1080,7 +1032,6 @@ public class RLP {
         throw new RuntimeException("Unsupported type: Only accepting String, Integer and BigInteger for now");
     }
 
-
     private static int calculateLength(byte[] data, int index) {
         if ((data[index] & 0xFF) >= OFFSET_LONG_ITEM
                 && (data[index] & 0xFF) < OFFSET_SHORT_LIST) {
@@ -1095,6 +1046,43 @@ public class RLP {
 
         } else {
             throw new RuntimeException("wrong decode attempt");
+        }
+    }
+
+    public static final class LList {
+        private final byte[] rlp;
+        private final int[] offsets = new int[32];
+        private final int[] lens = new int[32];
+        private int cnt;
+
+        public LList(byte[] rlp) {
+            this.rlp = rlp;
+        }
+
+        public void add(int off, int len, boolean isList) {
+            offsets[cnt] = off;
+            lens[cnt] = isList ? (-1 - len) : len;
+            cnt++;
+        }
+
+        public byte[] getBytes(int idx) {
+            int len = lens[idx];
+            len = len < 0 ? (-len - 1) : len;
+            byte[] ret = new byte[len];
+            System.arraycopy(rlp, offsets[idx], ret, 0, len);
+            return ret;
+        }
+
+        public LList getList(int idx) {
+            return decodeLazyList(rlp, offsets[idx], -lens[idx] - 1);
+        }
+
+        public boolean isList(int idx) {
+            return lens[idx] < 0;
+        }
+
+        public int size() {
+            return cnt;
         }
     }
 

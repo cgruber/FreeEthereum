@@ -4,8 +4,6 @@ import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.ByteUtil;
 
-import java.math.BigInteger;
-
 /**
  * @author Roman Mandeleil
  * @since 09.01.2015
@@ -109,6 +107,13 @@ public class PrecompiledContracts {
 
     public static class ECRecover extends PrecompiledContract {
 
+        private static boolean validateV(byte[] v) {
+            for (int i = 0; i < v.length - 1; i++) {
+                if (v[i] != 0) return false;
+            }
+            return true;
+        }
+
         @Override
         public long getGasForData(byte[] data) {
             return 3000;
@@ -144,13 +149,6 @@ public class PrecompiledContracts {
             } else {
                 return out.getData();
             }
-        }
-
-        private static boolean validateV(byte[] v) {
-            for (int i = 0; i < v.length - 1; i++) {
-                if (v[i] != 0) return false;
-            }
-            return true;
         }
     }
 

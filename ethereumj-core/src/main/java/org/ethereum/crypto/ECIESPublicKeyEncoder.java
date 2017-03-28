@@ -1,6 +1,5 @@
 package org.ethereum.crypto;
 
-import org.ethereum.util.ByteUtil;
 import org.spongycastle.crypto.KeyEncoder;
 import org.spongycastle.crypto.params.AsymmetricKeyParameter;
 import org.spongycastle.crypto.params.ECPublicKeyParameters;

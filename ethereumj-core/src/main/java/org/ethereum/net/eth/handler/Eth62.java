@@ -14,11 +14,10 @@ import org.ethereum.net.message.ReasonCode;
 import org.ethereum.net.rlpx.discover.NodeManager;
 import org.ethereum.net.submit.TransactionExecutor;
 import org.ethereum.net.submit.TransactionTask;
-import org.ethereum.sync.SyncManager;
 import org.ethereum.sync.PeerState;
+import org.ethereum.sync.SyncManager;
 import org.ethereum.sync.SyncStatistics;
 import org.ethereum.util.ByteUtil;
-import org.ethereum.util.Utils;
 import org.ethereum.validator.BlockHeaderRule;
 import org.ethereum.validator.BlockHeaderValidator;
 import org.slf4j.Logger;
@@ -37,7 +36,6 @@ import static java.util.Collections.singletonList;
 import static org.ethereum.net.eth.EthVersion.V62;
 import static org.ethereum.net.message.ReasonCode.USELESS_PEER;
 import static org.ethereum.sync.PeerState.*;
-import static org.ethereum.sync.PeerState.BLOCK_RETRIEVING;
 import static org.ethereum.util.Utils.longToTimePeriod;
 import static org.spongycastle.util.encoders.Hex.toHexString;
 
@@ -55,30 +53,7 @@ public class Eth62 extends EthHandler {
 
     protected final static Logger logger = LoggerFactory.getLogger("sync");
     protected final static Logger loggerNet = LoggerFactory.getLogger("net");
-
-    @Autowired
-    protected BlockStore blockstore;
-
-    @Autowired
-    protected SyncManager syncManager;
-
-    @Autowired
-    protected PendingState pendingState;
-
-    @Autowired
-    protected NodeManager nodeManager;
-
-    protected EthState ethState = EthState.INIT;
-
-    protected PeerState peerState = IDLE;
-    protected boolean syncDone = false;
-
-    /**
-     * Number and hash of best known remote block
-     */
-    protected BlockIdentifier bestKnownBlock;
-    private BigInteger totalDifficulty;
-
+    private static final EthVersion version = V62;
     /**
      * Header list sent in GET_BLOCK_BODIES message,
      * used to create blocks from headers and bodies
@@ -86,18 +61,29 @@ public class Eth62 extends EthHandler {
      * or in case when peer is disconnected
      */
     protected final List<BlockHeaderWrapper> sentHeaders = Collections.synchronizedList(new ArrayList<BlockHeaderWrapper>());
-    protected SettableFuture<List<Block>> futureBlocks;
-
     protected final SyncStatistics syncStats = new SyncStatistics();
-
+    @Autowired
+    protected BlockStore blockstore;
+    @Autowired
+    protected SyncManager syncManager;
+    @Autowired
+    protected PendingState pendingState;
+    @Autowired
+    protected NodeManager nodeManager;
+    protected EthState ethState = EthState.INIT;
+    protected PeerState peerState = IDLE;
+    protected boolean syncDone = false;
+    /**
+     * Number and hash of best known remote block
+     */
+    protected BlockIdentifier bestKnownBlock;
+    protected SettableFuture<List<Block>> futureBlocks;
     protected GetBlockHeadersMessageWrapper headerRequest;
-
-    private Map<Long, BlockHeaderValidator> validatorMap;
     protected long lastReqSentTime;
     protected long connectedTime = System.currentTimeMillis();
     protected long processingTime = 0;
-
-    private static final EthVersion version = V62;
+    private BigInteger totalDifficulty;
+    private Map<Long, BlockHeaderValidator> validatorMap;
 
     public Eth62() {
         this(version);

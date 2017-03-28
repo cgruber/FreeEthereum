@@ -1,11 +1,11 @@
 package org.ethereum.net.rlpx.discover;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.ethereum.config.SystemProperties;
-import org.ethereum.crypto.ECKey;
 import org.ethereum.net.rlpx.Node;
 import org.ethereum.net.server.WireTrafficStats;
 import org.slf4j.LoggerFactory;
@@ -19,25 +19,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.ethereum.crypto.HashUtil.sha3;
-
 @Component
 public class UDPListener {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("discover");
-
+    @Autowired
+    SystemProperties config = SystemProperties.getDefault();
+    @Autowired
+    WireTrafficStats stats;
     private int port;
     private String address;
     private String[] bootPeers;
-
     @Autowired
     private NodeManager nodeManager;
-
-    @Autowired
-    SystemProperties config = SystemProperties.getDefault();
-
-    @Autowired
-    WireTrafficStats stats;
-
     private Channel channel;
     private volatile boolean shutdown = false;
     private DiscoveryExecutor discoveryExecutor;
@@ -83,6 +76,16 @@ public class UDPListener {
         String host = s.substring(idx1 + 1, idx2);
         int port = Integer.parseInt(s.substring(idx2+1));
         return new Node(Hex.decode(id), host, port);
+    }
+
+    public static void main(String[] args) throws Exception {
+        String address = "0.0.0.0";
+        int port = 30303;
+        if (args.length >= 2) {
+            address = args[0];
+            port = Integer.parseInt(args[1]);
+        }
+        new UDPListener(address, port).start(Arrays.copyOfRange(args, 2, args.length));
     }
 
     public void start(String[] args) throws Exception {
@@ -159,15 +162,5 @@ public class UDPListener {
                 logger.warn("Problems closing DiscoveryExecutor", e);
             }
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        String address = "0.0.0.0";
-        int port = 30303;
-        if (args.length >= 2) {
-            address = args[0];
-            port = Integer.parseInt(args[1]);
-        }
-        new UDPListener(address, port).start(Arrays.copyOfRange(args, 2, args.length));
     }
 }

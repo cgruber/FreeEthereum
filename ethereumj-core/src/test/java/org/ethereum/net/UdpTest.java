@@ -2,8 +2,10 @@ package org.ethereum.net;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -22,8 +24,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
-
-import static org.ethereum.util.ByteUtil.longToBytesNoLeadZeroes;
 
 /**
  * Not for regular run, but just for testing UDP client/server communication
@@ -48,77 +48,17 @@ public class UdpTest {
 
     private final SimpleNodeManager nodeManager = new SimpleNodeManager();
 
-    private class SimpleMessageHandler extends SimpleChannelInboundHandler<DiscoveryEvent>
-            implements Functional.Consumer<DiscoveryEvent>  {
-
-        Channel channel;
-
-        SimpleNodeManager nodeManager;
-
-        public SimpleMessageHandler(Channel channel, SimpleNodeManager nodeManager) {
-            this.channel = channel;
-            this.nodeManager = nodeManager;
+    public static String bindIp() {
+        String bindIp;
+        try {
+            Socket s = new Socket("www.google.com", 80);
+            bindIp = s.getLocalAddress().getHostAddress();
+            System.out.printf("UDP local bound to: %s%n", bindIp);
+        } catch (IOException e) {
+            System.out.printf("Can't get bind IP. Fall back to 0.0.0.0: " + e);
+            bindIp = "0.0.0.0";
         }
-
-        @Override
-        public void channelActive(ChannelHandlerContext ctx) throws Exception {
-            InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
-            System.out.printf("Channel initialized on %s:%s%n", localAddress.getHostString(), localAddress.getPort());
-        }
-
-        @Override
-        protected void channelRead0(ChannelHandlerContext ctx, DiscoveryEvent msg) throws Exception {
-            InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
-            System.out.printf("Message received on %s:%s%n", localAddress.getHostString(), localAddress.getPort());
-            nodeManager.handleInbound(msg);
-        }
-
-        @Override
-        public void accept(DiscoveryEvent discoveryEvent) {
-            InetSocketAddress address = discoveryEvent.getAddress();
-            sendPacket(discoveryEvent.getMessage().getPacket(), address);
-        }
-
-        private void sendPacket(byte[] payload, InetSocketAddress address) {
-            DatagramPacket packet = new DatagramPacket(Unpooled.copiedBuffer(payload), address);
-            System.out.println("Sending message from " + clientAddr + ":" + clientPort +
-                    " to " + address.getHostString() + ":" + address.getPort());
-            channel.writeAndFlush(packet);
-        }
-
-        @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-            cause.printStackTrace();
-        }
-    }
-
-    private class SimpleNodeManager {
-
-        SimpleMessageHandler messageSender;
-
-        public void setMessageSender(SimpleMessageHandler messageSender) {
-            this.messageSender = messageSender;
-        }
-
-        public SimpleMessageHandler getMessageSender() {
-            return messageSender;
-        }
-
-        public void handleInbound(DiscoveryEvent discoveryEvent) {
-            Message m = discoveryEvent.getMessage();
-            if (!(m instanceof FindNodeMessage)) {
-                return;
-            }
-            String msg = new String(((FindNodeMessage) m).getTarget());
-            System.out.printf("Inbound message \"%s\" from %s:%s%n", msg,
-                    discoveryEvent.getAddress().getHostString(), discoveryEvent.getAddress().getPort());
-            if (msg.endsWith("+1")) {
-                messageSender.channel.close();
-            } else {
-                FindNodeMessage newMsg = FindNodeMessage.create((msg + "+1").getBytes(), privKey);
-                messageSender.sendPacket(newMsg.getPacket(), discoveryEvent.getAddress());
-            }
-        }
+        return bindIp;
     }
 
     public Channel create(String bindAddr, int port) throws InterruptedException {
@@ -183,16 +123,76 @@ public class UdpTest {
         startClient();
     }
 
-    public static String bindIp() {
-        String bindIp;
-            try {
-                Socket s = new Socket("www.google.com", 80);
-                bindIp = s.getLocalAddress().getHostAddress();
-                System.out.printf("UDP local bound to: %s%n", bindIp);
-            } catch (IOException e) {
-                System.out.printf("Can't get bind IP. Fall back to 0.0.0.0: " + e);
-                bindIp = "0.0.0.0";
+    private class SimpleMessageHandler extends SimpleChannelInboundHandler<DiscoveryEvent>
+            implements Functional.Consumer<DiscoveryEvent> {
+
+        Channel channel;
+
+        SimpleNodeManager nodeManager;
+
+        public SimpleMessageHandler(Channel channel, SimpleNodeManager nodeManager) {
+            this.channel = channel;
+            this.nodeManager = nodeManager;
+        }
+
+        @Override
+        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+            InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
+            System.out.printf("Channel initialized on %s:%s%n", localAddress.getHostString(), localAddress.getPort());
+        }
+
+        @Override
+        protected void channelRead0(ChannelHandlerContext ctx, DiscoveryEvent msg) throws Exception {
+            InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
+            System.out.printf("Message received on %s:%s%n", localAddress.getHostString(), localAddress.getPort());
+            nodeManager.handleInbound(msg);
+        }
+
+        @Override
+        public void accept(DiscoveryEvent discoveryEvent) {
+            InetSocketAddress address = discoveryEvent.getAddress();
+            sendPacket(discoveryEvent.getMessage().getPacket(), address);
+        }
+
+        private void sendPacket(byte[] payload, InetSocketAddress address) {
+            DatagramPacket packet = new DatagramPacket(Unpooled.copiedBuffer(payload), address);
+            System.out.println("Sending message from " + clientAddr + ":" + clientPort +
+                    " to " + address.getHostString() + ":" + address.getPort());
+            channel.writeAndFlush(packet);
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            cause.printStackTrace();
+        }
+    }
+
+    private class SimpleNodeManager {
+
+        SimpleMessageHandler messageSender;
+
+        public SimpleMessageHandler getMessageSender() {
+            return messageSender;
+        }
+
+        public void setMessageSender(SimpleMessageHandler messageSender) {
+            this.messageSender = messageSender;
+        }
+
+        public void handleInbound(DiscoveryEvent discoveryEvent) {
+            Message m = discoveryEvent.getMessage();
+            if (!(m instanceof FindNodeMessage)) {
+                return;
             }
-        return bindIp;
+            String msg = new String(((FindNodeMessage) m).getTarget());
+            System.out.printf("Inbound message \"%s\" from %s:%s%n", msg,
+                    discoveryEvent.getAddress().getHostString(), discoveryEvent.getAddress().getPort());
+            if (msg.endsWith("+1")) {
+                messageSender.channel.close();
+            } else {
+                FindNodeMessage newMsg = FindNodeMessage.create((msg + "+1").getBytes(), privKey);
+                messageSender.sendPacket(newMsg.getPacket(), discoveryEvent.getAddress());
+            }
+        }
     }
 }

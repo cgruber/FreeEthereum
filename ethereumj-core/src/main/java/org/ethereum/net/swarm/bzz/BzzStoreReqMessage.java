@@ -1,10 +1,8 @@
 package org.ethereum.net.swarm.bzz;
 
-import org.ethereum.net.client.Capability;
 import org.ethereum.net.swarm.Key;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.RLP;
-import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 
 import java.util.ArrayList;
@@ -13,11 +11,10 @@ import java.util.List;
 
 public class BzzStoreReqMessage extends BzzMessage {
 
-    private Key key;
-    private byte[] data;
-
     // optional
     byte[] metadata = new byte[0];
+    private Key key;
+    private byte[] data;
 
     public BzzStoreReqMessage(byte[] encoded) {
         super(encoded);

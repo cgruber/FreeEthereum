@@ -2,12 +2,10 @@ package org.ethereum.solidity.compiler;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static org.apache.commons.collections4.CollectionUtils.disjunction;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.substringsBetween;
@@ -15,12 +13,11 @@ import static org.ethereum.solidity.compiler.ContractException.assembleError;
 
 public class SourceArtifact {
 
+    private final Set<SourceArtifact> injectedDependencies = new HashSet<>();
+    private final Set<SourceArtifact> dependentArtifacts = new HashSet<>();
     private String name;
     private List<String> dependencies;
     private String source;
-
-    private final Set<SourceArtifact> injectedDependencies = new HashSet<>();
-    private final Set<SourceArtifact> dependentArtifacts = new HashSet<>();
 
     public SourceArtifact(String name, String source) {
         this.name = name;
@@ -34,7 +31,7 @@ public class SourceArtifact {
 
     private static List<String> extractDependencies(String source) {
         String[] deps = substringsBetween(source, "import \"", "\";");
-        return deps == null ? Collections.<String>emptyList() : asList(deps);
+        return deps == null ? Collections.emptyList() : asList(deps);
     }
 
 //    public SourceArtifact(MultipartFile srcFile) throws IOException {

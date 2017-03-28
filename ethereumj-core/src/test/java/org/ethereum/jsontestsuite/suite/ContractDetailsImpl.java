@@ -7,7 +7,7 @@ import org.ethereum.datasource.Source;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.db.ContractDetails;
 import org.ethereum.trie.SecureTrie;
-import org.ethereum.util.*;
+import org.ethereum.util.RLP;
 import org.ethereum.vm.DataWord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
-import static org.ethereum.crypto.HashUtil.sha3;
-import static org.ethereum.util.ByteUtil.*;
+import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
+import static org.ethereum.util.ByteUtil.wrap;
 
 /**
  * @author Roman Mandeleil
@@ -34,13 +34,10 @@ public class ContractDetailsImpl extends AbstractContractDetails {
     SystemProperties config = SystemProperties.getDefault();
 
     DbSource dataSource;
-
+    boolean externalStorage;
     private byte[] address = EMPTY_BYTE_ARRAY;
-
     private Set<ByteArrayWrapper> keys = new HashSet<>();
     private SecureTrie storageTrie = new SecureTrie((byte[]) null);
-
-    boolean externalStorage;
     private DbSource externalStorageDataSource;
 
     /** Tests only **/
@@ -135,6 +132,13 @@ public class ContractDetailsImpl extends AbstractContractDetails {
     }
 
     @Override
+    public void setStorage(Map<DataWord, DataWord> storage) {
+        for (DataWord key : storage.keySet()) {
+            put(key, storage.get(key));
+        }
+    }
+
+    @Override
     public int getStorageSize() {
         return keys.size();
     }
@@ -153,13 +157,6 @@ public class ContractDetailsImpl extends AbstractContractDetails {
 
         for (int i = 0; i < storageKeys.size(); ++i)
             put(storageKeys.get(i), storageValues.get(i));
-    }
-
-    @Override
-    public void setStorage(Map<DataWord, DataWord> storage) {
-        for (DataWord key : storage.keySet()) {
-            put(key, storage.get(key));
-        }
     }
 
     @Override

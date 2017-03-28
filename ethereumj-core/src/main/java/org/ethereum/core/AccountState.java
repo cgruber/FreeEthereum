@@ -1,30 +1,25 @@
 package org.ethereum.core;
 
 import org.ethereum.config.SystemProperties;
-import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.FastByteComparisons;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPList;
-
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 
-import static org.ethereum.crypto.HashUtil.*;
+import static org.ethereum.crypto.HashUtil.EMPTY_DATA_HASH;
+import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
 import static org.ethereum.util.FastByteComparisons.equal;
 
 public class AccountState {
-
-    private byte[] rlpEncoded;
 
     /* A value equal to the number of transactions sent
      * from this address, or, in the case of contract accounts,
      * the number of contract-creations made by this account */
     private final BigInteger nonce;
-
     /* A scalar value equal to the number of Wei owned by this address */
     private final BigInteger balance;
-
     /* A 256-bit hash of the root node of a trie structure
      * that encodes the storage contents of the contract,
      * itself a simple mapping between byte arrays of size 32.
@@ -36,7 +31,6 @@ public class AccountState {
      * It shall be understood that σ[a] s is not a ‘physical’ member
      * of the account and does not contribute to its later serialisation */
     private final byte[] stateRoot;
-
     /* The hash of the EVM code of this contract—this is the code
      * that gets executed should this address receive a message call;
      * it is immutable and thus, unlike all other fields, cannot be changed
@@ -44,6 +38,7 @@ public class AccountState {
      * the state database under their corresponding hashes for later
      * retrieval */
     private final byte[] codeHash;
+    private byte[] rlpEncoded;
 
     public AccountState(SystemProperties config) {
         this(config.getBlockchainConfig().getCommonConstants().getInitialNonce(), BigInteger.ZERO);

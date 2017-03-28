@@ -1,8 +1,5 @@
 package org.ethereum.net.swarm.bzz;
 
-import com.google.common.base.Joiner;
-import org.apache.commons.codec.binary.StringUtils;
-import org.ethereum.net.p2p.Peer;
 import org.ethereum.net.rlpx.Node;
 import org.ethereum.net.swarm.Key;
 import org.ethereum.net.swarm.Util;
@@ -48,6 +45,14 @@ public class PeerAddress {
         this.id = id;
     }
 
+    static PeerAddress parse(RLPList l) {
+        PeerAddress ret = new PeerAddress();
+        ret.ip = l.get(0).getRLPData();
+        ret.port = ByteUtil.byteArrayToInt(l.get(1).getRLPData());
+        ret.id = l.get(2).getRLPData();
+        return ret;
+    }
+
     public Node toNode() {
         try {
             return new Node(id, InetAddress.getByAddress(ip).getHostAddress(), port);
@@ -76,14 +81,6 @@ public class PeerAddress {
 
     public byte[] getId() {
         return id;
-    }
-
-    static PeerAddress parse(RLPList l) {
-        PeerAddress ret = new PeerAddress();
-        ret.ip = l.get(0).getRLPData();
-        ret.port = ByteUtil.byteArrayToInt(l.get(1).getRLPData());
-        ret.id = l.get(2).getRLPData();
-        return ret;
     }
 
     byte[] encodeRlp() {

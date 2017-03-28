@@ -3,7 +3,9 @@ package org.ethereum.core;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
-import org.ethereum.datasource.*;
+import org.ethereum.datasource.CountingBytesSource;
+import org.ethereum.datasource.JournalSource;
+import org.ethereum.datasource.Source;
 import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.trie.SecureTrie;
@@ -11,16 +13,20 @@ import org.ethereum.trie.TrieImpl;
 import org.ethereum.util.FastByteComparisons;
 import org.ethereum.util.blockchain.SolidityContract;
 import org.ethereum.util.blockchain.StandaloneBlockchain;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.ethereum.util.ByteUtil.intToBytes;
 import static org.ethereum.util.blockchain.EtherUtil.Unit.ETHER;
 import static org.ethereum.util.blockchain.EtherUtil.convert;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -28,9 +34,31 @@ import static org.junit.Assert.assertTrue;
  */
 public class PruneTest {
 
+    static HashMapDB<byte[]> stateDS;
+
     @AfterClass
     public static void cleanup() {
         SystemProperties.resetToDefault();
+    }
+
+    private static void put(Source<byte[], byte[]> db, String key) {
+        db.put(Hex.decode(key), Hex.decode(key));
+    }
+
+    private static void delete(Source<byte[], byte[]> db, String key) {
+        db.delete(Hex.decode(key));
+    }
+
+    private static void checkKeys(Map<byte[], byte[]> map, String... keys) {
+        Assert.assertEquals(keys.length, map.size());
+        for (String key : keys) {
+            assertTrue(map.containsKey(Hex.decode(key)));
+        }
+    }
+
+    static String getCount(String hash) {
+        byte[] bytes = stateDS.get(Hex.decode(hash));
+        return bytes == null ? "0" : "" + bytes[3];
     }
 
     @Test
@@ -83,21 +111,6 @@ public class PruneTest {
         checkKeys(db.getStorage(), "11", "33");
 
     }
-
-    private static void put(Source<byte[], byte[]> db, String key) {
-        db.put(Hex.decode(key), Hex.decode(key));
-    }
-    private static void delete(Source<byte[], byte[]> db, String key) {
-        db.delete(Hex.decode(key));
-    }
-
-    private static void checkKeys(Map<byte[], byte[]> map, String ... keys) {
-        Assert.assertEquals(keys.length, map.size());
-        for (String key : keys) {
-            assertTrue(map.containsKey(Hex.decode(key)));
-        }
-    }
-
 
     @Test
     public void simpleTest() throws Exception {
@@ -181,12 +194,6 @@ public class PruneTest {
             Assert.assertEquals(BigInteger.ZERO, r1.getBalance(alice.getAddress()));
             Assert.assertEquals(BigInteger.ZERO, r1.getBalance(bob.getAddress()));
         }
-    }
-
-    static HashMapDB<byte[]> stateDS;
-    static String getCount(String hash) {
-        byte[] bytes = stateDS.get(Hex.decode(hash));
-        return bytes == null ? "0" : "" + bytes[3];
     }
 
     @Test
@@ -386,7 +393,7 @@ public class PruneTest {
                 "database.prune.maxDepth", "" + pruneCount);
 
         StandaloneBlockchain bc = new StandaloneBlockchain();
-        BlockchainImpl blockchain = (BlockchainImpl) bc.getBlockchain();
+        BlockchainImpl blockchain = bc.getBlockchain();
 //        RepositoryImpl repository = (RepositoryImpl) blockchain.getRepository();
 //        HashMapDB storageDS = new HashMapDB();
 //        repository.getDetailsDataStore().setStorageDS(storageDS);

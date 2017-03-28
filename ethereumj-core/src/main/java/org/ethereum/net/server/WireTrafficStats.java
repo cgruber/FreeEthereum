@@ -7,7 +7,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.socket.DatagramPacket;
-import org.ethereum.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,10 +25,9 @@ import static org.ethereum.util.Utils.sizeToStr;
 @Component
 public class WireTrafficStats  implements Runnable  {
     private final static Logger logger = LoggerFactory.getLogger("net");
-
-    private ScheduledExecutorService executor;
     public final TrafficStatHandler tcp = new TrafficStatHandler();
     public final TrafficStatHandler udp = new TrafficStatHandler();
+    private ScheduledExecutorService executor;
 
     public WireTrafficStats() {
         executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("WireTrafficStats-%d").build());

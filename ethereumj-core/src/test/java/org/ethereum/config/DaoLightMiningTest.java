@@ -8,9 +8,7 @@ import org.ethereum.core.Block;
 import org.ethereum.util.blockchain.StandaloneBlockchain;
 import org.junit.Test;
 
-import java.math.BigInteger;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Stan Reshetnyk on 29.12.16.

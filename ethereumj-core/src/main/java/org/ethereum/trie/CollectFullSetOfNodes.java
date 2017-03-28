@@ -1,7 +1,6 @@
 package org.ethereum.trie;
 
 import org.ethereum.db.ByteArrayWrapper;
-import org.ethereum.util.Value;
 
 import java.util.HashSet;
 import java.util.Set;

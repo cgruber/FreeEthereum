@@ -1,10 +1,11 @@
 package org.ethereum.net.p2p;
 
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.Block;
 import org.ethereum.core.Transaction;
 import org.ethereum.listener.EthereumListener;
-import org.ethereum.manager.WorldManager;
 import org.ethereum.net.MessageQueue;
 import org.ethereum.net.client.Capability;
 import org.ethereum.net.client.ConfigCapabilities;
@@ -14,30 +15,21 @@ import org.ethereum.net.message.ReasonCode;
 import org.ethereum.net.message.StaticMessages;
 import org.ethereum.net.server.Channel;
 import org.ethereum.net.shh.ShhHandler;
-
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
-
 import org.ethereum.net.swarm.Util;
 import org.ethereum.net.swarm.bzz.BzzHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.*;
 
-import static org.ethereum.net.eth.EthVersion.*;
-import static org.ethereum.net.message.StaticMessages.*;
+import static org.ethereum.net.eth.EthVersion.fromCode;
+import static org.ethereum.net.message.StaticMessages.PING_MESSAGE;
+import static org.ethereum.net.message.StaticMessages.PONG_MESSAGE;
 
 /**
  * Process the basic protocol messages between every peer on the network.
@@ -68,25 +60,17 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
                     return new Thread(r, "P2pPingTimer");
                 }
             });
-
-    private MessageQueue msgQueue;
-
-    private boolean peerDiscoveryMode = false;
-
-    private HelloMessage handshakeHelloMessage = null;
-
-    private int ethInbound;
-    private int ethOutbound;
-
     @Autowired
     EthereumListener ethereumListener;
-
     @Autowired
     ConfigCapabilities configCapabilities;
-
     @Autowired
     SystemProperties config;
-
+    private MessageQueue msgQueue;
+    private boolean peerDiscoveryMode = false;
+    private HelloMessage handshakeHelloMessage = null;
+    private int ethInbound;
+    private int ethOutbound;
     private Channel channel;
     private ScheduledFuture<?> pingTask;
 
@@ -101,11 +85,16 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
         this.peerDiscoveryMode = peerDiscoveryMode;
     }
 
+    public static boolean isProtocolVersionSupported(byte ver) {
+        for (byte v : SUPPORTED_VERSIONS) {
+            if (v == ver) return true;
+        }
+        return false;
+    }
 
     public void setPeerDiscoveryMode(boolean peerDiscoveryMode) {
         this.peerDiscoveryMode = peerDiscoveryMode;
     }
-
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
@@ -114,7 +103,6 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
         ethereumListener.trace("P2P protocol activated");
         startTimers();
     }
-
 
     @Override
     public void channelRead0(final ChannelHandlerContext ctx, P2pMessage msg) throws InterruptedException {
@@ -198,7 +186,6 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
     private void sendGetPeers() {
         msgQueue.sendMessage(StaticMessages.GET_PEERS_MESSAGE);
     }
-
 
     public void setHandshake(HelloMessage msg, ChannelHandlerContext ctx) {
 
@@ -286,20 +273,12 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
         msgQueue.close();
     }
 
-
     public void setMsgQueue(MessageQueue msgQueue) {
         this.msgQueue = msgQueue;
     }
 
     public void setChannel(Channel channel) {
         this.channel = channel;
-    }
-
-    public static boolean isProtocolVersionSupported(byte ver) {
-        for (byte v : SUPPORTED_VERSIONS) {
-            if (v == ver) return true;
-        }
-        return false;
     }
 
     public List<Capability> getSupportedCapabilities(HelloMessage hello) {

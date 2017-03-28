@@ -2,14 +2,12 @@ package org.ethereum.net.rlpx.discover.table;
 
 import org.ethereum.net.rlpx.Node;
 
-import static org.ethereum.crypto.HashUtil.sha3;
-
 /**
  * Created by kest on 5/25/15.
  */
 public class NodeEntry {
-    private byte[] ownerId;
     Node node;
+    private byte[] ownerId;
     private String entryId;
     private int distance;
     private long modified;
@@ -28,43 +26,6 @@ public class NodeEntry {
         entryId = n.toString();
         distance = distance(ownerId, n.getId());
         touch();
-    }
-
-    public void touch() {
-        modified = System.currentTimeMillis();
-    }
-
-    public int getDistance() {
-        return distance;
-    }
-
-    public String getId() {
-        return entryId;
-    }
-
-    public Node getNode() {
-        return node;
-    }
-
-    public long getModified() {
-        return modified;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        boolean ret = false;
-
-        if (o instanceof NodeEntry){
-            NodeEntry e = (NodeEntry) o;
-            ret = this.getId().equals(e.getId());
-        }
-
-        return ret;
-    }
-
-    @Override
-    public int hashCode() {
-        return this.node.hashCode();
     }
 
     public static int distance(byte[] ownerId, byte[] targetId) {
@@ -109,5 +70,42 @@ public class NodeEntry {
             }
         }
         return d;
+    }
+
+    public void touch() {
+        modified = System.currentTimeMillis();
+    }
+
+    public int getDistance() {
+        return distance;
+    }
+
+    public String getId() {
+        return entryId;
+    }
+
+    public Node getNode() {
+        return node;
+    }
+
+    public long getModified() {
+        return modified;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        boolean ret = false;
+
+        if (o instanceof NodeEntry) {
+            NodeEntry e = (NodeEntry) o;
+            ret = this.getId().equals(e.getId());
+        }
+
+        return ret;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.node.hashCode();
     }
 }

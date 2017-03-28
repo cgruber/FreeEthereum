@@ -1,7 +1,6 @@
 package org.ethereum.net.swarm;
 
 import org.ethereum.util.RLP;
-import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;

@@ -1,16 +1,9 @@
 package org.ethereum.core;
 
-import org.ethereum.crypto.ECKey;
-import org.ethereum.vm.DataWord;
-import org.ethereum.vm.LogInfo;
 import org.junit.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.spongycastle.util.encoders.Hex;
-
-import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 

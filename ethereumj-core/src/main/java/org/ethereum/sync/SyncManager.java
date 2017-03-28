@@ -2,7 +2,6 @@ package org.ethereum.sync;
 
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.*;
-import org.ethereum.core.Blockchain;
 import org.ethereum.facade.SyncStatus;
 import org.ethereum.listener.CompositeEthereumListener;
 import org.ethereum.listener.EthereumListener;
@@ -42,7 +41,7 @@ public class SyncManager extends BlockDownloader {
 
     private final static AtomicLong blockQueueByteSize = new AtomicLong(0);
     private final static int BLOCK_BYTES_ADDON = 4;
-
+    ChannelManager channelManager;
     // Transaction.getSender() is quite heavy operation so we are prefetching this value on several threads
     // to unload the main block importing cycle
     private ExecutorPipeline<BlockWrapper,BlockWrapper> exec1 = new ExecutorPipeline<>
@@ -58,7 +57,10 @@ public class SyncManager extends BlockDownloader {
                     logger.error("Unexpected exception: ", throwable);
                 }
             });
-
+    /**
+     * Queue with validated blocks to be added to the blockchain
+     */
+    private BlockingQueue<BlockWrapper> blockQueue = new LinkedBlockingQueue<>();
     private ExecutorPipeline<BlockWrapper, Void> exec2 = exec1.add(1, 1, new Functional.Consumer<BlockWrapper>() {
         @Override
         public void accept(BlockWrapper blockWrapper) {
@@ -66,23 +68,12 @@ public class SyncManager extends BlockDownloader {
             blockQueue.add(blockWrapper);
         }
     });
-
-    /**
-     * Queue with validated blocks to be added to the blockchain
-     */
-    private BlockingQueue<BlockWrapper> blockQueue = new LinkedBlockingQueue<>();
-
     @Autowired
     private Blockchain blockchain;
-
     @Autowired
     private CompositeEthereumListener compositeEthereumListener;
-
     @Autowired
     private FastSyncManager fastSyncManager;
-
-    ChannelManager channelManager;
-
     private SystemProperties config;
 
     private SyncPool pool;

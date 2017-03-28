@@ -631,16 +631,13 @@ public class ByteUtil {
      */
     public static String bytesToIp(byte[] bytesIp) {
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(bytesIp[0] & 0xFF);
-        sb.append(".");
-        sb.append(bytesIp[1] & 0xFF);
-        sb.append(".");
-        sb.append(bytesIp[2] & 0xFF);
-        sb.append(".");
-        sb.append(bytesIp[3] & 0xFF);
-
-        String ip = sb.toString();
+        String ip = String.valueOf(bytesIp[0] & 0xFF) +
+                "." +
+                (bytesIp[1] & 0xFF) +
+                "." +
+                (bytesIp[2] & 0xFF) +
+                "." +
+                (bytesIp[3] & 0xFF);
         return ip;
     }
 }

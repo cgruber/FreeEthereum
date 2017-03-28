@@ -8,7 +8,6 @@ import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.ByteArrayWrapper;
-import org.ethereum.core.TransactionInfo;
 import org.ethereum.db.TransactionStore;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.listener.CompositeEthereumListener;
@@ -41,7 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.lang.Math.max;
 import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.jsonrpc.TypeConverter.*;
-import static org.ethereum.jsonrpc.TypeConverter.StringHexToByteArray;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.ethereum.util.ByteUtil.bigIntegerToBytes;
 
@@ -52,101 +50,43 @@ import static org.ethereum.util.ByteUtil.bigIntegerToBytes;
 @Lazy
 public class JsonRpcImpl implements JsonRpc {
     private static final Logger logger = LoggerFactory.getLogger("jsonrpc");
-
-
-
-    public class BinaryCallArguments {
-        public long nonce;
-        public long gasPrice;
-        public long gasLimit;
-        public String toAddress;
-        public long value;
-        public byte[] data;
-        public void setArguments(CallArguments args) throws Exception {
-            nonce = 0;
-            if (args.nonce != null && args.nonce.length() != 0)
-                nonce = JSonHexToLong(args.nonce);
-
-            gasPrice = 0;
-            if (args.gasPrice != null && args.gasPrice.length()!=0)
-                gasPrice = JSonHexToLong(args.gasPrice);
-
-            gasLimit = 4_000_000;
-            if (args.gas != null && args.gas.length()!=0)
-                gasLimit = JSonHexToLong(args.gas);
-
-            toAddress = null;
-            if (args.to != null && !args.to.isEmpty())
-                toAddress = JSonHexToHex(args.to);
-
-            value=0;
-            if (args.value != null && args.value.length()!=0)
-                value = JSonHexToLong(args.value);
-
-            data = null;
-
-            if (args.data != null && args.data.length()!=0)
-                data = TypeConverter.StringHexToByteArray(args.data);
-        }
-    }
-
-    @Autowired
-    SystemProperties config;
-
-    @Autowired
-    ConfigCapabilities configCapabilities;
-
     @Autowired
     public WorldManager worldManager;
-
     @Autowired
     public Repository repository;
-
+    @Autowired
+    SystemProperties config;
+    @Autowired
+    ConfigCapabilities configCapabilities;
     @Autowired
     Ethereum eth;
-
     @Autowired
     PeerServer peerServer;
-
     @Autowired
     SyncManager syncManager;
-
     @Autowired
     TransactionStore txStore;
-
     @Autowired
     ChannelManager channelManager;
-
     @Autowired
     BlockMiner blockMiner;
-
     @Autowired
     TransactionStore transactionStore;
-
     @Autowired
     PendingStateImpl pendingState;
-
     @Autowired
     SolidityCompiler solidityCompiler;
-
     @Autowired
     ProgramInvokeFactory programInvokeFactory;
-
     @Autowired
     CommonConfig commonConfig = CommonConfig.getDefault();
-
     BlockchainImpl blockchain;
-
     CompositeEthereumListener compositeEthereumListener;
-
-
     long initialBlockNumber;
-
     Map<ByteArrayWrapper, Account> accounts = new HashMap<>();
     AtomicInteger filterCounter = new AtomicInteger(1);
     Map<Integer, Filter> installedFilters = new Hashtable<>();
     Map<ByteArrayWrapper, TransactionReceipt> pendingReceipts = Collections.synchronizedMap(new LRUMap<ByteArrayWrapper, TransactionReceipt>(1024));
-
     @Autowired
     public JsonRpcImpl(final BlockchainImpl blockchain, final CompositeEthereumListener compositeEthereumListener) {
         this.blockchain = blockchain;
@@ -261,7 +201,7 @@ public class JsonRpcImpl implements JsonRpc {
                 System.getProperty("os.name") + "/Java1.7/" + config.projectVersionModifier() + "-" + BuildInfo.buildHash;
         if (logger.isDebugEnabled()) logger.debug("web3_clientVersion(): " + s);
         return s;
-    };
+    }
 
     public String  web3_sha3(String data) throws Exception {
         String s = null;
@@ -327,7 +267,7 @@ public class JsonRpcImpl implements JsonRpc {
         }finally {
             if (logger.isDebugEnabled()) logger.debug("eth_syncing(): " + s);
         }
-    };
+    }
 
     public String eth_coinbase() {
         String s = null;
@@ -346,7 +286,6 @@ public class JsonRpcImpl implements JsonRpc {
             if (logger.isDebugEnabled()) logger.debug("eth_mining(): " + s);
         }
     }
-
 
     public String eth_hashrate() {
         String s = null;
@@ -388,7 +327,6 @@ public class JsonRpcImpl implements JsonRpc {
             if (logger.isDebugEnabled()) logger.debug("eth_blockNumber(): " + s);
         }
     }
-
 
     public String eth_getBalance(String address, String blockId) throws Exception {
         String s = null;
@@ -633,7 +571,7 @@ public class JsonRpcImpl implements JsonRpc {
         try {
             TransactionReceipt res;
             if ("pending".equals(bnOrId)) {
-                Block pendingBlock = blockchain.createNewBlock(blockchain.getBestBlock(), pendingState.getPendingTransactions(), Collections.<BlockHeader>emptyList());
+                Block pendingBlock = blockchain.createNewBlock(blockchain.getBestBlock(), pendingState.getPendingTransactions(), Collections.emptyList());
                 res = createCallTxAndExecute(args, pendingBlock, pendingState.getRepository(), worldManager.getBlockStore());
             } else {
                 res = createCallTxAndExecute(args, getByJsonBlockId(bnOrId));
@@ -653,7 +591,6 @@ public class JsonRpcImpl implements JsonRpc {
             if (logger.isDebugEnabled()) logger.debug("eth_estimateGas(" + args + "): " + s);
         }
     }
-
 
     public BlockResult getBlockResult(Block b, boolean fullTx) {
         if (b==null)
@@ -715,7 +652,7 @@ public class JsonRpcImpl implements JsonRpc {
         try {
             Block b;
             if ("pending".equalsIgnoreCase(bnOrId)) {
-                b = blockchain.createNewBlock(blockchain.getBestBlock(), pendingState.getPendingTransactions(), Collections.<BlockHeader>emptyList());
+                b = blockchain.createNewBlock(blockchain.getBestBlock(), pendingState.getPendingTransactions(), Collections.emptyList());
             } else {
                 b = getByJsonBlockId(bnOrId);
             }
@@ -865,7 +802,7 @@ public class JsonRpcImpl implements JsonRpc {
             BlockHeader uncleHeader = block.getUncleList().get(idx);
             Block uncle = blockchain.getBlockByHash(uncleHeader.getHash());
             if (uncle == null) {
-                uncle = new Block(uncleHeader, Collections.<Transaction>emptyList(), Collections.<BlockHeader>emptyList());
+                uncle = new Block(uncleHeader, Collections.emptyList(), Collections.emptyList());
             }
             return s = getBlockResult(uncle, false);
         } finally {
@@ -938,133 +875,6 @@ public class JsonRpcImpl implements JsonRpc {
     @Override
     public String eth_pendingTransactions() {
         throw new UnsupportedOperationException("JSON RPC method eth_pendingTransactions not implemented yet");
-    }
-
-    static class Filter {
-        static final int MAX_EVENT_COUNT = 1024; // prevent OOM when Filers are forgotten
-        static abstract class FilterEvent {
-            public abstract Object getJsonEventObject();
-        }
-        List<FilterEvent> events = new LinkedList<>();
-
-        public synchronized boolean hasNew() { return !events.isEmpty();}
-
-        public synchronized Object[] poll() {
-            Object[] ret = new Object[events.size()];
-            for (int i = 0; i < ret.length; i++) {
-                ret[i] = events.get(i).getJsonEventObject();
-            }
-            this.events.clear();
-            return ret;
-        }
-
-        protected synchronized void add(FilterEvent evt) {
-            events.add(evt);
-            if (events.size() > MAX_EVENT_COUNT) events.remove(0);
-        }
-
-        public void newBlockReceived(Block b) {}
-        public void newPendingTx(Transaction tx) {}
-    }
-
-    static class NewBlockFilter extends Filter {
-        class NewBlockFilterEvent extends FilterEvent {
-            public final Block b;
-            NewBlockFilterEvent(Block b) {this.b = b;}
-
-            @Override
-            public String getJsonEventObject() {
-                return toJsonHex(b.getHash());
-            }
-        }
-
-        public void newBlockReceived(Block b) {
-            add(new NewBlockFilterEvent(b));
-        }
-    }
-
-    static class PendingTransactionFilter extends Filter {
-        class PendingTransactionFilterEvent extends FilterEvent {
-            private final Transaction tx;
-
-            PendingTransactionFilterEvent(Transaction tx) {this.tx = tx;}
-
-            @Override
-            public String getJsonEventObject() {
-                return toJsonHex(tx.getHash());
-            }
-        }
-
-        public void newPendingTx(Transaction tx) {
-            add(new PendingTransactionFilterEvent(tx));
-        }
-    }
-
-    class JsonLogFilter extends Filter {
-        class LogFilterEvent extends FilterEvent {
-            private final LogFilterElement el;
-
-            LogFilterEvent(LogFilterElement el) {
-                this.el = el;
-            }
-
-            @Override
-            public LogFilterElement getJsonEventObject() {
-                return el;
-            }
-        }
-
-        LogFilter logFilter;
-        boolean onNewBlock;
-        boolean onPendingTx;
-
-        public JsonLogFilter(LogFilter logFilter) {
-            this.logFilter = logFilter;
-        }
-
-        void onLogMatch(LogInfo logInfo, Block b, int txIndex, Transaction tx, int logIdx) {
-            add(new LogFilterEvent(new LogFilterElement(logInfo, b, txIndex, tx, logIdx)));
-        }
-
-        void onTransactionReceipt(TransactionReceipt receipt, Block b, int txIndex) {
-            if (logFilter.matchBloom(receipt.getBloomFilter())) {
-                int logIdx = 0;
-                for (LogInfo logInfo : receipt.getLogInfoList()) {
-                    if (logFilter.matchBloom(logInfo.getBloom()) && logFilter.matchesExactly(logInfo)) {
-                        onLogMatch(logInfo, b, txIndex, receipt.getTransaction(), logIdx);
-                    }
-                    logIdx++;
-                }
-            }
-        }
-
-        void onTransaction(Transaction tx, Block b, int txIndex) {
-            if (logFilter.matchesContractAddress(tx.getReceiveAddress())) {
-                TransactionInfo txInfo = blockchain.getTransactionInfo(tx.getHash());
-                onTransactionReceipt(txInfo.getReceipt(), b, txIndex);
-            }
-        }
-
-        void onBlock(Block b) {
-            if (logFilter.matchBloom(new Bloom(b.getLogBloom()))) {
-                int txIdx = 0;
-                for (Transaction tx : b.getTransactionsList()) {
-                    onTransaction(tx, b, txIdx);
-                    txIdx++;
-                }
-            }
-        }
-
-        @Override
-        public void newBlockReceived(Block b) {
-            if (onNewBlock) onBlock(b);
-        }
-
-        @Override
-        public void newPendingTx(Transaction tx) {
-            // TODO add TransactionReceipt for PendingTx
-//            if (onPendingTx)
-        }
     }
 
     @Override
@@ -1502,6 +1312,180 @@ public class JsonRpcImpl implements JsonRpc {
             return ret;
         } finally {
             if (logger.isDebugEnabled()) logger.debug("personal_listAccounts(): " + Arrays.toString(ret));
+        }
+    }
+
+    static class Filter {
+        static final int MAX_EVENT_COUNT = 1024; // prevent OOM when Filers are forgotten
+        List<FilterEvent> events = new LinkedList<>();
+
+        public synchronized boolean hasNew() {
+            return !events.isEmpty();
+        }
+
+        public synchronized Object[] poll() {
+            Object[] ret = new Object[events.size()];
+            for (int i = 0; i < ret.length; i++) {
+                ret[i] = events.get(i).getJsonEventObject();
+            }
+            this.events.clear();
+            return ret;
+        }
+
+        protected synchronized void add(FilterEvent evt) {
+            events.add(evt);
+            if (events.size() > MAX_EVENT_COUNT) events.remove(0);
+        }
+
+        public void newBlockReceived(Block b) {
+        }
+
+        public void newPendingTx(Transaction tx) {
+        }
+
+        static abstract class FilterEvent {
+            public abstract Object getJsonEventObject();
+        }
+    }
+
+    static class NewBlockFilter extends Filter {
+        public void newBlockReceived(Block b) {
+            add(new NewBlockFilterEvent(b));
+        }
+
+        class NewBlockFilterEvent extends FilterEvent {
+            public final Block b;
+
+            NewBlockFilterEvent(Block b) {
+                this.b = b;
+            }
+
+            @Override
+            public String getJsonEventObject() {
+                return toJsonHex(b.getHash());
+            }
+        }
+    }
+
+    static class PendingTransactionFilter extends Filter {
+        public void newPendingTx(Transaction tx) {
+            add(new PendingTransactionFilterEvent(tx));
+        }
+
+        class PendingTransactionFilterEvent extends FilterEvent {
+            private final Transaction tx;
+
+            PendingTransactionFilterEvent(Transaction tx) {
+                this.tx = tx;
+            }
+
+            @Override
+            public String getJsonEventObject() {
+                return toJsonHex(tx.getHash());
+            }
+        }
+    }
+
+    public class BinaryCallArguments {
+        public long nonce;
+        public long gasPrice;
+        public long gasLimit;
+        public String toAddress;
+        public long value;
+        public byte[] data;
+
+        public void setArguments(CallArguments args) throws Exception {
+            nonce = 0;
+            if (args.nonce != null && args.nonce.length() != 0)
+                nonce = JSonHexToLong(args.nonce);
+
+            gasPrice = 0;
+            if (args.gasPrice != null && args.gasPrice.length() != 0)
+                gasPrice = JSonHexToLong(args.gasPrice);
+
+            gasLimit = 4_000_000;
+            if (args.gas != null && args.gas.length() != 0)
+                gasLimit = JSonHexToLong(args.gas);
+
+            toAddress = null;
+            if (args.to != null && !args.to.isEmpty())
+                toAddress = JSonHexToHex(args.to);
+
+            value = 0;
+            if (args.value != null && args.value.length() != 0)
+                value = JSonHexToLong(args.value);
+
+            data = null;
+
+            if (args.data != null && args.data.length() != 0)
+                data = TypeConverter.StringHexToByteArray(args.data);
+        }
+    }
+
+    class JsonLogFilter extends Filter {
+        LogFilter logFilter;
+        boolean onNewBlock;
+        boolean onPendingTx;
+
+        public JsonLogFilter(LogFilter logFilter) {
+            this.logFilter = logFilter;
+        }
+
+        void onLogMatch(LogInfo logInfo, Block b, int txIndex, Transaction tx, int logIdx) {
+            add(new LogFilterEvent(new LogFilterElement(logInfo, b, txIndex, tx, logIdx)));
+        }
+
+        void onTransactionReceipt(TransactionReceipt receipt, Block b, int txIndex) {
+            if (logFilter.matchBloom(receipt.getBloomFilter())) {
+                int logIdx = 0;
+                for (LogInfo logInfo : receipt.getLogInfoList()) {
+                    if (logFilter.matchBloom(logInfo.getBloom()) && logFilter.matchesExactly(logInfo)) {
+                        onLogMatch(logInfo, b, txIndex, receipt.getTransaction(), logIdx);
+                    }
+                    logIdx++;
+                }
+            }
+        }
+
+        void onTransaction(Transaction tx, Block b, int txIndex) {
+            if (logFilter.matchesContractAddress(tx.getReceiveAddress())) {
+                TransactionInfo txInfo = blockchain.getTransactionInfo(tx.getHash());
+                onTransactionReceipt(txInfo.getReceipt(), b, txIndex);
+            }
+        }
+
+        void onBlock(Block b) {
+            if (logFilter.matchBloom(new Bloom(b.getLogBloom()))) {
+                int txIdx = 0;
+                for (Transaction tx : b.getTransactionsList()) {
+                    onTransaction(tx, b, txIdx);
+                    txIdx++;
+                }
+            }
+        }
+
+        @Override
+        public void newBlockReceived(Block b) {
+            if (onNewBlock) onBlock(b);
+        }
+
+        @Override
+        public void newPendingTx(Transaction tx) {
+            // TODO add TransactionReceipt for PendingTx
+//            if (onPendingTx)
+        }
+
+        class LogFilterEvent extends FilterEvent {
+            private final LogFilterElement el;
+
+            LogFilterEvent(LogFilterElement el) {
+                this.el = el;
+            }
+
+            @Override
+            public LogFilterElement getJsonEventObject() {
+                return el;
+            }
         }
     }
 }

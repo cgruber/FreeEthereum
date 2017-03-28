@@ -8,7 +8,6 @@ import org.ethereum.net.message.Message;
 import org.ethereum.net.message.ReasonCode;
 import org.ethereum.net.p2p.DisconnectMessage;
 import org.ethereum.net.p2p.PingMessage;
-import org.ethereum.net.p2p.PongMessage;
 import org.ethereum.net.server.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,14 +49,12 @@ public class MessageQueue {
             return new Thread(r, "MessageQueueTimer-" + cnt.getAndIncrement());
         }
     });
-
-    private Queue<MessageRoundtrip> requestQueue = new ConcurrentLinkedQueue<>();
-    private Queue<MessageRoundtrip> respondQueue = new ConcurrentLinkedQueue<>();
-    private ChannelHandlerContext ctx = null;
-
     @Autowired
     EthereumListener ethereumListener;
     boolean hasPing = false;
+    private Queue<MessageRoundtrip> requestQueue = new ConcurrentLinkedQueue<>();
+    private Queue<MessageRoundtrip> respondQueue = new ConcurrentLinkedQueue<>();
+    private ChannelHandlerContext ctx = null;
     private ScheduledFuture<?> timerTask;
     private Channel channel;
 

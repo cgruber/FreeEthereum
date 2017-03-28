@@ -215,40 +215,6 @@ public class SyncPool {
         }
     }
 
-    class NodeSelector implements Functional.Predicate<NodeHandler> {
-        BigInteger lowerDifficulty;
-        Set<String> nodesInUse;
-
-        public NodeSelector(BigInteger lowerDifficulty) {
-            this.lowerDifficulty = lowerDifficulty;
-        }
-
-        public NodeSelector(BigInteger lowerDifficulty, Set<String> nodesInUse) {
-            this.lowerDifficulty = lowerDifficulty;
-            this.nodesInUse = nodesInUse;
-        }
-
-        @Override
-        public boolean test(NodeHandler handler) {
-            if (nodesInUse != null && nodesInUse.contains(handler.getNode().getHexId())) {
-                return false;
-            }
-
-            if (handler.getNodeStatistics().isPredefined()) return true;
-
-            if (nodesSelector != null && !nodesSelector.test(handler)) return false;
-
-            if (lowerDifficulty.compareTo(BigInteger.ZERO) > 0 &&
-                    handler.getNodeStatistics().getEthTotalDifficulty() == null) {
-                return false;
-            }
-
-            if (handler.getNodeStatistics().getReputation() < 100) return false;
-
-            return handler.getNodeStatistics().getEthTotalDifficulty().compareTo(lowerDifficulty) >= 0;
-        }
-    }
-
     private void fillUp() {
         int lackSize = config.maxActivePeers() - channelManager.getActivePeers().size();
         if(lackSize <= 0) return;
@@ -286,7 +252,7 @@ public class SyncPool {
         if (active.isEmpty()) return;
 
         // filtering by 20% from top difficulty
-        Collections.sort(active, new Comparator<Channel>() {
+        active.sort(new Comparator<Channel>() {
             @Override
             public int compare(Channel c1, Channel c2) {
                 return c2.getTotalDifficulty().compareTo(c1.getTotalDifficulty());
@@ -306,7 +272,7 @@ public class SyncPool {
         List<Channel> filtered = active.subList(0, thresholdIdx + 1);
 
         // sorting by latency in asc order
-        Collections.sort(filtered, new Comparator<Channel>() {
+        filtered.sort(new Comparator<Channel>() {
             @Override
             public int compare(Channel c1, Channel c2) {
                 return Double.valueOf(c1.getPeerStats().getAvgLatency()).compareTo(c2.getPeerStats().getAvgLatency());
@@ -333,7 +299,6 @@ public class SyncPool {
             }
         }
     }
-
 
     private void logDiscoveredNodes(List<NodeHandler> nodes) {
         StringBuilder sb = new StringBuilder();
@@ -368,5 +333,39 @@ public class SyncPool {
 //                peer.dropConnection();
 //            }
 //        }
+    }
+
+    class NodeSelector implements Functional.Predicate<NodeHandler> {
+        BigInteger lowerDifficulty;
+        Set<String> nodesInUse;
+
+        public NodeSelector(BigInteger lowerDifficulty) {
+            this.lowerDifficulty = lowerDifficulty;
+        }
+
+        public NodeSelector(BigInteger lowerDifficulty, Set<String> nodesInUse) {
+            this.lowerDifficulty = lowerDifficulty;
+            this.nodesInUse = nodesInUse;
+        }
+
+        @Override
+        public boolean test(NodeHandler handler) {
+            if (nodesInUse != null && nodesInUse.contains(handler.getNode().getHexId())) {
+                return false;
+            }
+
+            if (handler.getNodeStatistics().isPredefined()) return true;
+
+            if (nodesSelector != null && !nodesSelector.test(handler)) return false;
+
+            if (lowerDifficulty.compareTo(BigInteger.ZERO) > 0 &&
+                    handler.getNodeStatistics().getEthTotalDifficulty() == null) {
+                return false;
+            }
+
+            if (handler.getNodeStatistics().getReputation() < 100) return false;
+
+            return handler.getNodeStatistics().getEthTotalDifficulty().compareTo(lowerDifficulty) >= 0;
+        }
     }
 }

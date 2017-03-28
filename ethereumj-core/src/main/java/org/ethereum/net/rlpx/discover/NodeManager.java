@@ -298,7 +298,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
                 }
             }
         }
-        Collections.sort(filtered, new Comparator<NodeHandler>() {
+        filtered.sort(new Comparator<NodeHandler>() {
             @Override
             public int compare(NodeHandler o1, NodeHandler o2) {
                 return o2.getNodeStatistics().getEthTotalDifficulty().compareTo(
@@ -332,7 +332,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
 
     public synchronized String dumpAllStatistics() {
         List<NodeHandler> l = new ArrayList<>(nodeHandlerMap.values());
-        Collections.sort(l, new Comparator<NodeHandler>() {
+        l.sort(new Comparator<NodeHandler>() {
             public int compare(NodeHandler o1, NodeHandler o2) {
                 return -(o1.getNodeStatistics().getReputation() - o2.getNodeStatistics().getReputation());
             }

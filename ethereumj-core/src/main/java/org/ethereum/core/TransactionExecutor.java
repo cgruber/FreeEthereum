@@ -8,7 +8,10 @@ import org.ethereum.db.ContractDetails;
 import org.ethereum.listener.EthereumListener;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.util.ByteArraySet;
-import org.ethereum.vm.*;
+import org.ethereum.vm.DataWord;
+import org.ethereum.vm.LogInfo;
+import org.ethereum.vm.PrecompiledContracts;
+import org.ethereum.vm.VM;
 import org.ethereum.vm.program.Program;
 import org.ethereum.vm.program.ProgramResult;
 import org.ethereum.vm.program.invoke.ProgramInvoke;
@@ -16,7 +19,6 @@ import org.ethereum.vm.program.invoke.ProgramInvokeFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -37,40 +39,30 @@ public class TransactionExecutor {
 
     private static final Logger logger = LoggerFactory.getLogger("execute");
     private static final Logger stateLogger = LoggerFactory.getLogger("state");
-
+    private final long gasUsedInTheBlock;
+    private final EthereumListener listener;
     SystemProperties config;
     CommonConfig commonConfig;
     BlockchainConfig blockchainConfig;
-
+    PrecompiledContracts.PrecompiledContract precompiledContract;
+    BigInteger m_endGas = BigInteger.ZERO;
+    long basicTxCost = 0;
+    List<LogInfo> logs = null;
+    boolean localCall = false;
     private Transaction tx;
     private Repository track;
     private Repository cacheTrack;
     private BlockStore blockStore;
-    private final long gasUsedInTheBlock;
     private boolean readyToExecute = false;
     private String execError;
-
     private ProgramInvokeFactory programInvokeFactory;
     private byte[] coinbase;
-
     private TransactionReceipt receipt;
     private ProgramResult result = new ProgramResult();
     private Block currentBlock;
-
-    private final EthereumListener listener;
-
     private VM vm;
     private Program program;
-
-    PrecompiledContracts.PrecompiledContract precompiledContract;
-
-    BigInteger m_endGas = BigInteger.ZERO;
-    long basicTxCost = 0;
-    List<LogInfo> logs = null;
-
     private ByteArraySet touchedAccounts = new ByteArraySet();
-
-    boolean localCall = false;
 
     public TransactionExecutor(Transaction tx, byte[] coinbase, Repository track, BlockStore blockStore,
                                ProgramInvokeFactory programInvokeFactory, Block currentBlock) {

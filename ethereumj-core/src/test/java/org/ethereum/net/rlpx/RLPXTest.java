@@ -37,7 +37,7 @@ public class RLPXTest {
         assertEquals(ping.toString(), ping2.toString());
 
         String key2 = ping2.getKey().toString();
-        assertEquals(key.toString(), key2.toString());
+        assertEquals(key.toString(), key2);
     }
 
     @Test // pong test
@@ -56,7 +56,7 @@ public class RLPXTest {
         assertEquals(pong.toString(), pong2.toString());
 
         String key2 = pong2.getKey().toString();
-        assertEquals(key.toString(), key2.toString());
+        assertEquals(key.toString(), key2);
     }
 
     @Test // neighbors message
@@ -84,7 +84,7 @@ public class RLPXTest {
         assertEquals(neighbors.toString(), neighbors2.toString());
 
         String key2 = neighbors2.getKey().toString();
-        assertEquals(key.toString(), key2.toString());
+        assertEquals(key.toString(), key2);
     }
 
     @Test // find node message
@@ -103,7 +103,7 @@ public class RLPXTest {
         assertEquals(findNode.toString(), findNode2.toString());
 
         String key2 = findNode2.getKey().toString();
-        assertEquals(key.toString(), key2.toString());
+        assertEquals(key.toString(), key2);
     }
 
 
@@ -155,7 +155,7 @@ public class RLPXTest {
         NeighborsMessage msg1 = (NeighborsMessage) NeighborsMessage.decode(wire);
 
         ECKey key = ECKey.fromPrivate(BigInteger.TEN);
-        NeighborsMessage msg2 = (NeighborsMessage) NeighborsMessage.create(msg1.getNodes(), key);
+        NeighborsMessage msg2 = NeighborsMessage.create(msg1.getNodes(), key);
 
         NeighborsMessage msg3 = (NeighborsMessage) NeighborsMessage.decode(msg2.getPacket());
 

@@ -1,15 +1,6 @@
 package org.ethereum.crypto.jce;
 
-import java.math.BigInteger;
-
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Provider;
-import java.security.SecureRandom;
-
+import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 
 public final class ECKeyPairGenerator {
@@ -27,21 +18,6 @@ public final class ECKeyPairGenerator {
       = new ECGenParameterSpec(CURVE_NAME);
 
   private ECKeyPairGenerator() { }
-
-  private static class Holder {
-    private static final KeyPairGenerator INSTANCE;
-
-    static {
-      try {
-        INSTANCE = KeyPairGenerator.getInstance(ALGORITHM);
-        INSTANCE.initialize(SECP256K1_CURVE);
-      } catch (NoSuchAlgorithmException ex) {
-        throw new AssertionError(algorithmAssertionMsg, ex);
-      } catch (InvalidAlgorithmParameterException ex) {
-        throw new AssertionError(keySpecAssertionMsg, ex);
-      }
-    }
-  }
 
   public static KeyPair generateKeyPair() {
     return Holder.INSTANCE.generateKeyPair();
@@ -70,4 +46,19 @@ public final class ECKeyPairGenerator {
       throw new AssertionError(keySpecAssertionMsg, ex);
     }
   }
+
+    private static class Holder {
+        private static final KeyPairGenerator INSTANCE;
+
+        static {
+            try {
+                INSTANCE = KeyPairGenerator.getInstance(ALGORITHM);
+                INSTANCE.initialize(SECP256K1_CURVE);
+            } catch (NoSuchAlgorithmException ex) {
+                throw new AssertionError(algorithmAssertionMsg, ex);
+            } catch (InvalidAlgorithmParameterException ex) {
+                throw new AssertionError(keySpecAssertionMsg, ex);
+            }
+        }
+    }
 }

@@ -4,15 +4,8 @@ import com.typesafe.config.ConfigFactory;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.ethereum.config.CommonConfig;
 import org.ethereum.config.SystemProperties;
-import org.ethereum.core.AccountState;
-import org.ethereum.core.Block;
-import org.ethereum.core.BlockSummary;
-import org.ethereum.core.Repository;
-import org.ethereum.core.Transaction;
-import org.ethereum.core.TransactionExecutor;
-import org.ethereum.core.TransactionReceipt;
+import org.ethereum.core.*;
 import org.ethereum.db.ContractDetails;
-import org.ethereum.db.RepositoryImpl;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.facade.EthereumFactory;
 import org.ethereum.listener.EthereumListener;
@@ -29,11 +22,7 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -59,20 +48,23 @@ import static java.lang.Thread.sleep;
 @Ignore
 public class SyncWithLoadTest {
 
-    private Ethereum regularNode;
-
     private final static CountDownLatch errorLatch = new CountDownLatch(1);
-    private static AtomicBoolean isRunning = new AtomicBoolean(true);
-    private static AtomicBoolean firstRun = new AtomicBoolean(true);
-
     private static final Logger testLogger = LoggerFactory.getLogger("TestLogger");
-
     private static final MutableObject<String> configPath = new MutableObject<>("longrun/conf/ropsten-noprune.conf");
     private static final MutableObject<Boolean> resetDBOnFirstRun = new MutableObject<>(null);
-
     // Timer stops while not syncing
     private static final AtomicLong lastImport =  new AtomicLong();
     private static final int LAST_IMPORT_TIMEOUT = 10 * 60 * 1000;
+    private final static AtomicInteger fatalErrors = new AtomicInteger(0);
+    private static AtomicBoolean isRunning = new AtomicBoolean(true);
+    private static AtomicBoolean firstRun = new AtomicBoolean(true);
+    private static ScheduledExecutorService statTimer =
+            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "StatTimer");
+                }
+            });
+    private Ethereum regularNode;
 
     public SyncWithLoadTest() throws Exception {
 
@@ -108,6 +100,62 @@ public class SyncWithLoadTest {
                 if (lastImport.get() != 0 && !isRunning.get()) lastImport.set(0);
             }
         }, 0, 15, TimeUnit.SECONDS);
+    }
+
+    private static boolean logStats() {
+        testLogger.info("---------====---------");
+        testLogger.info("fatalErrors: {}", fatalErrors);
+        testLogger.info("---------====---------");
+
+        return fatalErrors.get() == 0;
+    }
+
+    private static void fullSanityCheck(Ethereum ethereum, CommonConfig commonConfig) {
+
+        BlockchainValidation.fullCheck(ethereum, commonConfig, fatalErrors);
+        logStats();
+
+        firstRun.set(false);
+    }
+
+    @Test
+    public void testDelayedCheck() throws Exception {
+
+        runEthereum();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (firstRun.get()) {
+                        sleep(1000);
+                    }
+                    testLogger.info("Stopping first run");
+
+                    while (true) {
+                        while (isRunning.get()) {
+                            sleep(1000);
+                        }
+                        regularNode.close();
+                        testLogger.info("Run stopped");
+                        sleep(10_000);
+                        testLogger.info("Starting next run");
+                        runEthereum();
+                        isRunning.set(true);
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        errorLatch.await();
+        if (!logStats()) assert false;
+    }
+
+    public void runEthereum() throws Exception {
+        testLogger.info("Starting EthereumJ regular instance!");
+        this.regularNode = EthereumFactory.createEthereum(RegularConfig.class);
     }
 
     /**
@@ -241,70 +289,5 @@ public class SyncWithLoadTest {
             fullSanityCheck(ethereum, commonConfig);
             isRunning.set(false);
         }
-    }
-
-    private final static AtomicInteger fatalErrors = new AtomicInteger(0);
-
-    private static ScheduledExecutorService statTimer =
-            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "StatTimer");
-                }
-            });
-
-    private static boolean logStats() {
-        testLogger.info("---------====---------");
-        testLogger.info("fatalErrors: {}", fatalErrors);
-        testLogger.info("---------====---------");
-
-        return fatalErrors.get() == 0;
-    }
-
-    private static void fullSanityCheck(Ethereum ethereum, CommonConfig commonConfig) {
-
-        BlockchainValidation.fullCheck(ethereum, commonConfig, fatalErrors);
-        logStats();
-
-        firstRun.set(false);
-    }
-
-    @Test
-    public void testDelayedCheck() throws Exception {
-
-        runEthereum();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-            try {
-                while(firstRun.get()) {
-                    sleep(1000);
-                }
-                testLogger.info("Stopping first run");
-
-                while(true) {
-                    while(isRunning.get()) {
-                        sleep(1000);
-                    }
-                    regularNode.close();
-                    testLogger.info("Run stopped");
-                    sleep(10_000);
-                    testLogger.info("Starting next run");
-                    runEthereum();
-                    isRunning.set(true);
-                }
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-            }
-        }).start();
-
-        errorLatch.await();
-        if (!logStats()) assert false;
-    }
-
-    public void runEthereum() throws Exception {
-        testLogger.info("Starting EthereumJ regular instance!");
-        this.regularNode = EthereumFactory.createEthereum(RegularConfig.class);
     }
 }

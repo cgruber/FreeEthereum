@@ -116,11 +116,10 @@ public class Utils {
 
         String addrShort = Hex.toHexString(addr, 0, 3);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(addrShort);
-        sb.append("...");
+        String sb = addrShort +
+                "...";
 
-        return sb.toString();
+        return sb;
     }
 
     public static SecureRandom getRandom() {

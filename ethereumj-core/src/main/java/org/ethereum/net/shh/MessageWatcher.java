@@ -1,8 +1,6 @@
 package org.ethereum.net.shh;
 
 
-import java.util.Arrays;
-
 public abstract class MessageWatcher {
     private String to;
     private String from;
@@ -17,16 +15,6 @@ public abstract class MessageWatcher {
         this.topics = topics;
     }
 
-    public MessageWatcher setTo(String to) {
-        this.to = to;
-        return this;
-    }
-
-    public MessageWatcher setFrom(String from) {
-        this.from = from;
-        return this;
-    }
-
     public MessageWatcher setFilterTopics(Topic[] topics) {
         this.topics = topics;
         return this;
@@ -36,8 +24,18 @@ public abstract class MessageWatcher {
         return to;
     }
 
+    public MessageWatcher setTo(String to) {
+        this.to = to;
+        return this;
+    }
+
     public String getFrom() {
         return from;
+    }
+
+    public MessageWatcher setFrom(String from) {
+        this.from = from;
+        return this;
     }
 
     public Topic[] getTopics() {

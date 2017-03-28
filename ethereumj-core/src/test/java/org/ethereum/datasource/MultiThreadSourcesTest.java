@@ -4,7 +4,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.ethereum.datasource.inmem.HashMapDB;
-import org.ethereum.datasource.leveldb.LevelDbDataSource;
 import org.ethereum.db.StateSource;
 import org.ethereum.mine.AnyFuture;
 import org.ethereum.util.ALock;
@@ -34,6 +33,14 @@ import static org.junit.Assert.assertNull;
  */
 public class MultiThreadSourcesTest {
 
+    volatile int maxConcurrency = 0;
+    volatile int maxWriteConcurrency = 0;
+    volatile int maxReadWriteConcurrency = 0;
+
+    private static byte[] key(int key) {
+        return sha3(intToBytes(key));
+    }
+
     private byte[] intToKey(int i) {
         return sha3(longToBytes(i));
     }
@@ -46,252 +53,6 @@ public class MultiThreadSourcesTest {
         if (obj == null) return null;
         return Hex.toHexString((byte[]) obj);
     }
-
-    private class TestExecutor {
-
-        private Source<byte[], byte[]> cache;
-        boolean isCounting = false;
-        boolean noDelete = false;
-
-        boolean running = true;
-        final CountDownLatch failSema = new CountDownLatch(1);
-        final AtomicInteger putCnt = new AtomicInteger(1);
-        final AtomicInteger delCnt = new AtomicInteger(1);
-        final AtomicInteger checkCnt = new AtomicInteger(0);
-
-        public TestExecutor(Source cache) {
-            this.cache = cache;
-        }
-
-        public TestExecutor(Source cache, boolean isCounting) {
-            this.cache = cache;
-            this.isCounting = isCounting;
-        }
-
-        public void setNoDelete(boolean noDelete) {
-            this.noDelete = noDelete;
-        }
-
-        final Thread readThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while(running) {
-                        int curMax = putCnt.get() - 1;
-                        if (checkCnt.get() >= curMax) {
-                            sleep(10);
-                            continue;
-                        }
-                        assertEquals(str(intToValue(curMax)), str(cache.get(intToKey(curMax))));
-                        checkCnt.set(curMax);
-                    }
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                    failSema.countDown();
-                }
-            }
-        });
-
-        final Thread delThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while(running) {
-                        int toDelete = delCnt.get();
-                        int curMax = putCnt.get() - 1;
-
-                        if (toDelete > checkCnt.get() || toDelete >= curMax) {
-                            sleep(10);
-                            continue;
-                        }
-                        assertEquals(str(intToValue(toDelete)), str(cache.get(intToKey(toDelete))));
-
-                        if (isCounting) {
-                            for (int i = 0; i < (toDelete % 5); ++i) {
-                                cache.delete(intToKey(toDelete));
-                                assertEquals(str(intToValue(toDelete)), str(cache.get(intToKey(toDelete))));
-                            }
-                        }
-
-                        cache.delete(intToKey(toDelete));
-                        if (isCounting) cache.flush();
-                        assertNull(cache.get(intToKey(toDelete)));
-                        delCnt.getAndIncrement();
-                    }
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                    failSema.countDown();
-                }
-            }
-        });
-
-        public void run(long timeout) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while(running) {
-                            int curCnt = putCnt.get();
-                            cache.put(intToKey(curCnt), intToValue(curCnt));
-                            if (isCounting) {
-                                for (int i = 0; i < (curCnt % 5); ++i) {
-                                    cache.put(intToKey(curCnt), intToValue(curCnt));
-                                }
-                            }
-                            putCnt.getAndIncrement();
-                            if (curCnt == 1) {
-                                readThread.start();
-                                if (!noDelete) {
-                                    delThread.start();
-                                }
-                            }
-                        }
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                        failSema.countDown();
-                    }
-                }
-            }).start();
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while(running) {
-                            sleep(10);
-                            cache.flush();
-                        }
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                        failSema.countDown();
-                    }
-                }
-            }).start();
-
-            try {
-                failSema.await(timeout, TimeUnit.SECONDS);
-            } catch (InterruptedException ex) {
-                running = false;
-                throw new RuntimeException("Thrown interrupted exception", ex);
-            }
-
-            // Shutdown carefully
-            running = false;
-
-            if (failSema.getCount() == 0) {
-                throw new RuntimeException("Test failed.");
-            } else {
-                System.out.println("Test passed, put counter: " + putCnt.get() + ", delete counter: " + delCnt.get());
-            }
-        }
-    }
-
-    private class TestExecutor1 {
-        private Source<byte[], byte[]> cache;
-
-        public int writerThreads = 4;
-        public int readerThreads = 8;
-        public int deleterThreads = 0;
-        public int flusherThreads = 2;
-
-        public int maxKey = 10000;
-
-        boolean stopped;
-        Map<byte[], byte[]> map = Collections.synchronizedMap(new ByteArrayMap<byte[]>());
-
-        ReadWriteLock rwLock = new ReentrantReadWriteLock();
-        ALock rLock = new ALock(rwLock.readLock());
-        ALock wLock = new ALock(rwLock.writeLock());
-
-        public TestExecutor1(Source<byte[], byte[]> cache) {
-            this.cache = cache;
-        }
-
-        class Writer implements Runnable {
-            public void run() {
-                Random rnd = new Random(0);
-                while (!stopped) {
-                    byte[] key = key(rnd.nextInt(maxKey));
-                    try (ALock l = wLock.lock()) {
-                        map.put(key, key);
-                        cache.put(key, key);
-                    }
-                    Utils.sleep(rnd.nextInt(1));
-                }
-            }
-        }
-
-        class Reader implements Runnable {
-            public void run() {
-                Random rnd = new Random(0);
-                while (!stopped) {
-                    byte[] key = key(rnd.nextInt(maxKey));
-                    try (ALock l = rLock.lock()) {
-                        byte[] expected = map.get(key);
-                        byte[] actual = cache.get(key);
-                        Assert.assertArrayEquals(expected, actual);
-                    }
-                }
-            }
-        }
-
-        class Deleter implements Runnable {
-            public void run() {
-                Random rnd = new Random(0);
-                while (!stopped) {
-                    byte[] key = key(rnd.nextInt(maxKey));
-                    try (ALock l = wLock.lock()) {
-                        map.remove(key);
-                        cache.delete(key);
-                    }
-                }
-            }
-        }
-
-        class Flusher implements Runnable {
-            public void run() {
-                Random rnd = new Random(0);
-                while (!stopped) {
-                    Utils.sleep(rnd.nextInt(50));
-                    cache.flush();
-                }
-            }
-        }
-
-        public void start(long time) throws InterruptedException, TimeoutException, ExecutionException {
-            List<Callable<Object>> all = new ArrayList<>();
-
-            for (int i = 0; i < writerThreads; i++) {
-                all.add(Executors.callable(new Writer()));
-            }
-            for (int i = 0; i < readerThreads; i++) {
-                all.add(Executors.callable(new Reader()));
-            }
-            for (int i = 0; i < deleterThreads; i++) {
-                all.add(Executors.callable(new Deleter()));
-            }
-            for (int i = 0; i < flusherThreads; i++) {
-                all.add(Executors.callable(new Flusher()));
-            }
-
-            ExecutorService executor = Executors.newFixedThreadPool(all.size());
-            ListeningExecutorService listeningExecutorService = MoreExecutors.listeningDecorator(executor);
-            AnyFuture<Object> anyFuture = new AnyFuture<>();
-            for (Callable<Object> callable : all) {
-                ListenableFuture<Object> future = listeningExecutorService.submit(callable);
-                anyFuture.add(future);
-            }
-
-            try {
-                anyFuture.get(time, TimeUnit.SECONDS);
-            } catch (TimeoutException e) {
-                System.out.println("Passed.");
-            }
-
-            stopped = true;
-        }
-    }
-
 
     @Test
     public void testWriteCache() throws InterruptedException {
@@ -355,10 +116,6 @@ public class MultiThreadSourcesTest {
         TestExecutor1 testExecutor = new TestExecutor1(stateSource);
         testExecutor.start(10);
     }
-
-    volatile int maxConcurrency = 0;
-    volatile int maxWriteConcurrency = 0;
-    volatile int maxReadWriteConcurrency = 0;
 
     @Test
     public void testStateSourceConcurrency() throws Exception {
@@ -433,7 +190,241 @@ public class MultiThreadSourcesTest {
         testExecutor.run(10);
     }
 
-    private static byte[] key(int key) {
-        return sha3(intToBytes(key));
+    private class TestExecutor {
+
+        final CountDownLatch failSema = new CountDownLatch(1);
+        final AtomicInteger putCnt = new AtomicInteger(1);
+        final AtomicInteger delCnt = new AtomicInteger(1);
+        final AtomicInteger checkCnt = new AtomicInteger(0);
+        boolean isCounting = false;
+        boolean noDelete = false;
+        boolean running = true;
+        private Source<byte[], byte[]> cache;
+        final Thread readThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while(running) {
+                        int curMax = putCnt.get() - 1;
+                        if (checkCnt.get() >= curMax) {
+                            sleep(10);
+                            continue;
+                        }
+                        assertEquals(str(intToValue(curMax)), str(cache.get(intToKey(curMax))));
+                        checkCnt.set(curMax);
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                    failSema.countDown();
+                }
+            }
+        });
+        final Thread delThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while(running) {
+                        int toDelete = delCnt.get();
+                        int curMax = putCnt.get() - 1;
+
+                        if (toDelete > checkCnt.get() || toDelete >= curMax) {
+                            sleep(10);
+                            continue;
+                        }
+                        assertEquals(str(intToValue(toDelete)), str(cache.get(intToKey(toDelete))));
+
+                        if (isCounting) {
+                            for (int i = 0; i < (toDelete % 5); ++i) {
+                                cache.delete(intToKey(toDelete));
+                                assertEquals(str(intToValue(toDelete)), str(cache.get(intToKey(toDelete))));
+                            }
+                        }
+
+                        cache.delete(intToKey(toDelete));
+                        if (isCounting) cache.flush();
+                        assertNull(cache.get(intToKey(toDelete)));
+                        delCnt.getAndIncrement();
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                    failSema.countDown();
+                }
+            }
+        });
+
+        public TestExecutor(Source cache) {
+            this.cache = cache;
+        }
+
+        public TestExecutor(Source cache, boolean isCounting) {
+            this.cache = cache;
+            this.isCounting = isCounting;
+        }
+
+        public void setNoDelete(boolean noDelete) {
+            this.noDelete = noDelete;
+        }
+
+        public void run(long timeout) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while(running) {
+                            int curCnt = putCnt.get();
+                            cache.put(intToKey(curCnt), intToValue(curCnt));
+                            if (isCounting) {
+                                for (int i = 0; i < (curCnt % 5); ++i) {
+                                    cache.put(intToKey(curCnt), intToValue(curCnt));
+                                }
+                            }
+                            putCnt.getAndIncrement();
+                            if (curCnt == 1) {
+                                readThread.start();
+                                if (!noDelete) {
+                                    delThread.start();
+                                }
+                            }
+                        }
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                        failSema.countDown();
+                    }
+                }
+            }).start();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while(running) {
+                            sleep(10);
+                            cache.flush();
+                        }
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                        failSema.countDown();
+                    }
+                }
+            }).start();
+
+            try {
+                failSema.await(timeout, TimeUnit.SECONDS);
+            } catch (InterruptedException ex) {
+                running = false;
+                throw new RuntimeException("Thrown interrupted exception", ex);
+            }
+
+            // Shutdown carefully
+            running = false;
+
+            if (failSema.getCount() == 0) {
+                throw new RuntimeException("Test failed.");
+            } else {
+                System.out.println("Test passed, put counter: " + putCnt.get() + ", delete counter: " + delCnt.get());
+            }
+        }
+    }
+
+    private class TestExecutor1 {
+        public int writerThreads = 4;
+        public int readerThreads = 8;
+        public int deleterThreads = 0;
+        public int flusherThreads = 2;
+        public int maxKey = 10000;
+        boolean stopped;
+        Map<byte[], byte[]> map = Collections.synchronizedMap(new ByteArrayMap<byte[]>());
+        ReadWriteLock rwLock = new ReentrantReadWriteLock();
+        ALock rLock = new ALock(rwLock.readLock());
+        ALock wLock = new ALock(rwLock.writeLock());
+        private Source<byte[], byte[]> cache;
+
+        public TestExecutor1(Source<byte[], byte[]> cache) {
+            this.cache = cache;
+        }
+
+        public void start(long time) throws InterruptedException, TimeoutException, ExecutionException {
+            List<Callable<Object>> all = new ArrayList<>();
+
+            for (int i = 0; i < writerThreads; i++) {
+                all.add(Executors.callable(new Writer()));
+            }
+            for (int i = 0; i < readerThreads; i++) {
+                all.add(Executors.callable(new Reader()));
+            }
+            for (int i = 0; i < deleterThreads; i++) {
+                all.add(Executors.callable(new Deleter()));
+            }
+            for (int i = 0; i < flusherThreads; i++) {
+                all.add(Executors.callable(new Flusher()));
+            }
+
+            ExecutorService executor = Executors.newFixedThreadPool(all.size());
+            ListeningExecutorService listeningExecutorService = MoreExecutors.listeningDecorator(executor);
+            AnyFuture<Object> anyFuture = new AnyFuture<>();
+            for (Callable<Object> callable : all) {
+                ListenableFuture<Object> future = listeningExecutorService.submit(callable);
+                anyFuture.add(future);
+            }
+
+            try {
+                anyFuture.get(time, TimeUnit.SECONDS);
+            } catch (TimeoutException e) {
+                System.out.println("Passed.");
+            }
+
+            stopped = true;
+        }
+
+        class Writer implements Runnable {
+            public void run() {
+                Random rnd = new Random(0);
+                while (!stopped) {
+                    byte[] key = key(rnd.nextInt(maxKey));
+                    try (ALock l = wLock.lock()) {
+                        map.put(key, key);
+                        cache.put(key, key);
+                    }
+                    Utils.sleep(rnd.nextInt(1));
+                }
+            }
+        }
+
+        class Reader implements Runnable {
+            public void run() {
+                Random rnd = new Random(0);
+                while (!stopped) {
+                    byte[] key = key(rnd.nextInt(maxKey));
+                    try (ALock l = rLock.lock()) {
+                        byte[] expected = map.get(key);
+                        byte[] actual = cache.get(key);
+                        Assert.assertArrayEquals(expected, actual);
+                    }
+                }
+            }
+        }
+
+        class Deleter implements Runnable {
+            public void run() {
+                Random rnd = new Random(0);
+                while (!stopped) {
+                    byte[] key = key(rnd.nextInt(maxKey));
+                    try (ALock l = wLock.lock()) {
+                        map.remove(key);
+                        cache.delete(key);
+                    }
+                }
+            }
+        }
+
+        class Flusher implements Runnable {
+            public void run() {
+                Random rnd = new Random(0);
+                while (!stopped) {
+                    Utils.sleep(rnd.nextInt(50));
+                    cache.flush();
+                }
+            }
+        }
     }
 }

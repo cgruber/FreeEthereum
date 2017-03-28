@@ -53,53 +53,8 @@ public class TransactionExecutionSummary {
         this.parsed = false;
     }
 
-    public void rlpParse() {
-        if (parsed) return;
-
-        RLPList decodedTxList = RLP.decode2(rlpEncoded);
-        RLPList summary = (RLPList) decodedTxList.get(0);
-
-        this.tx = new Transaction(summary.get(0).getRLPData());
-        this.value = decodeBigInteger(summary.get(1).getRLPData());
-        this.gasPrice = decodeBigInteger(summary.get(2).getRLPData());
-        this.gasLimit = decodeBigInteger(summary.get(3).getRLPData());
-        this.gasUsed = decodeBigInteger(summary.get(4).getRLPData());
-        this.gasLeftover = decodeBigInteger(summary.get(5).getRLPData());
-        this.gasRefund = decodeBigInteger(summary.get(6).getRLPData());
-        this.deletedAccounts = decodeDeletedAccounts((RLPList) summary.get(7));
-        this.internalTransactions = decodeInternalTransactions((RLPList) summary.get(8));
-        this.touchedStorage = decodeTouchedStorage(summary.get(9));
-        this.result = summary.get(10).getRLPData();
-        this.logs = decodeLogs((RLPList) summary.get(11));
-        byte[] failed = summary.get(12).getRLPData();
-        this.failed = isNotEmpty(failed) && RLP.decodeInt(failed, 0) == 1;
-    }
-
     private static BigInteger decodeBigInteger(byte[] encoded) {
         return isEmpty(encoded) ? BigInteger.ZERO : new BigInteger(1, encoded);
-    }
-
-    public byte[] getEncoded() {
-        if (rlpEncoded != null) return rlpEncoded;
-
-
-        this.rlpEncoded = RLP.encodeList(
-                this.tx.getEncoded(),
-                RLP.encodeBigInteger(this.value),
-                RLP.encodeBigInteger(this.gasPrice),
-                RLP.encodeBigInteger(this.gasLimit),
-                RLP.encodeBigInteger(this.gasUsed),
-                RLP.encodeBigInteger(this.gasLeftover),
-                RLP.encodeBigInteger(this.gasRefund),
-                encodeDeletedAccounts(this.deletedAccounts),
-                encodeInternalTransactions(this.internalTransactions),
-                encodeTouchedStorage(this.touchedStorage),
-                RLP.encodeElement(this.result),
-                encodeLogs(this.logs),
-                RLP.encodeInt(this.failed ? 1 : 0)
-        );
-
-        return rlpEncoded;
     }
 
     public static byte[] encodeTouchedStorage(TransactionTouchedStorage touchedStorage) {
@@ -210,6 +165,55 @@ public class TransactionExecutionSummary {
         return result;
     }
 
+    public static Builder builderFor(Transaction transaction) {
+        return new Builder(transaction);
+    }
+
+    public void rlpParse() {
+        if (parsed) return;
+
+        RLPList decodedTxList = RLP.decode2(rlpEncoded);
+        RLPList summary = (RLPList) decodedTxList.get(0);
+
+        this.tx = new Transaction(summary.get(0).getRLPData());
+        this.value = decodeBigInteger(summary.get(1).getRLPData());
+        this.gasPrice = decodeBigInteger(summary.get(2).getRLPData());
+        this.gasLimit = decodeBigInteger(summary.get(3).getRLPData());
+        this.gasUsed = decodeBigInteger(summary.get(4).getRLPData());
+        this.gasLeftover = decodeBigInteger(summary.get(5).getRLPData());
+        this.gasRefund = decodeBigInteger(summary.get(6).getRLPData());
+        this.deletedAccounts = decodeDeletedAccounts((RLPList) summary.get(7));
+        this.internalTransactions = decodeInternalTransactions((RLPList) summary.get(8));
+        this.touchedStorage = decodeTouchedStorage(summary.get(9));
+        this.result = summary.get(10).getRLPData();
+        this.logs = decodeLogs((RLPList) summary.get(11));
+        byte[] failed = summary.get(12).getRLPData();
+        this.failed = isNotEmpty(failed) && RLP.decodeInt(failed, 0) == 1;
+    }
+
+    public byte[] getEncoded() {
+        if (rlpEncoded != null) return rlpEncoded;
+
+
+        this.rlpEncoded = RLP.encodeList(
+                this.tx.getEncoded(),
+                RLP.encodeBigInteger(this.value),
+                RLP.encodeBigInteger(this.gasPrice),
+                RLP.encodeBigInteger(this.gasLimit),
+                RLP.encodeBigInteger(this.gasUsed),
+                RLP.encodeBigInteger(this.gasLeftover),
+                RLP.encodeBigInteger(this.gasRefund),
+                encodeDeletedAccounts(this.deletedAccounts),
+                encodeInternalTransactions(this.internalTransactions),
+                encodeTouchedStorage(this.touchedStorage),
+                RLP.encodeElement(this.result),
+                encodeLogs(this.logs),
+                RLP.encodeInt(this.failed ? 1 : 0)
+        );
+
+        return rlpEncoded;
+    }
+
     public Transaction getTransaction() {
         if (!parsed) rlpParse();
         return tx;
@@ -304,10 +308,6 @@ public class TransactionExecutionSummary {
         return touchedStorage;
     }
 
-    public static Builder builderFor(Transaction transaction) {
-        return new Builder(transaction);
-    }
-
     public static class Builder {
 
         private final TransactionExecutionSummary summary;
@@ -339,9 +339,7 @@ public class TransactionExecutionSummary {
 
         public Builder deletedAccounts(Set<DataWord> deletedAccounts) {
             summary.deletedAccounts = new ArrayList<>();
-            for (DataWord account : deletedAccounts) {
-                summary.deletedAccounts.add(account);
-            }
+            summary.deletedAccounts.addAll(deletedAccounts);
             return this;
         }
 

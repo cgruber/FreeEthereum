@@ -13,34 +13,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Date;
+import java.util.Scanner;
 
 @Component
 public class BlockLoader {
     private static final Logger logger = LoggerFactory.getLogger("blockqueue");
-
-    @Autowired
-    private BlockHeaderValidator headerValidator;
-
     @Autowired
     SystemProperties config;
-
-    @Autowired
-    private BlockchainImpl blockchain;
-
     @Autowired
     DbFlushManager dbFlushManager;
-
     Scanner scanner = null;
-
     DateFormat df = new SimpleDateFormat("HH:mm:ss.SSSS");
+    ExecutorPipeline<Block, Block> exec1;
+    ExecutorPipeline<Block, ?> exec2;
+    @Autowired
+    private BlockHeaderValidator headerValidator;
+    @Autowired
+    private BlockchainImpl blockchain;
 
     private void blockWork(Block block) {
         if (block.getNumber() >= blockchain.getBlockStore().getBestBlock().getNumber() || blockchain.getBlockStore().getBlockByHash(block.getHash()) == null) {
@@ -64,9 +59,6 @@ public class BlockLoader {
                 System.out.println("Skipping block #" + block.getNumber());
         }
     }
-
-    ExecutorPipeline<Block, Block> exec1;
-    ExecutorPipeline<Block, ?> exec2;
 
     public void loadBlocks() {
         exec1 = new ExecutorPipeline(8, 1000, true, new Functional.Function<Block, Block>() {

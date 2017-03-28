@@ -2,10 +2,7 @@ package org.ethereum.sync;
 
 import org.ethereum.core.BlockHeaderWrapper;
 import org.ethereum.core.BlockWrapper;
-import org.ethereum.core.Blockchain;
-import org.ethereum.db.DbFlushManager;
 import org.ethereum.db.IndexedBlockStore;
-import org.ethereum.util.ByteUtil;
 import org.ethereum.validator.BlockHeaderValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

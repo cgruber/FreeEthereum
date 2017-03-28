@@ -1,7 +1,6 @@
 package org.ethereum.net.shh;
 
 import org.ethereum.crypto.ECKey;
-import org.spongycastle.util.encoders.Hex;
 import org.springframework.stereotype.Component;
 
 /**

@@ -23,310 +23,7 @@ import static org.ethereum.crypto.HashUtil.sha3;
  */
 public class BzzProtocolTest {
 
-    interface Predicate<T> { boolean test(T t);}
-
-    public static class FilterPrinter extends PrintWriter {
-        String filter;
-        Predicate<String> pFilter;
-        public FilterPrinter(OutputStream out) {
-            super(out, true);
-        }
-
-        @Override
-        public void println(String x) {
-            if (pFilter == null || pFilter.test(x)) {
-//            if (filter == null || x.contains(filter)) {
-                super.println(x);
-            }
-        }
-
-        public void setFilter(final String filter) {
-            pFilter = new Predicate<String>() {
-                @Override
-                public boolean test(String s) {
-                    return s.contains(filter);
-                }
-            };
-        }
-
-        public void setFilter(Predicate<String> pFilter) {
-            this.pFilter = pFilter;
-        }
-    }
-
     static FilterPrinter stdout = new FilterPrinter(System.out);
-
-    public static class TestPipe {
-        protected Functional.Consumer<BzzMessage> out1;
-        protected Functional.Consumer<BzzMessage> out2;
-        protected String name1, name2;
-
-        public TestPipe(Functional.Consumer<BzzMessage> out1, Functional.Consumer<BzzMessage> out2) {
-            this.out1 = out1;
-            this.out2 = out2;
-        }
-
-        protected TestPipe() {
-        }
-
-        Functional.Consumer<BzzMessage> createIn1() {
-            return new Functional.Consumer<BzzMessage>() {
-                @Override
-                public void accept(BzzMessage bzzMessage) {
-                    BzzMessage smsg = serialize(bzzMessage);
-                    if (TestPeer.MessageOut) {
-                        stdout.println("+ " + name1 + " => " + name2 + ": " + smsg);
-                    }
-                    out2.accept(smsg);
-                }
-            };
-        }
-        Functional.Consumer<BzzMessage> createIn2() {
-            return new Functional.Consumer<BzzMessage>() {
-                @Override
-                public void accept(BzzMessage bzzMessage) {
-                    BzzMessage smsg = serialize(bzzMessage);
-                    if (TestPeer.MessageOut) {
-                        stdout.println("+ " + name2 + " => " + name1 + ": " + smsg);
-                    }
-                    out1.accept(smsg);
-                }
-            };
-        }
-
-        public void setNames(String name1, String name2) {
-            this.name1 = name1;
-            this.name2 = name2;
-        }
-
-        private BzzMessage serialize(BzzMessage msg) {
-            try {
-                return msg.getClass().getConstructor(byte[].class).newInstance(msg.getEncoded());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public Functional.Consumer<BzzMessage> getOut1() {
-            return out1;
-        }
-
-        public Functional.Consumer<BzzMessage> getOut2() {
-            return out2;
-        }
-    }
-
-    public static class TestAsyncPipe extends TestPipe {
-
-        static ScheduledExecutorService exec = Executors.newScheduledThreadPool(32);
-        static Queue<Future<?>> tasks = new LinkedBlockingQueue<>();
-
-        class AsyncConsumer implements Functional.Consumer<BzzMessage> {
-            Functional.Consumer<BzzMessage> delegate;
-
-            boolean rev;
-
-            public AsyncConsumer(Functional.Consumer<BzzMessage> delegate, boolean rev) {
-                this.delegate = delegate;
-                this.rev = rev;
-            }
-
-            @Override
-            public void accept(final BzzMessage bzzMessage) {
-                ScheduledFuture<?> future = exec.schedule(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (!rev) {
-                                if (TestPeer.MessageOut) {
-                                    stdout.println("- " + name1 + " => " + name2 + ": " + bzzMessage);
-                                }
-                            } else {
-                                if (TestPeer.MessageOut) {
-                                    stdout.println("- " + name2 + " => " + name1 + ": " + bzzMessage);
-                                }
-                            }
-                            delegate.accept(bzzMessage);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, channelLatencyMs, TimeUnit.MILLISECONDS);
-                tasks.add(future);
-            }
-
-        }
-
-        long channelLatencyMs = 2;
-
-        public static void waitForCompletion() {
-            try {
-                while(!tasks.isEmpty()) {
-                    tasks.poll().get();
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public TestAsyncPipe(Functional.Consumer<BzzMessage> out1, Functional.Consumer<BzzMessage> out2) {
-            this.out1 = new AsyncConsumer(out1, false);
-            this.out2 = new AsyncConsumer(out2, true);
-        }
-    }
-
-    public static class SimpleHive extends Hive {
-        Map<BzzProtocol, Object> peers = new IdentityHashMap<>();
-//        PeerAddress thisAddress;
-        TestPeer thisPeer;
-//        NodeTable nodeTable;
-
-        public SimpleHive(PeerAddress thisAddress) {
-            super(thisAddress);
-//            this.thisAddress = thisAddress;
-//            nodeTable = new NodeTable(thisAddress.toNode());
-        }
-
-        public SimpleHive setThisPeer(TestPeer thisPeer) {
-            this.thisPeer = thisPeer;
-            return this;
-        }
-
-        @Override
-        public void addPeer(BzzProtocol peer) {
-            peers.put(peer, null);
-            super.addPeer(peer);
-//            nodeTable.addNode(peer.getNode().toNode());
-//            peersAdded();
-        }
-
-//        @Override
-//        public void removePeer(BzzProtocol peer) {
-//            peers.remove(peer);
-//            nodeTable.dropNode(peer.getNode().toNode());
-//        }
-//
-//        @Override
-//        public void addPeerRecords(BzzPeersMessage req) {
-//            for (PeerAddress peerAddress : req.getPeers()) {
-//                nodeTable.addNode(peerAddress.toNode());
-//            }
-//            peersAdded();
-//        }
-
-        @Override
-        public Collection<PeerAddress> getNodes(Key key, int max) {
-            List<Node> closestNodes = nodeTable.getClosestNodes(key.getBytes());
-            ArrayList<PeerAddress> ret = new ArrayList<>();
-            for (Node node : closestNodes) {
-                ret.add(new PeerAddress(node));
-                if (--max == 0) break;
-            }
-            return ret;
-        }
-
-        @Override
-        public Collection<BzzProtocol> getPeers(Key key, int maxCount) {
-            if (thisPeer == null) return peers.keySet();
-//            TreeMap<Key, TestPeer> sort = new TreeMap<Key, TestPeer>(new Comparator<Key>() {
-//                @Override
-//                public int compare(Key o1, Key o2) {
-//                    for (int i = 0; i < o1.getBytes().length; i++) {
-//                        if (o1.getBytes()[i] > o2.getBytes()[i]) return 1;
-//                        if (o1.getBytes()[i] < o2.getBytes()[i]) return -1;
-//                    }
-//                    return 0;
-//                }
-//            });
-//            for (TestPeer testPeer : TestPeer.staticMap.values()) {
-//                if (thisPeer != testPeer) {
-//                    sort.put(distance(key, new Key(testPeer.peerAddress.getId())), testPeer);
-//                }
-//            }
-            List<Node> closestNodes = nodeTable.getClosestNodes(key.getBytes());
-            ArrayList<BzzProtocol> ret = new ArrayList<>();
-            for (Node node : closestNodes) {
-                ret.add(thisPeer.getPeer(new PeerAddress(node)));
-
-                if (--maxCount == 0) break;
-            }
-            return ret;
-        }
-    }
-
-    public static class TestPeer {
-        static Map<PeerAddress, TestPeer> staticMap = Collections.synchronizedMap(new HashMap<PeerAddress, TestPeer>());
-
-        public static boolean MessageOut = false;
-        public static boolean AsyncPipe = false;
-
-        String name;
-        PeerAddress peerAddress;
-
-        LocalStore localStore;
-        Hive hive;
-        NetStore netStore;
-
-        Map<Key, BzzProtocol> connections = new HashMap<>();
-
-        public TestPeer(int num) {
-            this(new PeerAddress(new byte[]{0, 0, (byte) ((num >> 8) & 0xFF), (byte) (num & 0xFF)}, 1000 + num,
-                    sha3(new byte[]{(byte) ((num >> 8) & 0xFF), (byte) (num & 0xFF)})), "" + num);
-        }
-
-        public TestPeer(PeerAddress peerAddress, String name) {
-            this.name = name;
-            this.peerAddress = peerAddress;
-            localStore = new LocalStore(new MemStore(), new MemStore());
-            hive = new SimpleHive(peerAddress).setThisPeer(this);
-            netStore = new NetStore(localStore, hive);
-
-            netStore.start(peerAddress);
-
-            staticMap.put(peerAddress, this);
-        }
-
-        public BzzProtocol getPeer(PeerAddress addr) {
-            Key peerKey = new Key(addr.getId());
-            BzzProtocol protocol = connections.get(peerKey);
-            if (protocol == null) {
-                connect(staticMap.get(addr));
-                protocol = connections.get(peerKey);
-            }
-            return protocol;
-        }
-
-        private BzzProtocol createPeerProtocol(PeerAddress addr) {
-            Key peerKey = new Key(addr.getId());
-            BzzProtocol protocol = connections.get(peerKey);
-            if (protocol == null) {
-                protocol = new BzzProtocol(netStore);
-                connections.put(peerKey, protocol);
-            }
-            return protocol;
-        }
-
-        public void connect(TestPeer peer) {
-            BzzProtocol myBzz = this.createPeerProtocol(peer.peerAddress);
-            BzzProtocol peerBzz = peer.createPeerProtocol(peerAddress);
-
-            TestPipe pipe = AsyncPipe ? new TestAsyncPipe(myBzz, peerBzz) : new TestPipe(myBzz, peerBzz);
-
-            pipe.setNames(this.name, peer.name);
-            System.out.println("Connecting: " + this.name + " <=> " + peer.name);
-            myBzz.setMessageSender(pipe.createIn1());
-            peerBzz.setMessageSender(pipe.createIn2());
-            myBzz.start();
-            peerBzz.start();
-        }
-
-        public void connect(PeerAddress addr) {
-            TestPeer peer = staticMap.get(addr);
-            if (peer != null) {
-                connect(peer);
-            }
-        }
-    }
 
     @Test
     public void simple3PeersTest() throws Exception {
@@ -358,20 +55,14 @@ public class BzzProtocolTest {
     }
 
     private String dumpPeers(TestPeer[] allPeers, Key key) {
-        String s = "Name\tChunks\tPeers\tMsgIn\tMsgOut\n";
+        StringBuilder s = new StringBuilder("Name\tChunks\tPeers\tMsgIn\tMsgOut\n");
         for (TestPeer peer : allPeers) {
-            s += (peer.name + "\t" +
-                    (int)((Statter.SimpleStatter)((MemStore) peer.localStore.memStore).statCurChunks).getLast() + "\t" +
-                    ((Statter.SimpleStatter)(peer.netStore.statHandshakes)).getCount() + "\t" +
-                    ((Statter.SimpleStatter)(peer.netStore.statInMsg)).getCount() + "\t" +
-                    ((Statter.SimpleStatter)(peer.netStore.statOutMsg)).getCount()) + "\t" +
-                    (key != null ? ", keyDist: " + hex(getDistance(peer.peerAddress.getId(), key.getBytes())) : "") +"\n";
-            s += "  Chunks:\n";
+            s.append(peer.name).append("\t").append((int) ((Statter.SimpleStatter) ((MemStore) peer.localStore.memStore).statCurChunks).getLast()).append("\t").append(((Statter.SimpleStatter) (peer.netStore.statHandshakes)).getCount()).append("\t").append(((Statter.SimpleStatter) (peer.netStore.statInMsg)).getCount()).append("\t").append(((Statter.SimpleStatter) (peer.netStore.statOutMsg)).getCount()).append("\t").append(key != null ? ", keyDist: " + hex(getDistance(peer.peerAddress.getId(), key.getBytes())) : "").append("\n");
+            s.append("  Chunks:\n");
             for (Key k : ((MemStore) peer.localStore.memStore).store.keySet()) {
-                s += ("    " + k.toString().substring(0,8) + ", dist: "
-                        + hex(getDistance(peer.peerAddress.getId(), k.getBytes()))) + "\n";
+                s.append("    ").append(k.toString().substring(0, 8)).append(", dist: ").append(hex(getDistance(peer.peerAddress.getId(), k.getBytes()))).append("\n");
             }
-            s += "  Nodes:\n";
+            s.append("  Nodes:\n");
             Map<Node, BzzProtocol> entries = peer.hive.getAllEntries();
             SortedMap<Long, Node> sort = new TreeMap<>();
             for (Node node : entries.keySet()) {
@@ -379,13 +70,10 @@ public class BzzProtocolTest {
                 sort.put(0xFFFFFFFFl & dist, node);
             }
             for (Node node : sort.values()) {
-                s += "  " + (entries.get(node) == null ? " " : "*") + " "
-                        + node.getHost() + ", dist: " +
-                        hex(getDistance(peer.peerAddress.getId(), node.getId())) +
-                        (key != null ? ", keyDist: " + hex(getDistance(node.getId(), key.getBytes())) : "") + "\n";
+                s.append("  ").append(entries.get(node) == null ? " " : "*").append(" ").append(node.getHost()).append(", dist: ").append(hex(getDistance(peer.peerAddress.getId(), node.getId()))).append(key != null ? ", keyDist: " + hex(getDistance(node.getId(), key.getBytes())) : "").append("\n");
             }
         }
-        return s;
+        return s.toString();
     }
 
     private String hex(int i ) {
@@ -590,5 +278,309 @@ public class BzzProtocolTest {
         Chunk chunk1 = netStore1.get(key);
         Assert.assertEquals(key, chunk1.getKey());
         Assert.assertArrayEquals(chunk.getData(), chunk1.getData());
+    }
+
+    interface Predicate<T> {
+        boolean test(T t);
+    }
+
+    public static class FilterPrinter extends PrintWriter {
+        String filter;
+        Predicate<String> pFilter;
+
+        public FilterPrinter(OutputStream out) {
+            super(out, true);
+        }
+
+        @Override
+        public void println(String x) {
+            if (pFilter == null || pFilter.test(x)) {
+//            if (filter == null || x.contains(filter)) {
+                super.println(x);
+            }
+        }
+
+        public void setFilter(final String filter) {
+            pFilter = new Predicate<String>() {
+                @Override
+                public boolean test(String s) {
+                    return s.contains(filter);
+                }
+            };
+        }
+
+        public void setFilter(Predicate<String> pFilter) {
+            this.pFilter = pFilter;
+        }
+    }
+
+    public static class TestPipe {
+        protected Functional.Consumer<BzzMessage> out1;
+        protected Functional.Consumer<BzzMessage> out2;
+        protected String name1, name2;
+
+        public TestPipe(Functional.Consumer<BzzMessage> out1, Functional.Consumer<BzzMessage> out2) {
+            this.out1 = out1;
+            this.out2 = out2;
+        }
+
+        protected TestPipe() {
+        }
+
+        Functional.Consumer<BzzMessage> createIn1() {
+            return new Functional.Consumer<BzzMessage>() {
+                @Override
+                public void accept(BzzMessage bzzMessage) {
+                    BzzMessage smsg = serialize(bzzMessage);
+                    if (TestPeer.MessageOut) {
+                        stdout.println("+ " + name1 + " => " + name2 + ": " + smsg);
+                    }
+                    out2.accept(smsg);
+                }
+            };
+        }
+
+        Functional.Consumer<BzzMessage> createIn2() {
+            return new Functional.Consumer<BzzMessage>() {
+                @Override
+                public void accept(BzzMessage bzzMessage) {
+                    BzzMessage smsg = serialize(bzzMessage);
+                    if (TestPeer.MessageOut) {
+                        stdout.println("+ " + name2 + " => " + name1 + ": " + smsg);
+                    }
+                    out1.accept(smsg);
+                }
+            };
+        }
+
+        public void setNames(String name1, String name2) {
+            this.name1 = name1;
+            this.name2 = name2;
+        }
+
+        private BzzMessage serialize(BzzMessage msg) {
+            try {
+                return msg.getClass().getConstructor(byte[].class).newInstance(msg.getEncoded());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public Functional.Consumer<BzzMessage> getOut1() {
+            return out1;
+        }
+
+        public Functional.Consumer<BzzMessage> getOut2() {
+            return out2;
+        }
+    }
+
+    public static class TestAsyncPipe extends TestPipe {
+
+        static ScheduledExecutorService exec = Executors.newScheduledThreadPool(32);
+        static Queue<Future<?>> tasks = new LinkedBlockingQueue<>();
+        long channelLatencyMs = 2;
+
+        public TestAsyncPipe(Functional.Consumer<BzzMessage> out1, Functional.Consumer<BzzMessage> out2) {
+            this.out1 = new AsyncConsumer(out1, false);
+            this.out2 = new AsyncConsumer(out2, true);
+        }
+
+        public static void waitForCompletion() {
+            try {
+                while (!tasks.isEmpty()) {
+                    tasks.poll().get();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        class AsyncConsumer implements Functional.Consumer<BzzMessage> {
+            Functional.Consumer<BzzMessage> delegate;
+
+            boolean rev;
+
+            public AsyncConsumer(Functional.Consumer<BzzMessage> delegate, boolean rev) {
+                this.delegate = delegate;
+                this.rev = rev;
+            }
+
+            @Override
+            public void accept(final BzzMessage bzzMessage) {
+                ScheduledFuture<?> future = exec.schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (!rev) {
+                                if (TestPeer.MessageOut) {
+                                    stdout.println("- " + name1 + " => " + name2 + ": " + bzzMessage);
+                                }
+                            } else {
+                                if (TestPeer.MessageOut) {
+                                    stdout.println("- " + name2 + " => " + name1 + ": " + bzzMessage);
+                                }
+                            }
+                            delegate.accept(bzzMessage);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, channelLatencyMs, TimeUnit.MILLISECONDS);
+                tasks.add(future);
+            }
+
+        }
+    }
+
+    public static class SimpleHive extends Hive {
+        Map<BzzProtocol, Object> peers = new IdentityHashMap<>();
+        //        PeerAddress thisAddress;
+        TestPeer thisPeer;
+//        NodeTable nodeTable;
+
+        public SimpleHive(PeerAddress thisAddress) {
+            super(thisAddress);
+//            this.thisAddress = thisAddress;
+//            nodeTable = new NodeTable(thisAddress.toNode());
+        }
+
+        public SimpleHive setThisPeer(TestPeer thisPeer) {
+            this.thisPeer = thisPeer;
+            return this;
+        }
+
+        @Override
+        public void addPeer(BzzProtocol peer) {
+            peers.put(peer, null);
+            super.addPeer(peer);
+//            nodeTable.addNode(peer.getNode().toNode());
+//            peersAdded();
+        }
+
+//        @Override
+//        public void removePeer(BzzProtocol peer) {
+//            peers.remove(peer);
+//            nodeTable.dropNode(peer.getNode().toNode());
+//        }
+//
+//        @Override
+//        public void addPeerRecords(BzzPeersMessage req) {
+//            for (PeerAddress peerAddress : req.getPeers()) {
+//                nodeTable.addNode(peerAddress.toNode());
+//            }
+//            peersAdded();
+//        }
+
+        @Override
+        public Collection<PeerAddress> getNodes(Key key, int max) {
+            List<Node> closestNodes = nodeTable.getClosestNodes(key.getBytes());
+            ArrayList<PeerAddress> ret = new ArrayList<>();
+            for (Node node : closestNodes) {
+                ret.add(new PeerAddress(node));
+                if (--max == 0) break;
+            }
+            return ret;
+        }
+
+        @Override
+        public Collection<BzzProtocol> getPeers(Key key, int maxCount) {
+            if (thisPeer == null) return peers.keySet();
+//            TreeMap<Key, TestPeer> sort = new TreeMap<Key, TestPeer>(new Comparator<Key>() {
+//                @Override
+//                public int compare(Key o1, Key o2) {
+//                    for (int i = 0; i < o1.getBytes().length; i++) {
+//                        if (o1.getBytes()[i] > o2.getBytes()[i]) return 1;
+//                        if (o1.getBytes()[i] < o2.getBytes()[i]) return -1;
+//                    }
+//                    return 0;
+//                }
+//            });
+//            for (TestPeer testPeer : TestPeer.staticMap.values()) {
+//                if (thisPeer != testPeer) {
+//                    sort.put(distance(key, new Key(testPeer.peerAddress.getId())), testPeer);
+//                }
+//            }
+            List<Node> closestNodes = nodeTable.getClosestNodes(key.getBytes());
+            ArrayList<BzzProtocol> ret = new ArrayList<>();
+            for (Node node : closestNodes) {
+                ret.add(thisPeer.getPeer(new PeerAddress(node)));
+
+                if (--maxCount == 0) break;
+            }
+            return ret;
+        }
+    }
+
+    public static class TestPeer {
+        public static boolean MessageOut = false;
+        public static boolean AsyncPipe = false;
+        static Map<PeerAddress, TestPeer> staticMap = Collections.synchronizedMap(new HashMap<PeerAddress, TestPeer>());
+        String name;
+        PeerAddress peerAddress;
+
+        LocalStore localStore;
+        Hive hive;
+        NetStore netStore;
+
+        Map<Key, BzzProtocol> connections = new HashMap<>();
+
+        public TestPeer(int num) {
+            this(new PeerAddress(new byte[]{0, 0, (byte) ((num >> 8) & 0xFF), (byte) (num & 0xFF)}, 1000 + num,
+                    sha3(new byte[]{(byte) ((num >> 8) & 0xFF), (byte) (num & 0xFF)})), "" + num);
+        }
+
+        public TestPeer(PeerAddress peerAddress, String name) {
+            this.name = name;
+            this.peerAddress = peerAddress;
+            localStore = new LocalStore(new MemStore(), new MemStore());
+            hive = new SimpleHive(peerAddress).setThisPeer(this);
+            netStore = new NetStore(localStore, hive);
+
+            netStore.start(peerAddress);
+
+            staticMap.put(peerAddress, this);
+        }
+
+        public BzzProtocol getPeer(PeerAddress addr) {
+            Key peerKey = new Key(addr.getId());
+            BzzProtocol protocol = connections.get(peerKey);
+            if (protocol == null) {
+                connect(staticMap.get(addr));
+                protocol = connections.get(peerKey);
+            }
+            return protocol;
+        }
+
+        private BzzProtocol createPeerProtocol(PeerAddress addr) {
+            Key peerKey = new Key(addr.getId());
+            BzzProtocol protocol = connections.get(peerKey);
+            if (protocol == null) {
+                protocol = new BzzProtocol(netStore);
+                connections.put(peerKey, protocol);
+            }
+            return protocol;
+        }
+
+        public void connect(TestPeer peer) {
+            BzzProtocol myBzz = this.createPeerProtocol(peer.peerAddress);
+            BzzProtocol peerBzz = peer.createPeerProtocol(peerAddress);
+
+            TestPipe pipe = AsyncPipe ? new TestAsyncPipe(myBzz, peerBzz) : new TestPipe(myBzz, peerBzz);
+
+            pipe.setNames(this.name, peer.name);
+            System.out.println("Connecting: " + this.name + " <=> " + peer.name);
+            myBzz.setMessageSender(pipe.createIn1());
+            peerBzz.setMessageSender(pipe.createIn2());
+            myBzz.start();
+            peerBzz.start();
+        }
+
+        public void connect(PeerAddress addr) {
+            TestPeer peer = staticMap.get(addr);
+            if (peer != null) {
+                connect(peer);
+            }
+        }
     }
 }

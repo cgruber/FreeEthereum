@@ -38,33 +38,25 @@ public class ChannelManager {
     // then we ban that peer IP on any connections for some time to protect from
     // too active peers
     private static final int inboundConnectionBanTimeout = 10 * 1000;
-
-    private List<Channel> newPeers = new CopyOnWriteArrayList<>();
     private final Map<ByteArrayWrapper, Channel> activePeers = new ConcurrentHashMap<>();
-
+    Random rnd = new Random();  // Used for distributing new blocks / hashes logic
+    @Autowired
+    SyncPool syncPool;
+    private List<Channel> newPeers = new CopyOnWriteArrayList<>();
     private ScheduledExecutorService mainWorker = Executors.newSingleThreadScheduledExecutor();
     private int maxActivePeers;
     private Map<InetAddress, Date> recentlyDisconnected = Collections.synchronizedMap(new LRUMap<InetAddress, Date>(500));
     private NodeFilter trustedPeers;
-
     /**
      * Queue with new blocks from other peers
      */
     private BlockingQueue<BlockWrapper> newForeignBlocks = new LinkedBlockingQueue<>();
-
     /**
      * Queue with new peers used for after channel init tasks
      */
     private BlockingQueue<Channel> newActivePeers = new LinkedBlockingQueue<>();
-
     private Thread blockDistributeThread;
     private Thread txDistributeThread;
-
-    Random rnd = new Random();  // Used for distributing new blocks / hashes logic
-
-    @Autowired
-    SyncPool syncPool;
-
     @Autowired
     private Ethereum ethereum;
 
@@ -85,14 +77,11 @@ public class ChannelManager {
         this.peerServer = peerServer;
         maxActivePeers = config.maxActivePeers();
         trustedPeers = config.peerTrusted();
-        mainWorker.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    processNewPeers();
-                } catch (Throwable t) {
-                    logger.error("Error", t);
-                }
+        mainWorker.scheduleWithFixedDelay(() -> {
+            try {
+                processNewPeers();
+            } catch (Throwable t) {
+                logger.error("Error", t);
             }
         }, 0, 1, TimeUnit.SECONDS);
 
@@ -106,21 +95,11 @@ public class ChannelManager {
         }
 
         // Resending new blocks to network in loop
-        this.blockDistributeThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                newBlocksDistributeLoop();
-            }
-        }, "NewSyncThreadBlocks");
+        this.blockDistributeThread = new Thread(this::newBlocksDistributeLoop, "NewSyncThreadBlocks");
         this.blockDistributeThread.start();
 
         // Resending pending txs to newly connected peers
-        this.txDistributeThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                newTxDistributeLoop();
-            }
-        }, "NewPeersThread");
+        this.txDistributeThread = new Thread(this::newTxDistributeLoop, "NewPeersThread");
         this.txDistributeThread.start();
     }
 
