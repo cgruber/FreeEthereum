@@ -1,18 +1,14 @@
 package org.ethereum.util;
 
 import org.ethereum.db.ByteArrayWrapper;
-
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
 import java.math.BigInteger;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -569,8 +565,7 @@ public class ByteUtil {
     public static void intsToBytes(int[] arr, byte[] b, boolean bigEndian) {
         if (!bigEndian) {
             int off = 0;
-            for (int i = 0; i < arr.length; i++) {
-                int ii = arr[i];
+            for (int ii : arr) {
                 b[off++] = (byte) (ii & 0xFF);
                 b[off++] = (byte) ((ii >> 8) & 0xFF);
                 b[off++] = (byte) ((ii >> 16) & 0xFF);
@@ -578,8 +573,7 @@ public class ByteUtil {
             }
         } else {
             int off = 0;
-            for (int i = 0; i < arr.length; i++) {
-                int ii = arr[i];
+            for (int ii : arr) {
                 b[off++] = (byte) ((ii >> 24) & 0xFF);
                 b[off++] = (byte) ((ii >> 16) & 0xFF);
                 b[off++] = (byte) ((ii >> 8) & 0xFF);

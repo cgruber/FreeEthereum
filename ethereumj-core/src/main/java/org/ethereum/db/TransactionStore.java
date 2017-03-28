@@ -1,10 +1,13 @@
 package org.ethereum.db;
 
 import org.apache.commons.collections4.map.LRUMap;
-import org.ethereum.datasource.*;
 import org.ethereum.core.TransactionInfo;
+import org.ethereum.datasource.ObjectDataSource;
+import org.ethereum.datasource.Serializer;
+import org.ethereum.datasource.Source;
 import org.ethereum.util.FastByteComparisons;
 import org.ethereum.util.RLP;
+import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +33,6 @@ import java.util.List;
 @Component
 public class TransactionStore extends ObjectDataSource<List<TransactionInfo>> {
     private static final Logger logger = LoggerFactory.getLogger("db");
-
-    private final LRUMap<ByteArrayWrapper, Object> lastSavedTxHash = new LRUMap<>(5000);
-    private final Object object = new Object();
-
     private final static Serializer<List<TransactionInfo>, byte[]> serializer =
             new Serializer<List<TransactionInfo>, byte[]>() {
         @Override
@@ -52,8 +51,8 @@ public class TransactionStore extends ObjectDataSource<List<TransactionInfo>> {
                 RLPList params = RLP.decode2(stream);
                 RLPList infoList = (RLPList) params.get(0);
                 List<TransactionInfo> ret = new ArrayList<>();
-                for (int i = 0; i < infoList.size(); i++) {
-                    ret.add(new TransactionInfo(infoList.get(i).getRLPData()));
+                for (RLPElement anInfoList : infoList) {
+                    ret.add(new TransactionInfo(anInfoList.getRLPData()));
                 }
                 return ret;
             } catch (Exception e) {
@@ -62,6 +61,12 @@ public class TransactionStore extends ObjectDataSource<List<TransactionInfo>> {
             }
         }
     };
+    private final LRUMap<ByteArrayWrapper, Object> lastSavedTxHash = new LRUMap<>(5000);
+    private final Object object = new Object();
+
+    public TransactionStore(Source<byte[], byte[]> src) {
+        super(src, serializer, 256);
+    }
 
     /**
      * Adds TransactionInfo to the store.
@@ -104,10 +109,6 @@ public class TransactionStore extends ObjectDataSource<List<TransactionInfo>> {
             }
         }
         return null;
-    }
-
-    public TransactionStore(Source<byte[], byte[]> src) {
-        super(src, serializer, 256);
     }
 
     @PreDestroy

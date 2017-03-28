@@ -72,7 +72,7 @@ java -jar ethereumj-core/build/libs/ethereumj-core-*-all.jar
 ```
 > git clone https://github.com/ethereum/ethereumj
 > cd ethereumj
-> gradlew build
+> ./gradlew build
 ```
   IDEA: 
 * File -> New -> Project from existing sources…

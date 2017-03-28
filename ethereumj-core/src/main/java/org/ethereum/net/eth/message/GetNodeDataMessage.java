@@ -1,6 +1,7 @@
 package org.ethereum.net.eth.message;
 
 import org.ethereum.util.RLP;
+import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 import org.ethereum.util.Utils;
 import org.spongycastle.util.encoders.Hex;
@@ -38,8 +39,8 @@ public class GetNodeDataMessage extends EthMessage {
         RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 
         this.nodeKeys = new ArrayList<>();
-        for (int i = 0; i < paramsList.size(); ++i) {
-            nodeKeys.add(paramsList.get(i).getRLPData());
+        for (RLPElement aParamsList : paramsList) {
+            nodeKeys.add(aParamsList.getRLPData());
         }
 
         this.parsed = true;

@@ -40,9 +40,7 @@ public class FrameCodecHandler extends NettyByteToMessageCodec<FrameCodec.Frame>
         // Check if a full frame was available.  If not, we'll try later when more bytes come in.
         if (frames == null || frames.isEmpty()) return;
 
-        for (int i = 0; i < frames.size(); i++) {
-            FrameCodec.Frame frame = frames.get(i);
-
+        for (FrameCodec.Frame frame : frames) {
             channel.getNodeStatistics().rlpxInMessages.add();
         }
 

@@ -7,14 +7,23 @@ import org.spongycastle.util.encoders.Hex;
 import java.util.Arrays;
 
 import static java.lang.Math.ceil;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class MemoryTest {
 
     private static final int WORD_SIZE = 32;
     private static final int CHUNK_SIZE = 1024;
+
+    private static void checkMemoryExtend(int dataSize) {
+        Memory memory = new Memory();
+        memory.extend(0, dataSize);
+        assertEquals(calcSize(dataSize, CHUNK_SIZE), memory.internalSize());
+        assertEquals(calcSize(dataSize, WORD_SIZE), memory.size());
+    }
+
+    private static int calcSize(int dataSize, int chunkSize) {
+        return (int) ceil((double) dataSize / chunkSize) * chunkSize;
+    }
 
     @Test
     public void testExtend() {
@@ -26,17 +35,6 @@ public class MemoryTest {
         checkMemoryExtend(CHUNK_SIZE);
         checkMemoryExtend(CHUNK_SIZE + 1);
         checkMemoryExtend(2000);
-    }
-
-    private static void checkMemoryExtend(int dataSize) {
-        Memory memory = new Memory();
-        memory.extend(0, dataSize);
-        assertEquals(calcSize(dataSize, CHUNK_SIZE), memory.internalSize());
-        assertEquals(calcSize(dataSize, WORD_SIZE), memory.size());
-    }
-
-    private static int calcSize(int dataSize, int chunkSize) {
-        return (int) ceil((double) dataSize / chunkSize) * chunkSize;
     }
 
     @Test
@@ -383,9 +381,9 @@ public class MemoryTest {
         byte[] data = memoryBuffer.read(0, 2048);
 
         int ones = 0; int twos = 0;
-        for (int i = 0; i < data.length; ++i){
-            if (data[i] == 1) ++ones;
-            if (data[i] == 2) ++twos;
+        for (byte aData : data) {
+            if (aData == 1) ++ones;
+            if (aData == 2) ++twos;
         }
 
         assertTrue(ones == twos);
@@ -409,10 +407,10 @@ public class MemoryTest {
         byte[] data = memoryBuffer.read(0, 2049);
 
         int ones = 0; int twos = 0; int zero = 0;
-        for (int i = 0; i < data.length; ++i){
-            if (data[i] == 1) ++ones;
-            if (data[i] == 2) ++twos;
-            if (data[i] == 0) ++zero;
+        for (byte aData : data) {
+            if (aData == 1) ++ones;
+            if (aData == 2) ++twos;
+            if (aData == 0) ++zero;
         }
 
         assertTrue(zero == 1);
@@ -442,9 +440,9 @@ public class MemoryTest {
         byte[] data = memoryBuffer.read(2720, 352);
 
         int ones = 0; int zero = 0;
-        for (int i = 0; i < data.length; ++i){
-            if (data[i] == 1) ++ones;
-            if (data[i] == 0) ++zero;
+        for (byte aData : data) {
+            if (aData == 1) ++ones;
+            if (aData == 0) ++zero;
         }
 
         assertTrue(ones == data.length);
@@ -472,9 +470,9 @@ public class MemoryTest {
         byte[] data = memoryBuffer.read(2720, 352);
 
         int ones = 0; int zero = 0;
-        for (int i = 0; i < data.length; ++i){
-            if (data[i] == 1) ++ones;
-            if (data[i] == 0) ++zero;
+        for (byte aData : data) {
+            if (aData == 1) ++ones;
+            if (aData == 0) ++zero;
         }
 
         assertTrue(ones == 300);
@@ -502,9 +500,9 @@ public class MemoryTest {
         byte[] data = memoryBuffer.read(10, 30);
 
         int ones = 0; int zero = 0;
-        for (int i = 0; i < data.length; ++i){
-            if (data[i] == 1) ++ones;
-            if (data[i] == 0) ++zero;
+        for (byte aData : data) {
+            if (aData == 1) ++ones;
+            if (aData == 0) ++zero;
         }
 
         assertTrue(ones == 20);

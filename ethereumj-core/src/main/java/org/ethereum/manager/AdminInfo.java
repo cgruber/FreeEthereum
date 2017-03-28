@@ -3,7 +3,6 @@ package org.ethereum.manager;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,8 +48,8 @@ public class AdminInfo {
         if (blockExecTime.isEmpty()) return 0L;
 
         long sum = 0;
-        for (int i = 0; i < blockExecTime.size(); ++i){
-            sum += blockExecTime.get(i);
+        for (Long aBlockExecTime : blockExecTime) {
+            sum += aBlockExecTime;
         }
 
         return sum / blockExecTime.size();

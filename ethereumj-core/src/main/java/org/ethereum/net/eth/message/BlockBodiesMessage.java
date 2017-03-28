@@ -1,7 +1,7 @@
 package org.ethereum.net.eth.message;
 
-import org.ethereum.core.Block;
 import org.ethereum.util.RLP;
+import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 import org.spongycastle.util.encoders.Hex;
 
@@ -34,8 +34,8 @@ public class BlockBodiesMessage extends EthMessage {
         RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 
         blockBodies = new ArrayList<>();
-        for (int i = 0; i < paramsList.size(); ++i) {
-            RLPList rlpData = ((RLPList) paramsList.get(i));
+        for (RLPElement aParamsList : paramsList) {
+            RLPList rlpData = ((RLPList) aParamsList);
             blockBodies.add(rlpData.getRLPData());
         }
         parsed = true;

@@ -1,16 +1,17 @@
 package org.ethereum.db;
 
 import org.ethereum.config.SystemProperties;
-import org.ethereum.config.blockchain.FrontierConfig;
-import org.ethereum.config.net.MainNetConfig;
 import org.ethereum.core.Block;
 import org.ethereum.core.Genesis;
 import org.ethereum.datasource.DbSource;
-import org.ethereum.datasource.leveldb.LevelDbDataSource;
 import org.ethereum.datasource.inmem.HashMapDB;
+import org.ethereum.datasource.leveldb.LevelDbDataSource;
 import org.ethereum.util.FileUtil;
 import org.ethereum.util.blockchain.StandaloneBlockchain;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -25,7 +26,7 @@ import java.nio.file.Files;
 import java.util.*;
 
 import static java.math.BigInteger.ZERO;
-import static org.ethereum.TestUtils.*;
+import static org.ethereum.TestUtils.getRandomChain;
 import static org.ethereum.util.ByteUtil.wrap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -735,10 +736,10 @@ public class IndexedBlockStoreTest {
 
             indexedBlockStore.saveBlock(Genesis.getInstance(), Genesis.getInstance().getCumulativeDifficulty(), true);
 
-            for (int i = 0; i < bestLine.size(); ++i){
+            for (Block aBestLine : bestLine) {
 
                 BigInteger td = indexedBlockStore.getTotalDifficulty();
-                Block newBlock = bestLine.get(i);
+                Block newBlock = aBestLine;
                 td = td.add(newBlock.getCumulativeDifficulty());
 
                 indexedBlockStore.saveBlock(newBlock, td, true);
@@ -749,9 +750,8 @@ public class IndexedBlockStoreTest {
             List<Block> forkLine = getRandomChain(forkParentHash, forkParentNumber + 1, 50);
 
 
-            for (int i = 0; i < forkLine.size(); ++i){
+            for (Block newBlock : forkLine) {
 
-                Block newBlock = forkLine.get(i);
                 Block parentBlock = indexedBlockStore.getBlockByHash(newBlock.getParentHash());
                 BigInteger td = indexedBlockStore.getTotalDifficultyForHash(parentBlock.getHash());
 
@@ -914,10 +914,10 @@ public class IndexedBlockStoreTest {
 
             indexedBlockStore.saveBlock(Genesis.getInstance(), Genesis.getInstance().getCumulativeDifficulty(), true);
 
-            for (int i = 0; i < bestLine.size(); ++i){
+            for (Block aBestLine : bestLine) {
 
                 BigInteger td = indexedBlockStore.getTotalDifficulty();
-                Block newBlock = bestLine.get(i);
+                Block newBlock = aBestLine;
                 td = td.add(newBlock.getCumulativeDifficulty());
 
                 indexedBlockStore.saveBlock(newBlock, td, true);
@@ -928,9 +928,8 @@ public class IndexedBlockStoreTest {
             List<Block> forkLine = getRandomChain(forkParentHash, forkParentNumber + 1, 10);
 
 
-            for (int i = 0; i < forkLine.size(); ++i){
+            for (Block newBlock : forkLine) {
 
-                Block newBlock = forkLine.get(i);
                 Block parentBlock = indexedBlockStore.getBlockByHash(newBlock.getParentHash());
                 BigInteger td = indexedBlockStore.getTotalDifficultyForHash(parentBlock.getHash());
 

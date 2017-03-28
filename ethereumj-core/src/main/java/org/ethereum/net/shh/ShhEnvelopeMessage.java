@@ -1,6 +1,7 @@
 package org.ethereum.net.shh;
 
 import org.ethereum.util.RLP;
+import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 
 import java.util.ArrayList;
@@ -45,8 +46,8 @@ public class ShhEnvelopeMessage extends ShhMessage {
         if (!parsed) {
             RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 
-            for (int i = 0; i < paramsList.size(); i++) {
-                messages.add(new WhisperMessage(paramsList.get(i).getRLPData()));
+            for (RLPElement aParamsList : paramsList) {
+                messages.add(new WhisperMessage(aParamsList.getRLPData()));
             }
             this.parsed = true;
         }

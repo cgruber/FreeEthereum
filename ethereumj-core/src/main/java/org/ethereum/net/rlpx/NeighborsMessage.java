@@ -1,11 +1,7 @@
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
-import org.ethereum.util.ByteUtil;
-import org.ethereum.util.RLP;
-import org.ethereum.util.RLPItem;
-import org.ethereum.util.RLPList;
-import org.spongycastle.util.encoders.Hex;
+import org.ethereum.util.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,24 +12,6 @@ public class NeighborsMessage extends Message {
 
     List<Node> nodes;
     long expires;
-
-    @Override
-    public void parse(byte[] data) {
-        RLPList list = (RLPList) RLP.decode2OneItem(data, 0);
-
-        RLPList nodesRLP = (RLPList) list.get(0);
-        RLPItem expires = (RLPItem) list.get(1);
-
-        nodes = new ArrayList<>();
-
-        for (int i = 0; i < nodesRLP.size(); ++i) {
-            RLPList nodeRLP = (RLPList) nodesRLP.get(i);
-            Node node = new Node(nodeRLP.getRLPData());
-            nodes.add(node);
-        }
-        this.expires = ByteUtil.byteArrayToLong(expires.getRLPData());
-    }
-
 
     public static NeighborsMessage create(List<Node> nodes, ECKey privKey) {
 
@@ -63,6 +41,23 @@ public class NeighborsMessage extends Message {
         neighborsMessage.expires = expiration;
 
         return neighborsMessage;
+    }
+
+    @Override
+    public void parse(byte[] data) {
+        RLPList list = (RLPList) RLP.decode2OneItem(data, 0);
+
+        RLPList nodesRLP = (RLPList) list.get(0);
+        RLPItem expires = (RLPItem) list.get(1);
+
+        nodes = new ArrayList<>();
+
+        for (RLPElement aNodesRLP : nodesRLP) {
+            RLPList nodeRLP = (RLPList) aNodesRLP;
+            Node node = new Node(nodeRLP.getRLPData());
+            nodes.add(node);
+        }
+        this.expires = ByteUtil.byteArrayToLong(expires.getRLPData());
     }
 
     public List<Node> getNodes() {

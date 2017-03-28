@@ -2,6 +2,7 @@ package org.ethereum.net.eth.message;
 
 import org.ethereum.core.BlockIdentifier;
 import org.ethereum.util.RLP;
+import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
 
 import java.util.ArrayList;
@@ -36,8 +37,8 @@ public class NewBlockHashesMessage extends EthMessage {
         RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 
         blockIdentifiers = new ArrayList<>();
-        for (int i = 0; i < paramsList.size(); ++i) {
-            RLPList rlpData = ((RLPList) paramsList.get(i));
+        for (RLPElement aParamsList : paramsList) {
+            RLPList rlpData = ((RLPList) aParamsList);
             blockIdentifiers.add(new BlockIdentifier(rlpData));
         }
         parsed = true;

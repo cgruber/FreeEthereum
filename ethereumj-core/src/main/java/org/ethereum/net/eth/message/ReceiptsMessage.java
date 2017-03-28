@@ -1,13 +1,9 @@
 package org.ethereum.net.eth.message;
 
-import org.ethereum.core.Bloom;
-import org.ethereum.core.Transaction;
 import org.ethereum.core.TransactionReceipt;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPElement;
-import org.ethereum.util.RLPItem;
 import org.ethereum.util.RLPList;
-import org.ethereum.vm.LogInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +32,8 @@ public class ReceiptsMessage extends EthMessage {
         RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 
         this.receipts = new ArrayList<>();
-        for (int i = 0; i < paramsList.size(); ++i) {
-            RLPList blockRLP = (RLPList) paramsList.get(i);
+        for (RLPElement aParamsList : paramsList) {
+            RLPList blockRLP = (RLPList) aParamsList;
 
             List<TransactionReceipt> blockReceipts = new ArrayList<>();
             for (RLPElement txReceipt : blockRLP) {
