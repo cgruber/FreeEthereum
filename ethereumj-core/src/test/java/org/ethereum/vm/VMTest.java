@@ -5,11 +5,9 @@ import org.ethereum.util.ByteUtil;
 import org.ethereum.vm.program.Program;
 import org.ethereum.vm.program.Program.BadJumpDestinationException;
 import org.ethereum.vm.program.Program.StackTooSmallException;
-
 import org.ethereum.vm.program.invoke.ProgramInvokeMockImpl;
 import org.junit.*;
 import org.junit.runners.MethodSorters;
-
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.List;
@@ -1119,11 +1117,11 @@ public class VMTest {
 
         VM vm = new VM();
         byte operation = (byte) (OpCode.DUP1.val() + n - 1);
-        String programCode = "";
+        StringBuilder programCode = new StringBuilder();
         for (int i = 0; i < n; i++) {
-            programCode += "60" + (12 + i);
+            programCode.append("60").append(12 + i);
         }
-        program = new Program(ByteUtil.appendByte(Hex.decode(programCode.getBytes()), operation), invoke);
+        program = new Program(ByteUtil.appendByte(Hex.decode(programCode.toString().getBytes()), operation), invoke);
         String expected = "0000000000000000000000000000000000000000000000000000000000000012";
         int expectedLen = n + 1;
 
@@ -1168,16 +1166,16 @@ public class VMTest {
         VM vm = new VM();
         byte operation = (byte) (OpCode.SWAP1.val() + n - 1);
 
-        String programCode = "";
+        StringBuilder programCode = new StringBuilder();
         String top = new DataWord(0x10 + n).toString();
         for (int i = n; i > -1; --i) {
-            programCode += "60" + oneByteToHexString((byte) (0x10 + i));
+            programCode.append("60").append(oneByteToHexString((byte) (0x10 + i)));
 
         }
 
-        programCode += Hex.toHexString(new byte[]{   (byte)(OpCode.SWAP1.val() + n - 1)   });
+        programCode.append(Hex.toHexString(new byte[]{(byte) (OpCode.SWAP1.val() + n - 1)}));
 
-        program = new Program(ByteUtil.appendByte(Hex.decode(programCode), operation), invoke);
+        program = new Program(ByteUtil.appendByte(Hex.decode(programCode.toString()), operation), invoke);
 
         for (int i = 0; i < n + 2; ++i) {
             vm.step(program);

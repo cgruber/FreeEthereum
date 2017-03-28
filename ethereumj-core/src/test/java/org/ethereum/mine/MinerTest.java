@@ -4,14 +4,17 @@ import com.typesafe.config.ConfigFactory;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ethereum.config.NoAutoscan;
 import org.ethereum.config.SystemProperties;
-import org.ethereum.core.*;
+import org.ethereum.core.Block;
+import org.ethereum.core.BlockHeader;
+import org.ethereum.core.Transaction;
+import org.ethereum.core.TransactionReceipt;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.facade.EthereumFactory;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.net.eth.handler.Eth62;
-import org.ethereum.net.eth.message.*;
+import org.ethereum.net.eth.message.NewBlockMessage;
 import org.ethereum.util.ByteUtil;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -21,13 +24,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-import static org.ethereum.crypto.HashUtil.sha3;
 
 /**
  * Long running test
@@ -39,33 +41,29 @@ import static org.ethereum.crypto.HashUtil.sha3;
 @Ignore
 public class MinerTest {
 
-    @Configuration
-    @NoAutoscan
-    public static class SysPropConfig1 {
-        static Eth62 testHandler = null;
-
-        static SystemProperties props = new SystemProperties();;
-        @Bean
-        public SystemProperties systemProperties() {
-            return props;
-        }
-    }
-
-    @Configuration
-    @NoAutoscan
-    public static class SysPropConfig2 {
-        static Eth62 testHandler = null;
-
-        static SystemProperties props = new SystemProperties();;
-        @Bean
-        public SystemProperties systemProperties() {
-            return props;
-        }
-    }
+    Map<ByteArrayWrapper, Pair<Transaction, Long>> submittedTxs = Collections.synchronizedMap(
+            new HashMap<ByteArrayWrapper, Pair<Transaction, Long>>());
 
     @BeforeClass
     public static void setup() {
 //        Constants.MINIMUM_DIFFICULTY = BigInteger.valueOf(1);
+    }
+
+    static String blockInfo(Block b) {
+        boolean ours = Hex.toHexString(b.getExtraData()).startsWith("cccccccccc");
+        StringBuilder txs = new StringBuilder("Tx[");
+        for (Transaction tx : b.getTransactionsList()) {
+            txs.append(ByteUtil.byteArrayToLong(tx.getNonce())).append(", ");
+        }
+        txs = new StringBuilder(txs.substring(0, txs.length() - 2) + "]");
+        return (ours ? "##" : "  ") + b.getShortDescr() + " " + txs;
+    }
+
+    public static void main(String[] args) throws Exception {
+        ECKey k = ECKey.fromPrivate(Hex.decode("6ef8da380c27cea8fdf7448340ea99e8e2268fc2950d79ed47cbf6f85dc977ec"));
+        System.out.println(Hex.toHexString(k.getPrivKeyBytes()));
+        System.out.println(Hex.toHexString(k.getAddress()));
+        System.out.println(Hex.toHexString(k.getNodeId()));
     }
 
     @Test
@@ -146,20 +144,6 @@ public class MinerTest {
         }
 
         Thread.sleep(100000000L);
-    }
-
-
-    Map<ByteArrayWrapper, Pair<Transaction, Long>> submittedTxs = Collections.synchronizedMap(
-            new HashMap<ByteArrayWrapper, Pair<Transaction, Long>>());
-
-    static String blockInfo(Block b) {
-        boolean ours = Hex.toHexString(b.getExtraData()).startsWith("cccccccccc");
-        String txs = "Tx[";
-        for (Transaction tx : b.getTransactionsList()) {
-            txs += ByteUtil.byteArrayToLong(tx.getNonce()) + ", ";
-        }
-        txs = txs.substring(0, txs.length() - 2) + "]";
-        return (ours ? "##" : "  ") + b.getShortDescr() + " " + txs;
     }
 
     @Test
@@ -286,13 +270,6 @@ public class MinerTest {
 
     }
 
-    public static void main(String[] args) throws Exception {
-        ECKey k = ECKey.fromPrivate(Hex.decode("6ef8da380c27cea8fdf7448340ea99e8e2268fc2950d79ed47cbf6f85dc977ec"));
-        System.out.println(Hex.toHexString(k.getPrivKeyBytes()));
-        System.out.println(Hex.toHexString(k.getAddress()));
-        System.out.println(Hex.toHexString(k.getNodeId()));
-    }
-
     @Test
     public void blockTest() {
         String rlp = "f90498f90490f90217a0887405e8cf98cfdbbf5ab4521d45a0803e397af61852d94dc46ca077787088bfa0d6d234f05ac90931822b7b6f244cef81" +
@@ -324,6 +301,32 @@ public class MinerTest {
             BlockHeader blockHeader = new BlockHeader(Hex.decode(s));
             System.out.println(Hex.toHexString(blockHeader.getHash()).substring(0, 6));
             System.out.println(blockHeader);
+        }
+    }
+
+    @Configuration
+    @NoAutoscan
+    public static class SysPropConfig1 {
+        static Eth62 testHandler = null;
+
+        static SystemProperties props = new SystemProperties();
+
+        @Bean
+        public SystemProperties systemProperties() {
+            return props;
+        }
+    }
+
+    @Configuration
+    @NoAutoscan
+    public static class SysPropConfig2 {
+        static Eth62 testHandler = null;
+
+        static SystemProperties props = new SystemProperties();
+
+        @Bean
+        public SystemProperties systemProperties() {
+            return props;
         }
     }
 

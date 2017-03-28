@@ -1,8 +1,6 @@
 package org.ethereum.db;
 
 import org.ethereum.config.SystemProperties;
-import org.ethereum.datasource.DbSource;
-import org.ethereum.datasource.MemSizeEstimator;
 import org.ethereum.datasource.WriteCache;
 import org.ethereum.datasource.inmem.HashMapDB;
 import org.junit.Assert;
@@ -30,7 +28,7 @@ public class FlushDbManagerTest {
         final WriteCache<byte[], byte[]> cache2 = new WriteCache.BytesKey<>(db2, WriteCache.CacheType.SIMPLE);
         cache2.withSizeEstimators(ByteArrayEstimator, ByteArrayEstimator);
 
-        final DbFlushManager dbFlushManager = new DbFlushManager(SystemProperties.getDefault(), Collections.<DbSource>emptySet(), null);
+        final DbFlushManager dbFlushManager = new DbFlushManager(SystemProperties.getDefault(), Collections.emptySet(), null);
         dbFlushManager.addCache(cache1);
         dbFlushManager.addCache(cache2);
         dbFlushManager.setSizeThreshold(1);

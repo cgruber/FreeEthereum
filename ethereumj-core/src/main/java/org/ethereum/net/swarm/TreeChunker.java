@@ -54,99 +54,10 @@ public class TreeChunker implements Chunker {
         }
     }
 
-    public class TreeChunk extends Chunk {
-        private static final int DATA_OFFSET = 8;
-
-        public TreeChunk(int dataSize) {
-            super(null, new byte[DATA_OFFSET + dataSize]);
-            setSubtreeSize(dataSize);
-        }
-
-        public TreeChunk(Chunk chunk) {
-            super(chunk.getKey(), chunk.getData());
-        }
-
-        public void setSubtreeSize(long size) {
-            ByteBuffer.wrap(getData()).order(ByteOrder.LITTLE_ENDIAN).putLong(0, size);
-        }
-
-        public long getSubtreeSize() {
-            return ByteBuffer.wrap(getData()).order(ByteOrder.LITTLE_ENDIAN).getLong(0);
-        }
-
-        public int getDataOffset() {
-            return DATA_OFFSET;
-        }
-
-        public Key getKey() {
-            if (key == null) {
-                key = new Key(hasher.digest(getData()));
-            }
-            return key;
-        }
-
-        @Override
-        public String toString() {
-            String dataString = ByteUtil.toHexString(
-                    Arrays.copyOfRange(getData(), getDataOffset(), getDataOffset() + 16)) + "...";
-            return "TreeChunk[" + getSubtreeSize() + ", " + getKey() + ", " + dataString + "]";
-        }
-    }
-
-    public class HashesChunk extends TreeChunk {
-
-        public HashesChunk(long subtreeSize) {
-            super(branches * hashSize);
-            setSubtreeSize(subtreeSize);
-        }
-
-        public HashesChunk(Chunk chunk) {
-            super(chunk);
-        }
-
-        public int getKeyCount() {
-            return branches;
-        }
-
-        public Key getKey(int idx) {
-            int off = getDataOffset() + idx * hashSize;
-            return new Key(Arrays.copyOfRange(getData(), off, off + hashSize));
-        }
-
-        public void setKey(int idx, Key key) {
-            int off = getDataOffset() + idx * hashSize;
-            System.arraycopy(key.getBytes(), 0, getData(), off, hashSize);
-        }
-
-        @Override
-        public String toString() {
-            String hashes = "{";
-            for (int i = 0; i < getKeyCount(); i++) {
-                hashes += (i == 0 ? "" : ", ") + getKey(i);
-            }
-            hashes += "}";
-            return "HashesChunk[" + getSubtreeSize() + ", " + getKey() + ", " + hashes + "]";
-        }
-    }
-
-    private class TreeSize {
-        int depth;
-        long treeSize;
-
-        public TreeSize(long dataSize) {
-            treeSize = chunkSize;
-            for (; treeSize < dataSize; treeSize *= branches) {
-                depth++;
-            }
-        }
-    }
-
     private int branches;
     private MessageDigest hasher;
-
     private int hashSize;
     private long chunkSize;
-
     public TreeChunker() {
         this(DEFAULT_BRANCHES, DEFAULT_HASHER);
     }
@@ -227,12 +138,133 @@ public class TreeChunker implements Chunker {
         return hashSize;
     }
 
+    /**
+     * A 'subReader'
+     */
+    public static class SlicedReader implements SectionReader {
+        SectionReader delegate;
+        long offset;
+        long len;
+
+        public SlicedReader(SectionReader delegate, long offset, long len) {
+            this.delegate = delegate;
+            this.offset = offset;
+            this.len = len;
+        }
+
+        @Override
+        public long seek(long offset, int whence) {
+            return delegate.seek(this.offset + offset, whence);
+        }
+
+        @Override
+        public int read(byte[] dest, int destOff) {
+            return delegate.readAt(dest, destOff, offset);
+        }
+
+        @Override
+        public int readAt(byte[] dest, int destOff, long readerOffset) {
+            return delegate.readAt(dest, destOff, offset + readerOffset);
+        }
+
+        @Override
+        public long getSize() {
+            return len;
+        }
+    }
+
+    public class TreeChunk extends Chunk {
+        private static final int DATA_OFFSET = 8;
+
+        public TreeChunk(int dataSize) {
+            super(null, new byte[DATA_OFFSET + dataSize]);
+            setSubtreeSize(dataSize);
+        }
+
+        public TreeChunk(Chunk chunk) {
+            super(chunk.getKey(), chunk.getData());
+        }
+
+        public long getSubtreeSize() {
+            return ByteBuffer.wrap(getData()).order(ByteOrder.LITTLE_ENDIAN).getLong(0);
+        }
+
+        public void setSubtreeSize(long size) {
+            ByteBuffer.wrap(getData()).order(ByteOrder.LITTLE_ENDIAN).putLong(0, size);
+        }
+
+        public int getDataOffset() {
+            return DATA_OFFSET;
+        }
+
+        public Key getKey() {
+            if (key == null) {
+                key = new Key(hasher.digest(getData()));
+            }
+            return key;
+        }
+
+        @Override
+        public String toString() {
+            String dataString = ByteUtil.toHexString(
+                    Arrays.copyOfRange(getData(), getDataOffset(), getDataOffset() + 16)) + "...";
+            return "TreeChunk[" + getSubtreeSize() + ", " + getKey() + ", " + dataString + "]";
+        }
+    }
+
+    public class HashesChunk extends TreeChunk {
+
+        public HashesChunk(long subtreeSize) {
+            super(branches * hashSize);
+            setSubtreeSize(subtreeSize);
+        }
+
+        public HashesChunk(Chunk chunk) {
+            super(chunk);
+        }
+
+        public int getKeyCount() {
+            return branches;
+        }
+
+        public Key getKey(int idx) {
+            int off = getDataOffset() + idx * hashSize;
+            return new Key(Arrays.copyOfRange(getData(), off, off + hashSize));
+        }
+
+        public void setKey(int idx, Key key) {
+            int off = getDataOffset() + idx * hashSize;
+            System.arraycopy(key.getBytes(), 0, getData(), off, hashSize);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder hashes = new StringBuilder("{");
+            for (int i = 0; i < getKeyCount(); i++) {
+                hashes.append(i == 0 ? "" : ", ").append(getKey(i));
+            }
+            hashes.append("}");
+            return "HashesChunk[" + getSubtreeSize() + ", " + getKey() + ", " + hashes + "]";
+        }
+    }
+
+    private class TreeSize {
+        int depth;
+        long treeSize;
+
+        public TreeSize(long dataSize) {
+            treeSize = chunkSize;
+            for (; treeSize < dataSize; treeSize *= branches) {
+                depth++;
+            }
+        }
+    }
+
     private class LazyChunkReader implements SectionReader {
+        final long size;
+        final Chunk root;
         Key key;
         ChunkStore chunkStore;
-        final long size;
-
-        final Chunk root;
 
         public LazyChunkReader(ChunkStore chunkStore, Key key) {
             this.chunkStore = chunkStore;
@@ -294,41 +326,6 @@ public class TreeChunker implements Chunker {
         @Override
         public int read(byte[] dest, int destOff) {
             return readAt(dest, destOff, 0);
-        }
-    }
-
-    /**
-     * A 'subReader'
-     */
-    public static class SlicedReader implements SectionReader {
-        SectionReader delegate;
-        long offset;
-        long len;
-
-        public SlicedReader(SectionReader delegate, long offset, long len) {
-            this.delegate = delegate;
-            this.offset = offset;
-            this.len = len;
-        }
-
-        @Override
-        public long seek(long offset, int whence) {
-            return delegate.seek(this.offset + offset, whence);
-        }
-
-        @Override
-        public int read(byte[] dest, int destOff) {
-            return delegate.readAt(dest, destOff, offset);
-        }
-
-        @Override
-        public int readAt(byte[] dest, int destOff, long readerOffset) {
-            return delegate.readAt(dest, destOff, offset + readerOffset);
-        }
-
-        @Override
-        public long getSize() {
-            return len;
         }
     }
 }

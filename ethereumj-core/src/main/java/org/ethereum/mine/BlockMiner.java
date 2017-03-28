@@ -34,32 +34,22 @@ public class BlockMiner {
     private static final Logger logger = LoggerFactory.getLogger("mine");
 
     private static ExecutorService executor = Executors.newSingleThreadExecutor();
-
+    private final Queue<ListenableFuture<MiningResult>> currentMiningTasks = new ConcurrentLinkedQueue<>();
+    protected PendingState pendingState;
     private Blockchain blockchain;
-
     private BlockStore blockStore;
-
     @Autowired
     private Ethereum ethereum;
-
-    protected PendingState pendingState;
-
     private CompositeEthereumListener listener;
-
     private SystemProperties config;
-
     private List<MinerListener> listeners = new CopyOnWriteArrayList<>();
-
     private BigInteger minGasPrice;
     private long minBlockTimeout;
     private int cpuThreads;
     private boolean fullMining = true;
-
     private volatile boolean isLocalMining;
     private Block miningBlock;
     private volatile MinerIfc externalMiner;
-
-    private final Queue<ListenableFuture<MiningResult>> currentMiningTasks = new ConcurrentLinkedQueue<>();
     private long lastBlockMinedTime;
     private int UNCLE_LIST_LIMIT;
     private int UNCLE_GENERATION_LIMIT;
@@ -159,11 +149,11 @@ public class BlockMiner {
             restartMining();
         } else {
             if (logger.isDebugEnabled()) {
-                String s = "onPendingStateChanged() event, but pending Txs the same as in currently mining block: ";
+                StringBuilder s = new StringBuilder("onPendingStateChanged() event, but pending Txs the same as in currently mining block: ");
                 for (Transaction tx : getAllPendingTransactions()) {
-                    s += "\n    " + tx;
+                    s.append("\n    ").append(tx);
                 }
-                logger.debug(s);
+                logger.debug(s.toString());
             }
         }
     }

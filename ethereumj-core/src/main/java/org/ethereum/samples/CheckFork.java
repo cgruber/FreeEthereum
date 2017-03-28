@@ -23,10 +23,10 @@ public class CheckFork {
         for (int i = 1_919_990; i < 1_921_000; i++) {
             Block chainBlock = indexedBlockStore.getChainBlockByNumber(i);
             List<Block> blocks = indexedBlockStore.getBlocksByNumber(i);
-            String s = chainBlock.getShortDescr() + " (";
+            StringBuilder s = new StringBuilder(chainBlock.getShortDescr() + " (");
             for (Block block : blocks) {
                 if (!block.isEqual(chainBlock)) {
-                    s += block.getShortDescr() + " ";
+                    s.append(block.getShortDescr()).append(" ");
                 }
             }
             System.out.println(s);

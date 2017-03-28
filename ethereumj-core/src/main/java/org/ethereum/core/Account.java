@@ -2,13 +2,11 @@ package org.ethereum.core;
 
 import org.ethereum.crypto.ECKey;
 import org.ethereum.util.Utils;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -21,14 +19,12 @@ import java.util.Set;
 @Scope("prototype")
 public class Account {
 
-    private ECKey ecKey;
-    private byte[] address;
-
-    private Set<Transaction> pendingTransactions =
+    private final Set<Transaction> pendingTransactions =
             Collections.synchronizedSet(new HashSet<Transaction>());
-
     @Autowired
     Repository repository;
+    private ECKey ecKey;
+    private byte[] address;
 
     public Account() {
     }

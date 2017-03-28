@@ -14,8 +14,8 @@ import java.util.*;
  * Created by Anton Nashatyrev on 30.05.2016.
  */
 public class SyncQueueImplTest {
-    byte[] peer0 = new byte[32];
     private static final int DEFAULT_REQUEST_LEN = 192;
+    byte[] peer0 = new byte[32];
 
     @Test
     public void test1() {
@@ -119,10 +119,7 @@ public class SyncQueueImplTest {
                 List<BlockHeader> headers = peers[peerIdx].getHeaders(request);
 
                 // Removing genesis header, which we will not get from real peers
-                Iterator<BlockHeader> it = headers.iterator();
-                while (it.hasNext()) {
-                    if (FastByteComparisons.equal(it.next().getHash(), randomChain.get(0).getHash())) it.remove();
-                }
+                headers.removeIf(blockHeader -> FastByteComparisons.equal(blockHeader.getHash(), randomChain.get(0).getHash()));
 
                 peerIdx = (peerIdx + 1) % 2;
                 List<BlockHeaderWrapper> ret = syncQueue.addHeaders(createHeadersFromHeaders(headers, peer0));
@@ -156,10 +153,7 @@ public class SyncQueueImplTest {
     @Test
     public void testGapedLongestChain() {
         List<Block> randomChain = TestUtils.getRandomAltChain(new byte[32], 0, 100, 5);
-        Iterator<Block> it = randomChain.iterator();
-        while (it.hasNext()) {
-            if (it.next().getHeader().getNumber() == 15) it.remove();
-        }
+        randomChain.removeIf(block -> block.getHeader().getNumber() == 15);
         SyncQueueImpl syncQueue = new SyncQueueImpl(randomChain);
         assert syncQueue.getLongestChain().size() == 15; // 0 .. 14
     }
@@ -167,10 +161,7 @@ public class SyncQueueImplTest {
     @Test
     public void testFirstBlockGapedLongestChain() {
         List<Block> randomChain = TestUtils.getRandomAltChain(new byte[32], 0, 100, 5);
-        Iterator<Block> it = randomChain.iterator();
-        while (it.hasNext()) {
-            if (it.next().getHeader().getNumber() == 1) it.remove();
-        }
+        randomChain.removeIf(block -> block.getHeader().getNumber() == 1);
         SyncQueueImpl syncQueue = new SyncQueueImpl(randomChain);
         assert syncQueue.getLongestChain().size() == 1; // 0
     }
@@ -178,10 +169,7 @@ public class SyncQueueImplTest {
     @Test(expected = AssertionError.class)
     public void testZeroBlockGapedLongestChain() {
         List<Block> randomChain = TestUtils.getRandomAltChain(new byte[32], 0, 100, 5);
-        Iterator<Block> it = randomChain.iterator();
-        while (it.hasNext()) {
-            if (it.next().getHeader().getNumber() == 0) it.remove();
-        }
+        randomChain.removeIf(block -> block.getHeader().getNumber() == 0);
         SyncQueueImpl syncQueue = new SyncQueueImpl(randomChain);
         syncQueue.getLongestChain().size();
     }
@@ -269,6 +257,22 @@ public class SyncQueueImplTest {
         if (i == 1000) throw new RuntimeException("Exported only till block: " + maxExportedBlock[0]);
     }
 
+    private List<BlockHeaderWrapper> createHeadersFromHeaders(List<BlockHeader> headers, byte[] peer) {
+        List<BlockHeaderWrapper> ret = new ArrayList<>();
+        for (BlockHeader header : headers) {
+            ret.add(new BlockHeaderWrapper(header, peer));
+        }
+        return ret;
+    }
+
+    private List<BlockHeaderWrapper> createHeadersFromBlocks(List<Block> blocks, byte[] peer) {
+        List<BlockHeaderWrapper> ret = new ArrayList<>();
+        for (Block block : blocks) {
+            ret.add(new BlockHeaderWrapper(block.getHeader(), peer));
+        }
+        return ret;
+    }
+
     private static class Peer {
         Map<ByteArrayWrapper, Block> blocks = new HashMap<>();
         List<Block> chain;
@@ -349,20 +353,5 @@ public class SyncQueueImplTest {
             }
             return ret;
         }
-    }
-
-    private List<BlockHeaderWrapper> createHeadersFromHeaders(List<BlockHeader> headers, byte[] peer) {
-        List<BlockHeaderWrapper> ret = new ArrayList<>();
-        for (BlockHeader header : headers) {
-            ret.add(new BlockHeaderWrapper(header, peer));
-        }
-        return ret;
-    }
-    private List<BlockHeaderWrapper> createHeadersFromBlocks(List<Block> blocks, byte[] peer) {
-        List<BlockHeaderWrapper> ret = new ArrayList<>();
-        for (Block block : blocks) {
-            ret.add(new BlockHeaderWrapper(block.getHeader(), peer));
-        }
-        return ret;
     }
 }

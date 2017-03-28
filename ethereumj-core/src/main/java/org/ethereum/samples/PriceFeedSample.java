@@ -26,6 +26,66 @@ import java.util.Date;
  */
 public class PriceFeedSample extends BasicSample {
 
+    public static void main(String[] args) throws Exception {
+        sLogger.info("Starting EthereumJ!");
+
+        // Based on Config class the sample would be created by Spring
+        // and its springInit() method would be called as an entry point
+        EthereumFactory.createEthereum(Config.class);
+    }
+
+    @Override
+    public void onSyncDone() {
+        try {
+            // after all blocks are synced perform the work
+//            worker();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    protected void waitForDiscovery() throws Exception {
+        super.waitForDiscovery();
+        worker();
+    }
+
+    /**
+     * The method retrieves the information from the PriceFeed contract once in a minute and prints
+     * the result in log.
+     */
+    private void worker() throws Exception {
+        NameRegContract nameRegContract = new NameRegContract();
+        if (!nameRegContract.isExist()) {
+            throw new RuntimeException("Namereg contract not exist on the blockchain");
+        }
+        String priceFeedAddress = Hex.toHexString(nameRegContract.addressOf("ether-camp/price-feed"));
+        logger.info("Got PriceFeed address from name registry: " + priceFeedAddress);
+        PriceFeedContract priceFeedContract = new PriceFeedContract(priceFeedAddress);
+
+        logger.info("Polling cryptocurrency exchange rates once a minute (prices are normally updated each 10 mins)...");
+        String[] tickers = {"BTC_ETH", "USDT_BTC", "USDT_ETH"};
+        while (true) {
+            if (priceFeedContract.isExist()) {
+                StringBuilder s = new StringBuilder(priceFeedContract.updateTime() + ": ");
+                for (String ticker : tickers) {
+                    s.append(ticker).append(" ").append(priceFeedContract.getPrice(ticker)).append(" (").append(priceFeedContract.getTimestamp(ticker)).append("), ");
+                }
+                logger.info(s.toString());
+            } else {
+                logger.info("PriceFeed contract not exist. Likely it was not yet created until current block");
+            }
+            Thread.sleep(60 * 1000);
+        }
+    }
+
+    private static class Config {
+        @Bean
+        public PriceFeedSample priceFeedSample() {
+            return new PriceFeedSample();
+        }
+    }
+
     /**
      * Base class for a Ethereum Contract wrapper
      * It can be used by two ways:
@@ -193,67 +253,5 @@ public class PriceFeedSample extends BasicSample {
             BigInteger ret = (BigInteger) callFunction("getTimestamp", ticker)[0];
             return new Date(Utils.fromUnixTime(ret.longValue()));
         }
-    }
-
-
-    @Override
-    public void onSyncDone() {
-        try {
-            // after all blocks are synced perform the work
-//            worker();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    protected void waitForDiscovery() throws Exception {
-        super.waitForDiscovery();
-        worker();
-    }
-
-    /**
-     * The method retrieves the information from the PriceFeed contract once in a minute and prints
-     * the result in log.
-     */
-    private void worker() throws Exception{
-        NameRegContract nameRegContract = new NameRegContract();
-        if (!nameRegContract.isExist()) {
-            throw new RuntimeException("Namereg contract not exist on the blockchain");
-        }
-        String priceFeedAddress = Hex.toHexString(nameRegContract.addressOf("ether-camp/price-feed"));
-        logger.info("Got PriceFeed address from name registry: " + priceFeedAddress);
-        PriceFeedContract priceFeedContract = new PriceFeedContract(priceFeedAddress);
-
-        logger.info("Polling cryptocurrency exchange rates once a minute (prices are normally updated each 10 mins)...");
-        String[] tickers = {"BTC_ETH", "USDT_BTC", "USDT_ETH"};
-        while(true) {
-            if (priceFeedContract.isExist()) {
-                String s = priceFeedContract.updateTime() + ": ";
-                for (String ticker : tickers) {
-                    s += ticker + " " + priceFeedContract.getPrice(ticker) + " (" + priceFeedContract.getTimestamp(ticker) + "), ";
-                }
-                logger.info(s);
-            } else {
-                logger.info("PriceFeed contract not exist. Likely it was not yet created until current block");
-            }
-            Thread.sleep(60 * 1000);
-        }
-    }
-
-    private static class Config {
-        @Bean
-        public PriceFeedSample priceFeedSample() {
-            return new PriceFeedSample();
-        }
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        sLogger.info("Starting EthereumJ!");
-
-        // Based on Config class the sample would be created by Spring
-        // and its springInit() method would be called as an entry point
-        EthereumFactory.createEthereum(Config.class);
     }
 }

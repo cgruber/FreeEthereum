@@ -77,10 +77,10 @@ public class DiscoverTask implements Runnable {
     }
 
     private String dumpNodes() {
-        String ret = "";
+        StringBuilder ret = new StringBuilder();
         for (NodeEntry entry : nodeManager.getTable().getAllNodes()) {
-            ret += "    " + entry.getNode() + "\n";
+            ret.append("    ").append(entry.getNode()).append("\n");
         }
-        return ret;
+        return ret.toString();
     }
 }

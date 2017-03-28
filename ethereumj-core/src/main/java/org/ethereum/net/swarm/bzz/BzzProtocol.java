@@ -24,17 +24,14 @@ import static java.lang.Math.min;
  * Created by Anton Nashatyrev on 18.06.2015.
  */
 public class BzzProtocol implements Functional.Consumer<BzzMessage> {
-    private final static Logger LOG = LoggerFactory.getLogger("net.bzz");
-
-    private final static AtomicLong idGenerator = new AtomicLong(0);
-
     public final static int Version            = 0;
     public final static long ProtocolLength     = 8;
     public final static long ProtocolMaxMsgSize = 10 * 1024 * 1024;
     public final static int NetworkId          = 0;
     public final static int Strategy           = 0;
-
-    private NetStore netStore;
+    private final static Logger LOG = LoggerFactory.getLogger("net.bzz");
+    private final static AtomicLong idGenerator = new AtomicLong(0);
+    private final NetStore netStore;
     private Functional.Consumer<BzzMessage> messageSender;
     private PeerAddress node;
 
@@ -45,6 +42,13 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
 
     public BzzProtocol(NetStore netStore) {
         this.netStore = netStore;
+    }
+
+    public static String addressToShortString(PeerAddress addr) {
+        if (addr == null) return "<null>";
+        String s = Hex.toHexString(addr.getId());
+        s = s.substring(0, min(8, s.length()));
+        return s + "@" + Util.ipBytesToString(addr.getIp()) + ":" + addr.getPort();
     }
 
     /**
@@ -129,6 +133,7 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
             pendingHandshakeOutMessages.add(msg);
         }
     }
+
     private void sendMessageImpl(BzzMessage msg) {
         netStore.statOutMsg.add(1);
         msg.setId(idGenerator.incrementAndGet());
@@ -170,13 +175,6 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
                 }
             }
         }
-    }
-
-    public static String addressToShortString(PeerAddress addr) {
-        if (addr == null) return "<null>";
-        String s = Hex.toHexString(addr.getId());
-        s = s.substring(0, min(8, s.length()));
-        return s + "@" + Util.ipBytesToString(addr.getIp()) + ":" + addr.getPort();
     }
 
     @Override

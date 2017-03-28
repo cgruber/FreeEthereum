@@ -17,8 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Testing peers discovery.
@@ -50,6 +50,26 @@ public class PrivateNetworkDiscoverySample {
         EthereumFactory.createEthereum(Node2Config.class);
     }
 
+    private static Config getConfig(int index, String discoveryNode) {
+        return ConfigFactory.empty()
+                .withValue("peer.discovery.enabled", value(true))
+                .withValue("peer.discovery.external.ip", value("127.0.0.1"))
+                .withValue("peer.discovery.bind.ip", value("127.0.0.1"))
+                .withValue("peer.discovery.persist", value("false"))
+
+                .withValue("peer.listen.port", value(20000 + index))
+                .withValue("peer.privateKey", value(Hex.toHexString(ECKey.fromPrivate(("" + index).getBytes()).getPrivKeyBytes())))
+                .withValue("peer.networkId", value(555))
+                .withValue("sync.enabled", value(true))
+                .withValue("database.incompatibleDatabaseBehavior", value("RESET"))
+                .withValue("genesis", value("sample-genesis.json"))
+                .withValue("database.dir", value("sampleDB-" + index))
+                .withValue("peer.discovery.ip.list", value(discoveryNode != null ? Collections.singletonList(discoveryNode) : Collections.emptyList()));
+    }
+
+    private static ConfigValue value(Object value) {
+        return ConfigValueFactory.fromAnyRef(value);
+    }
 
     /**
      * Spring configuration class for the Regular peer
@@ -184,26 +204,5 @@ public class PrivateNetworkDiscoverySample {
         public BasicSample node() {
             return super.node();
         }
-    }
-
-    private static Config getConfig(int index, String discoveryNode) {
-        return ConfigFactory.empty()
-                .withValue("peer.discovery.enabled", value(true))
-                .withValue("peer.discovery.external.ip", value("127.0.0.1"))
-                .withValue("peer.discovery.bind.ip", value("127.0.0.1"))
-                .withValue("peer.discovery.persist", value("false"))
-
-                .withValue("peer.listen.port", value(20000 + index))
-                .withValue("peer.privateKey", value(Hex.toHexString(ECKey.fromPrivate(("" + index).getBytes()).getPrivKeyBytes())))
-                .withValue("peer.networkId", value(555))
-                .withValue("sync.enabled", value(true))
-                .withValue("database.incompatibleDatabaseBehavior", value("RESET"))
-                .withValue("genesis", value("sample-genesis.json"))
-                .withValue("database.dir", value("sampleDB-" + index))
-                .withValue("peer.discovery.ip.list", value(discoveryNode != null ? Arrays.asList(discoveryNode) : Arrays.asList()));
-    }
-
-    private static ConfigValue value(Object value) {
-        return ConfigValueFactory.fromAnyRef(value);
     }
 }

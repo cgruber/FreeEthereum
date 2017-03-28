@@ -28,11 +28,6 @@ Example:
 _There are no release builds at this time. Use snapshots in the meantime._
 
 
-### Examples
-
-See [ethereumj-studio](../ethereumj-studio).
-
-
 ### Build from source
 
 #### Compile, test and package

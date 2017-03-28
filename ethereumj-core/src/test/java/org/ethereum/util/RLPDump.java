@@ -8,6 +8,20 @@ import org.spongycastle.util.encoders.Hex;
  * Created by Anton Nashatyrev on 29.09.2015.
  */
 public class RLPDump {
+    public static String dump(RLPElement el, int indent) {
+        StringBuilder ret = new StringBuilder();
+        if (el instanceof RLPList) {
+            ret = new StringBuilder(Utils.repeat("  ", indent) + "[\n");
+            for (RLPElement element : ((RLPList) el)) {
+                ret.append(dump(element, indent + 1));
+            }
+            ret.append(Utils.repeat("  ", indent)).append("]\n");
+        } else {
+            ret.append(Utils.repeat("  ", indent)).append(el.getRLPData() == null ? "<null>" : Hex.toHexString(el.getRLPData())).append("\n");
+        }
+        return ret.toString();
+    }
+
     @Test
     public void dumpTest() {
         System.out.println(Hex.toHexString(new ECKey().getPubKey()));
@@ -19,20 +33,5 @@ public class RLPDump {
         System.out.println(dump(RLP.decode2(Hex.decode(hexRlp)), 0));
         hexRlp = "dedd84560586f03cc58479a94c498e0c48656c6c6f205768697370657281bc";
         System.out.println(dump(RLP.decode2(Hex.decode(hexRlp)), 0));
-    }
-
-    public static String dump(RLPElement el, int indent) {
-        String ret = "";
-        if (el instanceof RLPList) {
-            ret = Utils.repeat("  ", indent) + "[\n";
-            for (RLPElement element : ((RLPList) el)) {
-                ret += dump(element, indent + 1);
-            }
-            ret += Utils.repeat("  ", indent) + "]\n";
-        } else {
-            ret += Utils.repeat("  ", indent) +
-                    (el.getRLPData() == null ? "<null>" : Hex.toHexString(el.getRLPData())) + "\n";
-        }
-        return ret;
     }
 }

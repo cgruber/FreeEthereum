@@ -263,11 +263,7 @@ public class NetStore implements ChunkStore {
     note this is done irrespective of status (searching or found)
     */
     void addRequester(ChunkRequest rs, BzzRetrieveReqMessage req) {
-        Collection<BzzRetrieveReqMessage> list = rs.requesters.get(req.getId());
-        if (list == null) {
-            list = new ArrayList<>();
-            rs.requesters.put(req.getId(), list);
-        }
+        Collection<BzzRetrieveReqMessage> list = rs.requesters.computeIfAbsent(req.getId(), k -> new ArrayList<>());
         list.add(req);
     }
 

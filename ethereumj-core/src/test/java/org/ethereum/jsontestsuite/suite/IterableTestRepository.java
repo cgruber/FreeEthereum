@@ -42,11 +42,7 @@ public class IterableTestRepository implements Repository {
 
     private void addStorageKey(byte[] acct, DataWord key) {
         addAccount(acct);
-        Set<DataWord> keys = storageKeys.get(acct);
-        if (keys == null) {
-            keys = new HashSet<>();
-            storageKeys.put(acct, keys);
-        }
+        Set<DataWord> keys = storageKeys.computeIfAbsent(acct, k -> new HashSet<>());
         keys.add(key);
     }
 
@@ -275,14 +271,14 @@ public class IterableTestRepository implements Repository {
         }
 
         @Override
-        public byte[] getCode(byte[] codeHash) {
-            return src.getCode(codeHash);
-        }
-
-        @Override
         public void setCode(byte[] code) {
             addAccount(getAddress());
             src.setCode(code);
+        }
+
+        @Override
+        public byte[] getCode(byte[] codeHash) {
+            return src.getCode(codeHash);
         }
 
         @Override
@@ -296,23 +292,23 @@ public class IterableTestRepository implements Repository {
         }
 
         @Override
-        public void setDirty(boolean dirty) {
-            src.setDirty(dirty);
-        }
-
-        @Override
-        public void setDeleted(boolean deleted) {
-            src.setDeleted(deleted);
-        }
-
-        @Override
         public boolean isDirty() {
             return src.isDirty();
         }
 
         @Override
+        public void setDirty(boolean dirty) {
+            src.setDirty(dirty);
+        }
+
+        @Override
         public boolean isDeleted() {
             return src.isDeleted();
+        }
+
+        @Override
+        public void setDeleted(boolean deleted) {
+            src.setDeleted(deleted);
         }
 
         @Override
@@ -353,13 +349,13 @@ public class IterableTestRepository implements Repository {
         }
 
         @Override
-        public void setStorage(List<DataWord> storageKeys, List<DataWord> storageValues) {
-            src.setStorage(storageKeys, storageValues);
+        public void setStorage(Map<DataWord, DataWord> storage) {
+            src.setStorage(storage);
         }
 
         @Override
-        public void setStorage(Map<DataWord, DataWord> storage) {
-            src.setStorage(storage);
+        public void setStorage(List<DataWord> storageKeys, List<DataWord> storageValues) {
+            src.setStorage(storageKeys, storageValues);
         }
 
         @Override

@@ -22,11 +22,11 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ethereum.core.BlockHeader.NONCE_LENGTH;
+import static org.ethereum.core.Genesis.PremineAccount;
 import static org.ethereum.core.Genesis.ZERO_HASH_2048;
 import static org.ethereum.crypto.HashUtil.EMPTY_LIST_HASH;
 import static org.ethereum.util.ByteUtil.*;
-import static org.ethereum.core.BlockHeader.NONCE_LENGTH;
-import static org.ethereum.core.Genesis.PremineAccount;
 
 public class GenesisLoader {
 
@@ -162,9 +162,7 @@ public class GenesisLoader {
         }
         byte[] nonce = new byte[NONCE_LENGTH];
         int diff = NONCE_LENGTH - nonceUnchecked.length;
-        for (int i = diff; i < NONCE_LENGTH; ++i) {
-            nonce[i] = nonceUnchecked[i - diff];
-        }
+        System.arraycopy(nonceUnchecked, diff - diff, nonce, diff, NONCE_LENGTH - diff);
         return nonce;
     }
 

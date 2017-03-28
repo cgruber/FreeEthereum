@@ -15,65 +15,9 @@ import static java.lang.Math.min;
  */
 public class Util {
 
-    public static class ChunkConsumer extends LinkedBlockingQueue<Chunk> {
-        ChunkStore destination;
-        boolean synchronous = true;
-
-        public ChunkConsumer(ChunkStore destination) {
-            this.destination = destination;
-        }
-
-        @Override
-        public boolean add(Chunk chunk) {
-            if (synchronous) {
-                destination.put(chunk);
-                return true;
-            } else {
-                return super.add(chunk);
-            }
-        }
-    }
-
-    public static class ArrayReader implements SectionReader {
-        byte[] arr;
-
-        public ArrayReader(byte[] arr) {
-            this.arr = arr;
-        }
-
-        @Override
-        public long seek(long offset, int whence) {
-            throw new RuntimeException("Not implemented");
-        }
-
-        @Override
-        public int read(byte[] dest, int destOff) {
-            return readAt(dest, destOff, 0);
-        }
-
-        @Override
-        public int readAt(byte[] dest, int destOff, long readerOffset) {
-            int len = min(dest.length - destOff, arr.length - (int)readerOffset);
-            System.arraycopy(arr, (int) readerOffset, dest, destOff, len);
-            return len;
-        }
-
-        @Override
-        public long getSize() {
-            return arr.length;
-        }
-    }
-
-
     // for testing purposes when the timer might be changed
     // to manage current time according to test scenarios
     public static Timer TIMER = new Timer();
-
-    public static class Timer {
-        public long curTime() {
-            return System.currentTimeMillis();
-        }
-    }
 
     public static String getCommonPrefix(String s1, String s2) {
         int pos = 0;
@@ -94,11 +38,11 @@ public class Util {
     }
 
     private static <P extends StringTrie.TrieNode<P>> String dumpTree(P n, int indent) {
-        String ret = Utils.repeat("  ", indent) + "[" + n.path + "] " + n + "\n";
+        StringBuilder ret = new StringBuilder(Utils.repeat("  ", indent) + "[" + n.path + "] " + n + "\n");
         for (P c: n.getChildren()) {
-            ret += dumpTree(c, indent + 1);
+            ret.append(dumpTree(c, indent + 1));
         }
-        return ret;
+        return ret.toString();
     }
 
     public static byte[] uInt16ToBytes(int uInt16) {
@@ -161,5 +105,60 @@ public class Util {
         sr.read(bb, 0);
         String s = new String(bb, StandardCharsets.UTF_8);
         return s;
+    }
+
+    public static class ChunkConsumer extends LinkedBlockingQueue<Chunk> {
+        ChunkStore destination;
+        boolean synchronous = true;
+
+        public ChunkConsumer(ChunkStore destination) {
+            this.destination = destination;
+        }
+
+        @Override
+        public boolean add(Chunk chunk) {
+            if (synchronous) {
+                destination.put(chunk);
+                return true;
+            } else {
+                return super.add(chunk);
+            }
+        }
+    }
+
+    public static class ArrayReader implements SectionReader {
+        byte[] arr;
+
+        public ArrayReader(byte[] arr) {
+            this.arr = arr;
+        }
+
+        @Override
+        public long seek(long offset, int whence) {
+            throw new RuntimeException("Not implemented");
+        }
+
+        @Override
+        public int read(byte[] dest, int destOff) {
+            return readAt(dest, destOff, 0);
+        }
+
+        @Override
+        public int readAt(byte[] dest, int destOff, long readerOffset) {
+            int len = min(dest.length - destOff, arr.length - (int) readerOffset);
+            System.arraycopy(arr, (int) readerOffset, dest, destOff, len);
+            return len;
+        }
+
+        @Override
+        public long getSize() {
+            return arr.length;
+        }
+    }
+
+    public static class Timer {
+        public long curTime() {
+            return System.currentTimeMillis();
+        }
     }
 }

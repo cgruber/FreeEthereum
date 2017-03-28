@@ -29,7 +29,7 @@ FreeEthereum | EthereumJ
 MIT License | GPL v3 License
 Java 8 | Java 7 
 
-# Welcome to ethereumj
+# Welcome to FreeEthereum
 
 [![Slack Status](http://harmony-slack-ether-camp.herokuapp.com/badge.svg)](http://ether.camp) 
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/ethereum/ethereumj?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -100,7 +100,7 @@ java -jar ethereumj-core/build/libs/ethereumj-core-*-all.jar
 * Dialog “Import Project from gradle”: press “OK”
 * After building run either `org.ethereum.Start`, one of `org.ethereum.samples.*` or create your own main. 
 
-# Configuring EthereumJ
+# Configuring FreeEthereum
 
 For reference on all existing options, their description and defaults you may refer to the default config `ethereumj.conf` (you may find it in either the library jar or in the source tree `ethereum-core/src/main/resources`) 
 To override needed options you may use one of the following ways: 
