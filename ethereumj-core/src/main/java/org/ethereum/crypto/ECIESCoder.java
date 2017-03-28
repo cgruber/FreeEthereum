@@ -143,9 +143,7 @@ public class ECIESCoder {
             bos.write(IV);
             bos.write(cipher);
             return bos.toByteArray();
-        } catch (InvalidCipherTextException e) {
-            throw Throwables.propagate(e);
-        } catch (IOException e) {
+        } catch (InvalidCipherTextException | IOException e) {
             throw Throwables.propagate(e);
         }
     }

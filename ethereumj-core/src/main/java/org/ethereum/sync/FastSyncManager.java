@@ -7,7 +7,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.*;
 import org.ethereum.crypto.HashUtil;
-import org.ethereum.datasource.BloomFilter;
 import org.ethereum.datasource.DbSource;
 import org.ethereum.db.DbFlushManager;
 import org.ethereum.db.IndexedBlockStore;
@@ -21,7 +20,10 @@ import org.ethereum.net.eth.handler.Eth63;
 import org.ethereum.net.message.ReasonCode;
 import org.ethereum.net.rlpx.discover.NodeHandler;
 import org.ethereum.net.server.Channel;
-import org.ethereum.util.*;
+import org.ethereum.util.ByteArrayMap;
+import org.ethereum.util.FastByteComparisons;
+import org.ethereum.util.Functional;
+import org.ethereum.util.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -34,9 +36,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static org.ethereum.listener.EthereumListener.SyncState.COMPLETE;
-import static org.ethereum.listener.EthereumListener.SyncState.SECURE;
-import static org.ethereum.listener.EthereumListener.SyncState.UNSECURE;
+import static org.ethereum.listener.EthereumListener.SyncState.*;
 import static org.ethereum.util.CompactEncoder.hasTerminator;
 
 /**
@@ -44,8 +44,9 @@ import static org.ethereum.util.CompactEncoder.hasTerminator;
  */
 @Component
 public class FastSyncManager {
+    public static final byte[] FASTSYNC_DB_KEY_SYNC_STAGE = HashUtil.sha3("Key in state DB indicating fastsync stage in progress".getBytes());
+    public static final byte[] FASTSYNC_DB_KEY_PIVOT = HashUtil.sha3("Key in state DB with encoded selected pivot block".getBytes());
     private final static Logger logger = LoggerFactory.getLogger("sync");
-
     private final static long REQUEST_TIMEOUT = 5 * 1000;
     private final static int REQUEST_MAX_NODES = 384;
     private final static int NODE_QUEUE_BEST_SIZE = 100_000;
@@ -53,60 +54,65 @@ public class FastSyncManager {
     private final static int FORCE_SYNC_TIMEOUT = 60 * 1000;
     private final static int PIVOT_DISTANCE_FROM_HEAD = 1024;
     private final static int MSX_DB_QUEUE_SIZE = 20000;
-
     private static final Capability ETH63_CAPABILITY = new Capability(Capability.ETH, (byte) 63);
-
-    public static final byte[] FASTSYNC_DB_KEY_SYNC_STAGE = HashUtil.sha3("Key in state DB indicating fastsync stage in progress".getBytes());
-    public static final byte[] FASTSYNC_DB_KEY_PIVOT = HashUtil.sha3("Key in state DB with encoded selected pivot block".getBytes());
-
-    @Autowired
-    private SystemProperties config;
-
-    @Autowired
-    private SyncPool pool;
-
-    @Autowired
-    private BlockchainImpl blockchain;
-
-    @Autowired
-    private IndexedBlockStore blockStore;
-
-    @Autowired
-    private SyncManager syncManager;
-
     @Autowired
     @Qualifier("blockchainDB")
     DbSource<byte[]> blockchainDB;
-
-    @Autowired
-    private StateSource stateSource;
-
     @Autowired
     DbFlushManager dbFlushManager;
-
     @Autowired
     FastSyncDownloader downloader;
-
     @Autowired
     CompositeEthereumListener listener;
-
     @Autowired
     ApplicationContext applicationContext;
-
     int nodesInserted = 0;
-
+    int stateNodesCnt = 0;
+    int codeNodesCnt = 0;
+    int storageNodesCnt = 0;
+    Deque<TrieNodeRequest> nodesQueue = new LinkedBlockingDeque<>();
+    ByteArrayMap<TrieNodeRequest> pendingNodes = new ByteArrayMap<>();
+    Long requestId = 0L;
+    long last = 0;
+    long lastNodeCount = 0;
+    @Autowired
+    private SystemProperties config;
+    @Autowired
+    private SyncPool pool;
+    @Autowired
+    private BlockchainImpl blockchain;
+    @Autowired
+    private IndexedBlockStore blockStore;
+    @Autowired
+    private SyncManager syncManager;
+    @Autowired
+    private StateSource stateSource;
     private boolean fastSyncInProgress = false;
-
     private BlockingQueue<TrieNodeRequest> dbWriteQueue = new LinkedBlockingQueue<>();
     private Thread dbWriterThread;
     private Thread fastSyncThread;
     private int dbQueueSizeMonitor = -1;
-
     private BlockHeader pivot;
     private HeadersDownloader headersDownloader;
     private BlockBodiesDownloader blockBodiesDownloader;
     private ReceiptsDownloader receiptsDownloader;
     private long forceSyncRemains;
+
+    private static List<byte[]> getChildHashes(List<Object> siblings) {
+        List<byte[]> ret = new ArrayList<>();
+        if (siblings.size() == 2) {
+            Value val = new Value(siblings.get(1));
+            if (val.isHashCode() && !hasTerminator((byte[]) siblings.get(0)))
+                ret.add(val.asBytes());
+        } else {
+            for (int j = 0; j < 16; ++j) {
+                Value val = new Value(siblings.get(j));
+                if (val.isHashCode())
+                    ret.add(val.asBytes());
+            }
+        }
+        return ret;
+    }
 
     private void waitDbQueueSizeBelow(int size) {
         synchronized (this) {
@@ -120,7 +126,6 @@ public class FastSyncManager {
             }
         }
     }
-
 
     void init() {
         dbWriterThread = new Thread("FastSyncDBWriter") {
@@ -191,104 +196,6 @@ public class FastSyncManager {
         }
         return new SyncStatus(SyncStatus.SyncStage.Complete, 0, 0);
     }
-
-    enum TrieNodeType {
-        STATE,
-        STORAGE,
-        CODE
-    }
-
-    int stateNodesCnt = 0;
-    int codeNodesCnt = 0;
-    int storageNodesCnt = 0;
-
-    private class TrieNodeRequest {
-        TrieNodeType type;
-        byte[] nodeHash;
-        byte[] response;
-        final Map<Long, Long> requestSent = new HashMap<>();
-
-        TrieNodeRequest(TrieNodeType type, byte[] nodeHash) {
-            this.type = type;
-            this.nodeHash = nodeHash;
-
-            switch (type) {
-                case STATE: stateNodesCnt++; break;
-                case CODE: codeNodesCnt++; break;
-                case STORAGE: storageNodesCnt++; break;
-            }
-        }
-
-        List<TrieNodeRequest> createChildRequests() {
-            if (type == TrieNodeType.CODE) {
-                return Collections.emptyList();
-            }
-
-            List<Object> node = Value.fromRlpEncoded(response).asList();
-            List<TrieNodeRequest> ret = new ArrayList<>();
-            if (type == TrieNodeType.STATE) {
-                if (node.size() == 2 && hasTerminator((byte[]) node.get(0))) {
-                    byte[] nodeValue = (byte[]) node.get(1);
-                    AccountState state = new AccountState(nodeValue);
-
-                    if (!FastByteComparisons.equal(HashUtil.EMPTY_DATA_HASH, state.getCodeHash())) {
-                        ret.add(new TrieNodeRequest(TrieNodeType.CODE, state.getCodeHash()));
-                    }
-                    if (!FastByteComparisons.equal(HashUtil.EMPTY_TRIE_HASH, state.getStateRoot())) {
-                        ret.add(new TrieNodeRequest(TrieNodeType.STORAGE, state.getStateRoot()));
-                    }
-                    return ret;
-                }
-            }
-
-            List<byte[]> childHashes = getChildHashes(node);
-            for (byte[] childHash : childHashes) {
-                ret.add(new TrieNodeRequest(type, childHash));
-            }
-            return ret;
-        }
-
-        public void reqSent(Long requestId) {
-            synchronized (FastSyncManager.this) {
-                Long timestamp = System.currentTimeMillis();
-                requestSent.put(requestId, timestamp);
-            }
-        }
-
-        public Set<Long> requestIdsSnapshot() {
-            synchronized (FastSyncManager.this) {
-                return new HashSet<Long>(requestSent.keySet());
-            }
-        }
-
-        @Override
-        public String toString() {
-            return "TrieNodeRequest{" +
-                    "type=" + type +
-                    ", nodeHash=" + Hex.toHexString(nodeHash) +
-                    '}';
-        }
-    }
-
-    private static List<byte[]> getChildHashes(List<Object> siblings) {
-        List<byte[]> ret = new ArrayList<>();
-        if (siblings.size() == 2) {
-            Value val = new Value(siblings.get(1));
-            if (val.isHashCode() && !hasTerminator((byte[]) siblings.get(0)))
-                ret.add(val.asBytes());
-        } else {
-            for (int j = 0; j < 16; ++j) {
-                Value val = new Value(siblings.get(j));
-                if (val.isHashCode())
-                    ret.add(val.asBytes());
-            }
-        }
-        return ret;
-    }
-
-    Deque<TrieNodeRequest> nodesQueue = new LinkedBlockingDeque<>();
-    ByteArrayMap<TrieNodeRequest> pendingNodes = new ByteArrayMap<>();
-    Long requestId = 0L;
 
     private synchronized void purgePending(byte[] hash) {
         TrieNodeRequest request = pendingNodes.get(hash);
@@ -443,9 +350,6 @@ public class FastSyncManager {
         }
     }
 
-    long last = 0;
-    long lastNodeCount = 0;
-
     private void logStat() {
         long cur = System.currentTimeMillis();
         if (cur - last > 5000) {
@@ -456,6 +360,12 @@ public class FastSyncManager {
         }
     }
 
+    private EthereumListener.SyncState getSyncStage() {
+        byte[] bytes = blockchainDB.get(FASTSYNC_DB_KEY_SYNC_STAGE);
+        if (bytes == null) return UNSECURE;
+        return EthereumListener.SyncState.values()[bytes[0]];
+    }
+
     private void setSyncStage(EthereumListener.SyncState stage) {
         if (stage == null) {
             blockchainDB.delete(FASTSYNC_DB_KEY_SYNC_STAGE);
@@ -463,13 +373,6 @@ public class FastSyncManager {
             blockchainDB.put(FASTSYNC_DB_KEY_SYNC_STAGE, new byte[]{(byte) stage.ordinal()});
         }
     }
-
-    private EthereumListener.SyncState getSyncStage() {
-        byte[] bytes = blockchainDB.get(FASTSYNC_DB_KEY_SYNC_STAGE);
-        if (bytes == null) return UNSECURE;
-        return EthereumListener.SyncState.values()[bytes[0]];
-    }
-
 
     private void syncUnsecure(BlockHeader pivot) {
         byte[] pivotStateRoot = pivot.getStateRoot();
@@ -581,9 +484,7 @@ public class FastSyncManager {
             pool.setNodesSelector(new Functional.Predicate<NodeHandler>() {
                 @Override
                 public boolean test(NodeHandler handler) {
-                    if (!handler.getNodeStatistics().capabilities.contains(ETH63_CAPABILITY))
-                        return false;
-                    return true;
+                    return handler.getNodeStatistics().capabilities.contains(ETH63_CAPABILITY);
                 }
             });
 
@@ -820,6 +721,86 @@ public class FastSyncManager {
             dbWriterThread.join(10 * 1000);
         } catch (Exception e) {
             logger.warn("Problems closing FastSyncManager", e);
+        }
+    }
+
+    enum TrieNodeType {
+        STATE,
+        STORAGE,
+        CODE
+    }
+
+    private class TrieNodeRequest {
+        final Map<Long, Long> requestSent = new HashMap<>();
+        TrieNodeType type;
+        byte[] nodeHash;
+        byte[] response;
+
+        TrieNodeRequest(TrieNodeType type, byte[] nodeHash) {
+            this.type = type;
+            this.nodeHash = nodeHash;
+
+            switch (type) {
+                case STATE:
+                    stateNodesCnt++;
+                    break;
+                case CODE:
+                    codeNodesCnt++;
+                    break;
+                case STORAGE:
+                    storageNodesCnt++;
+                    break;
+            }
+        }
+
+        List<TrieNodeRequest> createChildRequests() {
+            if (type == TrieNodeType.CODE) {
+                return Collections.emptyList();
+            }
+
+            List<Object> node = Value.fromRlpEncoded(response).asList();
+            List<TrieNodeRequest> ret = new ArrayList<>();
+            if (type == TrieNodeType.STATE) {
+                if (node.size() == 2 && hasTerminator((byte[]) node.get(0))) {
+                    byte[] nodeValue = (byte[]) node.get(1);
+                    AccountState state = new AccountState(nodeValue);
+
+                    if (!FastByteComparisons.equal(HashUtil.EMPTY_DATA_HASH, state.getCodeHash())) {
+                        ret.add(new TrieNodeRequest(TrieNodeType.CODE, state.getCodeHash()));
+                    }
+                    if (!FastByteComparisons.equal(HashUtil.EMPTY_TRIE_HASH, state.getStateRoot())) {
+                        ret.add(new TrieNodeRequest(TrieNodeType.STORAGE, state.getStateRoot()));
+                    }
+                    return ret;
+                }
+            }
+
+            List<byte[]> childHashes = getChildHashes(node);
+            for (byte[] childHash : childHashes) {
+                ret.add(new TrieNodeRequest(type, childHash));
+            }
+            return ret;
+        }
+
+        public void reqSent(Long requestId) {
+            synchronized (FastSyncManager.this) {
+                Long timestamp = System.currentTimeMillis();
+                requestSent.put(requestId, timestamp);
+            }
+        }
+
+        public Set<Long> requestIdsSnapshot() {
+            synchronized (FastSyncManager.this) {
+                return new HashSet<>(requestSent.keySet());
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "TrieNodeRequest{" +
+                    "type=" + type +
+                    ", nodeHash=" + Hex.toHexString(nodeHash) +
+                    '}';
         }
     }
 }

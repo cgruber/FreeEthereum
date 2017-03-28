@@ -24,22 +24,25 @@ import java.util.concurrent.Future;
 @Component
 public class NetStore implements ChunkStore {
     private static NetStore INST;
-
-    public synchronized static NetStore getInstance() {
-        return INST;
-    }
-
-    @Autowired
-    WorldManager worldManager;
-
+    // Statistics gathers
+    public final Statter statInMsg = Statter.create("net.swarm.bzz.inMessages");
+    public final Statter statOutMsg = Statter.create("net.swarm.bzz.outMessages");
+    public final Statter statHandshakes = Statter.create("net.swarm.bzz.handshakes");
+    public final Statter statInStoreReq = Statter.create("net.swarm.in.storeReq");
+    public final Statter statInGetReq = Statter.create("net.swarm.in.getReq");
+    public final Statter statOutStoreReq = Statter.create("net.swarm.out.storeReq");
+    public final Statter statOutGetReq = Statter.create("net.swarm.out.getReq");
     public int requesterCount = 3;
     public int maxStorePeers = 3;
     public int maxSearchPeers = 6;
     public int timeout = 600 * 1000;
-
+    @Autowired
+    WorldManager worldManager;
     private LocalStore localStore;
     private Hive hive;
     private PeerAddress selfAddress;
+    private Map<Chunk, PeerAddress> chunkSourceAddr = new IdentityHashMap<>();
+    private Map<Key, ChunkRequest> chunkRequestMap = new HashMap<>();
 
     @Autowired
     public NetStore(SystemProperties config) {
@@ -53,6 +56,10 @@ public class NetStore implements ChunkStore {
     public NetStore(LocalStore localStore, Hive hive) {
         this.localStore = localStore;
         this.hive = hive;
+    }
+
+    public synchronized static NetStore getInstance() {
+        return INST;
     }
 
     public void start(PeerAddress self) {
@@ -136,7 +143,6 @@ public class NetStore implements ChunkStore {
         }
     }
 
-
     // store propagates store requests to specific peers given by the kademlia hive
     // except for peers that the store request came from (if any)
     private void store(final Chunk chunk) {
@@ -153,9 +159,6 @@ public class NetStore implements ChunkStore {
         });
     }
 
-    private Map<Chunk, PeerAddress> chunkSourceAddr = new IdentityHashMap<>();
-    private Map<Key, ChunkRequest> chunkRequestMap = new HashMap<>();
-
     /******************************************
      *    Get methods
      ******************************************/
@@ -166,9 +169,7 @@ public class NetStore implements ChunkStore {
     public Chunk get(Key key) {
         try {
             return getAsync(key).get();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
     }
@@ -299,7 +300,6 @@ public class NetStore implements ChunkStore {
         // TODO
         return 0;
     }
-
     private enum EntryReqStatus {
         Searching,
         Found
@@ -310,15 +310,5 @@ public class NetStore implements ChunkStore {
         Map<Long, Collection<BzzRetrieveReqMessage>> requesters = new HashMap<>();
         List<Promise<Chunk>> localRequesters = new ArrayList<>();
     }
-
-    // Statistics gathers
-    public final Statter statInMsg = Statter.create("net.swarm.bzz.inMessages");
-    public final Statter statOutMsg = Statter.create("net.swarm.bzz.outMessages");
-    public final Statter statHandshakes = Statter.create("net.swarm.bzz.handshakes");
-
-    public final Statter statInStoreReq = Statter.create("net.swarm.in.storeReq");
-    public final Statter statInGetReq = Statter.create("net.swarm.in.getReq");
-    public final Statter statOutStoreReq = Statter.create("net.swarm.out.storeReq");
-    public final Statter statOutGetReq = Statter.create("net.swarm.out.getReq");
 }
 

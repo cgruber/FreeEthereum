@@ -6,15 +6,11 @@ import org.ethereum.datasource.DataSourceArray;
 import org.ethereum.datasource.ObjectDataSource;
 import org.ethereum.datasource.Serializer;
 import org.ethereum.datasource.Source;
-import org.ethereum.util.ByteUtil;
-import org.ethereum.util.FastByteComparisons;
-import org.ethereum.util.RLP;
-import org.ethereum.util.RLPElement;
-import org.ethereum.util.RLPList;
+import org.ethereum.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,14 +21,61 @@ import static org.spongycastle.util.Arrays.areEqual;
 
 public class IndexedBlockStore extends AbstractBlockstore{
 
-    private static final Logger logger = LoggerFactory.getLogger("general");
+    public static final Serializer<List<BlockInfo>, byte[]> BLOCK_INFO_SERIALIZER = new Serializer<List<BlockInfo>, byte[]>() {
 
+        @Override
+        public byte[] serialize(List<BlockInfo> value) {
+            List<byte[]> rlpBlockInfoList = new ArrayList<>();
+            for (BlockInfo blockInfo : value) {
+                byte[] hash = RLP.encodeElement(blockInfo.getHash());
+                // Encoding works correctly only with positive BigIntegers
+                if (blockInfo.getCummDifficulty() == null || blockInfo.getCummDifficulty().compareTo(BigInteger.ZERO) < 0) {
+                    throw new RuntimeException("BlockInfo cummDifficulty should be positive BigInteger");
+                }
+                byte[] cummDiff = RLP.encodeBigInteger(blockInfo.getCummDifficulty());
+                byte[] isMainChain = RLP.encodeInt(blockInfo.isMainChain() ? 1 : 0);
+                rlpBlockInfoList.add(RLP.encodeList(hash, cummDiff, isMainChain));
+            }
+            byte[][] elements = rlpBlockInfoList.toArray(new byte[rlpBlockInfoList.size()][]);
+
+            return RLP.encodeList(elements);
+        }
+
+        @Override
+        public List<BlockInfo> deserialize(byte[] bytes) {
+            if (bytes == null) return null;
+
+            List<BlockInfo> blockInfoList = new ArrayList<>();
+            RLPList list = (RLPList) RLP.decode2(bytes).get(0);
+            for (RLPElement element : list) {
+                RLPList rlpBlock = (RLPList) element;
+                BlockInfo blockInfo = new BlockInfo();
+                byte[] rlpHash = rlpBlock.get(0).getRLPData();
+                blockInfo.setHash(rlpHash == null ? new byte[0] : rlpHash);
+                byte[] rlpCummDiff = rlpBlock.get(1).getRLPData();
+                blockInfo.setCummDifficulty(rlpCummDiff == null ? BigInteger.ZERO : ByteUtil.bytesToBigInteger(rlpCummDiff));
+                blockInfo.setMainChain(ByteUtil.byteArrayToInt(rlpBlock.get(2).getRLPData()) == 1);
+                blockInfoList.add(blockInfo);
+            }
+
+            return blockInfoList;
+        }
+    };
+    private static final Logger logger = LoggerFactory.getLogger("general");
     Source<byte[], byte[]> indexDS;
     DataSourceArray<List<BlockInfo>> index;
     Source<byte[], byte[]> blocksDS;
     ObjectDataSource<Block> blocks;
 
     public IndexedBlockStore(){
+    }
+
+    private static BlockInfo getBlockInfoForHash(List<BlockInfo> blocks, byte[] hash) {
+
+        for (BlockInfo blockInfo : blocks)
+            if (areEqual(hash, blockInfo.getHash())) return blockInfo;
+
+        return null;
     }
 
     public void init(Source<byte[], byte[]> index, Source<byte[], byte[]> blocks) {
@@ -78,7 +121,6 @@ public class IndexedBlockStore extends AbstractBlockstore{
         return chainBlock == null ? null : chainBlock.getHash(); // FIXME: can be improved by accessing the hash directly in the index
     }
 
-
     @Override
     public synchronized void flush(){
         blocks.flush();
@@ -86,7 +128,6 @@ public class IndexedBlockStore extends AbstractBlockstore{
         blocksDS.flush();
         indexDS.flush();
     }
-
 
     @Override
     public synchronized void saveBlock(Block block, BigInteger cummDifficulty, boolean mainChain){
@@ -96,7 +137,7 @@ public class IndexedBlockStore extends AbstractBlockstore{
     private void addInternalBlock(Block block, BigInteger cummDifficulty, boolean mainChain){
 
         List<BlockInfo> blockInfos = block.getNumber() >= index.size() ?  null : index.get((int) block.getNumber());
-        blockInfos = blockInfos == null ? new ArrayList<BlockInfo>() : blockInfos;
+        blockInfos = blockInfos == null ? new ArrayList<>() : blockInfos;
 
         BlockInfo blockInfo = new BlockInfo();
         blockInfo.setCummDifficulty(cummDifficulty);
@@ -119,7 +160,6 @@ public class IndexedBlockStore extends AbstractBlockstore{
         }
         blockInfos.add(blockInfo);
     }
-
 
     public synchronized List<Block> getBlocksByNumber(long number){
 
@@ -179,7 +219,6 @@ public class IndexedBlockStore extends AbstractBlockstore{
         return blocks.get(hash) != null;
     }
 
-
     @Override
     public synchronized BigInteger getTotalDifficultyForHash(byte[] hash){
         Block block = this.getBlockByHash(hash);
@@ -194,7 +233,6 @@ public class IndexedBlockStore extends AbstractBlockstore{
 
         return ZERO;
     }
-
 
     @Override
     public synchronized BigInteger getTotalDifficulty(){
@@ -357,7 +395,6 @@ public class IndexedBlockStore extends AbstractBlockstore{
 
     }
 
-
     public synchronized List<byte[]> getListHashesStartWith(long number, long maxBlocks){
 
         List<byte[]> result = new ArrayList<>();
@@ -379,79 +416,6 @@ public class IndexedBlockStore extends AbstractBlockstore{
 
         return result;
     }
-
-    public static class BlockInfo implements Serializable {
-        byte[] hash;
-        BigInteger cummDifficulty;
-        boolean mainChain;
-
-        public byte[] getHash() {
-            return hash;
-        }
-
-        public void setHash(byte[] hash) {
-            this.hash = hash;
-        }
-
-        public BigInteger getCummDifficulty() {
-            return cummDifficulty;
-        }
-
-        public void setCummDifficulty(BigInteger cummDifficulty) {
-            this.cummDifficulty = cummDifficulty;
-        }
-
-        public boolean isMainChain() {
-            return mainChain;
-        }
-
-        public void setMainChain(boolean mainChain) {
-            this.mainChain = mainChain;
-        }
-    }
-
-
-    public static final Serializer<List<BlockInfo>, byte[]> BLOCK_INFO_SERIALIZER = new Serializer<List<BlockInfo>, byte[]>(){
-
-        @Override
-        public byte[] serialize(List<BlockInfo> value) {
-                List<byte[]> rlpBlockInfoList = new ArrayList<>();
-                for (BlockInfo blockInfo : value) {
-                    byte[] hash = RLP.encodeElement(blockInfo.getHash());
-                    // Encoding works correctly only with positive BigIntegers
-                    if (blockInfo.getCummDifficulty() == null || blockInfo.getCummDifficulty().compareTo(BigInteger.ZERO) < 0) {
-                        throw new RuntimeException("BlockInfo cummDifficulty should be positive BigInteger");
-                    }
-                    byte[] cummDiff = RLP.encodeBigInteger(blockInfo.getCummDifficulty());
-                    byte[] isMainChain = RLP.encodeInt(blockInfo.isMainChain() ? 1 : 0);
-                    rlpBlockInfoList.add(RLP.encodeList(hash, cummDiff, isMainChain));
-                }
-                byte[][] elements = rlpBlockInfoList.toArray(new byte[rlpBlockInfoList.size()][]);
-
-                return RLP.encodeList(elements);
-        }
-
-        @Override
-        public List<BlockInfo> deserialize(byte[] bytes) {
-            if (bytes == null) return null;
-
-            List<BlockInfo> blockInfoList = new ArrayList<>();
-            RLPList list = (RLPList) RLP.decode2(bytes).get(0);
-            for (RLPElement element : list) {
-                RLPList rlpBlock = (RLPList) element;
-                BlockInfo blockInfo = new BlockInfo();
-                byte[] rlpHash = rlpBlock.get(0).getRLPData();
-                blockInfo.setHash(rlpHash == null ? new byte[0] : rlpHash);
-                byte[] rlpCummDiff = rlpBlock.get(1).getRLPData();
-                blockInfo.setCummDifficulty(rlpCummDiff == null ? BigInteger.ZERO : ByteUtil.bytesToBigInteger(rlpCummDiff));
-                blockInfo.setMainChain(ByteUtil.byteArrayToInt(rlpBlock.get(2).getRLPData()) == 1);
-                blockInfoList.add(blockInfo);
-            }
-
-            return blockInfoList;
-        }
-    };
-
 
     public synchronized void printChain(){
 
@@ -483,14 +447,6 @@ public class IndexedBlockStore extends AbstractBlockstore{
         index.set((int) level, infos);
     }
 
-    private static BlockInfo getBlockInfoForHash(List<BlockInfo> blocks, byte[] hash){
-
-        for (BlockInfo blockInfo : blocks)
-            if (areEqual(hash, blockInfo.getHash())) return blockInfo;
-
-        return null;
-    }
-
     @Override
     public synchronized void load() {
     }
@@ -508,5 +464,35 @@ public class IndexedBlockStore extends AbstractBlockstore{
 //        } catch (Exception e) {
 //            logger.warn("Problems closing blocksDS", e);
 //        }
+    }
+
+    public static class BlockInfo implements Serializable {
+        byte[] hash;
+        BigInteger cummDifficulty;
+        boolean mainChain;
+
+        public byte[] getHash() {
+            return hash;
+        }
+
+        public void setHash(byte[] hash) {
+            this.hash = hash;
+        }
+
+        public BigInteger getCummDifficulty() {
+            return cummDifficulty;
+        }
+
+        public void setCummDifficulty(BigInteger cummDifficulty) {
+            this.cummDifficulty = cummDifficulty;
+        }
+
+        public boolean isMainChain() {
+            return mainChain;
+        }
+
+        public void setMainChain(boolean mainChain) {
+            this.mainChain = mainChain;
+        }
     }
 }

@@ -31,7 +31,6 @@ import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
 import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.intToBytes;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 public class TrieTest {
 
@@ -47,26 +46,16 @@ public class TrieTest {
     private static String doge = "doge";
     private static String test = "test";
     private static String dude = "dude";
-
-    public class NoDoubleDeleteMapDB extends HashMapDB<byte[]> {
-        @Override
-        public synchronized void delete(byte[] key) {
-            if (storage.get(key) == null) {
-                throw new RuntimeException("Trying delete non-existing entry: " + Hex.toHexString(key));
-            }
-            super.delete(key);
+    private static Serializer<String, byte[]> STR_SERIALIZER = new Serializer<String, byte[]>() {
+        public byte[] serialize(String object) {
+            return object == null ? null : object.getBytes();
         }
-        public NoDoubleDeleteMapDB getDb() {return this;}
+
+        public String deserialize(byte[] stream) {
+            return stream == null ? null : new String(stream);
+        }
     };
-
-    public class TrieCache extends SourceCodec<byte[], Value, byte[], byte[]> {
-        public TrieCache() {
-            super(new NoDoubleDeleteMapDB(), new Serializers.Identity<byte[]>(), Serializers.TrieNodeSerializer);
-        }
-
-        public NoDoubleDeleteMapDB getDb() {return (NoDoubleDeleteMapDB) getSource();}
-    }
-
+    private final String randomDictionary = "spinneries, archipenko, prepotency, herniotomy, preexpress, relaxative, insolvably, debonnaire, apophysate, virtuality, cavalryman, utilizable, diagenesis, vitascopic, governessy, abranchial, cyanogenic, gratulated, signalment, predicable, subquality, crystalize, prosaicism, oenologist, repressive, impanelled, cockneyism, bordelaise, compigne, konstantin, predicated, unsublimed, hydrophane, phycomyces, capitalise, slippingly, untithable, unburnable, deoxidizer, misteacher, precorrect, disclaimer, solidified, neuraxitis, caravaning, betelgeuse, underprice, uninclosed, acrogynous, reirrigate, dazzlingly, chaffiness, corybantes, intumesced, intentness, superexert, abstrusely, astounding, pilgrimage, posttarsal, prayerless, nomologist, semibelted, frithstool, unstinging, ecalcarate, amputating, megascopic, graphalloy, platteland, adjacently, mingrelian, valentinus, appendical, unaccurate, coriaceous, waterworks, sympathize, doorkeeper, overguilty, flaggingly, admonitory, aeriferous, normocytic, parnellism, catafalque, odontiasis, apprentice, adulterous, mechanisma, wilderness, undivorced, reinterred, effleurage, pretrochal, phytogenic, swirlingly, herbarized, unresolved, classifier, diosmosing, microphage, consecrate, astarboard, predefying, predriving, lettergram, ungranular, overdozing, conferring, unfavorite, peacockish, coinciding, erythraeum, freeholder, zygophoric, imbitterer, centroidal, appendixes, grayfishes, enological, indiscreet, broadcloth, divulgated, anglophobe, stoopingly, bibliophil, laryngitis, separatist, estivating, bellarmine, greasiness, typhlology, xanthation, mortifying, endeavorer, aviatrices, unequalise, metastatic, leftwinger, apologizer, quatrefoil, nonfouling, bitartrate, outchiding, undeported, poussetted, haemolysis, asantehene, montgomery, unjoinable, cedarhurst, unfastener, nonvacuums, beauregard, animalized, polyphides, cannizzaro, gelatinoid, apologised, unscripted, tracheidal, subdiscoid, gravelling, variegated, interabang, inoperable, immortelle, laestrygon, duplicatus, proscience, deoxidised, manfulness, channelize, nondefense, ectomorphy, unimpelled, headwaiter, hexaemeric, derivation, prelexical, limitarian, nonionized, prorefugee, invariably, patronizer, paraplegia, redivision, occupative, unfaceable, hypomnesia, psalterium, doctorfish, gentlefolk, overrefine, heptastich, desirously, clarabelle, uneuphonic, autotelism, firewarden, timberjack, fumigation, drainpipes, spathulate, novelvelle, bicorporal, grisliness, unhesitant, supergiant, unpatented, womanpower, toastiness, multichord, paramnesia, undertrick, contrarily, neurogenic, gunmanship, settlement, brookville, gradualism, unossified, villanovan, ecospecies, organising, buckhannon, prefulfill, johnsonese, unforegone, unwrathful, dunderhead, erceldoune, unwadeable, refunction, understuff, swaggering, freckliest, telemachus, groundsill, outslidden, bolsheviks, recognizer, hemangioma, tarantella, muhammedan, talebearer, relocation, preemption, chachalaca, septuagint, ubiquitous, plexiglass, humoresque, biliverdin, tetraploid, capitoline, summerwood, undilating, undetested, meningitic, petrolatum, phytotoxic, adiphenine, flashlight, protectory, inwreathed, rawishness, tendrillar, hastefully, bananaquit, anarthrous, unbedimmed, herborized, decenniums, deprecated, karyotypic, squalidity, pomiferous, petroglyph, actinomere, peninsular, trigonally, androgenic, resistance, unassuming, frithstool, documental, eunuchised, interphone, thymbraeus, confirmand, expurgated, vegetation, myographic, plasmagene, spindrying, unlackeyed, foreknower, mythically, albescence, rebudgeted, implicitly, unmonastic, torricelli, mortarless, labialized, phenacaine, radiometry, sluggishly, understood, wiretapper, jacobitely, unbetrayed, stadholder, directress, emissaries, corelation, sensualize, uncurbable, permillage, tentacular, thriftless, demoralize, preimagine, iconoclast, acrobatism, firewarden, transpired, bluethroat, wanderjahr, groundable, pedestrian, unulcerous, preearthly, freelanced, sculleries, avengingly, visigothic, preharmony, bressummer, acceptable, unfoolable, predivider, overseeing, arcosolium, piriformis, needlecord, homebodies, sulphation, phantasmic, unsensible, unpackaged, isopiestic, cytophagic, butterlike, frizzliest, winklehawk, necrophile, mesothorax, cuchulainn, unrentable, untangible, unshifting, unfeasible, poetastric, extermined, gaillardia, nonpendent, harborside, pigsticker, infanthood, underrower, easterling, jockeyship, housebreak, horologium, undepicted, dysacousma, incurrable, editorship, unrelented, peritricha, interchaff, frothiness, underplant, proafrican, squareness, enigmatise, reconciled, nonnumeral, nonevident, hamantasch, victualing, watercolor, schrdinger, understand, butlerlike, hemiglobin, yankeeland";
 //    public TrieCache mockDb = new TrieCache();
 //    public TrieCache mockDb_2 = new TrieCache();
     public NoDoubleDeleteMapDB mockDb = new NoDoubleDeleteMapDB();
@@ -83,74 +72,6 @@ public class TrieTest {
 
     @After
     public void closeMockDb() throws IOException {
-    }
-
-    private static Serializer<String, byte[]> STR_SERIALIZER = new Serializer<String, byte[]>() {
-        public byte[] serialize(String object) {return object == null ? null : object.getBytes();}
-        public String deserialize(byte[] stream) {return stream == null ? null : new String(stream);}
-    };
-
-
-//    private static class StringTrie extends SourceCodec<String, String, byte[], byte[]> {
-//        public StringTrie(Source<byte[], Value> src) {
-//            this(src, null);
-//        }
-//        public StringTrie(Source<byte[], Value> src, byte[] root) {
-//            super(new TrieImpl(new NoDeleteSource<>(src), root), STR_SERIALIZER, STR_SERIALIZER);
-//        }
-//
-//        public byte[] getRootHash() {
-//            return ((TrieImpl) getSource()).getRootHash();
-//        }
-//
-//        public String getTrieDump() {
-//            return ((TrieImpl) getSource()).getTrieDump();
-//        }
-//
-//        @Override
-//        public boolean equals(Object obj) {
-//            return getSource().equals(((StringTrie) obj).getSource());
-//        }
-//    }
-    private static class StringTrie extends SourceCodec<String, String, byte[], byte[]> {
-        public StringTrie(Source<byte[], byte[]> src) {
-            this(src, null);
-        }
-        public StringTrie(Source<byte[], byte[]> src, byte[] root) {
-            super(new TrieImpl(new NoDeleteSource<>(src), root), STR_SERIALIZER, STR_SERIALIZER);
-        }
-
-        public byte[] getRootHash() {
-            return ((TrieImpl) getSource()).getRootHash();
-        }
-
-        public String getTrieDump() {
-            return ((TrieImpl) getSource()).dumpTrie();
-        }
-
-        public String dumpStructure() {
-            return ((TrieImpl) getSource()).dumpStructure();
-        }
-
-        @Override
-        public String get(String s) {
-            String ret = super.get(s);
-            return ret == null ? "" : ret;
-        }
-
-    @Override
-    public void put(String s, String val) {
-        if (val == null || val.isEmpty()) {
-            super.delete(s);
-        } else {
-            super.put(s, val);
-        }
-    }
-
-    @Override
-        public boolean equals(Object obj) {
-            return getSource().equals(((StringTrie) obj).getSource());
-        }
     }
 
     @Test
@@ -453,7 +374,6 @@ public class TrieTest {
         Assert.assertEquals(root1, root1_);
     }
 
-
     @Test
     public void testDeleteMultipleItems1() {
         String ROOT_HASH_BEFORE = "3a784eddf1936515f0313b073f99e3bd65c38689021d24855f62a9601ea41717";
@@ -566,8 +486,6 @@ public class TrieTest {
         assertNotEquals(Hex.toHexString(trie1.getRootHash()), Hex.toHexString(trie2.getRootHash()));
     }
 
-    // Using tests from: https://github.com/ethereum/tests/blob/master/trietest.json
-
     @Test
     public void testSingleItem() {
         StringTrie trie = new StringTrie(mockDb);
@@ -588,6 +506,8 @@ public class TrieTest {
         trie.put("dogglesworth", "cat");
         assertEquals("8aad789dff2f538bca5d8ea56e8abe10f4c7ba3a5dea95fea4cd6e7c3a1168d3", Hex.toHexString(trie.getRootHash()));
     }
+
+    // Using tests from: https://github.com/ethereum/tests/blob/master/trietest.json
 
     @Test
     public void testPuppy() {
@@ -646,8 +566,6 @@ public class TrieTest {
         assertEquals("8452568af70d8d140f58d941338542f645fcca50094b20f3c3d8c3df49337928", Hex.toHexString(trie.getRootHash()));
     }
 
-    private final String randomDictionary = "spinneries, archipenko, prepotency, herniotomy, preexpress, relaxative, insolvably, debonnaire, apophysate, virtuality, cavalryman, utilizable, diagenesis, vitascopic, governessy, abranchial, cyanogenic, gratulated, signalment, predicable, subquality, crystalize, prosaicism, oenologist, repressive, impanelled, cockneyism, bordelaise, compigne, konstantin, predicated, unsublimed, hydrophane, phycomyces, capitalise, slippingly, untithable, unburnable, deoxidizer, misteacher, precorrect, disclaimer, solidified, neuraxitis, caravaning, betelgeuse, underprice, uninclosed, acrogynous, reirrigate, dazzlingly, chaffiness, corybantes, intumesced, intentness, superexert, abstrusely, astounding, pilgrimage, posttarsal, prayerless, nomologist, semibelted, frithstool, unstinging, ecalcarate, amputating, megascopic, graphalloy, platteland, adjacently, mingrelian, valentinus, appendical, unaccurate, coriaceous, waterworks, sympathize, doorkeeper, overguilty, flaggingly, admonitory, aeriferous, normocytic, parnellism, catafalque, odontiasis, apprentice, adulterous, mechanisma, wilderness, undivorced, reinterred, effleurage, pretrochal, phytogenic, swirlingly, herbarized, unresolved, classifier, diosmosing, microphage, consecrate, astarboard, predefying, predriving, lettergram, ungranular, overdozing, conferring, unfavorite, peacockish, coinciding, erythraeum, freeholder, zygophoric, imbitterer, centroidal, appendixes, grayfishes, enological, indiscreet, broadcloth, divulgated, anglophobe, stoopingly, bibliophil, laryngitis, separatist, estivating, bellarmine, greasiness, typhlology, xanthation, mortifying, endeavorer, aviatrices, unequalise, metastatic, leftwinger, apologizer, quatrefoil, nonfouling, bitartrate, outchiding, undeported, poussetted, haemolysis, asantehene, montgomery, unjoinable, cedarhurst, unfastener, nonvacuums, beauregard, animalized, polyphides, cannizzaro, gelatinoid, apologised, unscripted, tracheidal, subdiscoid, gravelling, variegated, interabang, inoperable, immortelle, laestrygon, duplicatus, proscience, deoxidised, manfulness, channelize, nondefense, ectomorphy, unimpelled, headwaiter, hexaemeric, derivation, prelexical, limitarian, nonionized, prorefugee, invariably, patronizer, paraplegia, redivision, occupative, unfaceable, hypomnesia, psalterium, doctorfish, gentlefolk, overrefine, heptastich, desirously, clarabelle, uneuphonic, autotelism, firewarden, timberjack, fumigation, drainpipes, spathulate, novelvelle, bicorporal, grisliness, unhesitant, supergiant, unpatented, womanpower, toastiness, multichord, paramnesia, undertrick, contrarily, neurogenic, gunmanship, settlement, brookville, gradualism, unossified, villanovan, ecospecies, organising, buckhannon, prefulfill, johnsonese, unforegone, unwrathful, dunderhead, erceldoune, unwadeable, refunction, understuff, swaggering, freckliest, telemachus, groundsill, outslidden, bolsheviks, recognizer, hemangioma, tarantella, muhammedan, talebearer, relocation, preemption, chachalaca, septuagint, ubiquitous, plexiglass, humoresque, biliverdin, tetraploid, capitoline, summerwood, undilating, undetested, meningitic, petrolatum, phytotoxic, adiphenine, flashlight, protectory, inwreathed, rawishness, tendrillar, hastefully, bananaquit, anarthrous, unbedimmed, herborized, decenniums, deprecated, karyotypic, squalidity, pomiferous, petroglyph, actinomere, peninsular, trigonally, androgenic, resistance, unassuming, frithstool, documental, eunuchised, interphone, thymbraeus, confirmand, expurgated, vegetation, myographic, plasmagene, spindrying, unlackeyed, foreknower, mythically, albescence, rebudgeted, implicitly, unmonastic, torricelli, mortarless, labialized, phenacaine, radiometry, sluggishly, understood, wiretapper, jacobitely, unbetrayed, stadholder, directress, emissaries, corelation, sensualize, uncurbable, permillage, tentacular, thriftless, demoralize, preimagine, iconoclast, acrobatism, firewarden, transpired, bluethroat, wanderjahr, groundable, pedestrian, unulcerous, preearthly, freelanced, sculleries, avengingly, visigothic, preharmony, bressummer, acceptable, unfoolable, predivider, overseeing, arcosolium, piriformis, needlecord, homebodies, sulphation, phantasmic, unsensible, unpackaged, isopiestic, cytophagic, butterlike, frizzliest, winklehawk, necrophile, mesothorax, cuchulainn, unrentable, untangible, unshifting, unfeasible, poetastric, extermined, gaillardia, nonpendent, harborside, pigsticker, infanthood, underrower, easterling, jockeyship, housebreak, horologium, undepicted, dysacousma, incurrable, editorship, unrelented, peritricha, interchaff, frothiness, underplant, proafrican, squareness, enigmatise, reconciled, nonnumeral, nonevident, hamantasch, victualing, watercolor, schrdinger, understand, butlerlike, hemiglobin, yankeeland";
-
     @Test
     public void testMasiveUpdate() {
         boolean massiveUpdateTestEnabled = false;
@@ -683,10 +601,8 @@ public class TrieTest {
             }
 
             // Assert the result now
-            Iterator<String> keys = testerMap.keySet().iterator();
-            while (keys.hasNext()) {
+            for (String mapWord1 : testerMap.keySet()) {
 
-                String mapWord1 = keys.next();
                 String mapWord2 = testerMap.get(mapWord1);
                 String treeWord2 = new String(trie.get(mapWord1));
 
@@ -813,7 +729,6 @@ public class TrieTest {
         }
     }
 
-
     @Test
     public void testRollbackTrie() throws URISyntaxException, IOException {
 
@@ -860,7 +775,6 @@ public class TrieTest {
 
     }
 
-
     @Test
     public void testGetFromRootNode() {
         StringTrie trie1 = new StringTrie(mockDb);
@@ -868,15 +782,6 @@ public class TrieTest {
         TrieImpl trie2 = new TrieImpl(mockDb, trie1.getRootHash());
         assertEquals(LONG_STRING, new String(trie2.get(cat.getBytes())));
     }
-
-
-/*
-        0x7645b9fbf1b51e6b980801fafe6bbc22d2ebe218 0x517eaccda568f3fa24915fed8add49d3b743b3764c0bc495b19a47c54dbc3d62 0x 0x1
-        0x0000000000000000000000000000000000000000000000000000000000000010 0x947e70f9460402290a3e487dae01f610a1a8218fda
-        0x0000000000000000000000000000000000000000000000000000000000000014 0x40
-        0x0000000000000000000000000000000000000000000000000000000000000016 0x94412e0c4f0102f3f0ac63f0a125bce36ca75d4e0d
-        0x0000000000000000000000000000000000000000000000000000000000000017 0x01
-*/
 
     @Test
     public void storageHashCalc_1() {
@@ -902,7 +807,6 @@ public class TrieTest {
         System.out.println(hash);
         Assert.assertEquals("517eaccda568f3fa24915fed8add49d3b743b3764c0bc495b19a47c54dbc3d62", hash);
     }
-
 
     @Test
     public void testFromDump_1() throws URISyntaxException, IOException, ParseException {
@@ -958,7 +862,6 @@ public class TrieTest {
 //        keyValueDataSource.close();
     }
 
-
     @Test // update the trie with blog key/val
     // each time dump the entire trie
     public void testSample_1() {
@@ -984,6 +887,14 @@ public class TrieTest {
         Assert.assertEquals("8bd5544747b4c44d1274aa99a6293065fe319b3230e800203317e4c75a770099", Hex.toHexString(trie.getRootHash()));
     }
 
+
+/*
+        0x7645b9fbf1b51e6b980801fafe6bbc22d2ebe218 0x517eaccda568f3fa24915fed8add49d3b743b3764c0bc495b19a47c54dbc3d62 0x 0x1
+        0x0000000000000000000000000000000000000000000000000000000000000010 0x947e70f9460402290a3e487dae01f610a1a8218fda
+        0x0000000000000000000000000000000000000000000000000000000000000014 0x40
+        0x0000000000000000000000000000000000000000000000000000000000000016 0x94412e0c4f0102f3f0ac63f0a125bce36ca75d4e0d
+        0x0000000000000000000000000000000000000000000000000000000000000017 0x01
+*/
 
     @Test
     public void testSecureTrie(){
@@ -1123,6 +1034,93 @@ public class TrieTest {
 //            System.out.println("Calculating root...");
             System.out.println(Hex.toHexString(trie.getRootHash()));
             System.out.println((System.nanoTime() - s) / 1_000_000 + " ms, root: " + (System.nanoTime() - s1) / 1_000_000 + " ms");
+        }
+    }
+
+    //    private static class StringTrie extends SourceCodec<String, String, byte[], byte[]> {
+//        public StringTrie(Source<byte[], Value> src) {
+//            this(src, null);
+//        }
+//        public StringTrie(Source<byte[], Value> src, byte[] root) {
+//            super(new TrieImpl(new NoDeleteSource<>(src), root), STR_SERIALIZER, STR_SERIALIZER);
+//        }
+//
+//        public byte[] getRootHash() {
+//            return ((TrieImpl) getSource()).getRootHash();
+//        }
+//
+//        public String getTrieDump() {
+//            return ((TrieImpl) getSource()).getTrieDump();
+//        }
+//
+//        @Override
+//        public boolean equals(Object obj) {
+//            return getSource().equals(((StringTrie) obj).getSource());
+//        }
+//    }
+    private static class StringTrie extends SourceCodec<String, String, byte[], byte[]> {
+        public StringTrie(Source<byte[], byte[]> src) {
+            this(src, null);
+        }
+
+        public StringTrie(Source<byte[], byte[]> src, byte[] root) {
+            super(new TrieImpl(new NoDeleteSource<>(src), root), STR_SERIALIZER, STR_SERIALIZER);
+        }
+
+        public byte[] getRootHash() {
+            return ((TrieImpl) getSource()).getRootHash();
+        }
+
+        public String getTrieDump() {
+            return ((TrieImpl) getSource()).dumpTrie();
+        }
+
+        public String dumpStructure() {
+            return ((TrieImpl) getSource()).dumpStructure();
+        }
+
+        @Override
+        public String get(String s) {
+            String ret = super.get(s);
+            return ret == null ? "" : ret;
+        }
+
+        @Override
+        public void put(String s, String val) {
+            if (val == null || val.isEmpty()) {
+                super.delete(s);
+            } else {
+                super.put(s, val);
+            }
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return getSource().equals(((StringTrie) obj).getSource());
+        }
+    }
+
+    public class NoDoubleDeleteMapDB extends HashMapDB<byte[]> {
+        @Override
+        public synchronized void delete(byte[] key) {
+            if (storage.get(key) == null) {
+                throw new RuntimeException("Trying delete non-existing entry: " + Hex.toHexString(key));
+            }
+            super.delete(key);
+        }
+
+        public NoDoubleDeleteMapDB getDb() {
+            return this;
+        }
+    }
+
+    public class TrieCache extends SourceCodec<byte[], Value, byte[], byte[]> {
+        public TrieCache() {
+            super(new NoDoubleDeleteMapDB(), new Serializers.Identity<>(), Serializers.TrieNodeSerializer);
+        }
+
+        public NoDoubleDeleteMapDB getDb() {
+            return (NoDoubleDeleteMapDB) getSource();
         }
     }
 }

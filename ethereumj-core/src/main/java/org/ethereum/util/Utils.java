@@ -7,24 +7,20 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.DecoderException;
 import org.spongycastle.util.encoders.Hex;
 
+import javax.swing.*;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
-
 import java.net.URL;
-
 import java.security.SecureRandom;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-
 import java.util.*;
 import java.util.regex.Pattern;
 
-import javax.swing.*;
-
 public class Utils {
     private static final DataWord DIVISOR = new DataWord(64);
-
+    public static double JAVA_VERSION = getJavaVersion();
+    static BigInteger _1000_ = new BigInteger("1000");
     private static SecureRandom random = new SecureRandom();
 
     /**
@@ -77,8 +73,6 @@ public class Utils {
         return image;
     }
 
-    static BigInteger _1000_ = new BigInteger("1000");
-
     public static String getValueShortString(BigInteger number) {
         BigInteger result = number;
         int pow = 0;
@@ -122,7 +116,7 @@ public class Utils {
 
         String addrShort = Hex.toHexString(addr, 0, 3);
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(addrShort);
         sb.append("...");
 
@@ -132,8 +126,6 @@ public class Utils {
     public static SecureRandom getRandom() {
         return random;
     }
-
-    public static double JAVA_VERSION = getJavaVersion();
 
     static double getJavaVersion() {
         String version = System.getProperty("java.version");
@@ -169,6 +161,7 @@ public class Utils {
         return unixTime * 1000;
     }
 
+    @SafeVarargs
     public static <T> T[] mergeArrays(T[] ... arr) {
         int size = 0;
         for (T[] ts : arr) {

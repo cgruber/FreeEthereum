@@ -50,6 +50,51 @@ public class JsonRpcWhisper extends Whisper {
         }, 1, 1, TimeUnit.SECONDS);
     }
 
+    static String add0X(String s) {
+        if (s == null) return null;
+        return s.startsWith("0x") ? s : "0x" + s;
+    }
+
+    static String del0X(String s) {
+        if (s == null) return null;
+        return s.startsWith("0x") ? s.substring(2) : s;
+    }
+
+    static String encodeString(String s) {
+        return s == null ? null : "0x" + Hex.toHexString(s.getBytes());
+    }
+
+    static String decodeString(String s) {
+        if (s.startsWith("0x")) s = s.substring(2);
+        return new String(Hex.decode(s));
+    }
+
+    public static void main(String[] args) throws Exception {
+        String json = "{\"jsonrpc\":\"2.0\",\n" +
+                " \n" +
+                " \"method\":\"shh_newIdentity\",\n" +
+                " \"params\": [{  \"payload\": \"Hello\",  \"ttl\": \"100\", \"to\" : \"0xbd27a63c91fe3233c5777e6d3d7b39204d398c8f92655947eb5a373d46e1688f022a1632d264725cbc7dc43ee1cfebde42fa0a86d08b55d2acfbb5e9b3b48dc5\", \"from\": \"id1\" }],\n" +
+                " \"id\":1001\n" +
+                "}";
+        JsonRpcWhisper rpcWhisper = new JsonRpcWhisper(new URL("http://localhost:8545"));
+//        JsonRpcResponse resp = rpcWhisper.sendJson(new JsonRpcRequest("shh_post",
+//                new PostParams("Hello").to("0xbd27a63c91fe3233c5777e6d3d7b39204d398c8f92655947eb5a373d46e1688f022a1632d264725cbc7dc43ee1cfebde42fa0a86d08b55d2acfbb5e9b3b48dc5")));
+//        Hex.decode("7d04a8170c432240dcf544e27610cc3a10a32c6a5f8ff8cf5a06d26ee0d37da4075701ff03cee88d50885ff56bcd9a5070ff98b9a3045d6ff32e0f1821c21f87")
+        rpcWhisper.send(null, null, "Hello C++ Whisper".getBytes(), Topic.createTopics("ATopic"), 60, 1);
+        rpcWhisper.watch(new MessageWatcher(null,
+                null, Topic.createTopics("ATopic")) {
+            @Override
+            protected void newMessage(WhisperMessage msg) {
+                System.out.println("JsonRpcWhisper.newMessage:" + "msg = [" + msg + "]");
+            }
+        });
+
+        Thread.sleep(1000000000);
+//        String resp = rpcWhisper.sendPost(json);
+//        System.out.println("Resp: " + resp);
+
+    }
+
     @Override
     public String addIdentity(ECKey key) {
         throw new RuntimeException("Not supported by public JSON RPC API");
@@ -167,7 +212,7 @@ public class JsonRpcWhisper extends Whisper {
             }
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
 
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
@@ -177,24 +222,6 @@ public class JsonRpcWhisper extends Whisper {
         } catch (IOException e) {
             throw new RuntimeException("Error sending POST to " + rpcUrl, e);
         }
-    }
-
-    static String add0X(String s) {
-        if (s == null) return null;
-        return s.startsWith("0x") ? s : "0x" + s;
-    }
-    static String del0X(String s) {
-        if (s == null) return null;
-        return s.startsWith("0x") ? s.substring(2) : s;
-    }
-
-    static String encodeString(String s) {
-        return s == null ? null : "0x" + Hex.toHexString(s.getBytes());
-    }
-
-    static String decodeString(String s) {
-        if (s.startsWith("0x")) s = s.substring(2);
-        return new String(Hex.decode(s));
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -259,11 +286,6 @@ public class JsonRpcWhisper extends Whisper {
     }
 
     public static class JsonRpcResponse {
-        public static class Error {
-            public int code;
-            public String message;
-        }
-
         public int id;
         public String jsonrpc;
         public Error error;
@@ -272,6 +294,11 @@ public class JsonRpcWhisper extends Whisper {
             if (error != null) {
                 throw new RuntimeException("JSON RPC returned error (" + error.code + "): " + error.message);
             }
+        }
+
+        public static class Error {
+            public int code;
+            public String message;
         }
     }
 
@@ -299,31 +326,5 @@ public class JsonRpcWhisper extends Whisper {
                     "result=" + result +
                     '}';
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        String json = "{\"jsonrpc\":\"2.0\",\n" +
-                " \n" +
-                " \"method\":\"shh_newIdentity\",\n" +
-                " \"params\": [{  \"payload\": \"Hello\",  \"ttl\": \"100\", \"to\" : \"0xbd27a63c91fe3233c5777e6d3d7b39204d398c8f92655947eb5a373d46e1688f022a1632d264725cbc7dc43ee1cfebde42fa0a86d08b55d2acfbb5e9b3b48dc5\", \"from\": \"id1\" }],\n" +
-                " \"id\":1001\n" +
-                "}";
-        JsonRpcWhisper rpcWhisper = new JsonRpcWhisper(new URL("http://localhost:8545"));
-//        JsonRpcResponse resp = rpcWhisper.sendJson(new JsonRpcRequest("shh_post",
-//                new PostParams("Hello").to("0xbd27a63c91fe3233c5777e6d3d7b39204d398c8f92655947eb5a373d46e1688f022a1632d264725cbc7dc43ee1cfebde42fa0a86d08b55d2acfbb5e9b3b48dc5")));
-//        Hex.decode("7d04a8170c432240dcf544e27610cc3a10a32c6a5f8ff8cf5a06d26ee0d37da4075701ff03cee88d50885ff56bcd9a5070ff98b9a3045d6ff32e0f1821c21f87")
-        rpcWhisper.send(null, null, "Hello C++ Whisper".getBytes(), Topic.createTopics("ATopic"), 60, 1);
-        rpcWhisper.watch(new MessageWatcher(null,
-                null, Topic.createTopics("ATopic")) {
-            @Override
-            protected void newMessage(WhisperMessage msg) {
-                System.out.println("JsonRpcWhisper.newMessage:" + "msg = [" + msg + "]");
-            }
-        });
-
-        Thread.sleep(1000000000);
-//        String resp = rpcWhisper.sendPost(json);
-//        System.out.println("Resp: " + resp);
-
     }
 }

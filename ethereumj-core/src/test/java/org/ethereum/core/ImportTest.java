@@ -38,22 +38,6 @@ import static org.junit.Assert.assertEquals;
 public class ImportTest {
 
     private static final Logger logger = LoggerFactory.getLogger("test");
-
-    @Configuration
-    @ComponentScan(basePackages = "org.ethereum")
-    @NoAutoscan
-    static class ContextConfiguration {
-
-        @Bean
-        public BlockStore blockStore(){
-
-            IndexedBlockStore blockStore = new IndexedBlockStore();
-            blockStore.init(new HashMapDB<byte[]>(), new HashMapDB<byte[]>());
-
-            return blockStore;
-        }
-    }
-
     @Autowired
     WorldManager worldManager;
 
@@ -61,7 +45,6 @@ public class ImportTest {
     public static void close(){
 //        FileUtil.recursiveDelete(CONFIG.databaseDir());
     }
-
 
     @Ignore
     @Test
@@ -90,6 +73,21 @@ public class ImportTest {
         assertEquals(Hex.toHexString(root),
                 Hex.toHexString(repository.getRoot()));
 
+    }
+
+    @Configuration
+    @ComponentScan(basePackages = "org.ethereum")
+    @NoAutoscan
+    static class ContextConfiguration {
+
+        @Bean
+        public BlockStore blockStore() {
+
+            IndexedBlockStore blockStore = new IndexedBlockStore();
+            blockStore.init(new HashMapDB<>(), new HashMapDB<>());
+
+            return blockStore;
+        }
     }
 
 }

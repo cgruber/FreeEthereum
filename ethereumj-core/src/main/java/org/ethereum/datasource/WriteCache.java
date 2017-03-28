@@ -27,102 +27,13 @@ import java.util.Map;
  */
 public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
 
-    /**
-     * Type of the write cache
-     */
-    public enum CacheType {
-        /**
-         * Simple acts as regular Map: single and double adding of the same entry has the same effect
-         * Source entries (key/value pairs) may have arbitrary nature
-         */
-        SIMPLE,
-        /**
-         * Counting counts the resulting number of inserts (+1) and deletes (-1) and when flushed
-         * does the resulting number of inserts (if sum > 0) or deletes (if sum < 0)
-         * Counting Source acts like {@link HashedKeySource} and makes sense only for data
-         * where a single key always corresponds to a single value
-         * Counting cache normally used as backing store for Trie data structure
-         */
-        COUNTING
-    }
-
-    private static abstract class CacheEntry<V> implements Entry<V>{
-        // dedicated value instance which indicates that the entry was deleted
-        // (ref counter decremented) but we don't know actual value behind it
-        static final Object UNKNOWN_VALUE = new Object();
-
-        V value;
-        int counter = 0;
-
-        protected CacheEntry(V value) {
-            this.value = value;
-        }
-
-        protected abstract void deleted();
-
-        protected abstract void added();
-
-        protected abstract V getValue();
-
-        @Override
-        public V value() {
-            V v = getValue();
-            return v == UNKNOWN_VALUE ? null : v;
-        }
-    }
-
-    private static final class SimpleCacheEntry<V> extends CacheEntry<V> {
-        public SimpleCacheEntry(V value) {
-            super(value);
-        }
-
-        public void deleted() {
-            counter = -1;
-        }
-
-        public void added() {
-            counter = 1;
-        }
-
-        @Override
-        public V getValue() {
-            return counter < 0 ? null : value;
-        }
-    }
-
-    private static final class CountCacheEntry<V> extends CacheEntry<V> {
-        public CountCacheEntry(V value) {
-            super(value);
-        }
-
-        public void deleted() {
-            counter--;
-        }
-
-        public void added() {
-            counter++;
-        }
-
-        @Override
-        public V getValue() {
-            // for counting cache we return the cached value even if
-            // it was deleted (once or several times) as we don't know
-            // how many 'instances' are left behind
-            return value;
-        }
-    }
-
     private final boolean isCounting;
-
     protected volatile Map<Key, CacheEntry<Value>> cache = new HashMap<>();
-
     protected ReadWriteUpdateLock rwuLock = new ReentrantReadWriteUpdateLock();
     protected ALock readLock = new ALock(rwuLock.readLock());
     protected ALock writeLock = new ALock(rwuLock.writeLock());
     protected ALock updateLock = new ALock(rwuLock.updateLock());
-
     private boolean checked = false;
-
     public WriteCache(Source<Key, Value> src, CacheType cacheType) {
         super(src);
         this.isCounting = cacheType == CacheType.COUNTING;
@@ -286,6 +197,91 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
     }
 
     /**
+     * Type of the write cache
+     */
+    public enum CacheType {
+        /**
+         * Simple acts as regular Map: single and double adding of the same entry has the same effect
+         * Source entries (key/value pairs) may have arbitrary nature
+         */
+        SIMPLE,
+        /**
+         * Counting counts the resulting number of inserts (+1) and deletes (-1) and when flushed
+         * does the resulting number of inserts (if sum > 0) or deletes (if sum < 0)
+         * Counting Source acts like {@link HashedKeySource} and makes sense only for data
+         * where a single key always corresponds to a single value
+         * Counting cache normally used as backing store for Trie data structure
+         */
+        COUNTING
+    }
+
+    private static abstract class CacheEntry<V> implements Entry<V> {
+        // dedicated value instance which indicates that the entry was deleted
+        // (ref counter decremented) but we don't know actual value behind it
+        static final Object UNKNOWN_VALUE = new Object();
+
+        V value;
+        int counter = 0;
+
+        protected CacheEntry(V value) {
+            this.value = value;
+        }
+
+        protected abstract void deleted();
+
+        protected abstract void added();
+
+        protected abstract V getValue();
+
+        @Override
+        public V value() {
+            V v = getValue();
+            return v == UNKNOWN_VALUE ? null : v;
+        }
+    }
+
+    private static final class SimpleCacheEntry<V> extends CacheEntry<V> {
+        public SimpleCacheEntry(V value) {
+            super(value);
+        }
+
+        public void deleted() {
+            counter = -1;
+        }
+
+        public void added() {
+            counter = 1;
+        }
+
+        @Override
+        public V getValue() {
+            return counter < 0 ? null : value;
+        }
+    }
+
+    private static final class CountCacheEntry<V> extends CacheEntry<V> {
+        public CountCacheEntry(V value) {
+            super(value);
+        }
+
+        public void deleted() {
+            counter--;
+        }
+
+        public void added() {
+            counter++;
+        }
+
+        @Override
+        public V getValue() {
+            // for counting cache we return the cached value even if
+            // it was deleted (once or several times) as we don't know
+            // how many 'instances' are left behind
+            return value;
+        }
+    }
+
+    /**
      * Shortcut for WriteCache with byte[] keys. Also prevents accidental
      * usage of regular Map implementation (non byte[])
      */
@@ -293,7 +289,7 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
 
         public BytesKey(Source<byte[], V> src, CacheType cacheType) {
             super(src, cacheType);
-            withCache(new ByteArrayMap<CacheEntry<V>>());
+            withCache(new ByteArrayMap<>());
         }
     }
 }

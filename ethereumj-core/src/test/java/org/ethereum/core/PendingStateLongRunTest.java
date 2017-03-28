@@ -2,9 +2,8 @@ package org.ethereum.core;
 
 import org.ethereum.config.CommonConfig;
 import org.ethereum.datasource.inmem.HashMapDB;
-import org.ethereum.db.RepositoryRoot;
-import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.db.IndexedBlockStore;
+import org.ethereum.db.RepositoryRoot;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.validator.DependentBlockHeaderRuleAdapter;
 import org.ethereum.vm.program.invoke.ProgramInvokeFactoryImpl;
@@ -23,7 +22,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 import static org.ethereum.util.BIUtil.toBI;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Mikhail Kalinin
@@ -102,7 +101,7 @@ public class PendingStateLongRunTest {
 
     private Blockchain createBlockchain(Genesis genesis) {
         IndexedBlockStore blockStore = new IndexedBlockStore();
-        blockStore.init(new HashMapDB<byte[]>(), new HashMapDB<byte[]>());
+        blockStore.init(new HashMapDB<>(), new HashMapDB<>());
 
         Repository repository = new RepositoryRoot(new HashMapDB());
 

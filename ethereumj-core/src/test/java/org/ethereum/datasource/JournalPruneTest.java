@@ -13,37 +13,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class JournalPruneTest {
 
-    class StringJDS extends JournalSource<byte[]> {
-        final HashMapDB<byte[]> mapDB;
-        final Source<byte[], byte[]> db;
-
-        public StringJDS() {
-            this(new HashMapDB<byte[]>());
-        }
-
-        private StringJDS(HashMapDB<byte[]> mapDB) {
-            this(mapDB, new CountingBytesSource(mapDB));
-        }
-
-        private StringJDS(HashMapDB<byte[]> mapDB, Source<byte[], byte[]> db) {
-            super(db);
-            this.db = db;
-            this.mapDB = mapDB;
-        }
-
-        public synchronized void put(String key) {
-            super.put(key.getBytes(), key.getBytes());
-        }
-
-        public synchronized void delete(String key) {
-            super.delete(key.getBytes());
-        }
-
-        public String get(String key) {
-            return new String(super.get(key.getBytes()));
-        }
-    }
-
     private void checkDb(StringJDS db, String ... keys) {
         assertEquals(keys.length, db.mapDB.keys().size());
         for (String key : keys) {
@@ -175,5 +144,36 @@ public class JournalPruneTest {
 
     public byte[] hashInt(int i) {
         return HashUtil.sha3(ByteUtil.intToBytes(i));
+    }
+
+    class StringJDS extends JournalSource<byte[]> {
+        final HashMapDB<byte[]> mapDB;
+        final Source<byte[], byte[]> db;
+
+        public StringJDS() {
+            this(new HashMapDB<>());
+        }
+
+        private StringJDS(HashMapDB<byte[]> mapDB) {
+            this(mapDB, new CountingBytesSource(mapDB));
+        }
+
+        private StringJDS(HashMapDB<byte[]> mapDB, Source<byte[], byte[]> db) {
+            super(db);
+            this.db = db;
+            this.mapDB = mapDB;
+        }
+
+        public synchronized void put(String key) {
+            super.put(key.getBytes(), key.getBytes());
+        }
+
+        public synchronized void delete(String key) {
+            super.delete(key.getBytes());
+        }
+
+        public String get(String key) {
+            return new String(super.get(key.getBytes()));
+        }
     }
 }

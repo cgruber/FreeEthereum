@@ -4,11 +4,10 @@ import org.ethereum.core.Repository;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.inmem.HashMapDB;
-import org.ethereum.db.RepositoryRoot;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.BlockStoreDummy;
+import org.ethereum.db.RepositoryRoot;
 import org.ethereum.vm.DataWord;
-
 import org.spongycastle.util.encoders.Hex;
 
 /**
@@ -17,12 +16,10 @@ import org.spongycastle.util.encoders.Hex;
  */
 public class ProgramInvokeMockImpl implements ProgramInvoke {
 
+    private final byte[] contractAddress = Hex.decode("471fd3ad3e9eeadeec4608b92d16ce6b500704cc");
     private byte[] msgData;
-
     private Repository repository;
     private byte[] ownerAddress = Hex.decode("cd2a3d9f938e13cd947ec05abc7fe734df8dd826");
-    private final byte[] contractAddress = Hex.decode("471fd3ad3e9eeadeec4608b92d16ce6b500704cc");
-
     // default for most tests. This can be overwritten by the test
     private long gasLimit = 1000000;
 
@@ -34,7 +31,7 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     public ProgramInvokeMockImpl() {
 
 
-        this.repository = new RepositoryRoot(new HashMapDB<byte[]>());
+        this.repository = new RepositoryRoot(new HashMapDB<>());
         this.repository.createAccount(ownerAddress);
 
         this.repository.createAccount(contractAddress);
@@ -54,6 +51,10 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     /*           ADDRESS op         */
     public DataWord getOwnerAddress() {
         return new DataWord(ownerAddress);
+    }
+
+    public void setOwnerAddress(byte[] ownerAddress) {
+        this.ownerAddress = ownerAddress;
     }
 
     /*           BALANCE op         */
@@ -93,14 +94,17 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
         return new DataWord(gasLimit);
     }
 
+    public void setGas(long gasLimit) {
+        this.gasLimit = gasLimit;
+    }
+
     @Override
     public long getGasLong() {
         return gasLimit;
     }
 
-    public void setGas(long gasLimit) {
-        this.gasLimit = gasLimit;
-    }
+    /*****************/
+    /***  msg data ***/
 
     /*          CALLVALUE op    */
     public DataWord getCallValue() {
@@ -108,8 +112,6 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
         return new DataWord(balance);
     }
 
-    /*****************/
-    /***  msg data ***/
     /**
      * *************
      */
@@ -195,10 +197,6 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
         this.gasLimit = gasLimit;
     }
 
-    public void setOwnerAddress(byte[] ownerAddress) {
-        this.ownerAddress = ownerAddress;
-    }
-
     @Override
     public boolean byTransaction() {
         return true;
@@ -214,13 +212,13 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
         return this.repository;
     }
 
+    public void setRepository(Repository repository) {
+        this.repository = repository;
+    }
+
     @Override
     public BlockStore getBlockStore() {
         return new BlockStoreDummy();
-    }
-
-    public void setRepository(Repository repository) {
-        this.repository = repository;
     }
 
     @Override

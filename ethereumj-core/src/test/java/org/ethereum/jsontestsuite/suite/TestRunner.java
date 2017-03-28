@@ -2,11 +2,7 @@ package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.config.CommonConfig;
 import org.ethereum.config.SystemProperties;
-import org.ethereum.core.Block;
-import org.ethereum.core.BlockchainImpl;
-import org.ethereum.core.ImportResult;
-import org.ethereum.core.PendingStateImpl;
-import org.ethereum.core.Repository;
+import org.ethereum.core.*;
 import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.db.*;
 import org.ethereum.jsontestsuite.suite.builder.BlockBuilder;
@@ -30,11 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.ethereum.crypto.HashUtil.shortHash;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
@@ -77,7 +69,7 @@ public class TestRunner {
         Repository repository = RepositoryBuilder.build(testCase.getPre());
 
         IndexedBlockStore blockStore = new IndexedBlockStore();
-        blockStore.init(new HashMapDB<byte[]>(), new HashMapDB<byte[]>());
+        blockStore.init(new HashMapDB<>(), new HashMapDB<>());
         blockStore.saveBlock(genesis, genesis.getCumulativeDifficulty(), true);
 
         ProgramInvokeFactoryImpl programInvokeFactory = new ProgramInvokeFactoryImpl();
@@ -166,7 +158,7 @@ public class TestRunner {
 
 
         logger.info("--------- PRE ---------");
-        IterableTestRepository testRepository = new IterableTestRepository(new RepositoryRoot(new HashMapDB<byte[]>()));
+        IterableTestRepository testRepository = new IterableTestRepository(new RepositoryRoot(new HashMapDB<>()));
         testRepository.environmental = true;
         Repository repository = loadRepository(testRepository, testCase.getPre());
 

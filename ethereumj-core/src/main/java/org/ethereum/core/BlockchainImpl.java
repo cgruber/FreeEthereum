@@ -814,7 +814,7 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
             return applyBlock(track, block);
         }
         else {
-            return new BlockSummary(block, new HashMap<byte[], BigInteger>(), new ArrayList<TransactionReceipt>(), new ArrayList<TransactionExecutionSummary>());
+            return new BlockSummary(block, new HashMap<>(), new ArrayList<>(), new ArrayList<>());
         }
     }
 

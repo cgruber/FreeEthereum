@@ -3,16 +3,15 @@ package org.ethereum.manager;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.*;
 import org.ethereum.db.BlockStore;
-import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.db.DbFlushManager;
 import org.ethereum.listener.CompositeEthereumListener;
 import org.ethereum.listener.EthereumListener;
 import org.ethereum.net.client.PeerClient;
+import org.ethereum.net.rlpx.discover.NodeManager;
 import org.ethereum.net.rlpx.discover.UDPListener;
+import org.ethereum.net.server.ChannelManager;
 import org.ethereum.sync.FastSyncManager;
 import org.ethereum.sync.SyncManager;
-import org.ethereum.net.rlpx.discover.NodeManager;
-import org.ethereum.net.server.ChannelManager;
 import org.ethereum.sync.SyncPool;
 import org.ethereum.util.Utils;
 import org.slf4j.Logger;
@@ -131,7 +130,7 @@ public class WorldManager {
     }
 
     public org.ethereum.facade.Repository getRepository() {
-        return (org.ethereum.facade.Repository)repository;
+        return repository;
     }
 
     public Blockchain getBlockchain() {
@@ -169,7 +168,7 @@ public class WorldManager {
             blockchain.setBestBlock(Genesis.getInstance(config));
             blockchain.setTotalDifficulty(Genesis.getInstance(config).getCumulativeDifficulty());
 
-            listener.onBlock(new BlockSummary(Genesis.getInstance(config), new HashMap<byte[], BigInteger>(), new ArrayList<TransactionReceipt>(), new ArrayList<TransactionExecutionSummary>()));
+            listener.onBlock(new BlockSummary(Genesis.getInstance(config), new HashMap<>(), new ArrayList<>(), new ArrayList<>()));
 //            repository.dumpState(Genesis.getInstance(config), 0, 0, null);
 
             logger.info("Genesis block loaded");

@@ -2,13 +2,13 @@ package org.ethereum.jsontestsuite.suite.builder;
 
 import org.ethereum.core.AccountState;
 import org.ethereum.core.Repository;
-import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.datasource.NoDeleteSource;
-import org.ethereum.jsontestsuite.suite.IterableTestRepository;
-import org.ethereum.db.RepositoryRoot;
+import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.db.ContractDetails;
+import org.ethereum.db.RepositoryRoot;
 import org.ethereum.jsontestsuite.suite.ContractDetailsCacheImpl;
+import org.ethereum.jsontestsuite.suite.IterableTestRepository;
 import org.ethereum.jsontestsuite.suite.model.AccountTck;
 
 import java.util.HashMap;
@@ -39,7 +39,7 @@ public class RepositoryBuilder {
             detailsBatch.put(wrap(parseData(address)), detailsCache);
         }
 
-        Repository repositoryDummy = new IterableTestRepository(new RepositoryRoot(new NoDeleteSource<>(new HashMapDB<byte[]>())));
+        Repository repositoryDummy = new IterableTestRepository(new RepositoryRoot(new NoDeleteSource<>(new HashMapDB<>())));
         Repository track = repositoryDummy.startTracking();
 
         track.updateBatch(stateBatch, detailsBatch);

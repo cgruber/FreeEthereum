@@ -1,13 +1,10 @@
 package org.ethereum.datasource.inmem;
 
 import org.ethereum.datasource.DbSource;
-import org.ethereum.util.ALock;
 import org.ethereum.util.ByteArrayMap;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by Anton Nashatyrev on 12.10.2016.
@@ -17,7 +14,7 @@ public class HashMapDBSimple<V> implements DbSource<V> {
     protected final Map<byte[], V> storage;
 
     public HashMapDBSimple() {
-        this(new ByteArrayMap<V>());
+        this(new ByteArrayMap<>());
     }
 
     public HashMapDBSimple(ByteArrayMap<V> storage) {
@@ -49,11 +46,12 @@ public class HashMapDBSimple<V> implements DbSource<V> {
     }
 
     @Override
-    public void setName(String name) {}
-
-    @Override
     public String getName() {
         return "in-memory";
+    }
+
+    @Override
+    public void setName(String name) {
     }
 
     @Override

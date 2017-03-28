@@ -23,7 +23,7 @@ plugins {
 apply plugin: 'propdeps-maven'
 apply plugin: 'com.jfrog.artifactory-upload'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 mainClassName = 'org.ethereum.Start'
 applicationDefaultJvmArgs = ["-server", "-Xss4m", "-Xmx2G", "-XX:-OmitStackTraceInFastThrow"]
@@ -316,7 +316,7 @@ def customizePom(pom, gradleProject) {
 
 def buildTime() {
     def df = new SimpleDateFormat("[dd/MMM/yyyy]-[HH:mm]")
-    df.setTimeZone(TimeZone.getTimeZone("GMT"));
+    df.setTimeZone(TimeZone.getTimeZone("GMT"))
     return '[GMT]-' + df.format(new Date())
 }
 

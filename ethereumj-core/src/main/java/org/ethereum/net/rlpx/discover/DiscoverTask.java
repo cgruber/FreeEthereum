@@ -1,19 +1,11 @@
 package org.ethereum.net.rlpx.discover;
 
-import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
-import io.netty.channel.socket.DatagramPacket;
-import org.ethereum.crypto.ECKey;
-import org.ethereum.net.rlpx.FindNodeMessage;
-import org.ethereum.net.rlpx.Message;
 import org.ethereum.net.rlpx.Node;
 import org.ethereum.net.rlpx.discover.table.KademliaOptions;
 import org.ethereum.net.rlpx.discover.table.NodeEntry;
-import org.ethereum.net.rlpx.discover.table.NodeTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +23,7 @@ public class DiscoverTask implements Runnable {
 
     @Override
     public void run() {
-        discover(nodeId, 0, new ArrayList<Node>());
+        discover(nodeId, 0, new ArrayList<>());
     }
 
     public synchronized void discover(byte[] nodeId, int round, List<Node> prevTried) {

@@ -29,10 +29,12 @@ public class ReadCache<Key, Value> extends AbstractCachedSource<Key, Value> {
 
     private Map<Key, Value> cache;
     private boolean byteKeyMap;
+    // the guard against incorrect Map implementation for byte[] keys
+    private boolean checked = false;
 
     public ReadCache(Source<Key, Value> src) {
         super(src);
-        withCache(new HashMap<Key, Value>());
+        withCache(new HashMap<>());
     }
 
     /**
@@ -57,8 +59,6 @@ public class ReadCache<Key, Value> extends AbstractCachedSource<Key, Value> {
         });
     }
 
-    // the guard against incorrect Map implementation for byte[] keys
-    private boolean checked = false;
     private void checkByteArrKey(Key key) {
         if (checked) return;
 
@@ -133,11 +133,11 @@ public class ReadCache<Key, Value> extends AbstractCachedSource<Key, Value> {
 
         public BytesKey(Source<byte[], V> src) {
             super(src);
-            withCache(new ByteArrayMap<V>());
+            withCache(new ByteArrayMap<>());
         }
 
         public ReadCache.BytesKey<V> withMaxCapacity(int maxCapacity) {
-            withCache(new ByteArrayMap<V>(new LRUMap<ByteArrayWrapper, V>(maxCapacity) {
+            withCache(new ByteArrayMap<>(new LRUMap<ByteArrayWrapper, V>(maxCapacity) {
                 @Override
                 protected boolean removeLRU(LinkEntry<ByteArrayWrapper, V> entry) {
                     cacheRemoved(entry.getKey().getData(), entry.getValue());

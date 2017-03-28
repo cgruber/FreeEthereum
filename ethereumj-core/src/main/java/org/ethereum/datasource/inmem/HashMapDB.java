@@ -6,7 +6,6 @@ import org.ethereum.util.ByteArrayMap;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -22,7 +21,7 @@ public class HashMapDB<V> implements DbSource<V> {
     protected ALock writeLock = new ALock(rwLock.writeLock());
 
     public HashMapDB() {
-        this(new ByteArrayMap<V>());
+        this(new ByteArrayMap<>());
     }
 
     public HashMapDB(ByteArrayMap<V> storage) {
@@ -60,11 +59,12 @@ public class HashMapDB<V> implements DbSource<V> {
     }
 
     @Override
-    public void setName(String name) {}
-
-    @Override
     public String getName() {
         return "in-memory";
+    }
+
+    @Override
+    public void setName(String name) {
     }
 
     @Override

@@ -1,30 +1,18 @@
 package org.ethereum.jsontestsuite;
 
-import org.ethereum.jsontestsuite.suite.BlockTestCase;
-import org.ethereum.jsontestsuite.suite.BlockTestSuite;
-import org.ethereum.jsontestsuite.suite.StateTestCase;
-import org.ethereum.jsontestsuite.suite.StateTestSuite;
-import org.ethereum.jsontestsuite.suite.TestCase;
-import org.ethereum.jsontestsuite.suite.TestRunner;
-import org.ethereum.jsontestsuite.suite.TestSuite;
-import org.ethereum.jsontestsuite.suite.TransactionTestCase;
-import org.ethereum.jsontestsuite.suite.TransactionTestSuite;
+import org.ethereum.jsontestsuite.suite.*;
 import org.ethereum.jsontestsuite.suite.runners.StateTestRunner;
 import org.ethereum.jsontestsuite.suite.runners.TransactionTestRunner;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import org.junit.Assert;
 import org.junit.Assume;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test file specific for tests maintained in the GitHub repository
@@ -199,7 +187,7 @@ public class GitHubJSONTestSuite {
 
 
     public static void runStateTest(String jsonSuite) throws IOException {
-        runStateTest(jsonSuite, new HashSet<String>());
+        runStateTest(jsonSuite, new HashSet<>());
     }
 
 

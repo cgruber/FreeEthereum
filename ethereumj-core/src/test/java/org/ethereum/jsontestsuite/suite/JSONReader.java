@@ -1,27 +1,20 @@
 package org.ethereum.jsontestsuite.suite;
 
+import org.apache.commons.codec.binary.Base64;
 import org.ethereum.config.SystemProperties;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class JSONReader {
 
@@ -90,7 +83,7 @@ public class JSONReader {
         JSONParser parser = new JSONParser();
         JSONObject testSuiteObj = null;
 
-        List<String> fileNames = new ArrayList<String>();
+        List<String> fileNames = new ArrayList<>();
         try {
             testSuiteObj = (JSONObject) parser.parse(result);
             JSONArray tree = (JSONArray)testSuiteObj.get("tree");
@@ -120,7 +113,7 @@ public class JSONReader {
         JSONParser parser = new JSONParser();
         JSONObject testSuiteObj = null;
 
-        List<String> fileNames = new ArrayList<String>();
+        List<String> fileNames = new ArrayList<>();
         try {
             testSuiteObj = (JSONObject) parser.parse(result);
             JSONArray tree = (JSONArray)testSuiteObj.get("tree");

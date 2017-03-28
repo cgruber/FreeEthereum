@@ -1,6 +1,7 @@
 package org.ethereum.config;
 
-import org.ethereum.core.*;
+import org.ethereum.core.BlockHeader;
+import org.ethereum.core.Repository;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.*;
 import org.ethereum.datasource.inmem.HashMapDB;
@@ -11,7 +12,6 @@ import org.ethereum.sync.FastSyncManager;
 import org.ethereum.validator.*;
 import org.ethereum.vm.DataWord;
 import org.ethereum.vm.program.ProgramPrecompile;
-import org.ethereum.vm.program.invoke.ProgramInvokeFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -32,9 +32,8 @@ import static java.util.Arrays.asList;
         excludeFilters = @ComponentScan.Filter(NoAutoscan.class))
 public class CommonConfig {
     private static final Logger logger = LoggerFactory.getLogger("general");
-    private Set<DbSource> dbSources = new HashSet<>();
-
     private static CommonConfig defaultInstance;
+    private Set<DbSource> dbSources = new HashSet<>();
 
     public static CommonConfig getDefault() {
         if (defaultInstance == null && !SystemProperties.isUseOnlySpringConfig()) {
@@ -187,23 +186,25 @@ public class CommonConfig {
     public Source<byte[], ProgramPrecompile> precompileSource() {
 
         StateSource source = stateSource();
-        return new SourceCodec<byte[], ProgramPrecompile, byte[], byte[]>(source,
+        return new SourceCodec<>(source,
                 new Serializer<byte[], byte[]>() {
                     public byte[] serialize(byte[] object) {
                         DataWord ret = new DataWord(object);
                         ret.add(new DataWord(1));
                         return ret.getLast20Bytes();
                     }
+
                     public byte[] deserialize(byte[] stream) {
                         throw new RuntimeException("Shouldn't be called");
                     }
                 }, new Serializer<ProgramPrecompile, byte[]>() {
-                    public byte[] serialize(ProgramPrecompile object) {
-                        return object == null ? null : object.serialize();
-                    }
-                    public ProgramPrecompile deserialize(byte[] stream) {
-                        return stream == null ? null : ProgramPrecompile.deserialize(stream);
-                    }
+            public byte[] serialize(ProgramPrecompile object) {
+                return object == null ? null : object.serialize();
+            }
+
+            public ProgramPrecompile deserialize(byte[] stream) {
+                return stream == null ? null : ProgramPrecompile.deserialize(stream);
+            }
         });
     }
 

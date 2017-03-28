@@ -20,11 +20,9 @@ import java.util.concurrent.*;
 @Component
 public class EventDispatchThread {
     private static final Logger logger = LoggerFactory.getLogger("blockchain");
-    private static EventDispatchThread eventDispatchThread;
-
     private static final int[] queueSizeWarnLevels = new int[]{0, 10_000, 50_000, 100_000, 250_000, 500_000, 1_000_000, 10_000_000};
-
-    private final BlockingQueue<Runnable> executorQueue = new LinkedBlockingQueue<Runnable>();
+    private static EventDispatchThread eventDispatchThread;
+    private final BlockingQueue<Runnable> executorQueue = new LinkedBlockingQueue<>();
     private final ExecutorService executor = new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS, executorQueue, new ThreadFactory() {
         @Override
@@ -52,6 +50,11 @@ public class EventDispatchThread {
             };
         }
         return eventDispatchThread;
+    }
+
+    private static int getSizeWarnLevel(int size) {
+        int idx = Arrays.binarySearch(queueSizeWarnLevels, size);
+        return idx >= 0 ? idx : -(idx + 1) - 1;
     }
 
     public void invokeLater(final Runnable r) {
@@ -98,11 +101,6 @@ public class EventDispatchThread {
             }
             lastQueueSizeWarnLevel = curLevel;
         }
-    }
-
-    private static int getSizeWarnLevel(int size) {
-        int idx = Arrays.binarySearch(queueSizeWarnLevels, size);
-        return idx >= 0 ? idx : -(idx + 1) - 1;
     }
 
     public void shutdown() {

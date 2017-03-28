@@ -38,7 +38,9 @@ import org.springframework.util.concurrent.FutureAdapter;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -242,7 +244,7 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
             repository.rollback();
         }
 
-        return new BlockSummary(block, new HashMap<byte[], BigInteger>(), receipts, summaries);
+        return new BlockSummary(block, new HashMap<>(), receipts, summaries);
     }
 
     private org.ethereum.core.TransactionExecutor callConstantImpl(Transaction tx, Block block) {

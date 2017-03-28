@@ -6,12 +6,14 @@ import org.ethereum.config.blockchain.FrontierConfig;
 import org.ethereum.core.*;
 import org.ethereum.core.genesis.GenesisLoader;
 import org.ethereum.crypto.ECKey;
-import org.ethereum.datasource.*;
+import org.ethereum.datasource.CountingBytesSource;
+import org.ethereum.datasource.JournalSource;
+import org.ethereum.datasource.Source;
 import org.ethereum.datasource.inmem.HashMapDB;
-import org.ethereum.db.PruneManager;
-import org.ethereum.db.RepositoryRoot;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.db.IndexedBlockStore;
+import org.ethereum.db.PruneManager;
+import org.ethereum.db.RepositoryRoot;
 import org.ethereum.listener.CompositeEthereumListener;
 import org.ethereum.listener.EthereumListener;
 import org.ethereum.listener.EthereumListenerAdapter;
@@ -59,50 +61,11 @@ public class StandaloneBlockchain implements LocalBlockchain {
 
     long time = 0;
     long timeIncrement = 13;
-
-    private HashMapDB<byte[]> stateDS;
     JournalSource<byte[]> pruningStateDS;
     PruneManager pruneManager;
-
-    private BlockSummary lastSummary;
-
-    class PendingTx {
-        ECKey sender;
-        byte[] toAddress;
-        BigInteger value;
-        byte[] data;
-
-        SolidityContractImpl createdContract;
-        SolidityContractImpl targetContract;
-
-        Transaction customTx;
-
-        TransactionResult txResult = new TransactionResult();
-
-        public PendingTx(byte[] toAddress, BigInteger value, byte[] data) {
-            this.sender = txSender;
-            this.toAddress = toAddress;
-            this.value = value;
-            this.data = data;
-        }
-
-        public PendingTx(byte[] toAddress, BigInteger value, byte[] data,
-                         SolidityContractImpl createdContract, SolidityContractImpl targetContract, TransactionResult res) {
-            this.sender = txSender;
-            this.toAddress = toAddress;
-            this.value = value;
-            this.data = data;
-            this.createdContract = createdContract;
-            this.targetContract = targetContract;
-            this.txResult = res;
-        }
-
-        public PendingTx(Transaction customTx) {
-            this.customTx = customTx;
-        }
-    }
-
     List<PendingTx> submittedTxes = new CopyOnWriteArrayList<>();
+    private HashMapDB<byte[]> stateDS;
+    private BlockSummary lastSummary;
 
     public StandaloneBlockchain() {
         Genesis genesis = GenesisLoader.loadGenesis(
@@ -114,6 +77,16 @@ public class StandaloneBlockchain implements LocalBlockchain {
         withMinerCoinbase(Hex.decode("ffffffffffffffffffffffffffffffffffffffff"));
         setSender(ECKey.fromPrivate(Hex.decode("3ec771c31cac8c0dba77a69e503765701d3c2bb62435888d4ffa38fed60c445c")));
 //        withAccountBalance(txSender.getAddress(), new BigInteger("100000000000000000000000000"));
+    }
+
+    // Override blockchain net config for fast mining
+    public static FrontierConfig getEasyMiningConfig() {
+        return new FrontierConfig(new FrontierConfig.FrontierConstants() {
+            @Override
+            public BigInteger getMINIMUM_DIFFICULTY() {
+                return BigInteger.ONE;
+            }
+        });
     }
 
     public StandaloneBlockchain withGenesis(Genesis genesis) {
@@ -282,6 +255,10 @@ public class StandaloneBlockchain implements LocalBlockchain {
         submittedTxes.clear();
     }
 
+    public ECKey getSender() {
+        return txSender;
+    }
+
     @Override
     public void setSender(ECKey senderPrivateKey) {
         txSender = senderPrivateKey;
@@ -291,10 +268,6 @@ public class StandaloneBlockchain implements LocalBlockchain {
 //            track.createAccount(senderPrivateKey.getAddress());
 //            track.commit();
 //        }
-    }
-
-    public ECKey getSender() {
-        return txSender;
     }
 
     @Override
@@ -457,7 +430,7 @@ public class StandaloneBlockchain implements LocalBlockchain {
         SystemProperties.getDefault().setBlockchainConfig(netConfig != null ? netConfig : getEasyMiningConfig());
 
         IndexedBlockStore blockStore = new IndexedBlockStore();
-        blockStore.init(new HashMapDB<byte[]>(), new HashMapDB<byte[]>());
+        blockStore.init(new HashMapDB<>(), new HashMapDB<>());
 
         stateDS = new HashMapDB<>();
         pruningStateDS = new JournalSource<>(new CountingBytesSource(stateDS));
@@ -496,6 +469,42 @@ public class StandaloneBlockchain implements LocalBlockchain {
         return blockchain;
     }
 
+    class PendingTx {
+        ECKey sender;
+        byte[] toAddress;
+        BigInteger value;
+        byte[] data;
+
+        SolidityContractImpl createdContract;
+        SolidityContractImpl targetContract;
+
+        Transaction customTx;
+
+        TransactionResult txResult = new TransactionResult();
+
+        public PendingTx(byte[] toAddress, BigInteger value, byte[] data) {
+            this.sender = txSender;
+            this.toAddress = toAddress;
+            this.value = value;
+            this.data = data;
+        }
+
+        public PendingTx(byte[] toAddress, BigInteger value, byte[] data,
+                         SolidityContractImpl createdContract, SolidityContractImpl targetContract, TransactionResult res) {
+            this.sender = txSender;
+            this.toAddress = toAddress;
+            this.value = value;
+            this.data = data;
+            this.createdContract = createdContract;
+            this.targetContract = targetContract;
+            this.txResult = res;
+        }
+
+        public PendingTx(Transaction customTx) {
+            this.customTx = customTx;
+        }
+    }
+
     public class SolidityFunctionImpl implements SolidityFunction {
         SolidityContractImpl contract;
         CallTransaction.Function abi;
@@ -517,10 +526,10 @@ public class StandaloneBlockchain implements LocalBlockchain {
     }
 
     public class SolidityContractImpl implements SolidityContract {
-        byte[] address;
         public CompilationResult.ContractMetadata compiled;
         public CallTransaction.Contract contract;
         public List<CallTransaction.Contract> relatedContracts = new ArrayList<>();
+        byte[] address;
 
         public SolidityContractImpl(String abi) {
             contract = new CallTransaction.Contract(abi);
@@ -535,16 +544,16 @@ public class StandaloneBlockchain implements LocalBlockchain {
             relatedContracts.add(c);
         }
 
-        void setAddress(byte[] address) {
-            this.address = address;
-        }
-
         @Override
         public byte[] getAddress() {
             if (address == null) {
                 throw new RuntimeException("Contract address will be assigned only after block inclusion. Call createBlock() first.");
             }
             return address;
+        }
+
+        void setAddress(byte[] address) {
+            this.address = address;
         }
 
         @Override
@@ -677,7 +686,6 @@ public class StandaloneBlockchain implements LocalBlockchain {
         }
     }
 
-
     class SolidityStorageImpl implements SolidityStorage {
         byte[] contractAddr;
 
@@ -731,15 +739,5 @@ public class StandaloneBlockchain implements LocalBlockchain {
             sleep(rows.size() / 2);
             super.updateBatch(rows);
         }
-    }
-
-    // Override blockchain net config for fast mining
-    public static FrontierConfig getEasyMiningConfig() {
-        return new FrontierConfig(new FrontierConfig.FrontierConstants() {
-            @Override
-            public BigInteger getMINIMUM_DIFFICULTY() {
-                return BigInteger.ONE;
-            }
-        });
     }
 }

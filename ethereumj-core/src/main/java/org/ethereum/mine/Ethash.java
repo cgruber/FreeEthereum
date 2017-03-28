@@ -15,12 +15,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.ethereum.crypto.HashUtil.sha3;
-import static org.ethereum.util.ByteUtil.longToBytes;
 import static org.ethereum.mine.MinerIfc.MiningResult;
+import static org.ethereum.util.ByteUtil.longToBytes;
 
 /**
  * More high level validator/miner class which keeps a cache for the last requested block epoch
@@ -29,16 +32,27 @@ import static org.ethereum.mine.MinerIfc.MiningResult;
  */
 public class Ethash {
     private static final Logger logger = LoggerFactory.getLogger("mine");
+    public static boolean fileCacheEnabled = true;
     private static EthashParams ethashParams = new EthashParams();
-
     private static Ethash cachedInstance = null;
     private static long cachedBlockEpoch = 0;
     //    private static ExecutorService executor = Executors.newSingleThreadExecutor();
     private static ListeningExecutorService executor = MoreExecutors.listeningDecorator(
-            new ThreadPoolExecutor(8, 8, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
+            new ThreadPoolExecutor(8, 8, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
             new ThreadFactoryBuilder().setNameFormat("ethash-pool-%d").build()));
-
-    public static boolean fileCacheEnabled = true;
+    private EthashAlgo ethashAlgo = new EthashAlgo(ethashParams);
+    private long blockNumber;
+    private int[] cacheLight = null;
+    private int[] fullData = null;
+    private SystemProperties config;
+    private long startNonce = -1;
+    public Ethash(SystemProperties config, long blockNumber) {
+        this.config = config;
+        this.blockNumber = blockNumber;
+        if (config.getConfig().hasPath("mine.startNonce")) {
+            startNonce = config.getConfig().getLong("mine.startNonce");
+        }
+    }
 
     /**
      * Returns instance for the specified block number either from cache or calculates a new one
@@ -50,22 +64,6 @@ public class Ethash {
             cachedBlockEpoch = epoch;
         }
         return cachedInstance;
-    }
-
-    private EthashAlgo ethashAlgo = new EthashAlgo(ethashParams);
-
-    private long blockNumber;
-    private int[] cacheLight = null;
-    private int[] fullData = null;
-    private SystemProperties config;
-    private long startNonce = -1;
-
-    public Ethash(SystemProperties config, long blockNumber) {
-        this.config = config;
-        this.blockNumber = blockNumber;
-        if (config.getConfig().hasPath("mine.startNonce")) {
-            startNonce = config.getConfig().getLong("mine.startNonce");
-        }
     }
 
     public synchronized int[] getCacheLight() {

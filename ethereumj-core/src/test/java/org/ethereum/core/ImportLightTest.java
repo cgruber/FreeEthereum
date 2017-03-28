@@ -2,13 +2,11 @@ package org.ethereum.core;
 
 import org.ethereum.config.CommonConfig;
 import org.ethereum.config.SystemProperties;
-import org.ethereum.config.blockchain.FrontierConfig;
 import org.ethereum.core.genesis.GenesisLoader;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
-import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.datasource.NoDeleteSource;
-import org.ethereum.db.ByteArrayWrapper;
+import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.db.IndexedBlockStore;
 import org.ethereum.db.RepositoryRoot;
 import org.ethereum.listener.EthereumListenerAdapter;
@@ -44,6 +42,40 @@ public class ImportLightTest {
         SystemProperties.resetToDefault();
     }
 
+    public static BlockchainImpl createBlockchain(Genesis genesis) {
+        IndexedBlockStore blockStore = new IndexedBlockStore();
+        blockStore.init(new HashMapDB<>(), new HashMapDB<>());
+
+        RepositoryRoot repository = new RepositoryRoot(new NoDeleteSource<>(new HashMapDB<>()));
+
+        ProgramInvokeFactoryImpl programInvokeFactory = new ProgramInvokeFactoryImpl();
+        EthereumListenerAdapter listener = new EthereumListenerAdapter();
+
+        BlockchainImpl blockchain = new BlockchainImpl(blockStore, repository)
+                .withParentBlockHeaderValidator(new CommonConfig().parentHeaderValidator());
+        blockchain.setParentHeaderValidator(new DependentBlockHeaderRuleAdapter());
+        blockchain.setProgramInvokeFactory(programInvokeFactory);
+
+        blockchain.byTest = true;
+
+        PendingStateImpl pendingState = new PendingStateImpl(listener, blockchain);
+
+        pendingState.setBlockchain(blockchain);
+        blockchain.setPendingState(pendingState);
+
+        Repository track = repository.startTracking();
+        Genesis.populateRepository(track, genesis);
+
+        track.commit();
+        repository.commit();
+
+        blockStore.saveBlock(genesis, genesis.getCumulativeDifficulty(), true);
+
+        blockchain.setBestBlock(genesis);
+        blockchain.setTotalDifficulty(genesis.getCumulativeDifficulty());
+
+        return blockchain;
+    }
 
     @Test
     public void simpleFork() {
@@ -119,7 +151,6 @@ public class ImportLightTest {
 //        BigInteger bal2_ = sb.getBlockchain().getRepository().getBalance(sb.getSender().getAddress());
 //        Assert.assertEquals(bal2, bal2_);
     }
-
 
     @Test
     public void createFork() throws Exception {
@@ -321,7 +352,6 @@ public class ImportLightTest {
         Object ret = parent.callConstFunction("a")[0];
         System.out.println("Ret = " + ret);
     }
-
 
     @Test
     public void createContractFork() throws Exception {
@@ -530,7 +560,6 @@ public class ImportLightTest {
         Assert.assertNotEquals(0, spent);
     }
 
-
     @Test
     public void deepRecursionTest() throws Exception {
         String contractA =
@@ -731,9 +760,6 @@ public class ImportLightTest {
         // no StackOverflowException
     }
 
-
-
-
     @Test
     public void suicideInFailedCall() throws Exception {
         // check that if a contract is suicide in call which is failed (thus suicide is reverted)
@@ -872,40 +898,5 @@ public class ImportLightTest {
         Assert.assertEquals(223, r1.intValue());
         BigInteger r2 = (BigInteger) a.callConstFunction("calc", 222, a.getFunction("fDec"))[0];
         Assert.assertEquals(221, r2.intValue());
-    }
-
-    public static BlockchainImpl createBlockchain(Genesis genesis) {
-        IndexedBlockStore blockStore = new IndexedBlockStore();
-        blockStore.init(new HashMapDB<byte[]>(), new HashMapDB<byte[]>());
-
-        RepositoryRoot repository = new RepositoryRoot(new NoDeleteSource<>(new HashMapDB<byte[]>()));
-
-        ProgramInvokeFactoryImpl programInvokeFactory = new ProgramInvokeFactoryImpl();
-        EthereumListenerAdapter listener = new EthereumListenerAdapter();
-
-        BlockchainImpl blockchain = new BlockchainImpl(blockStore, repository)
-                .withParentBlockHeaderValidator(new CommonConfig().parentHeaderValidator());
-        blockchain.setParentHeaderValidator(new DependentBlockHeaderRuleAdapter());
-        blockchain.setProgramInvokeFactory(programInvokeFactory);
-
-        blockchain.byTest = true;
-
-        PendingStateImpl pendingState = new PendingStateImpl(listener, blockchain);
-
-        pendingState.setBlockchain(blockchain);
-        blockchain.setPendingState(pendingState);
-
-        Repository track = repository.startTracking();
-        Genesis.populateRepository(track, genesis);
-
-        track.commit();
-        repository.commit();
-
-        blockStore.saveBlock(genesis, genesis.getCumulativeDifficulty(), true);
-
-        blockchain.setBestBlock(genesis);
-        blockchain.setTotalDifficulty(genesis.getCumulativeDifficulty());
-
-        return blockchain;
     }
 }

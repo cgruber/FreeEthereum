@@ -11,7 +11,10 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Makes test RLPx connection to the peers to acquire statistics
@@ -40,46 +43,6 @@ public class PeerConnectionTester {
     private Timer reconnectTimer = new Timer("DiscoveryReconnectTimer");
     private int reconnectPeersCount = 0;
 
-    private class ConnectTask implements Runnable {
-        NodeHandler nodeHandler;
-
-        public ConnectTask(NodeHandler nodeHandler) {
-            this.nodeHandler = nodeHandler;
-        }
-
-        @Override
-        public void run() {
-            try {
-                if (nodeHandler != null) {
-                    nodeHandler.getNodeStatistics().rlpxConnectionAttempts.add();
-                    logger.debug("Trying node connection: " + nodeHandler);
-                    Node node = nodeHandler.getNode();
-                    peerClient.connect(node.getHost(), node.getPort(),
-                            Hex.encodeHexString(node.getId()), true);
-                    logger.debug("Terminated node connection: " + nodeHandler);
-                    nodeHandler.getNodeStatistics().disconnected();
-                    if (!nodeHandler.getNodeStatistics().getEthTotalDifficulty().equals(BigInteger.ZERO) &&
-                            ReconnectPeriod > 0 && (reconnectPeersCount < ReconnectMaxPeers || ReconnectMaxPeers == -1)) {
-                        // trying to keep good peers information up-to-date
-                        reconnectPeersCount++;
-                        reconnectTimer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                logger.debug("Trying the node again: " + nodeHandler);
-                                peerConnectionPool.execute(new ConnectTask(nodeHandler));
-                                reconnectPeersCount--;
-                            }
-                        }, ReconnectPeriod);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                connectedCandidates.remove(nodeHandler);
-            }
-        }
-    }
-
     @Autowired
     public PeerConnectionTester(final SystemProperties config) {
         this.config = config;
@@ -88,7 +51,7 @@ public class PeerConnectionTester {
         ReconnectMaxPeers = config.peerDiscoveryTouchMaxNodes();
         peerConnectionPool = new ThreadPoolExecutor(ConnectThreads,
                 ConnectThreads, 0L, TimeUnit.SECONDS,
-                new MutablePriorityQueue<Runnable, ConnectTask>(new Comparator<ConnectTask>() {
+                new MutablePriorityQueue<>(new Comparator<ConnectTask>() {
                     @Override
                     public int compare(ConnectTask h1, ConnectTask h2) {
                         return h2.nodeHandler.getNodeStatistics().getReputation() -
@@ -176,6 +139,46 @@ public class PeerConnectionTester {
             } else {
                 T ret = Collections.min(this, (Comparator<? super T>) comparator);
                 return ret;
+            }
+        }
+    }
+
+    private class ConnectTask implements Runnable {
+        NodeHandler nodeHandler;
+
+        public ConnectTask(NodeHandler nodeHandler) {
+            this.nodeHandler = nodeHandler;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if (nodeHandler != null) {
+                    nodeHandler.getNodeStatistics().rlpxConnectionAttempts.add();
+                    logger.debug("Trying node connection: " + nodeHandler);
+                    Node node = nodeHandler.getNode();
+                    peerClient.connect(node.getHost(), node.getPort(),
+                            Hex.encodeHexString(node.getId()), true);
+                    logger.debug("Terminated node connection: " + nodeHandler);
+                    nodeHandler.getNodeStatistics().disconnected();
+                    if (!nodeHandler.getNodeStatistics().getEthTotalDifficulty().equals(BigInteger.ZERO) &&
+                            ReconnectPeriod > 0 && (reconnectPeersCount < ReconnectMaxPeers || ReconnectMaxPeers == -1)) {
+                        // trying to keep good peers information up-to-date
+                        reconnectPeersCount++;
+                        reconnectTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                logger.debug("Trying the node again: " + nodeHandler);
+                                peerConnectionPool.execute(new ConnectTask(nodeHandler));
+                                reconnectPeersCount--;
+                            }
+                        }, ReconnectPeriod);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                connectedCandidates.remove(nodeHandler);
             }
         }
     }
