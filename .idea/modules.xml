@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FreeEthereum.iml" filepath="$PROJECT_DIR$/.idea/modules/FreeEthereum.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ethereumj.iml" filepath="$PROJECT_DIR$/.idea/modules/ethereumj.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ethereumj-core/ethereumj-core.iml" filepath="$PROJECT_DIR$/.idea/modules/ethereumj-core/ethereumj-core.iml" />
     </modules>
   </component>
