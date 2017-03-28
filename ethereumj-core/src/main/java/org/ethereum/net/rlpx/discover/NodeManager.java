@@ -20,8 +20,6 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static java.lang.Math.min;
-
 /**
  * The central class for Peer Discovery machinery.
  *
@@ -34,37 +32,30 @@ import static java.lang.Math.min;
 @Component
 public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
     static final org.slf4j.Logger logger = LoggerFactory.getLogger("discover");
-
-    private final boolean PERSIST;
-
-    private static final long LISTENER_REFRESH_RATE = 1000;
-    private static final long DB_COMMIT_RATE = 1 * 60 * 1000;
     static final int MAX_NODES = 2000;
     static final int NODES_TRIM_THRESHOLD = 3000;
-
+    private static final long LISTENER_REFRESH_RATE = 1000;
+    private static final long DB_COMMIT_RATE = 1 * 60 * 1000;
+    final ECKey key;
+    final Node homeNode;
+    private final boolean PERSIST;
     PeerConnectionTester peerConnectionManager;
     PeerSource peerSource;
     EthereumListener ethereumListener;
     SystemProperties config = SystemProperties.getDefault();
-
     Functional.Consumer<DiscoveryEvent> messageSender;
-
     NodeTable table;
-    private Map<String, NodeHandler> nodeHandlerMap = new HashMap<>();
-    final ECKey key;
-    final Node homeNode;
-    private List<Node> bootNodes;
-
     // option to handle inbounds only from known peers (i.e. which were discovered by ourselves)
     boolean inboundOnlyFromKnownNodes = false;
-
+    private Map<String, NodeHandler> nodeHandlerMap = new HashMap<>();
+    private List<Node> bootNodes;
     private boolean discoveryEnabled;
 
     private Map<DiscoverListener, ListenerHandler> listeners = new IdentityHashMap<>();
 
     private boolean inited = false;
     private Timer logStatsTimer = new Timer();
-    private Timer nodeManagerTasksTimer = new Timer("NodeManagerTasks");;
+    private Timer nodeManagerTasksTimer = new Timer("NodeManagerTasks");
     private ScheduledExecutorService pongTimer;
 
     @Autowired
@@ -200,7 +191,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
 
             List<NodeHandler> sorted = new ArrayList<>(nodeHandlerMap.values());
             // reverse sort by reputation
-            Collections.sort(sorted, new Comparator<NodeHandler>() {
+            sorted.sort(new Comparator<NodeHandler>() {
                 @Override
                 public int compare(NodeHandler o1, NodeHandler o2) {
                     return o1.getNodeStatistics().getReputation() - o2.getNodeStatistics().getReputation();

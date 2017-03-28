@@ -22,6 +22,13 @@ FreeEthereum
 This is the last commit of the MIT-licensed version of the Java implementation of the Ethereum protocol.
 The original EthereumJ Ethereum implemetation is now licensed under a commercially problematic GPL v3 license. This version is supposed to stay MIT.
 
+# Key differentiators compared to EthereumJ
+
+FreeEthereum | EthereumJ
+--- | --- 
+MIT License | GPL v3 License
+Java 8 | Java 7 
+
 # Welcome to ethereumj
 
 [![Slack Status](http://harmony-slack-ether-camp.herokuapp.com/badge.svg)](http://ether.camp) 
@@ -30,13 +37,7 @@ The original EthereumJ Ethereum implemetation is now licensed under a commercial
 [![Coverage Status](https://coveralls.io/repos/ethereum/ethereumj/badge.png?branch=master)](https://coveralls.io/r/ethereum/ethereumj?branch=master)
 
 
-# About
-ethereumj is a pure-Java implementation of the Ethereum protocol. For high-level information about Ethereum and its goals, visit [ethereum.org](https://ethereum.org). The [ethereum white paper](https://github.com/ethereum/wiki/wiki/%5BEnglish%5D-White-Paper) provides a complete conceptual overview, and the [yellow paper](http://gavwood.com/Paper.pdf) provides a formal definition of the protocol.
-
-# Check our blog 
-http://ethereumj.io
-
-# Running EthereumJ
+# Running FreeEthereum
 
 ##### Adding as a dependency to your Maven project: 
 
@@ -110,9 +111,5 @@ To override needed options you may use one of the following ways:
 * programmatically using by overriding Spring `SystemProperties` bean 
 
 Note that don’t need to put all the options to your custom config, just those you want to override. 
-# Contact
-Chat with us via [Gitter](https://gitter.im/ethereum/ethereumj)
 
-# License
-ethereumj is released under the [MIT license](LICENSE).
 

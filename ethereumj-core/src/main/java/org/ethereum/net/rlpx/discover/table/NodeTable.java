@@ -124,7 +124,7 @@ public class NodeTable {
     public synchronized List<Node> getClosestNodes(byte[] targetId) {
         List<NodeEntry> closestEntries = getAllNodes();
         List<Node> closestNodes = new ArrayList<>();
-        Collections.sort(closestEntries, new DistanceComparator(targetId));
+        closestEntries.sort(new DistanceComparator(targetId));
         if (closestEntries.size() > KademliaOptions.BUCKET_SIZE) {
             closestEntries = closestEntries.subList(0, KademliaOptions.BUCKET_SIZE);
         }

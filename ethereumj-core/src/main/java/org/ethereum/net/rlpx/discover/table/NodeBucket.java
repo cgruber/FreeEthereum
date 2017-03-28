@@ -1,8 +1,6 @@
 package org.ethereum.net.rlpx.discover.table;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -35,7 +33,7 @@ public class NodeBucket {
 
     private NodeEntry getLastSeen() {
         List<NodeEntry> sorted = nodes;
-        Collections.sort(sorted, new TimeComparator());
+        sorted.sort(new TimeComparator());
         return sorted.get(0);
     }
 
