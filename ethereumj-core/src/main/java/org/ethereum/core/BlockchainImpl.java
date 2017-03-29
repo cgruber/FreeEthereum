@@ -82,25 +82,34 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
     // to avoid using minGasPrice=0 from Genesis for the wallet
     private static final long INITIAL_MIN_GAS_PRICE = 10 * SZABO.longValue();
     private static final int MAGIC_REWARD_OFFSET = 8;
+    private final List<Chain> altChains = new ArrayList<>();
+    private final List<Block> garbage = new ArrayList<>();
+    private final Stack<State> stateStack = new Stack<>();
     public boolean byTest = false;
     @Autowired
     protected BlockStore blockStore;
     @Autowired
-    ProgramInvokeFactory programInvokeFactory;
-    @Autowired
-    EventDispatchThread eventDispatchThread;
-    @Autowired
-    CommonConfig commonConfig = CommonConfig.getDefault();
-    @Autowired
-    SyncManager syncManager;
-    @Autowired
-    PruneManager pruneManager;
-    @Autowired
     StateSource stateDataSource;
     @Autowired
+    private
+    ProgramInvokeFactory programInvokeFactory;
+    @Autowired
+    private
+    EventDispatchThread eventDispatchThread;
+    @Autowired
+    private
+    CommonConfig commonConfig = CommonConfig.getDefault();
+    @Autowired
+    private
+    SyncManager syncManager;
+    @Autowired
+    private
+    PruneManager pruneManager;
+    @Autowired
+    private
     DbFlushManager dbFlushManager;
-    SystemProperties config = SystemProperties.getDefault();
-    long exitOn = Long.MAX_VALUE;
+    private SystemProperties config = SystemProperties.getDefault();
+    private long exitOn = Long.MAX_VALUE;
     @Autowired
     @Qualifier("defaultRepository")
     private Repository repository;
@@ -116,19 +125,13 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
     private DependentBlockHeaderRule parentHeaderValidator;
     @Autowired
     private PendingState pendingState;
-    private List<Chain> altChains = new ArrayList<>();
-    private List<Block> garbage = new ArrayList<>();
     private boolean fork = false;
-
     private byte[] minerCoinbase;
     private byte[] minerExtraData;
     private BigInteger BLOCK_REWARD;
     private BigInteger INCLUSION_REWARD;
     private int UNCLE_LIST_LIMIT;
     private int UNCLE_GENERATION_LIMIT;
-
-
-    private Stack<State> stateStack = new Stack<>();
 
     /** Tests only **/
     public BlockchainImpl() {
@@ -348,7 +351,7 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
         this.totalDifficulty = state.savedTD;
     }
 
-    public void dropState() {
+    private void dropState() {
         stateStack.pop();
     }
 
@@ -520,7 +523,7 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
     }
 
     //    @Override
-    public synchronized BlockSummary add(Repository repo, final Block block) {
+    private synchronized BlockSummary add(Repository repo, final Block block) {
         BlockSummary summary = addImpl(repo, block);
 
         if (summary == null) {
@@ -539,7 +542,7 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
         return summary;
     }
 
-    public synchronized BlockSummary addImpl(Repository repo, final Block block) {
+    private synchronized BlockSummary addImpl(Repository repo, final Block block) {
 
         if (exitOn < block.getNumber()) {
             System.out.print("Exiting after block.number: " + bestBlock.getNumber());
@@ -663,12 +666,12 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
         return retBloomFilter.getData();
     }
 
-    public Block getParent(BlockHeader header) {
+    private Block getParent(BlockHeader header) {
 
         return blockStore.getBlockByHash(header.getParentHash());
     }
 
-    public boolean isValid(BlockHeader header) {
+    private boolean isValid(BlockHeader header) {
         if (parentHeaderValidator == null) return true;
 
         Block parentBlock = getParent(header);
@@ -904,12 +907,7 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
                         .divide(BigInteger.valueOf(MAGIC_REWARD_OFFSET));
 
                 track.addBalance(uncle.getCoinbase(),uncleReward);
-                BigInteger existingUncleReward = rewards.get(uncle.getCoinbase());
-                if (existingUncleReward == null) {
-                    rewards.put(uncle.getCoinbase(), uncleReward);
-                } else {
-                    rewards.put(uncle.getCoinbase(), existingUncleReward.add(uncleReward));
-                }
+                rewards.merge(uncle.getCoinbase(), uncleReward, BigInteger::add);
             }
         }
 
@@ -1242,8 +1240,8 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
 
     private class State {
 //        Repository savedRepo = repository;
-        byte[] root = repository.getRoot();
-        Block savedBest = bestBlock;
-        BigInteger savedTD = totalDifficulty;
+final byte[] root = repository.getRoot();
+        final Block savedBest = bestBlock;
+        final BigInteger savedTD = totalDifficulty;
     }
 }

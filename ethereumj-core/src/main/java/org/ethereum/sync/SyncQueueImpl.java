@@ -17,158 +17,16 @@ import static java.lang.Math.min;
  * Created by Anton Nashatyrev on 27.05.2016.
  */
 public class SyncQueueImpl implements SyncQueueIfc {
-    static int MAX_CHAIN_LEN = 192;
-
-    static class HeadersRequestImpl implements HeadersRequest {
-        public HeadersRequestImpl(long start, int count, boolean reverse) {
-            this.start = start;
-            this.count = count;
-            this.reverse = reverse;
-        }
-
-        public HeadersRequestImpl(byte[] hash, int count, boolean reverse) {
-            this.hash = hash;
-            this.count = count;
-            this.reverse = reverse;
-        }
-
-        public HeadersRequestImpl(byte[] hash, int count, boolean reverse, int step) {
-            this.hash = hash;
-            this.count = count;
-            this.reverse = reverse;
-            this.step = step;
-        }
-
-
-        private long start;
-        private byte[] hash;
-        private int count;
-
-        private boolean reverse;
-        private int step = 0;
-
-        @Override
-        public List<HeadersRequest> split(int maxCount) {
-            if (this.hash != null) return Collections.<HeadersRequest>singletonList(this);
-            List<HeadersRequest> ret = new ArrayList<>();
-            int remaining = count;
-            while(remaining > 0) {
-                int reqSize = min(maxCount, remaining);
-                ret.add(new HeadersRequestImpl(start, reqSize, reverse));
-                remaining -= reqSize;
-                start = reverse ? start - reqSize : start + reqSize;
-            }
-            return ret;
-        }
-
-        @Override
-        public String toString() {
-            return "HeadersRequest{" +
-                    (hash == null ? "start=" + getStart() : "hash=" + Hex.toHexString(hash).substring(0, 8))+
-                    ", count=" + getCount() +
-                    ", reverse=" + isReverse() +
-                    ", step=" + getStep() +
-                    '}';
-        }
-
-        @Override
-        public long getStart() {
-            return start;
-        }
-
-        public long getEnd() { return getStart() + getCount(); }
-
-        @Override
-        public byte[] getHash() {
-            return hash;
-        }
-
-        @Override
-        public int getCount() {
-            return count;
-        }
-
-        @Override
-        public boolean isReverse() {
-            return reverse;
-        }
-
-        @Override
-        public int getStep() {
-            return step;
-        }
-    }
-
-    static class BlocksRequestImpl implements BlocksRequest {
-        private List<BlockHeaderWrapper> blockHeaders = new ArrayList<>();
-
-        public BlocksRequestImpl() {
-        }
-
-        public BlocksRequestImpl(List<BlockHeaderWrapper> blockHeaders) {
-            this.blockHeaders = blockHeaders;
-        }
-
-        @Override
-        public List<BlocksRequest> split(int count) {
-            List<BlocksRequest> ret = new ArrayList<>();
-            int start = 0;
-            while(start < getBlockHeaders().size()) {
-                count = min(getBlockHeaders().size() - start, count);
-                ret.add(new BlocksRequestImpl(getBlockHeaders().subList(start, start + count)));
-                start += count;
-            }
-            return ret;
-        }
-
-        @Override
-        public List<BlockHeaderWrapper> getBlockHeaders() {
-            return blockHeaders;
-        }
-    }
-
-    class HeaderElement {
-        BlockHeaderWrapper header;
-        Block block;
-        boolean exported;
-
-        public HeaderElement(BlockHeaderWrapper header) {
-            this.header = header;
-        }
-
-        public HeaderElement getParent() {
-            Map<ByteArrayWrapper, HeaderElement> genHeaders = headers.get(header.getNumber() - 1);
-            if (genHeaders == null) return null;
-            return genHeaders.get(new ByteArrayWrapper(header.getHeader().getParentHash()));
-        }
-
-        public List<HeaderElement> getChildren() {
-            List<HeaderElement> ret = new ArrayList<>();
-            Map<ByteArrayWrapper, HeaderElement> childGenHeaders = headers.get(header.getNumber() + 1);
-            if (childGenHeaders != null) {
-                for (HeaderElement child : childGenHeaders.values()) {
-                    if (Arrays.equals(child.header.getHeader().getParentHash(), header.getHash())) {
-                        ret.add(child);
-                    }
-                }
-            }
-            return ret;
-        }
-    }
-
-    Map<Long, Map<ByteArrayWrapper, HeaderElement>> headers = new HashMap<>();
-
-    long minNum = Integer.MAX_VALUE;
-    long maxNum = 0;
-    long darkZoneNum = 0;
-    Long endBlockNumber = null;
-
-    Random rnd = new Random(); // ;)
-
+    private static final int MAX_CHAIN_LEN = 192;
+    private final Map<Long, Map<ByteArrayWrapper, HeaderElement>> headers = new HashMap<>();
+    private final Random rnd = new Random(); // ;)
+    private long minNum = Integer.MAX_VALUE;
+    private long maxNum = 0;
+    private long darkZoneNum = 0;
+    private Long endBlockNumber = null;
     public SyncQueueImpl(List<Block> initBlocks) {
         init(initBlocks);
     }
-
     public SyncQueueImpl(Blockchain bc) {
         Block bestBlock = bc.getBestBlock();
         long start = bestBlock.getNumber() - MAX_CHAIN_LEN;
@@ -189,8 +47,6 @@ public class SyncQueueImpl implements SyncQueueIfc {
         this(bc);
         this.endBlockNumber = endBlockNumber;
     }
-
-
 
     private void init(List<Block> initBlocks) {
         if (initBlocks.size() < MAX_CHAIN_LEN && initBlocks.get(0).getNumber() != 0) {
@@ -366,7 +222,7 @@ public class SyncQueueImpl implements SyncQueueIfc {
         return ret;
     }
 
-    HeaderElement findHeaderElement(BlockHeader bh) {
+    private HeaderElement findHeaderElement(BlockHeader bh) {
         Map<ByteArrayWrapper, HeaderElement> genHeaders = headers.get(bh.getNumber());
         if (genHeaders == null) return null;
         return genHeaders.get(new ByteArrayWrapper(bh.getHash()));
@@ -412,7 +268,7 @@ public class SyncQueueImpl implements SyncQueueIfc {
         return ret;
     }
 
-    protected void exportNewBlock(Block block) {
+    void exportNewBlock(Block block) {
 
     }
 
@@ -420,14 +276,150 @@ public class SyncQueueImpl implements SyncQueueIfc {
         return null;
     }
 
-
     interface Visitor<T> {
         T visit(HeaderElement el, List<T> childrenRes);
     }
 
+    static class HeadersRequestImpl implements HeadersRequest {
+        private final int count;
+        private final boolean reverse;
+        private long start;
+        private byte[] hash;
+        private int step = 0;
+
+        public HeadersRequestImpl(long start, int count, boolean reverse) {
+            this.start = start;
+            this.count = count;
+            this.reverse = reverse;
+        }
+
+        public HeadersRequestImpl(byte[] hash, int count, boolean reverse) {
+            this.hash = hash;
+            this.count = count;
+            this.reverse = reverse;
+        }
+
+        public HeadersRequestImpl(byte[] hash, int count, boolean reverse, int step) {
+            this.hash = hash;
+            this.count = count;
+            this.reverse = reverse;
+            this.step = step;
+        }
+
+        @Override
+        public List<HeadersRequest> split(int maxCount) {
+            if (this.hash != null) return Collections.singletonList(this);
+            List<HeadersRequest> ret = new ArrayList<>();
+            int remaining = count;
+            while (remaining > 0) {
+                int reqSize = min(maxCount, remaining);
+                ret.add(new HeadersRequestImpl(start, reqSize, reverse));
+                remaining -= reqSize;
+                start = reverse ? start - reqSize : start + reqSize;
+            }
+            return ret;
+        }
+
+        @Override
+        public String toString() {
+            return "HeadersRequest{" +
+                    (hash == null ? "start=" + getStart() : "hash=" + Hex.toHexString(hash).substring(0, 8)) +
+                    ", count=" + getCount() +
+                    ", reverse=" + isReverse() +
+                    ", step=" + getStep() +
+                    '}';
+        }
+
+        @Override
+        public long getStart() {
+            return start;
+        }
+
+        public long getEnd() {
+            return getStart() + getCount();
+        }
+
+        @Override
+        public byte[] getHash() {
+            return hash;
+        }
+
+        @Override
+        public int getCount() {
+            return count;
+        }
+
+        @Override
+        public boolean isReverse() {
+            return reverse;
+        }
+
+        @Override
+        public int getStep() {
+            return step;
+        }
+    }
+
+    static class BlocksRequestImpl implements BlocksRequest {
+        private List<BlockHeaderWrapper> blockHeaders = new ArrayList<>();
+
+        public BlocksRequestImpl() {
+        }
+
+        public BlocksRequestImpl(List<BlockHeaderWrapper> blockHeaders) {
+            this.blockHeaders = blockHeaders;
+        }
+
+        @Override
+        public List<BlocksRequest> split(int count) {
+            List<BlocksRequest> ret = new ArrayList<>();
+            int start = 0;
+            while (start < getBlockHeaders().size()) {
+                count = min(getBlockHeaders().size() - start, count);
+                ret.add(new BlocksRequestImpl(getBlockHeaders().subList(start, start + count)));
+                start += count;
+            }
+            return ret;
+        }
+
+        @Override
+        public List<BlockHeaderWrapper> getBlockHeaders() {
+            return blockHeaders;
+        }
+    }
+
+    class HeaderElement {
+        final BlockHeaderWrapper header;
+        Block block;
+        boolean exported;
+
+        public HeaderElement(BlockHeaderWrapper header) {
+            this.header = header;
+        }
+
+        public HeaderElement getParent() {
+            Map<ByteArrayWrapper, HeaderElement> genHeaders = headers.get(header.getNumber() - 1);
+            if (genHeaders == null) return null;
+            return genHeaders.get(new ByteArrayWrapper(header.getHeader().getParentHash()));
+        }
+
+        public List<HeaderElement> getChildren() {
+            List<HeaderElement> ret = new ArrayList<>();
+            Map<ByteArrayWrapper, HeaderElement> childGenHeaders = headers.get(header.getNumber() + 1);
+            if (childGenHeaders != null) {
+                for (HeaderElement child : childGenHeaders.values()) {
+                    if (Arrays.equals(child.header.getHeader().getParentHash(), header.getHash())) {
+                        ret.add(child);
+                    }
+                }
+            }
+            return ret;
+        }
+    }
+
     class ChildVisitor<T> {
-        private Visitor<T> handler;
         boolean downUp = true;
+        private Visitor<T> handler;
 
         public ChildVisitor(Functional.Function<HeaderElement, List<T>> handler) {
 //            this.handler = handler;

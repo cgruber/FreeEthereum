@@ -17,7 +17,7 @@ public class RefreshTask extends DiscoverTask {
 //        super(getNodeId(), channel, key, table);
 //    }
 
-    public static byte[] getNodeId() {
+    private static byte[] getNodeId() {
         Random gen = new Random();
         byte[] id = new byte[64];
         gen.nextBytes(id);

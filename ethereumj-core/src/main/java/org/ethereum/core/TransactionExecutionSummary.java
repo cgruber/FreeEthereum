@@ -41,7 +41,7 @@ public class TransactionExecutionSummary {
     private boolean parsed;
 
 
-    public TransactionExecutionSummary(Transaction transaction) {
+    private TransactionExecutionSummary(Transaction transaction) {
         this.tx = transaction;
         this.gasLimit = toBI(transaction.getGasLimit());
         this.gasPrice = toBI(transaction.getGasPrice());
@@ -57,7 +57,7 @@ public class TransactionExecutionSummary {
         return isEmpty(encoded) ? BigInteger.ZERO : new BigInteger(1, encoded);
     }
 
-    public static byte[] encodeTouchedStorage(TransactionTouchedStorage touchedStorage) {
+    private static byte[] encodeTouchedStorage(TransactionTouchedStorage touchedStorage) {
         Collection<TransactionTouchedStorage.Entry> entries = touchedStorage.getEntries();
         byte[][] result = new byte[entries.size()][];
 
@@ -73,7 +73,7 @@ public class TransactionExecutionSummary {
         return RLP.encodeList(result);
     }
 
-    public static TransactionTouchedStorage decodeTouchedStorage(RLPElement encoded) {
+    private static TransactionTouchedStorage decodeTouchedStorage(RLPElement encoded) {
         TransactionTouchedStorage result = new TransactionTouchedStorage();
 
         for (RLPElement entry : (RLPList) encoded) {
@@ -169,7 +169,7 @@ public class TransactionExecutionSummary {
         return new Builder(transaction);
     }
 
-    public void rlpParse() {
+    private void rlpParse() {
         if (parsed) return;
 
         RLPList decodedTxList = RLP.decode2(rlpEncoded);

@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class TestSuite {
 
-    List<TestCase> testList = new ArrayList<>();
+    private final List<TestCase> testList = new ArrayList<>();
 
     public TestSuite(JSONObject testCaseJSONObj) throws ParseException {
 

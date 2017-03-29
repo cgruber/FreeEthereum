@@ -11,7 +11,7 @@ import java.util.Set;
  * Created by Anton Nashatyrev on 06.10.2016.
  */
 public class ByteArraySet implements Set<byte[]> {
-    Set<ByteArrayWrapper> delegate;
+    private final Set<ByteArrayWrapper> delegate;
 
     public ByteArraySet() {
         this(new HashSet<>());
@@ -40,7 +40,7 @@ public class ByteArraySet implements Set<byte[]> {
     public Iterator<byte[]> iterator() {
         return new Iterator<byte[]>() {
 
-            Iterator<ByteArrayWrapper> it = delegate.iterator();
+            final Iterator<ByteArrayWrapper> it = delegate.iterator();
             @Override
             public boolean hasNext() {
                 return it.hasNext();

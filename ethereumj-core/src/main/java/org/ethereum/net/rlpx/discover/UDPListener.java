@@ -22,12 +22,14 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class UDPListener {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("discover");
+    private final int port;
+    private final String address;
     @Autowired
+    private
     SystemProperties config = SystemProperties.getDefault();
     @Autowired
+    private
     WireTrafficStats stats;
-    private int port;
-    private String address;
     private String[] bootPeers;
     @Autowired
     private NodeManager nodeManager;
@@ -64,7 +66,7 @@ public class UDPListener {
         }
     }
 
-    public UDPListener(String address, int port) {
+    private UDPListener(String address, int port) {
         this.address = address;
         this.port = port;
     }
@@ -88,7 +90,7 @@ public class UDPListener {
         new UDPListener(address, port).start(Arrays.copyOfRange(args, 2, args.length));
     }
 
-    public void start(String[] args) throws Exception {
+    private void start(String[] args) throws Exception {
 
         logger.info("Discovery UDPListener started");
         NioEventLoopGroup group = new NioEventLoopGroup(1);

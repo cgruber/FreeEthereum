@@ -7,7 +7,7 @@ import java.util.*;
  * @since 28.01.2016
  */
 public class ArrayListIndex implements Index {
-    private List<Long> index;
+    private final List<Long> index;
 
     public ArrayListIndex(Collection<Long> numbers) {
         index = new ArrayList<>(numbers);

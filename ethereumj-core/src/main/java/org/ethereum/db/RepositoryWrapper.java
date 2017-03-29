@@ -24,6 +24,7 @@ import java.util.Set;
 public class RepositoryWrapper implements Repository {
 
     @Autowired
+    private
     BlockchainImpl blockchain;
 
     public RepositoryWrapper() {

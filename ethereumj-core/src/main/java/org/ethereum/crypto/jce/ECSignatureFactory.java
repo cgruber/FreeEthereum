@@ -7,7 +7,7 @@ import java.security.Signature;
 
 public final class ECSignatureFactory {
 
-  public static final String RAW_ALGORITHM = "NONEwithECDSA";
+    private static final String RAW_ALGORITHM = "NONEwithECDSA";
 
   private static final String rawAlgorithmAssertionMsg =
       "Assumed the JRE supports NONEwithECDSA signatures";

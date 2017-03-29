@@ -2,7 +2,10 @@ package org.ethereum.net.rlpx;
 
 import com.google.common.collect.Lists;
 import org.ethereum.net.client.Capability;
-import org.ethereum.util.*;
+import org.ethereum.util.ByteUtil;
+import org.ethereum.util.RLP;
+import org.ethereum.util.RLPElement;
+import org.ethereum.util.RLPList;
 
 import java.nio.charset.Charset;
 import java.util.Iterator;
@@ -15,13 +18,12 @@ import static org.ethereum.util.ByteUtil.longToBytes;
  */
 public class HandshakeMessage {
     public static final int HANDSHAKE_MESSAGE_TYPE = 0x00;
+    public static final int NODE_ID_BITS = 512;
     long version;
     String name;
     List<Capability> caps;
     long listenPort;
     byte[] nodeId;
-
-    public static final int NODE_ID_BITS = 512;
 
     public HandshakeMessage(long version, String name, List<Capability> caps, long listenPort, byte[] nodeId) {
         this.version = version;
@@ -31,7 +33,7 @@ public class HandshakeMessage {
         this.nodeId = nodeId;
     }
 
-    HandshakeMessage() {
+    private HandshakeMessage() {
     }
 
     static HandshakeMessage parse(byte[] wire) {

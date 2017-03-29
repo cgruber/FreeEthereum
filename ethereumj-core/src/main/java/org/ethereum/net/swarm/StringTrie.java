@@ -1,6 +1,8 @@
 package org.ethereum.net.swarm;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Trie (or prefix tree) structure, which stores Nodes with String keys in highly branched structure
@@ -13,7 +15,35 @@ import java.util.*;
  *
  * @param <P> Subclass of TrieNode
  */
-public abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
+abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
+
+    final P rootNode;
+
+    public StringTrie(P rootNode) {
+        this.rootNode = rootNode;
+    }
+
+    public P get(String path) {
+        return rootNode.getMostSuitableChild(path);
+    }
+
+    public P add(String path) {
+        return add(rootNode, path);
+    }
+
+    public P add(P parent, String path) {
+        return parent.addChild(path);
+    }
+
+    public P delete(String path) {
+        P p = get(path);
+        if (path.equals(p.getAbsolutePath()) && p.isLeaf()) {
+            p.delete();
+            return p;
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Tree Node
@@ -26,7 +56,7 @@ public abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
         /**
          * Create a root node (null parent and empty path)
          */
-        protected TrieNode() {
+        TrieNode() {
             this(null, "");
         }
 
@@ -145,7 +175,7 @@ public abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
         /**
          * Returns the children after loading (if required)
          */
-        protected Map<String, N> loadChildren() {
+        Map<String, N> loadChildren() {
             return children;
         }
 
@@ -160,7 +190,7 @@ public abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
          * the max number of children in a single node is 128.
          * @return Key corresponding to this path
          */
-        protected String getKey(String path) {
+        String getKey(String path) {
             return path.length() > 0 ? path.substring(0,1) : "";
         }
 
@@ -173,34 +203,7 @@ public abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
         /**
          * The node is notified on changes (either its path or direct children changed)
          */
-        protected void nodeChanged() {}
-    }
-
-    P rootNode;
-
-    public StringTrie(P rootNode) {
-        this.rootNode = rootNode;
-    }
-
-    public P get(String path) {
-        return rootNode.getMostSuitableChild(path);
-    }
-
-    public P add(String path) {
-        return add(rootNode, path);
-    }
-
-    public P add(P parent, String path) {
-        return parent.addChild(path);
-    }
-
-    public P delete(String path) {
-        P p = get(path);
-        if (path.equals(p.getAbsolutePath()) && p.isLeaf()) {
-            p.delete();
-            return p;
-        } else {
-            return null;
+        void nodeChanged() {
         }
     }
 

@@ -17,19 +17,19 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ExecutorPipeline <In, Out>{
 
-    private static AtomicInteger pipeNumber = new AtomicInteger(1);
-    private BlockingQueue<Runnable> queue;
-    private ThreadPoolExecutor exec;
+    private static final AtomicInteger pipeNumber = new AtomicInteger(1);
+    private final BlockingQueue<Runnable> queue;
+    private final ThreadPoolExecutor exec;
+    private final Functional.Function<In, Out> processor;
+    private final Functional.Consumer<Throwable> exceptionHandler;
+    private final AtomicLong orderCounter = new AtomicLong();
+    private final Map<Long, Out> orderMap = new HashMap<>();
+    private final ReentrantLock lock = new ReentrantLock();
+    private final AtomicInteger threadNumber = new AtomicInteger(1);
     private boolean preserveOrder = false;
-    private Functional.Function<In, Out> processor;
-    private Functional.Consumer<Throwable> exceptionHandler;
     private ExecutorPipeline <Out, ?> next;
-    private AtomicLong orderCounter = new AtomicLong();
     private long nextOutTaskNumber = 0;
-    private Map<Long, Out> orderMap = new HashMap<>();
-    private ReentrantLock lock = new ReentrantLock();
     private String threadPoolName;
-    private AtomicInteger threadNumber = new AtomicInteger(1);
 
     public ExecutorPipeline(int threads, int queueSize, boolean preserveOrder, Functional.Function<In, Out> processor,
                             Functional.Consumer<Throwable> exceptionHandler) {
@@ -56,8 +56,8 @@ public class ExecutorPipeline <In, Out>{
         });
     }
 
-    public <NextOut> ExecutorPipeline<Out, NextOut> add(int threads, int queueSize, boolean preserveOrder,
-                                                        Functional.Function<Out, NextOut> processor) {
+    private <NextOut> ExecutorPipeline<Out, NextOut> add(int threads, int queueSize, boolean preserveOrder,
+                                                         Functional.Function<Out, NextOut> processor) {
         ExecutorPipeline<Out, NextOut> ret = new ExecutorPipeline<>(threads, queueSize, preserveOrder, processor, exceptionHandler);
         next = ret;
         return ret;

@@ -8,7 +8,7 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigInteger;
 import java.util.*;
 
-public class AccountValidator {
+class AccountValidator {
 
 
     public static List<String> valid(String address, AccountState expectedState, ContractDetails expectedDetails,

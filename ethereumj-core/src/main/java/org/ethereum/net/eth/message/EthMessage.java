@@ -4,10 +4,10 @@ import org.ethereum.net.message.Message;
 
 public abstract class EthMessage extends Message {
 
-    public EthMessage() {
+    EthMessage() {
     }
 
-    public EthMessage(byte[] encoded) {
+    EthMessage(byte[] encoded) {
         super(encoded);
     }
 

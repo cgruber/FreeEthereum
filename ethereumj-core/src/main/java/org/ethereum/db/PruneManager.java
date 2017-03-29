@@ -13,12 +13,10 @@ import java.util.List;
  */
 public class PruneManager {
 
+    private final int pruneBlocksCnt;
     private JournalSource journal;
-
     @Autowired
     private IndexedBlockStore blockStore;
-
-    private int pruneBlocksCnt;
 
     @Autowired
     private PruneManager(SystemProperties config) {

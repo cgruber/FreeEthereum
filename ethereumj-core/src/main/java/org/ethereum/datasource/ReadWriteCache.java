@@ -11,10 +11,10 @@ public class ReadWriteCache<Key, Value>
         extends SourceChainBox<Key, Value, Key, Value>
         implements CachedSource<Key, Value> {
 
-    protected ReadCache<Key, Value> readCache;
-    protected WriteCache<Key, Value> writeCache;
+    ReadCache<Key, Value> readCache;
+    WriteCache<Key, Value> writeCache;
 
-    protected ReadWriteCache(Source<Key, Value> source) {
+    ReadWriteCache(Source<Key, Value> source) {
         super(source);
     }
 
@@ -35,7 +35,7 @@ public class ReadWriteCache<Key, Value>
         return writeCache.hasModified();
     }
 
-    protected synchronized AbstractCachedSource.Entry<Value> getCached(Key key) {
+    synchronized AbstractCachedSource.Entry<Value> getCached(Key key) {
         AbstractCachedSource.Entry<Value> v = readCache.getCached(key);
         if (v == null) {
             v = writeCache.getCached(key);

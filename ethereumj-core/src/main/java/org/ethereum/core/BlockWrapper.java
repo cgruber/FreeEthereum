@@ -119,7 +119,7 @@ public class BlockWrapper {
         }
     }
 
-    public long timeSinceReceiving() {
+    private long timeSinceReceiving() {
         return System.currentTimeMillis() - receivedAt;
     }
 

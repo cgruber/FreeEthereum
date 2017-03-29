@@ -13,14 +13,13 @@ import org.slf4j.LoggerFactory;
 public class BloomedSource extends AbstractChainedSource<byte[], byte[], byte[], byte[]> {
     private final static Logger logger = LoggerFactory.getLogger("db");
 
-    private byte[] filterKey = HashUtil.sha3("filterKey".getBytes());
-
-    QuotientFilter filter;
-    int hits = 0;
-    int misses = 0;
-    int falseMisses = 0;
-    boolean dirty = false;
-    int maxBloomSize;
+    private final byte[] filterKey = HashUtil.sha3("filterKey".getBytes());
+    private final int maxBloomSize;
+    private QuotientFilter filter;
+    private int hits = 0;
+    private int misses = 0;
+    private int falseMisses = 0;
+    private boolean dirty = false;
 
     public BloomedSource(Source<byte[], byte[]> source, int maxBloomSize) {
         super(source);

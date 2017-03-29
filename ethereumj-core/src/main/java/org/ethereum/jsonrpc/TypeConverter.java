@@ -8,7 +8,7 @@ import java.math.BigInteger;
 /**
  * Created by Ruben on 19/11/2015.
  */
-public class TypeConverter {
+class TypeConverter {
 
     public static byte[] StringNumberAsBytes(String input) {
         return ByteUtil.bigIntegerToBytes(StringDecimalToBigInteger(input));

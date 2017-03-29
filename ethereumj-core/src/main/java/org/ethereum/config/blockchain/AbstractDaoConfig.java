@@ -16,23 +16,21 @@ import java.math.BigInteger;
  */
 public abstract class AbstractDaoConfig extends FrontierConfig {
 
+    // "dao-hard-fork" encoded message
+    public static final byte[] DAO_EXTRA_DATA = Hex.decode("64616f2d686172642d666f726b");
     /**
      * Hardcoded values from live network
      */
-    public static final long ETH_FORK_BLOCK_NUMBER = 1_920_000;
-    // "dao-hard-fork" encoded message
-    public static final byte[] DAO_EXTRA_DATA = Hex.decode("64616f2d686172642d666f726b");
-    private final long EXTRA_DATA_AFFECTS_BLOCKS_NUMBER = 10;
-
+    static final long ETH_FORK_BLOCK_NUMBER = 1_920_000;
     // MAYBE find a way to remove block number value from blockchain config
-    protected long forkBlockNumber;
+    long forkBlockNumber;
 
     // set in child classes
-    protected boolean supportFork;
+    boolean supportFork;
 
     private BlockchainConfig parent;
 
-    protected void initDaoConfig(BlockchainConfig parent, long forkBlockNumber) {
+    void initDaoConfig(BlockchainConfig parent, long forkBlockNumber) {
         this.parent = parent;
         this.constants = parent.getConstants();
         this.forkBlockNumber = forkBlockNumber;
@@ -45,7 +43,8 @@ public abstract class AbstractDaoConfig extends FrontierConfig {
      */
     @Override
     public byte[] getExtraData(byte[] minerExtraData, long blockNumber) {
-        if (blockNumber >= forkBlockNumber && blockNumber < forkBlockNumber + EXTRA_DATA_AFFECTS_BLOCKS_NUMBER ) {
+        long EXTRA_DATA_AFFECTS_BLOCKS_NUMBER = 10;
+        if (blockNumber >= forkBlockNumber && blockNumber < forkBlockNumber + EXTRA_DATA_AFFECTS_BLOCKS_NUMBER) {
             if (supportFork) {
                 return DAO_EXTRA_DATA;
             } else {

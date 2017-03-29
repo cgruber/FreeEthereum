@@ -12,8 +12,8 @@ import static org.ethereum.util.ByteUtil.stripLeadingZeroes;
 
 public class PongMessage extends Message {
 
-    byte[] token; // token is the MDC of the ping
-    long expires;
+    private byte[] token; // token is the MDC of the ping
+    private long expires;
 
     public static PongMessage create(byte[] token, Node toNode, ECKey privKey) {
 

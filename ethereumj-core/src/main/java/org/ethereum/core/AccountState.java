@@ -48,7 +48,7 @@ public class AccountState {
         this(nonce, balance, EMPTY_TRIE_HASH, EMPTY_DATA_HASH);
     }
 
-    public AccountState(BigInteger nonce, BigInteger balance, byte[] stateRoot, byte[] codeHash) {
+    private AccountState(BigInteger nonce, BigInteger balance, byte[] stateRoot, byte[] codeHash) {
         this.nonce = nonce;
         this.balance = balance;
         this.stateRoot = stateRoot == EMPTY_TRIE_HASH || equal(stateRoot, EMPTY_TRIE_HASH) ? EMPTY_TRIE_HASH : stateRoot;

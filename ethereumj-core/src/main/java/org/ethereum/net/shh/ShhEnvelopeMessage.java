@@ -16,7 +16,7 @@ import static org.ethereum.net.shh.ShhMessageCodes.MESSAGE;
  */
 public class ShhEnvelopeMessage extends ShhMessage {
 
-    private List<WhisperMessage> messages = new ArrayList<>();
+    private final List<WhisperMessage> messages = new ArrayList<>();
 
     public ShhEnvelopeMessage(byte[] encoded) {
         super(encoded);
@@ -42,7 +42,7 @@ public class ShhEnvelopeMessage extends ShhMessage {
         messages.add(msg);
     }
 
-    public void parse() {
+    private void parse() {
         if (!parsed) {
             RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 

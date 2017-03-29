@@ -75,7 +75,7 @@ public class InternalTransaction extends Transaction {
         return index;
     }
 
-    public boolean isRejected() {
+    private boolean isRejected() {
         rlpParse();
         return rejected;
     }

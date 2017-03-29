@@ -19,29 +19,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component(value = "EthereumListener")
 public class CompositeEthereumListener implements EthereumListener {
 
-    private static abstract class RunnableInfo implements Runnable {
-        private EthereumListener listener;
-        private String info;
-
-        public RunnableInfo(EthereumListener listener, String info) {
-            this.listener = listener;
-            this.info = info;
-        }
-
-        @Override
-        public String toString() {
-            return "RunnableInfo: " + info + " [listener: " + listener.getClass() + "]";
-        }
-    }
-
+    private final List<EthereumListener> listeners = new CopyOnWriteArrayList<>();
     @Autowired
+    private
     EventDispatchThread eventDispatchThread = EventDispatchThread.getDefault();
     
-    List<EthereumListener> listeners = new CopyOnWriteArrayList<>();
-
     public void addListener(EthereumListener listener) {
         listeners.add(listener);
     }
+
     public void removeListener(EthereumListener listener) {
         listeners.remove(listener);
     }
@@ -236,6 +222,21 @@ public class CompositeEthereumListener implements EthereumListener {
                     listener.onPendingTransactionUpdate(txReceipt, state, block);
                 }
             });
+        }
+    }
+
+    private static abstract class RunnableInfo implements Runnable {
+        private final EthereumListener listener;
+        private final String info;
+
+        public RunnableInfo(EthereumListener listener, String info) {
+            this.listener = listener;
+            this.info = info;
+        }
+
+        @Override
+        public String toString() {
+            return "RunnableInfo: " + info + " [listener: " + listener.getClass() + "]";
         }
     }
 }

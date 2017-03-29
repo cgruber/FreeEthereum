@@ -8,9 +8,9 @@ import java.util.Set;
 /**
  * Created by Anton Nashatyrev on 06.10.2016.
  */
-public class SetAdapter<E> implements Set<E> {
+class SetAdapter<E> implements Set<E> {
     private static final Object DummyValue = new Object();
-    Map<E, Object> delegate;
+    private final Map<E, Object> delegate;
 
     public SetAdapter(Map<E, ?> delegate) {
         this.delegate = (Map<E, Object>) delegate;

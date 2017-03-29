@@ -2,16 +2,13 @@ package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.util.ByteUtil;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-
 import org.spongycastle.util.BigIntegers;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,31 +20,23 @@ import java.util.Map;
  */
 public class TestCase {
 
+    //            "pre": { ... },
+    private final Map<ByteArrayWrapper, AccountState> pre = new HashMap<>();
+    //            "callcreates": { ... }
+    private final List<CallCreate> callCreateList = new ArrayList<>();
     private String name = "";
-
     //            "env": { ... },
     private Env env;
-
     //
     private Logs logs;
-
     //            "exec": { ... },
     private Exec exec;
-
     //            "gas": { ... },
     private byte[] gas;
-
     //            "out": { ... },
     private byte[] out;
-
-    //            "pre": { ... },
-    private Map<ByteArrayWrapper, AccountState> pre = new HashMap<>();
-
     //            "post": { ... },
     private Map<ByteArrayWrapper, AccountState> post = null;
-
-    //            "callcreates": { ... }
-    private List<CallCreate> callCreateList = new ArrayList<>();
 
     public TestCase(String name, JSONObject testCaseJSONObj) throws ParseException {
 
@@ -55,7 +44,7 @@ public class TestCase {
         this.name = name;
     }
 
-    public TestCase(JSONObject testCaseJSONObj) throws ParseException {
+    private TestCase(JSONObject testCaseJSONObj) throws ParseException {
 
         try {
 

@@ -6,7 +6,7 @@ import java.util.Collection;
  * @author Mikhail Kalinin
  * @since 28.01.2016
  */
-public interface Index extends Iterable<Long> {
+interface Index extends Iterable<Long> {
 
     void addAll(Collection<Long> nums);
 

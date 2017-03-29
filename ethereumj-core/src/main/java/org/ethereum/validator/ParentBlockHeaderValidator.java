@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class ParentBlockHeaderValidator extends DependentBlockHeaderRule {
 
-    private List<DependentBlockHeaderRule> rules;
+    private final List<DependentBlockHeaderRule> rules;
 
     public ParentBlockHeaderValidator(List<DependentBlockHeaderRule> rules) {
         this.rules = rules;

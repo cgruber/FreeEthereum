@@ -2,12 +2,12 @@ package org.ethereum.jsontestsuite.suite.model;
 
 public class EnvTck {
 
-    String currentCoinbase;
-    String currentDifficulty;
-    String currentGasLimit;
-    String currentNumber;
-    String currentTimestamp;
-    String previousHash;
+    private String currentCoinbase;
+    private String currentDifficulty;
+    private String currentGasLimit;
+    private String currentNumber;
+    private String currentTimestamp;
+    private String previousHash;
 
     public EnvTck() {
     }

@@ -7,8 +7,8 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class DecodeResult implements Serializable {
 
-    private int pos;
-    private Object decoded;
+    private final int pos;
+    private final Object decoded;
 
     public DecodeResult(int pos, Object decoded) {
         this.pos = pos;

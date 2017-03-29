@@ -8,15 +8,7 @@ import java.util.ArrayList;
  */
 public class RLPList extends ArrayList<RLPElement> implements RLPElement {
 
-    byte[] rlpData;
-
-    public void setRLPData(byte[] rlpData) {
-        this.rlpData = rlpData;
-    }
-
-    public byte[] getRLPData() {
-        return rlpData;
-    }
+    private byte[] rlpData;
 
     public static void recursivePrint(RLPElement element) {
 
@@ -33,5 +25,13 @@ public class RLPList extends ArrayList<RLPElement> implements RLPElement {
             String hex = ByteUtil.toHexString(element.getRLPData());
             System.out.print(hex + ", ");
         }
+    }
+
+    public byte[] getRLPData() {
+        return rlpData;
+    }
+
+    public void setRLPData(byte[] rlpData) {
+        this.rlpData = rlpData;
     }
 }

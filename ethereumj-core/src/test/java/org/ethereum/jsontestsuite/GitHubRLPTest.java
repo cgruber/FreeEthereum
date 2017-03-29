@@ -11,12 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GitHubRLPTest {
 
-    private static Logger logger = LoggerFactory.getLogger("rlp");
+    private static final Logger logger = LoggerFactory.getLogger("rlp");
     private static HashMap<String , RLPTestCase> TEST_SUITE;
 
     @BeforeClass

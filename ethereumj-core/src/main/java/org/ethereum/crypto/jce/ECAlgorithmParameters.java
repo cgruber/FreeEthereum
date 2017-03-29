@@ -1,20 +1,36 @@
 package org.ethereum.crypto.jce;
 
 import java.io.IOException;
-
 import java.security.AlgorithmParameters;
 import java.security.NoSuchAlgorithmException;
-
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 
-public final class ECAlgorithmParameters {
+final class ECAlgorithmParameters {
 
-  public static final String ALGORITHM = "EC";
-  public static final String CURVE_NAME = "secp256k1";
+    private static final String ALGORITHM = "EC";
+    private static final String CURVE_NAME = "secp256k1";
 
   private ECAlgorithmParameters() { }
+
+    public static ECParameterSpec getParameterSpec() {
+        try {
+            return Holder.INSTANCE.getParameterSpec(ECParameterSpec.class);
+        } catch (InvalidParameterSpecException ex) {
+            throw new AssertionError(
+                    "Assumed correct key spec statically", ex);
+        }
+    }
+
+    public static byte[] getASN1Encoding() {
+        try {
+            return Holder.INSTANCE.getEncoded();
+        } catch (IOException ex) {
+            throw new AssertionError(
+                    "Assumed algo params has been initialized", ex);
+        }
+    }
 
   private static class Holder {
     private static final AlgorithmParameters INSTANCE;
@@ -33,24 +49,6 @@ public final class ECAlgorithmParameters {
         throw new AssertionError(
             "Assumed correct key spec statically", ex);
       }
-    }
-  }
-
-  public static ECParameterSpec getParameterSpec() {
-    try {
-      return Holder.INSTANCE.getParameterSpec(ECParameterSpec.class);
-    } catch (InvalidParameterSpecException ex) {
-      throw new AssertionError(
-          "Assumed correct key spec statically", ex);
-    }
-  }
-
-  public static byte[] getASN1Encoding() {
-    try {
-      return Holder.INSTANCE.getEncoded();
-    } catch (IOException ex) {
-      throw new AssertionError(
-          "Assumed algo params has been initialized", ex);
     }
   }
 }

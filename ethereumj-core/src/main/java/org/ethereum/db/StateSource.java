@@ -15,15 +15,13 @@ public class StateSource extends SourceChainBox<byte[], byte[], byte[], byte[]>
     private static final Logger logger = LoggerFactory.getLogger("db");
 
     // for debug purposes
-    public static StateSource INST;
-
-    JournalSource<byte[]> journalSource;
-    NoDeleteSource<byte[], byte[]> noDeleteSource;
-
-    CountingBytesSource countingSource;
-    ReadCache<byte[], byte[]> readCache;
-    AbstractCachedSource<byte[], byte[]> writeCache;
-    BloomedSource bloomedSource;
+    private static StateSource INST;
+    private final CountingBytesSource countingSource;
+    private final ReadCache<byte[], byte[]> readCache;
+    private final AbstractCachedSource<byte[], byte[]> writeCache;
+    private final BloomedSource bloomedSource;
+    private JournalSource<byte[]> journalSource;
+    private NoDeleteSource<byte[], byte[]> noDeleteSource;
 
     public StateSource(Source<byte[], byte[]> src, boolean pruningEnabled) {
         this(src, pruningEnabled, 0);

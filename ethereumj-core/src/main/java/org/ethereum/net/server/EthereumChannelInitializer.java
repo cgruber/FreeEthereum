@@ -18,15 +18,12 @@ import org.springframework.stereotype.Component;
 public class EthereumChannelInitializer extends ChannelInitializer<NioSocketChannel> {
 
     private static final Logger logger = LoggerFactory.getLogger("net");
-
+    private final String remoteId;
     @Autowired
     private ApplicationContext ctx;
-
     @Autowired
+    private
     ChannelManager channelManager;
-
-    private String remoteId;
-
     private boolean peerDiscoveryMode = false;
 
     public EthereumChannelInitializer(String remoteId) {

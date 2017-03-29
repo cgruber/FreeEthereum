@@ -11,7 +11,7 @@ import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.substringsBetween;
 import static org.ethereum.solidity.compiler.ContractException.assembleError;
 
-public class SourceArtifact {
+class SourceArtifact {
 
     private final Set<SourceArtifact> injectedDependencies = new HashSet<>();
     private final Set<SourceArtifact> dependentArtifacts = new HashSet<>();

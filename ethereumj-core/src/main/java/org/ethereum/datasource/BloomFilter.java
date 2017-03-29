@@ -21,13 +21,13 @@ import java.util.BitSet;
  *
  * @author Magnus Skjegstad <magnus@skjegstad.com>
  */
-public class BloomFilter implements Serializable {
+class BloomFilter implements Serializable {
+    private final int bitSetSize;
+    private final double bitsPerElement;
+    private final int expectedNumberOfFilterElements; // expected (maximum) number of elements to be added
+    private final int k; // number of hash functions
     private BitSet bitset;
-    private int bitSetSize;
-    private double bitsPerElement;
-    private int expectedNumberOfFilterElements; // expected (maximum) number of elements to be added
     private int numberOfAddedElements; // number of elements actually added to the Bloom filter
-    private int k; // number of hash functions
 
     /**
      * Constructs an empty Bloom filter. The total length of the Bloom filter will be
@@ -37,7 +37,7 @@ public class BloomFilter implements Serializable {
      * @param n is the expected number of elements the filter will contain.
      * @param k is the number of hash functions used.
      */
-    public BloomFilter(double c, int n, int k) {
+    private BloomFilter(double c, int n, int k) {
         this.expectedNumberOfFilterElements = n;
         this.k = k;
         this.bitsPerElement = c;
@@ -53,7 +53,7 @@ public class BloomFilter implements Serializable {
      * @param bitSetSize defines how many bits should be used in total for the filter.
      * @param expectedNumberOElements defines the maximum number of elements the filter is expected to contain.
      */
-    public BloomFilter(int bitSetSize, int expectedNumberOElements) {
+    private BloomFilter(int bitSetSize, int expectedNumberOElements) {
         this(bitSetSize / (double)expectedNumberOElements,
                 expectedNumberOElements,
                 (int) Math.round((bitSetSize / (double) expectedNumberOElements) * Math.log(2.0)));
@@ -111,10 +111,7 @@ public class BloomFilter implements Serializable {
         if (this.bitSetSize != other.bitSetSize) {
             return false;
         }
-        if (this.bitset != other.bitset && (this.bitset == null || !this.bitset.equals(other.bitset))) {
-            return false;
-        }
-        return true;
+        return !(this.bitset != other.bitset && (this.bitset == null || !this.bitset.equals(other.bitset)));
     }
 
     /**
@@ -154,9 +151,9 @@ public class BloomFilter implements Serializable {
      * @param numberOfElements number of inserted elements.
      * @return probability of a false positive.
      */
-    public double getFalsePositiveProbability(double numberOfElements) {
+    private double getFalsePositiveProbability(double numberOfElements) {
         // (1 - e^(-k * n / m)) ^ k
-        return Math.pow((1 - Math.exp(-k * (double) numberOfElements
+        return Math.pow((1 - Math.exp(-k * numberOfElements
                 / (double) bitSetSize)), k);
 
     }

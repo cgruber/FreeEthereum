@@ -38,39 +38,31 @@ import static org.ethereum.net.rlpx.FrameCodec.Frame;
 @Scope("prototype")
 public class MessageCodec extends MessageToMessageCodec<Frame, Message> {
 
+    public static final int NO_FRAMING = Integer.MAX_VALUE >> 1;
     private static final Logger loggerWire = LoggerFactory.getLogger("wire");
     private static final Logger loggerNet = LoggerFactory.getLogger("net");
-
-    public static final int NO_FRAMING = Integer.MAX_VALUE >> 1;
-
+    private final Map<Integer, Pair<? extends List<Frame>, AtomicInteger>> incompleteFrames = new LRUMap<>(16);
+    // LRU avoids OOM on invalid peers
+    private final AtomicInteger contextIdCounter = new AtomicInteger(1);
     private int maxFramePayloadSize = NO_FRAMING;
-
     private Channel channel;
     private MessageCodesResolver messageCodesResolver;
-
     private MessageFactory p2pMessageFactory;
     private MessageFactory ethMessageFactory;
     private MessageFactory shhMessageFactory;
     private MessageFactory bzzMessageFactory;
     private EthVersion ethVersion;
-
     @Autowired
+    private
     EthereumListener ethereumListener;
-
-    private SystemProperties config;
-
     private boolean supportChunkedFrames = true;
-
-    Map<Integer, Pair<? extends List<Frame>, AtomicInteger>> incompleteFrames = new LRUMap<>(16);
-    // LRU avoids OOM on invalid peers
-    AtomicInteger contextIdCounter = new AtomicInteger(1);
 
     public MessageCodec() {
     }
 
     @Autowired
     private MessageCodec(final SystemProperties config) {
-        this.config = config;
+        SystemProperties config1 = config;
         setMaxFramePayloadSize(config.rlpxMaxFrameSize());
     }
 

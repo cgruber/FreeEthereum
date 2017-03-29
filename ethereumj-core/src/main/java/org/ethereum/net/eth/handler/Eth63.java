@@ -76,7 +76,7 @@ public class Eth63 extends Eth62 {
         }
     }
 
-    protected synchronized void processGetNodeData(GetNodeDataMessage msg) {
+    private synchronized void processGetNodeData(GetNodeDataMessage msg) {
 
         if (logger.isTraceEnabled()) logger.trace(
                 "Peer {}: processing GetNodeData, size [{}]",
@@ -97,7 +97,7 @@ public class Eth63 extends Eth62 {
         sendMessage(new NodeDataMessage(nodeValues));
     }
 
-    protected synchronized void processGetReceipts(GetReceiptsMessage msg) {
+    private synchronized void processGetReceipts(GetReceiptsMessage msg) {
 
         if (logger.isTraceEnabled()) logger.trace(
                 "Peer {}: processing GetReceipts, size [{}]",
@@ -151,7 +151,7 @@ public class Eth63 extends Eth62 {
         return requestReceiptsFuture;
     }
 
-    protected synchronized void processNodeData(NodeDataMessage msg) {
+    private synchronized void processNodeData(NodeDataMessage msg) {
         if (requestedNodes == null) {
             logger.debug("Received NodeDataMessage when requestedNodes == null. Dropping peer " + channel);
             dropConnection();
@@ -182,7 +182,7 @@ public class Eth63 extends Eth62 {
         peerState = PeerState.IDLE;
     }
 
-    protected synchronized void processReceipts(ReceiptsMessage msg) {
+    private synchronized void processReceipts(ReceiptsMessage msg) {
         if (requestedReceipts == null) {
             logger.debug("Received ReceiptsMessage when requestedReceipts == null. Dropping peer " + channel);
             dropConnection();

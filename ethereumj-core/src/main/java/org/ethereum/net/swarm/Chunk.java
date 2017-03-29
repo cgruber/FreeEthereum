@@ -6,8 +6,8 @@ package org.ethereum.net.swarm;
  */
 public class Chunk {
 
-    protected Key key;
-    protected byte[] data;
+    private final byte[] data;
+    Key key;
 
     public Chunk(Key key, byte[] data) {
         this.key = key;

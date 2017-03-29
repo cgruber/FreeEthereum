@@ -1,6 +1,7 @@
 package org.ethereum.jsontestsuite.suite.model;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Roman Mandeleil
@@ -8,13 +9,13 @@ import java.util.*;
  */
 public class AccountTck {
 
-    String balance;
-    String code;
-    String nonce;
+    private String balance;
+    private String code;
+    private String nonce;
 
-    Map<String, String> storage = new HashMap<>();
+    private Map<String, String> storage = new HashMap<>();
 
-    String privateKey;
+    private String privateKey;
 
     public AccountTck() {
     }

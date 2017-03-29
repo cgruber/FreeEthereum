@@ -14,7 +14,12 @@ import java.util.Map;
  */
 public class ProgramInvokeImpl implements ProgramInvoke {
 
-    private BlockStore blockStore;
+    /*****************/
+    /* NOTE: In the protocol there is no restriction on the maximum message data,
+     * However msgData here is a byte[] and this can't hold more than 2^32-1
+     */
+    private static final BigInteger MAX_MSG_DATA = BigInteger.valueOf(Integer.MAX_VALUE);
+    private final BlockStore blockStore;
     /**
      * TRANSACTION  env **
      */
@@ -22,18 +27,14 @@ public class ProgramInvokeImpl implements ProgramInvoke {
     private final DataWord origin, caller,
             balance, gas, gasPrice, callValue;
     private final long gasLong;
-
-    byte[] msgData;
-
+    private final byte[] msgData;
     /**
      * BLOCK  env **
      */
     private final DataWord prevHash, coinbase, timestamp,
             number, difficulty, gaslimit;
-
-    private Map<DataWord, DataWord> storage;
-
     private final Repository repository;
+    private Map<DataWord, DataWord> storage;
     private boolean byTransaction = true;
     private boolean byTestingSuite = false;
     private int callDeep = 0;
@@ -70,6 +71,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         this.byTestingSuite = byTestingSuite;
     }
 
+
     public ProgramInvokeImpl(byte[] address, byte[] origin, byte[] caller, byte[] balance,
                              byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
                              byte[] lastHash, byte[] coinbase, long timestamp, long number, byte[] difficulty,
@@ -79,7 +81,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
                 timestamp, number, difficulty, gaslimit, repository, blockStore);
         this.byTestingSuite = byTestingSuite;
     }
-
 
     public ProgramInvokeImpl(byte[] address, byte[] origin, byte[] caller, byte[] balance,
                              byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
@@ -145,18 +146,13 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         return gasLong;
     }
 
+    /*****************/
+    /***  msg data ***/
+
     /*          CALLVALUE op    */
     public DataWord getCallValue() {
         return callValue;
     }
-
-    /*****************/
-    /***  msg data ***/
-    /*****************/
-    /* NOTE: In the protocol there is no restriction on the maximum message data,
-     * However msgData here is a byte[] and this can't hold more than 2^32-1
-     */
-    private static BigInteger MAX_MSG_DATA = BigInteger.valueOf(Integer.MAX_VALUE);
 
     /*     CALLDATALOAD  op   */
     public DataWord getDataValue(DataWord indexData) {
@@ -285,9 +281,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         if (prevHash != null ? !prevHash.equals(that.prevHash) : that.prevHash != null) return false;
         if (repository != null ? !repository.equals(that.repository) : that.repository != null) return false;
         if (storage != null ? !storage.equals(that.storage) : that.storage != null) return false;
-        if (timestamp != null ? !timestamp.equals(that.timestamp) : that.timestamp != null) return false;
-
-        return true;
+        return timestamp != null ? timestamp.equals(that.timestamp) : that.timestamp == null;
     }
 
     @Override

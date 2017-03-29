@@ -17,10 +17,10 @@ import static org.ethereum.util.ByteUtil.longToBytesNoLeadZeroes;
 public class TransactionBomb extends EthereumListenerAdapter {
 
 
-    Ethereum ethereum = null;
-    boolean startedTxBomb = false;
+    private Ethereum ethereum = null;
+    private boolean startedTxBomb = false;
 
-    public TransactionBomb(Ethereum ethereum) {
+    private TransactionBomb(Ethereum ethereum) {
         this.ethereum = ethereum;
     }
 
@@ -46,7 +46,7 @@ public class TransactionBomb extends EthereumListenerAdapter {
 
         if (startedTxBomb){
             byte[] sender = Hex.decode("cd2a3d9f938e13cd947ec05abc7fe734df8dd826");
-            long nonce = ethereum.getRepository().getNonce(sender).longValue();;
+            long nonce = ethereum.getRepository().getNonce(sender).longValue();
 
             for (int i=0; i < 20; ++i){
                 sendTx(nonce);

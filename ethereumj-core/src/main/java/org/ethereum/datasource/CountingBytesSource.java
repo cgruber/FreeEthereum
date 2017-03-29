@@ -24,9 +24,9 @@ import java.util.Arrays;
 public class CountingBytesSource extends AbstractChainedSource<byte[], byte[], byte[], byte[]>
         implements HashedKeySource<byte[], byte[]> {
 
-    QuotientFilter filter;
-    boolean dirty = false;
-    private byte[] filterKey = HashUtil.sha3("countingStateFilter".getBytes());
+    private final byte[] filterKey = HashUtil.sha3("countingStateFilter".getBytes());
+    private QuotientFilter filter;
+    private boolean dirty = false;
 
     public CountingBytesSource(Source<byte[], byte[]> src) {
         this(src, false);
@@ -104,21 +104,21 @@ public class CountingBytesSource extends AbstractChainedSource<byte[], byte[], b
     /**
      * Extracts value from the backing Source counter + value byte array
      */
-    protected byte[] decodeValue(byte[] srcVal) {
+    private byte[] decodeValue(byte[] srcVal) {
         return srcVal == null ? null : Arrays.copyOfRange(srcVal, RLP.decode(srcVal, 0).getPos(), srcVal.length);
     }
 
     /**
      * Extracts counter from the backing Source counter + value byte array
      */
-    protected int decodeCount(byte[] srcVal) {
+    private int decodeCount(byte[] srcVal) {
         return srcVal == null ? 0 : ByteUtil.byteArrayToInt((byte[]) RLP.decode(srcVal, 0).getDecoded());
     }
 
     /**
      * Composes value and counter into backing Source value
      */
-    protected byte[] encodeCount(byte[] val, int count) {
+    private byte[] encodeCount(byte[] val, int count) {
         return ByteUtil.merge(RLP.encodeInt(count), val);
     }
 }

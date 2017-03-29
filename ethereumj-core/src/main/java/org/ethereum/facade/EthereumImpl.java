@@ -53,50 +53,45 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger("facade");
     private static final Logger gLogger = LoggerFactory.getLogger("general");
-
+    private final SystemProperties config;
+    private final GasPriceTracker gasPriceTracker = new GasPriceTracker();
     @Autowired
+    private
     WorldManager worldManager;
-
     @Autowired
+    private
     AdminInfo adminInfo;
-
     @Autowired
+    private
     ChannelManager channelManager;
-
     @Autowired
+    private
     ApplicationContext ctx;
-
     @Autowired
+    private
     BlockLoader blockLoader;
-
     @Autowired
+    private
     ProgramInvokeFactory programInvokeFactory;
-
     @Autowired
+    private
     Whisper whisper;
-
     @Autowired
+    private
     PendingState pendingState;
-
     @Autowired
+    private
     SyncManager syncManager;
-
     @Autowired
+    private
     CommonConfig commonConfig = CommonConfig.getDefault();
-
-    private SystemProperties config;
-
-    private CompositeEthereumListener compositeEthereumListener;
-
-
-    private GasPriceTracker gasPriceTracker = new GasPriceTracker();
 
     @Autowired
     public EthereumImpl(final SystemProperties config, final CompositeEthereumListener compositeEthereumListener) {
-        this.compositeEthereumListener = compositeEthereumListener;
+        CompositeEthereumListener compositeEthereumListener1 = compositeEthereumListener;
         this.config = config;
         System.out.println();
-        this.compositeEthereumListener.addListener(gasPriceTracker);
+        compositeEthereumListener1.addListener(gasPriceTracker);
         gLogger.info("EthereumJ node started: enode://" + Hex.toHexString(config.nodeId()) + "@" + config.externalIp() + ":" + config.listenPort());
     }
 

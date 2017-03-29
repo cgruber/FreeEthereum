@@ -7,7 +7,7 @@ import org.junit.Test;
  */
 public class ManifestTest {
 
-    static String testManifest = "{\"entries\":[\n" +
+    private static final String testManifest = "{\"entries\":[\n" +
             "  {\"path\":\"a/b\"},\n" +
             "  {\"path\":\"a\"},\n" +
             "  {\"path\":\"a/bb\"},\n" +
@@ -15,7 +15,7 @@ public class ManifestTest {
             "  {\"path\":\"a/bb/c\"}\n" +
             "]}";
 
-    static DPA dpa = new SimpleDPA();
+    private static final DPA dpa = new SimpleDPA();
 
 
     @Test

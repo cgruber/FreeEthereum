@@ -23,7 +23,7 @@ import static org.ethereum.crypto.HashUtil.sha3;
  */
 public class BzzProtocolTest {
 
-    static FilterPrinter stdout = new FilterPrinter(System.out);
+    private static final FilterPrinter stdout = new FilterPrinter(System.out);
 
     @Test
     public void simple3PeersTest() throws Exception {
@@ -315,16 +315,17 @@ public class BzzProtocolTest {
     }
 
     public static class TestPipe {
-        protected Functional.Consumer<BzzMessage> out1;
-        protected Functional.Consumer<BzzMessage> out2;
-        protected String name1, name2;
+        Functional.Consumer<BzzMessage> out1;
+        Functional.Consumer<BzzMessage> out2;
+        String name1;
+        String name2;
 
         public TestPipe(Functional.Consumer<BzzMessage> out1, Functional.Consumer<BzzMessage> out2) {
             this.out1 = out1;
             this.out2 = out2;
         }
 
-        protected TestPipe() {
+        TestPipe() {
         }
 
         Functional.Consumer<BzzMessage> createIn1() {
@@ -377,9 +378,9 @@ public class BzzProtocolTest {
 
     public static class TestAsyncPipe extends TestPipe {
 
-        static ScheduledExecutorService exec = Executors.newScheduledThreadPool(32);
-        static Queue<Future<?>> tasks = new LinkedBlockingQueue<>();
-        long channelLatencyMs = 2;
+        static final ScheduledExecutorService exec = Executors.newScheduledThreadPool(32);
+        static final Queue<Future<?>> tasks = new LinkedBlockingQueue<>();
+        final long channelLatencyMs = 2;
 
         public TestAsyncPipe(Functional.Consumer<BzzMessage> out1, Functional.Consumer<BzzMessage> out2) {
             this.out1 = new AsyncConsumer(out1, false);
@@ -397,9 +398,9 @@ public class BzzProtocolTest {
         }
 
         class AsyncConsumer implements Functional.Consumer<BzzMessage> {
-            Functional.Consumer<BzzMessage> delegate;
+            final Functional.Consumer<BzzMessage> delegate;
 
-            boolean rev;
+            final boolean rev;
 
             public AsyncConsumer(Functional.Consumer<BzzMessage> delegate, boolean rev) {
                 this.delegate = delegate;
@@ -434,7 +435,7 @@ public class BzzProtocolTest {
     }
 
     public static class SimpleHive extends Hive {
-        Map<BzzProtocol, Object> peers = new IdentityHashMap<>();
+        final Map<BzzProtocol, Object> peers = new IdentityHashMap<>();
         //        PeerAddress thisAddress;
         TestPeer thisPeer;
 //        NodeTable nodeTable;
@@ -513,17 +514,17 @@ public class BzzProtocolTest {
     }
 
     public static class TestPeer {
+        static final Map<PeerAddress, TestPeer> staticMap = Collections.synchronizedMap(new HashMap<PeerAddress, TestPeer>());
         public static boolean MessageOut = false;
         public static boolean AsyncPipe = false;
-        static Map<PeerAddress, TestPeer> staticMap = Collections.synchronizedMap(new HashMap<PeerAddress, TestPeer>());
-        String name;
-        PeerAddress peerAddress;
+        final String name;
+        final PeerAddress peerAddress;
 
-        LocalStore localStore;
-        Hive hive;
-        NetStore netStore;
+        final LocalStore localStore;
+        final Hive hive;
+        final NetStore netStore;
 
-        Map<Key, BzzProtocol> connections = new HashMap<>();
+        final Map<Key, BzzProtocol> connections = new HashMap<>();
 
         public TestPeer(int num) {
             this(new PeerAddress(new byte[]{0, 0, (byte) ((num >> 8) & 0xFF), (byte) (num & 0xFF)}, 1000 + num,
@@ -554,11 +555,7 @@ public class BzzProtocolTest {
 
         private BzzProtocol createPeerProtocol(PeerAddress addr) {
             Key peerKey = new Key(addr.getId());
-            BzzProtocol protocol = connections.get(peerKey);
-            if (protocol == null) {
-                protocol = new BzzProtocol(netStore);
-                connections.put(peerKey, protocol);
-            }
+            BzzProtocol protocol = connections.computeIfAbsent(peerKey, k -> new BzzProtocol(netStore));
             return protocol;
         }
 

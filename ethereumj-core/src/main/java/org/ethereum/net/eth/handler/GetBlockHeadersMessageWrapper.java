@@ -15,10 +15,10 @@ import java.util.List;
  */
 public class GetBlockHeadersMessageWrapper {
 
-    private GetBlockHeadersMessage message;
+    private final GetBlockHeadersMessage message;
+    private final SettableFuture<List<BlockHeader>> futureHeaders = SettableFuture.create();
     private boolean newHashesHandling = false;
     private boolean sent = false;
-    private SettableFuture<List<BlockHeader>> futureHeaders = SettableFuture.create();
 
     public GetBlockHeadersMessageWrapper(GetBlockHeadersMessage message) {
         this.message = message;

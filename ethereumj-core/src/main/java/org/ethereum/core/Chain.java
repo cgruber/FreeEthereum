@@ -1,12 +1,10 @@
 package org.ethereum.core;
 
 import org.ethereum.db.ByteArrayWrapper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,14 +14,13 @@ import java.util.Map;
  * @author Roman Mandeleil
  * @since 09.11.2014
  */
-public class Chain {
+class Chain {
 
     private static final Logger logger = LoggerFactory.getLogger("blockchain");
 
-    private List<Block> chain = new ArrayList<>();
+    private final List<Block> chain = new ArrayList<>();
+    private final Map<ByteArrayWrapper, Block> index = new HashMap<>();
     private BigInteger totalDifficulty = BigInteger.ZERO;
-    private Map<ByteArrayWrapper, Block> index = new HashMap<>();
-
 
     public boolean tryToConnect(Block block) {
 
@@ -40,7 +37,7 @@ public class Chain {
         return false;
     }
 
-    public void add(Block block) {
+    private void add(Block block) {
         logger.info("adding block to alt chain block.hash: [{}] ", block.getShortHash());
         totalDifficulty = totalDifficulty.add(block.getCumulativeDifficulty());
         logger.info("total difficulty on alt chain is: [{}] ", totalDifficulty);

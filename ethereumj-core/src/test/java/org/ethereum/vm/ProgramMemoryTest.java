@@ -1,7 +1,6 @@
 package org.ethereum.vm;
 
 import org.ethereum.util.ByteUtil;
-
 import org.ethereum.vm.program.Program;
 import org.ethereum.vm.program.invoke.ProgramInvokeMockImpl;
 import org.junit.Before;
@@ -10,13 +9,14 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ProgramMemoryTest {
 
-    ProgramInvokeMockImpl pi = new ProgramInvokeMockImpl();
-    Program program;
+    private final ProgramInvokeMockImpl pi = new ProgramInvokeMockImpl();
     ByteBuffer memory;
+    private Program program;
 
     @Before
     public void createProgram() {

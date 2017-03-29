@@ -24,11 +24,11 @@ import static java.lang.Math.min;
  * Created by Anton Nashatyrev on 18.06.2015.
  */
 public class BzzProtocol implements Functional.Consumer<BzzMessage> {
-    public final static int Version            = 0;
     public final static long ProtocolLength     = 8;
     public final static long ProtocolMaxMsgSize = 10 * 1024 * 1024;
-    public final static int NetworkId          = 0;
     public final static int Strategy           = 0;
+    private final static int Version = 0;
+    private final static int NetworkId = 0;
     private final static Logger LOG = LoggerFactory.getLogger("net.bzz");
     private final static AtomicLong idGenerator = new AtomicLong(0);
     private final NetStore netStore;
@@ -44,7 +44,7 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
         this.netStore = netStore;
     }
 
-    public static String addressToShortString(PeerAddress addr) {
+    private static String addressToShortString(PeerAddress addr) {
         if (addr == null) return "<null>";
         String s = Hex.toHexString(addr.getId());
         s = s.substring(0, min(8, s.length()));

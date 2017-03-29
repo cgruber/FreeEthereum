@@ -2,33 +2,24 @@ package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.util.ByteUtil;
 import org.ethereum.vm.DataWord;
-
 import org.json.simple.JSONObject;
-
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Roman Mandeleil
  * @since 28.06.2014
  */
-public class AccountState {
+class AccountState {
 
-    byte[] address;
-    byte[] balance;
-    byte[] code;
-    byte[] nonce;
+    private final byte[] address;
+    private final byte[] balance;
+    private final byte[] code;
+    private final byte[] nonce;
 
-    Map<DataWord, DataWord> storage = new HashMap<>();
+    private final Map<DataWord, DataWord> storage = new HashMap<>();
 
 
     public AccountState(byte[] address, JSONObject accountState) {

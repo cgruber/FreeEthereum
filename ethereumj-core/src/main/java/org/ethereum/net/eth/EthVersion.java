@@ -14,17 +14,12 @@ public enum EthVersion {
     V62((byte) 62),
     V63((byte) 63);
 
-    public static final byte LOWER = V62.getCode();
     public static final byte UPPER = V63.getCode();
-
-    private byte code;
+    private static final byte LOWER = V62.getCode();
+    private final byte code;
 
     EthVersion(byte code) {
         this.code = code;
-    }
-
-    public byte getCode() {
-        return code;
     }
 
     public static EthVersion fromCode(int code) {
@@ -37,7 +32,7 @@ public enum EthVersion {
         return null;
     }
 
-    public static boolean isSupported(byte code) {
+    private static boolean isSupported(byte code) {
         return code >= LOWER && code <= UPPER;
     }
 
@@ -50,6 +45,10 @@ public enum EthVersion {
         }
 
         return supported;
+    }
+
+    public byte getCode() {
+        return code;
     }
 
     public boolean isCompatible(EthVersion version) {

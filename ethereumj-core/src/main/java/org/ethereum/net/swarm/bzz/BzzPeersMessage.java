@@ -17,7 +17,7 @@ import java.util.List;
 public class BzzPeersMessage extends BzzMessage {
 
     private List<PeerAddress> peers;
-    long timeout;
+    private long timeout;
     // optional
     private Key key;
 
@@ -45,12 +45,12 @@ public class BzzPeersMessage extends BzzMessage {
         for (RLPElement a : addrs) {
             peers.add(PeerAddress.parse((RLPList) a));
         }
-        timeout = ByteUtil.byteArrayToLong(paramsList.get(1).getRLPData());;
+        timeout = ByteUtil.byteArrayToLong(paramsList.get(1).getRLPData());
         if (paramsList.size() > 2) {
             key = new Key(paramsList.get(2).getRLPData());
         }
         if (paramsList.size() > 3) {
-            id = ByteUtil.byteArrayToLong(paramsList.get(3).getRLPData());;
+            id = ByteUtil.byteArrayToLong(paramsList.get(3).getRLPData());
         }
 
         parsed = true;

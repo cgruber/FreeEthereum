@@ -28,18 +28,18 @@ import java.util.Map;
 public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
 
     private final boolean isCounting;
-    protected volatile Map<Key, CacheEntry<Value>> cache = new HashMap<>();
-    protected ReadWriteUpdateLock rwuLock = new ReentrantReadWriteUpdateLock();
-    protected ALock readLock = new ALock(rwuLock.readLock());
-    protected ALock writeLock = new ALock(rwuLock.writeLock());
-    protected ALock updateLock = new ALock(rwuLock.updateLock());
+    private final ReadWriteUpdateLock rwuLock = new ReentrantReadWriteUpdateLock();
+    private final ALock readLock = new ALock(rwuLock.readLock());
+    private final ALock writeLock = new ALock(rwuLock.writeLock());
+    private final ALock updateLock = new ALock(rwuLock.updateLock());
+    volatile Map<Key, CacheEntry<Value>> cache = new HashMap<>();
     private boolean checked = false;
     public WriteCache(Source<Key, Value> src, CacheType cacheType) {
         super(src);
         this.isCounting = cacheType == CacheType.COUNTING;
     }
 
-    public WriteCache<Key, Value> withCache(Map<Key, CacheEntry<Value>> cache) {
+    WriteCache<Key, Value> withCache(Map<Key, CacheEntry<Value>> cache) {
         this.cache = cache;
         return this;
     }
@@ -223,7 +223,7 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
         V value;
         int counter = 0;
 
-        protected CacheEntry(V value) {
+        CacheEntry(V value) {
             this.value = value;
         }
 

@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public class SlowHashMapDb<V> extends HashMapDB<V> {
 
-    long delay = 1;
+    private long delay = 1;
 
     public SlowHashMapDb<V> withDelay(long delay) {
         this.delay = delay;

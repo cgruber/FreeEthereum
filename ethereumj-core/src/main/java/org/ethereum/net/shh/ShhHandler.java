@@ -1,14 +1,11 @@
 package org.ethereum.net.shh;
 
-import org.ethereum.listener.EthereumListener;
-import org.ethereum.net.MessageQueue;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-
+import org.ethereum.listener.EthereumListener;
+import org.ethereum.net.MessageQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -21,12 +18,10 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("prototype")
 public class ShhHandler extends SimpleChannelInboundHandler<ShhMessage> {
-    private final static Logger logger = LoggerFactory.getLogger("net.shh");
     public final static byte VERSION = 3;
-
+    private final static Logger logger = LoggerFactory.getLogger("net.shh");
     private MessageQueue msgQueue = null;
     private boolean active = false;
-    private BloomFilter peerBloomFilter = BloomFilter.createAll();
 
     @Autowired
     private EthereumListener ethereumListener;
@@ -68,7 +63,7 @@ public class ShhHandler extends SimpleChannelInboundHandler<ShhMessage> {
     }
 
     private void setBloomFilter(ShhFilterMessage msg) {
-        peerBloomFilter = new BloomFilter(msg.getBloomFilter());
+        BloomFilter peerBloomFilter = new BloomFilter(msg.getBloomFilter());
     }
 
     @Override
@@ -116,11 +111,11 @@ public class ShhHandler extends SimpleChannelInboundHandler<ShhMessage> {
 //        }
     }
 
-    void sendMessage(ShhMessage msg) {
+    private void sendMessage(ShhMessage msg) {
         msgQueue.sendMessage(msg);
     }
 
-    public boolean isActive() {
+    private boolean isActive() {
         return active;
     }
 

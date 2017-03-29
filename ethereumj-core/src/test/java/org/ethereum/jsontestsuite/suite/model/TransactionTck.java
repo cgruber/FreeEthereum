@@ -6,16 +6,16 @@ package org.ethereum.jsontestsuite.suite.model;
  */
 public class TransactionTck {
 
-    String data;
-    String gasLimit;
-    String gasPrice;
-    String nonce;
-    String r;
-    String s;
-    String to;
-    String v;
-    String value;
-    String secretKey;
+    private String data;
+    private String gasLimit;
+    private String gasPrice;
+    private String nonce;
+    private String r;
+    private String s;
+    private String to;
+    private String v;
+    private String value;
+    private String secretKey;
 
 
     public TransactionTck() {

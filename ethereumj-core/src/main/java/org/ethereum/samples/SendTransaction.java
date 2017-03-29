@@ -1,6 +1,8 @@
 package org.ethereum.samples;
 
-import org.ethereum.core.*;
+import org.ethereum.core.Block;
+import org.ethereum.core.Transaction;
+import org.ethereum.core.TransactionReceipt;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.facade.EthereumFactory;
@@ -23,8 +25,24 @@ import java.util.Map;
  */
 public class SendTransaction extends BasicSample {
 
-    private Map<ByteArrayWrapper, TransactionReceipt> txWaiters =
+    private final Map<ByteArrayWrapper, TransactionReceipt> txWaiters =
             Collections.synchronizedMap(new HashMap<ByteArrayWrapper, TransactionReceipt>());
+
+    public static void main(String[] args) throws Exception {
+        sLogger.info("Starting EthereumJ!");
+
+        class Config {
+            @Bean
+            public BasicSample sampleBean() {
+                return new SendTransaction();
+            }
+        }
+
+        // Based on Config class the BasicSample would be created by Spring
+        // and its springInit() method would be called as an entry point
+        EthereumFactory.createEthereum(Config.class);
+
+    }
 
     @Override
     public void onSyncDone() throws Exception {
@@ -42,7 +60,6 @@ public class SendTransaction extends BasicSample {
         sendTxAndWait(Hex.decode(toAddress), new byte[0]);
         logger.info("Transaction included!");}
 
-
     private void onBlock(Block block, List<TransactionReceipt> receipts) {
         for (TransactionReceipt receipt : receipts) {
             ByteArrayWrapper txHashW = new ByteArrayWrapper(receipt.getTransaction().getHash());
@@ -54,7 +71,6 @@ public class SendTransaction extends BasicSample {
             }
         }
     }
-
 
     private TransactionReceipt sendTxAndWait(byte[] receiveAddress, byte[] data) throws InterruptedException {
 
@@ -76,7 +92,6 @@ public class SendTransaction extends BasicSample {
 
         return waitForTx(tx.getHash());
     }
-
 
     private TransactionReceipt waitForTx(byte[] txHash) throws InterruptedException {
         ByteArrayWrapper txHashW = new ByteArrayWrapper(txHash);
@@ -101,23 +116,6 @@ public class SendTransaction extends BasicSample {
                 wait(20000);
             }
         }
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        sLogger.info("Starting EthereumJ!");
-
-        class Config {
-            @Bean
-            public BasicSample sampleBean() {
-                return new SendTransaction();
-            }
-        }
-
-        // Based on Config class the BasicSample would be created by Spring
-        // and its springInit() method would be called as an entry point
-        EthereumFactory.createEthereum(Config.class);
-
     }
 
 }

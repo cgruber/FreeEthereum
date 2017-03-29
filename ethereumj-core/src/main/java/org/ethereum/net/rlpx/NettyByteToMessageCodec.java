@@ -12,7 +12,7 @@ import java.util.List;
  * overrides it to set the COMPOSITE_CUMULATOR for ByteToMessageDecoder as it
  * is more effective than the default one.
  */
-public abstract class NettyByteToMessageCodec<I> extends ByteToMessageCodec<I> {
+abstract class NettyByteToMessageCodec<I> extends ByteToMessageCodec<I> {
 
     private final ByteToMessageDecoder decoder = new ByteToMessageDecoder() {
         {

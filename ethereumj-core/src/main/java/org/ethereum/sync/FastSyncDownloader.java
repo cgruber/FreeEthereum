@@ -22,14 +22,16 @@ public class FastSyncDownloader extends BlockDownloader {
     private final static Logger logger = LoggerFactory.getLogger("sync");
 
     @Autowired
+    private
     SyncPool syncPool;
 
     @Autowired
+    private
     IndexedBlockStore blockStore;
 
-    int counter;
-    int maxCount;
-    long t;
+    private int counter;
+    private int maxCount;
+    private long t;
 
     @Autowired
     public FastSyncDownloader(BlockHeaderValidator headerValidator) {

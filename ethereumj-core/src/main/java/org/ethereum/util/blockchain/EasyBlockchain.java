@@ -11,7 +11,7 @@ import java.math.BigInteger;
  *
  * Created by Anton Nashatyrev on 23.03.2016.
  */
-public interface EasyBlockchain {
+interface EasyBlockchain {
 
     /**
      *  Set the current sender key which all transactions (value transfer or

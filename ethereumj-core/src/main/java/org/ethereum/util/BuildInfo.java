@@ -12,8 +12,8 @@ public class BuildInfo {
     private static final Logger logger = LoggerFactory.getLogger("general");
 
     public static String buildHash;
-    public static String buildTime;
     public static String buildBranch;
+    private static String buildTime;
 
     static {
         try {

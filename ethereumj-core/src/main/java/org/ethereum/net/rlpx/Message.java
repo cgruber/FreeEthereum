@@ -12,12 +12,12 @@ import static org.ethereum.util.ByteUtil.merge;
 
 public abstract class Message {
 
-    byte[] wire;
+    private byte[] wire;
 
-    byte[] mdc;
-    byte[] signature;
-    byte[] type;
-    byte[] data;
+    private byte[] mdc;
+    private byte[] signature;
+    private byte[] type;
+    private byte[] data;
 
     public static Message decode(byte[] wire) {
 
@@ -60,7 +60,7 @@ public abstract class Message {
     }
 
 
-    public Message encode(byte[] type, byte[] data, ECKey privKey) {
+    Message encode(byte[] type, byte[] data, ECKey privKey) {
 
         /* [1] Calc keccak - prepare for sig */
         byte[] payload = new byte[type.length + data.length];
@@ -142,7 +142,7 @@ public abstract class Message {
         return data;
     }
 
-    public abstract void parse(byte[] data);
+    protected abstract void parse(byte[] data);
 
     @Override
     public String toString() {

@@ -49,12 +49,12 @@ public class ETCFork3M extends Eip160HFConfig {
         return difficulty;
     }
 
-    protected BigInteger getCalcDifficultyMultiplier(BlockHeader curBlock, BlockHeader parent) {
+    private BigInteger getCalcDifficultyMultiplier(BlockHeader curBlock, BlockHeader parent) {
         return BigInteger.valueOf(Math.max(1 - (curBlock.getTimestamp() - parent.getTimestamp()) / 10, -99));
     }
 
 
-    protected int getExplosion(BlockHeader curBlock, BlockHeader parent) {
+    private int getExplosion(BlockHeader curBlock, BlockHeader parent) {
         int pauseBlock = 3000000;
         int contBlock = 5000000;
         int delay = (contBlock - pauseBlock) / 100000;

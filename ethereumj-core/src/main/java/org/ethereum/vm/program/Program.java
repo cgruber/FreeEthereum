@@ -60,21 +60,21 @@ public class Program {
     private static final int MAX_STACKSIZE = 1024;
     private final SystemProperties config;
     private final BlockchainConfig blockchainConfig;
-    CommonConfig commonConfig = CommonConfig.getDefault();
-    private Transaction transaction;
-    private ProgramInvoke invoke;
-    private ProgramInvokeFactory programInvokeFactory = new ProgramInvokeFactoryImpl();
+    private final Transaction transaction;
+    private final ProgramInvoke invoke;
+    private final ProgramInvokeFactory programInvokeFactory = new ProgramInvokeFactoryImpl();
+    private final ProgramTraceListener traceListener;
+    private final ProgramStorageChangeListener storageDiffListener = new ProgramStorageChangeListener();
+    private final CompositeProgramListener programListener = new CompositeProgramListener();
+    private final Stack stack;
+    private final Memory memory;
+    private final Storage storage;
+    private final ProgramResult result = new ProgramResult();
+    private final byte[] codeHash;
+    private final byte[] ops;
+    private CommonConfig commonConfig = CommonConfig.getDefault();
     private ProgramOutListener listener;
-    private ProgramTraceListener traceListener;
-    private ProgramStorageChangeListener storageDiffListener = new ProgramStorageChangeListener();
-    private CompositeProgramListener programListener = new CompositeProgramListener();
-    private Stack stack;
-    private Memory memory;
-    private Storage storage;
-    private ProgramResult result = new ProgramResult();
     private ProgramTrace trace = new ProgramTrace();
-    private byte[] codeHash;
-    private byte[] ops;
     private int pc;
     private byte lastOp;
     private byte previouslyExecutedOp;
@@ -86,7 +86,7 @@ public class Program {
         this(ops, programInvoke, null);
     }
 
-    public Program(byte[] ops, ProgramInvoke programInvoke, Transaction transaction) {
+    private Program(byte[] ops, ProgramInvoke programInvoke, Transaction transaction) {
         this(ops, programInvoke, transaction, SystemProperties.getDefault());
     }
 
@@ -110,7 +110,7 @@ public class Program {
         this.blockchainConfig = config.getBlockchainConfig().getConfigForBlock(programInvoke.getNumber().longValue());
     }
 
-    static String formatBinData(byte[] binData, int startPC) {
+    private static String formatBinData(byte[] binData, int startPC) {
         StringBuilder ret = new StringBuilder();
         for (int i = 0; i < binData.length; i += 16) {
             ret.append(Utils.align("" + Integer.toHexString(startPC + (i)) + ":", ' ', 8, false));
@@ -176,7 +176,7 @@ public class Program {
         return sb.toString();
     }
 
-    static BitSet buildReachableBytecodesMask(byte[] code) {
+    private static BitSet buildReachableBytecodesMask(byte[] code) {
         NavigableSet<Integer> gotos = new TreeSet<>();
         ByteCodeIterator it = new ByteCodeIterator(code);
         BitSet ret = new BitSet(code.length);
@@ -244,7 +244,7 @@ public class Program {
         return sb.toString();
     }
 
-    public ProgramPrecompile getProgramPrecompile() {
+    private ProgramPrecompile getProgramPrecompile() {
         if (programPrecompile == null) {
             if (codeHash != null && commonConfig.precompileSource() != null) {
                 programPrecompile = commonConfig.precompileSource().get(codeHash);
@@ -294,7 +294,7 @@ public class Program {
         return programListenerAware;
     }
 
-    public Map<DataWord, DataWord> getStorageDiff() {
+    private Map<DataWord, DataWord> getStorageDiff() {
         return storageDiffListener.getDiff();
     }
 
@@ -331,11 +331,11 @@ public class Program {
         stackPush(new DataWord(data));
     }
 
-    public void stackPushZero() {
+    private void stackPushZero() {
         stackPush(new DataWord(0));
     }
 
-    public void stackPushOne() {
+    private void stackPushOne() {
         DataWord stackWord = new DataWord(1);
         stackPush(stackWord);
     }
@@ -353,16 +353,16 @@ public class Program {
         return pc;
     }
 
+    public void setPC(DataWord pc) {
+        this.setPC(pc.intValue());
+    }
+
     public void setPC(int pc) {
         this.pc = pc;
 
         if (this.pc >= ops.length) {
             stop();
         }
-    }
-
-    public void setPC(DataWord pc) {
-        this.setPC(pc.intValue());
     }
 
     public boolean isStopped() {
@@ -424,7 +424,7 @@ public class Program {
         memory.write(addrB.intValue(), value.getData(), value.getData().length, false);
     }
 
-    public void memorySaveLimited(int addr, byte[] data, int dataSize) {
+    private void memorySaveLimited(int addr, byte[] data, int dataSize) {
         memory.write(addr, data, dataSize, true);
     }
 
@@ -762,7 +762,7 @@ public class Program {
         spendGas(getGas().longValue(), "Spending all remaining");
     }
 
-    public void refundGas(long gasValue, String cause) {
+    private void refundGas(long gasValue, String cause) {
         logger.info("[{}] Refund for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
         getResult().refundGas(gasValue);
     }
@@ -780,7 +780,7 @@ public class Program {
         storageSave(word1.getData(), word2.getData());
     }
 
-    public void storageSave(byte[] key, byte[] val) {
+    private void storageSave(byte[] key, byte[] val) {
         DataWord keyWord = new DataWord(key);
         DataWord valWord = new DataWord(val);
         getStorage().addStorageRow(getOwnerAddress().getLast20Bytes(), keyWord, valWord);
@@ -1097,7 +1097,7 @@ public class Program {
     }
 
     static class ByteCodeIterator {
-        byte[] code;
+        final byte[] code;
         int pc;
 
         public ByteCodeIterator(byte[] code) {

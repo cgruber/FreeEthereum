@@ -17,23 +17,22 @@ import java.util.List;
 
 public class TransactionTestRunner {
 
-    private static Logger logger = LoggerFactory.getLogger("TCK-Test");
+    private static final Logger logger = LoggerFactory.getLogger("TCK-Test");
+    private final TransactionTestCase transactionTestCase;
+    private Transaction transaction = null;
+    private Transaction expectedTransaction;
+    private long blockNumber;
+    private BlockchainConfig blockchainConfig;
+
+    private TransactionTestRunner(TransactionTestCase transactionTestCase) {
+        this.transactionTestCase = transactionTestCase;
+    }
 
     public static List<String> run(TransactionTestCase transactionTestCase2) {
         return new TransactionTestRunner(transactionTestCase2).runImpl();
     }
 
-    protected TransactionTestCase transactionTestCase;
-    protected Transaction transaction = null;
-    protected Transaction expectedTransaction;
-    protected long blockNumber;
-    protected BlockchainConfig blockchainConfig;
-
-    public TransactionTestRunner(TransactionTestCase transactionTestCase) {
-        this.transactionTestCase = transactionTestCase;
-    }
-
-    public List<String> runImpl() {
+    private List<String> runImpl() {
 
         blockNumber = transactionTestCase.getBlocknumber() == null ? 0 : Utils.parseLong(transactionTestCase.getBlocknumber());
         logger.info("Block number: {}", blockNumber);

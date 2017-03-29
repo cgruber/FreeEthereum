@@ -13,12 +13,13 @@ import java.util.concurrent.Future;
  */
 public class TransactionExecutor {
 
+    public static final TransactionExecutor instance;
+
     static {
         instance = new TransactionExecutor();
     }
 
-    public static TransactionExecutor instance;
-    private ExecutorService executor = Executors.newFixedThreadPool(1);
+    private final ExecutorService executor = Executors.newFixedThreadPool(1);
 
     public Future<List<Transaction>> submitTransaction(TransactionTask task) {
         return executor.submit(task);

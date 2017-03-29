@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class BlockHeaderValidator extends BlockHeaderRule {
 
-    private List<BlockHeaderRule> rules;
+    private final List<BlockHeaderRule> rules;
 
     public BlockHeaderValidator(List<BlockHeaderRule> rules) {
         this.rules = rules;

@@ -14,7 +14,7 @@ import java.util.Set;
 public class ProgramPrecompile {
     private static final int version = 1;
 
-    private Set<Integer> jumpdest = new HashSet<>();
+    private final Set<Integer> jumpdest = new HashSet<>();
 
     public static ProgramPrecompile deserialize(byte[] stream) {
         RLPList l = (RLPList) RLP.decode2(stream).get(0);

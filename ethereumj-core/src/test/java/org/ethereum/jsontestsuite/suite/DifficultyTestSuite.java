@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class DifficultyTestSuite {
 
-    List<DifficultyTestCase> testCases = new ArrayList<>();
+    private final List<DifficultyTestCase> testCases = new ArrayList<>();
 
     public DifficultyTestSuite(String json) throws IOException {
         ObjectMapper mapper = new ObjectMapper();

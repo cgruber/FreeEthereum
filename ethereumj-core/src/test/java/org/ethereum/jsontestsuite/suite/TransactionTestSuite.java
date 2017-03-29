@@ -13,7 +13,7 @@ public class TransactionTestSuite {
 
     private Logger logger = LoggerFactory.getLogger("TCK-Test");
 
-    Map<String, TransactionTestCase> testCases = new HashMap<>();
+    private Map<String, TransactionTestCase> testCases = new HashMap<>();
 
     public TransactionTestSuite(String json) throws IOException {
 

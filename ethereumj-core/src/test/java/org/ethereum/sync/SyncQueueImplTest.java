@@ -15,7 +15,7 @@ import java.util.*;
  */
 public class SyncQueueImplTest {
     private static final int DEFAULT_REQUEST_LEN = 192;
-    byte[] peer0 = new byte[32];
+    private final byte[] peer0 = new byte[32];
 
     @Test
     public void test1() {
@@ -274,9 +274,9 @@ public class SyncQueueImplTest {
     }
 
     private static class Peer {
-        Map<ByteArrayWrapper, Block> blocks = new HashMap<>();
-        List<Block> chain;
-        boolean returnGenesis;
+        final Map<ByteArrayWrapper, Block> blocks = new HashMap<>();
+        final List<Block> chain;
+        final boolean returnGenesis;
 
         public Peer(List<Block> chain) {
             this(chain, true);

@@ -4,8 +4,6 @@ package org.ethereum.mine;
  * Created by Anton Nashatyrev on 27.11.2015.
  */
 public class EthashParams {
-    // bytes in word
-    private final int WORD_BYTES = 4;
 
     // bytes in dataset at genesis
     private final long DATASET_BYTES_INIT = 1L << 30;
@@ -19,9 +17,6 @@ public class EthashParams {
     // cache growth per epoch
     private final long CACHE_BYTES_GROWTH = 1L << 17;
 
-    //  Size of the DAG relative to the cache
-    private final long CACHE_MULTIPLIER = 1024;
-
     //  blocks per epoch
     private final long EPOCH_LENGTH = 30000;
 
@@ -31,14 +26,13 @@ public class EthashParams {
     //  hash length in bytes
     private final int HASH_BYTES = 64;
 
-    // number of parents of each dataset element
-    private final long DATASET_PARENTS = 256;
-
-    // number of rounds in cache production
-    private final long CACHE_ROUNDS = 3;
-
-    //  number of accesses in hashimoto loop
-    private final long ACCESSES = 64;
+    private static boolean isPrime(long num) {
+        if (num == 2) return true;
+        if (num % 2 == 0) return false;
+        for (int i = 3; i * i < num; i += 2)
+            if (num % i == 0) return false;
+        return true;
+    }
 
     /**
      * The parameters for Ethash's cache and dataset depend on the block number.
@@ -64,15 +58,8 @@ public class EthashParams {
         return sz;
     }
 
-    private static boolean isPrime(long num) {
-        if (num == 2) return true;
-        if (num % 2 == 0) return false;
-        for (int i = 3; i * i < num; i += 2)
-            if (num % i == 0) return false;
-        return true;
-    }
-
     public int getWORD_BYTES() {
+        int WORD_BYTES = 4;
         return WORD_BYTES;
     }
 
@@ -93,6 +80,7 @@ public class EthashParams {
     }
 
     public long getCACHE_MULTIPLIER() {
+        long CACHE_MULTIPLIER = 1024;
         return CACHE_MULTIPLIER;
     }
 
@@ -109,14 +97,17 @@ public class EthashParams {
     }
 
     public long getDATASET_PARENTS() {
+        long DATASET_PARENTS = 256;
         return DATASET_PARENTS;
     }
 
     public long getCACHE_ROUNDS() {
+        long CACHE_ROUNDS = 3;
         return CACHE_ROUNDS;
     }
 
     public long getACCESSES() {
+        long ACCESSES = 64;
         return ACCESSES;
     }
 }

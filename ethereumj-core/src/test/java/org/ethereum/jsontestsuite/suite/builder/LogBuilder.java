@@ -11,7 +11,7 @@ import static org.ethereum.jsontestsuite.suite.Utils.parseData;
 
 public class LogBuilder {
 
-    public static LogInfo build(LogTck logTck){
+    private static LogInfo build(LogTck logTck) {
 
         byte[] address = parseData(logTck.getAddress());
         byte[] data = parseData(logTck.getData());

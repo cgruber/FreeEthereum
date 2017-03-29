@@ -12,9 +12,8 @@ import java.util.List;
 @Component
 public class SolidityCompiler {
 
-    private Solc solc;
-
     private static SolidityCompiler INSTANCE;
+    private final Solc solc;
 
     @Autowired
     public SolidityCompiler(SystemProperties config) {
@@ -25,93 +24,47 @@ public class SolidityCompiler {
         return getInstance().compileSrc(sourceDirectory, false, combinedJson, options);
     }
 
-    public enum Options {
-        AST("ast"),
-        BIN("bin"),
-        INTERFACE("interface"),
-        ABI("abi"),
-        METADATA("metadata");
-
-        private String name;
-
-        Options(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
-
-    public static class Result {
-        public String errors;
-        public String output;
-        private boolean success = false;
-
-        public Result(String errors, String output, boolean success) {
-            this.errors = errors;
-            this.output = output;
-            this.success = success;
-        }
-
-        public boolean isFailed() {
-            return !success;
-        }
-    }
-
-    private static class ParallelReader extends Thread {
-
-        private InputStream stream;
-        private StringBuilder content = new StringBuilder();
-
-        ParallelReader(InputStream stream) {
-            this.stream = stream;
-        }
-
-        public String getContent() {
-            return getContent(true);
-        }
-
-        public synchronized String getContent(boolean waitForComplete) {
-            if (waitForComplete) {
-                while(stream != null) {
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-            return content.toString();
-        }
-
-        public void run() {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    content.append(line).append("\n");
-                }
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            } finally {
-                synchronized (this) {
-                    stream = null;
-                    notifyAll();
-                }
-            }
-        }
-    }
-
     public static Result compile(byte[] source, boolean combinedJson, Options... options) throws IOException {
         return getInstance().compileSrc(source, false, combinedJson, options);
     }
 
-    public Result compileSrc(File source, boolean optimize, boolean combinedJson, Options... options) throws IOException {
+    public static String runGetVersionOutput() throws IOException {
+        List<String> commandParts = new ArrayList<>();
+        commandParts.add(getInstance().solc.getExecutable().getCanonicalPath());
+        commandParts.add("--version");
+
+        ProcessBuilder processBuilder = new ProcessBuilder(commandParts)
+                .directory(getInstance().solc.getExecutable().getParentFile());
+        processBuilder.environment().put("LD_LIBRARY_PATH",
+                getInstance().solc.getExecutable().getParentFile().getCanonicalPath());
+
+        Process process = processBuilder.start();
+
+        ParallelReader error = new ParallelReader(process.getErrorStream());
+        ParallelReader output = new ParallelReader(process.getInputStream());
+        error.start();
+        output.start();
+
+        try {
+            process.waitFor();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        if (process.exitValue() == 0) {
+            return output.getContent();
+        }
+
+        throw new RuntimeException("Problem getting solc version: " + error.getContent());
+    }
+
+    private static SolidityCompiler getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new SolidityCompiler(SystemProperties.getDefault());
+        }
+        return INSTANCE;
+    }
+
+    private Result compileSrc(File source, boolean optimize, boolean combinedJson, Options... options) throws IOException {
         List<String> commandParts = prepareCommandOptions(optimize, combinedJson, options);
 
         commandParts.add(source.getAbsolutePath());
@@ -184,41 +137,85 @@ public class SolidityCompiler {
         return new Result(error.getContent(), output.getContent(), success);
     }
 
-    public static String runGetVersionOutput() throws IOException {
-        List<String> commandParts = new ArrayList<>();
-        commandParts.add(getInstance().solc.getExecutable().getCanonicalPath());
-        commandParts.add("--version");
+    public enum Options {
+        AST("ast"),
+        BIN("bin"),
+        INTERFACE("interface"),
+        ABI("abi"),
+        METADATA("metadata");
 
-        ProcessBuilder processBuilder = new ProcessBuilder(commandParts)
-                .directory(getInstance().solc.getExecutable().getParentFile());
-        processBuilder.environment().put("LD_LIBRARY_PATH",
-                getInstance().solc.getExecutable().getParentFile().getCanonicalPath());
+        private final String name;
 
-        Process process = processBuilder.start();
-
-        ParallelReader error = new ParallelReader(process.getErrorStream());
-        ParallelReader output = new ParallelReader(process.getInputStream());
-        error.start();
-        output.start();
-
-        try {
-            process.waitFor();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        if (process.exitValue() == 0) {
-            return output.getContent();
+        Options(String name) {
+            this.name = name;
         }
 
-        throw new RuntimeException("Problem getting solc version: " + error.getContent());
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
+    public static class Result {
+        public final String errors;
+        public final String output;
+        private boolean success = false;
 
-
-    public static SolidityCompiler getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new SolidityCompiler(SystemProperties.getDefault());
+        public Result(String errors, String output, boolean success) {
+            this.errors = errors;
+            this.output = output;
+            this.success = success;
         }
-        return INSTANCE;
+
+        public boolean isFailed() {
+            return !success;
+        }
+    }
+
+    private static class ParallelReader extends Thread {
+
+        private final StringBuilder content = new StringBuilder();
+        private InputStream stream;
+
+        ParallelReader(InputStream stream) {
+            this.stream = stream;
+        }
+
+        public String getContent() {
+            return getContent(true);
+        }
+
+        public synchronized String getContent(boolean waitForComplete) {
+            if (waitForComplete) {
+                while (stream != null) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            return content.toString();
+        }
+
+        public void run() {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line).append("\n");
+                }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            } finally {
+                synchronized (this) {
+                    stream = null;
+                    notifyAll();
+                }
+            }
+        }
     }
 }

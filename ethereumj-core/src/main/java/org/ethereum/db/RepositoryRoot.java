@@ -3,7 +3,9 @@ package org.ethereum.db;
 import org.ethereum.core.AccountState;
 import org.ethereum.core.Repository;
 import org.ethereum.datasource.*;
-import org.ethereum.trie.*;
+import org.ethereum.trie.SecureTrie;
+import org.ethereum.trie.Trie;
+import org.ethereum.trie.TrieImpl;
 import org.ethereum.vm.DataWord;
 
 /**
@@ -11,55 +13,12 @@ import org.ethereum.vm.DataWord;
  */
 public class RepositoryRoot extends RepositoryImpl {
 
-    private static class StorageCache extends ReadWriteCache<DataWord, DataWord> {
-        Trie<byte[]> trie;
-
-        public StorageCache(Trie<byte[]> trie) {
-            super(new SourceCodec<>(trie, Serializers.StorageKeySerializer, Serializers.StorageValueSerializer), WriteCache.CacheType.SIMPLE);
-            this.trie = trie;
-        }
-    }
-
-    private class MultiStorageCache extends MultiCache<StorageCache> {
-        public MultiStorageCache() {
-            super(null);
-        }
-        @Override
-        protected synchronized StorageCache create(byte[] key, StorageCache srcCache) {
-            AccountState accountState = accountStateCache.get(key);
-            TrieImpl storageTrie = createTrie(trieCache, accountState == null ? null : accountState.getStateRoot());
-            return new StorageCache(storageTrie);
-        }
-
-        @Override
-        protected synchronized boolean flushChild(byte[] key, StorageCache childCache) {
-            if (super.flushChild(key, childCache)) {
-                if (childCache != null) {
-                    AccountState storageOwnerAcct = accountStateCache.get(key);
-                    // need to update account storage root
-                    childCache.trie.flush();
-                    byte[] rootHash = childCache.trie.getRootHash();
-                    accountStateCache.put(key, storageOwnerAcct.withStateRoot(rootHash));
-                    return true;
-                } else {
-                    // account was deleted
-                    return true;
-                }
-            } else {
-                // no storage changes
-                return false;
-            }
-        }
-    }
-
-    private Source<byte[], byte[]> stateDS;
-    private CachedSource.BytesKey<byte[]> trieCache;
-    private Trie<byte[]> stateTrie;
-
+    private final Source<byte[], byte[]> stateDS;
+    private final CachedSource.BytesKey<byte[]> trieCache;
+    private final Trie<byte[]> stateTrie;
     public RepositoryRoot(Source<byte[], byte[]> stateDS) {
         this(stateDS, null);
     }
-
     /**
      * Building the following structure for snapshot Repository:
      *
@@ -125,8 +84,50 @@ public class RepositoryRoot extends RepositoryImpl {
         stateTrie.setRoot(root);
     }
 
-    protected TrieImpl createTrie(CachedSource.BytesKey<byte[]> trieCache, byte[] root) {
+    private TrieImpl createTrie(CachedSource.BytesKey<byte[]> trieCache, byte[] root) {
         return new SecureTrie(trieCache, root);
+    }
+
+    private static class StorageCache extends ReadWriteCache<DataWord, DataWord> {
+        final Trie<byte[]> trie;
+
+        public StorageCache(Trie<byte[]> trie) {
+            super(new SourceCodec<>(trie, Serializers.StorageKeySerializer, Serializers.StorageValueSerializer), WriteCache.CacheType.SIMPLE);
+            this.trie = trie;
+        }
+    }
+
+    private class MultiStorageCache extends MultiCache<StorageCache> {
+        public MultiStorageCache() {
+            super(null);
+        }
+
+        @Override
+        protected synchronized StorageCache create(byte[] key, StorageCache srcCache) {
+            AccountState accountState = accountStateCache.get(key);
+            TrieImpl storageTrie = createTrie(trieCache, accountState == null ? null : accountState.getStateRoot());
+            return new StorageCache(storageTrie);
+        }
+
+        @Override
+        protected synchronized boolean flushChild(byte[] key, StorageCache childCache) {
+            if (super.flushChild(key, childCache)) {
+                if (childCache != null) {
+                    AccountState storageOwnerAcct = accountStateCache.get(key);
+                    // need to update account storage root
+                    childCache.trie.flush();
+                    byte[] rootHash = childCache.trie.getRootHash();
+                    accountStateCache.put(key, storageOwnerAcct.withStateRoot(rootHash));
+                    return true;
+                } else {
+                    // account was deleted
+                    return true;
+                }
+            } else {
+                // no storage changes
+                return false;
+            }
+        }
     }
 
 }

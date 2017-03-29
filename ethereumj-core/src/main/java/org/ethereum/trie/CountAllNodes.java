@@ -6,7 +6,7 @@ package org.ethereum.trie;
  */
 public class CountAllNodes implements TrieImpl.ScanAction {
 
-    int counted = 0;
+    private int counted = 0;
 
     @Override
     public void doOnNode(byte[] hash, TrieImpl.Node node) {

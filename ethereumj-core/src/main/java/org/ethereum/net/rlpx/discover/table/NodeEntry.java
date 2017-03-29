@@ -6,10 +6,10 @@ import org.ethereum.net.rlpx.Node;
  * Created by kest on 5/25/15.
  */
 public class NodeEntry {
-    Node node;
-    private byte[] ownerId;
-    private String entryId;
-    private int distance;
+    private final Node node;
+    private final byte[] ownerId;
+    private final String entryId;
+    private final int distance;
     private long modified;
 
     public NodeEntry(Node n) {

@@ -16,7 +16,6 @@ import org.spongycastle.util.encoders.Hex;
  */
 public class ProgramInvokeMockImpl implements ProgramInvoke {
 
-    private final byte[] contractAddress = Hex.decode("471fd3ad3e9eeadeec4608b92d16ce6b500704cc");
     private byte[] msgData;
     private Repository repository;
     private byte[] ownerAddress = Hex.decode("cd2a3d9f938e13cd947ec05abc7fe734df8dd826");
@@ -34,6 +33,7 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
         this.repository = new RepositoryRoot(new HashMapDB<>());
         this.repository.createAccount(ownerAddress);
 
+        byte[] contractAddress = Hex.decode("471fd3ad3e9eeadeec4608b92d16ce6b500704cc");
         this.repository.createAccount(contractAddress);
         this.repository.saveCode(contractAddress,
                 Hex.decode("385E60076000396000605f556014600054601e60"

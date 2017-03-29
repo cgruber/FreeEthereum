@@ -14,21 +14,12 @@ import java.util.List;
  */
 public class HeaderMessageValidationTest {
 
-    private byte[] EMPTY_ARRAY = new byte[0];
-
-    private class Eth62Tester extends Eth62 {
-
-        boolean blockHeaderMessageValid(BlockHeadersMessage msg, GetBlockHeadersMessageWrapper request) {
-            return super.isValid(msg, request);
-        }
-    }
-
-    private Eth62Tester ethHandler;
+    private final byte[] EMPTY_ARRAY = new byte[0];
+    private final Eth62Tester ethHandler;
 
     public HeaderMessageValidationTest() {
         ethHandler = new Eth62Tester();
     }
-
 
     @Test
     public void testSingleBlockResponse() {
@@ -131,5 +122,12 @@ public class HeaderMessageValidationTest {
         GetBlockHeadersMessage requestReverse = new GetBlockHeadersMessage(blockNumber3, null, 3, 15, true);
         GetBlockHeadersMessageWrapper wrapperReverse = new GetBlockHeadersMessageWrapper(requestReverse);
         assert ethHandler.blockHeaderMessageValid(msg, wrapperReverse);
+    }
+
+    private class Eth62Tester extends Eth62 {
+
+        boolean blockHeaderMessageValid(BlockHeadersMessage msg, GetBlockHeadersMessageWrapper request) {
+            return super.isValid(msg, request);
+        }
     }
 }

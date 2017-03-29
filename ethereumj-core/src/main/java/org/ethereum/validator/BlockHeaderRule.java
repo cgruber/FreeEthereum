@@ -11,6 +11,8 @@ import org.slf4j.Logger;
  */
 public abstract class BlockHeaderRule extends AbstractValidationRule {
 
+    static final ValidationResult Success = new ValidationResult(true, null);
+
     @Override
     public Class getEntityClass() {
         return BlockHeader.class;
@@ -21,13 +23,11 @@ public abstract class BlockHeaderRule extends AbstractValidationRule {
      *
      * @param header block header
      */
-    abstract public ValidationResult validate(BlockHeader header);
+    protected abstract ValidationResult validate(BlockHeader header);
 
-    protected ValidationResult fault(String error) {
+    ValidationResult fault(String error) {
         return new ValidationResult(false, error);
     }
-
-    public static final ValidationResult Success = new ValidationResult(true, null);
 
     public boolean validateAndLog(BlockHeader header, Logger logger) {
         ValidationResult result = validate(header);

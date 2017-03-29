@@ -43,17 +43,18 @@ public class MessageQueue {
     private static final Logger logger = LoggerFactory.getLogger("net");
 
     private static final ScheduledExecutorService timer = Executors.newScheduledThreadPool(4, new ThreadFactory() {
-        private AtomicInteger cnt = new AtomicInteger(0);
+        private final AtomicInteger cnt = new AtomicInteger(0);
 
         public Thread newThread(Runnable r) {
             return new Thread(r, "MessageQueueTimer-" + cnt.getAndIncrement());
         }
     });
+    private final Queue<MessageRoundtrip> requestQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<MessageRoundtrip> respondQueue = new ConcurrentLinkedQueue<>();
     @Autowired
+    private
     EthereumListener ethereumListener;
-    boolean hasPing = false;
-    private Queue<MessageRoundtrip> requestQueue = new ConcurrentLinkedQueue<>();
-    private Queue<MessageRoundtrip> respondQueue = new ConcurrentLinkedQueue<>();
+    private boolean hasPing = false;
     private ChannelHandlerContext ctx = null;
     private ScheduledFuture<?> timerTask;
     private Channel channel;

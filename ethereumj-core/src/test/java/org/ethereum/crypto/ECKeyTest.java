@@ -5,7 +5,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.ECKey.ECDSASignature;
 import org.ethereum.crypto.jce.SpongyCastleProvider;
@@ -17,40 +16,29 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.KeyPairGenerator;
-import java.security.Provider;
-import java.security.SecureRandom;
-import java.security.Security;
-import java.security.SignatureException;
+import java.security.*;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class ECKeyTest {
     private static final Logger log = LoggerFactory.getLogger(ECKeyTest.class);
 
     private static final SecureRandom secureRandom = new SecureRandom();
 
-    private String privString = "c85ef7d79691fe79573b1a7064c19c1a9819ebdbd1faaab1a8ec92344438aaf4";
-    private BigInteger privateKey = new BigInteger(privString, 16);
+    private final String privString = "c85ef7d79691fe79573b1a7064c19c1a9819ebdbd1faaab1a8ec92344438aaf4";
+    private final BigInteger privateKey = new BigInteger(privString, 16);
 
-    private String pubString = "040947751e3022ecf3016be03ec77ab0ce3c2662b4843898cb068d74f698ccc8ad75aa17564ae80a20bb044ee7a6d903e8e8df624b089c95d66a0570f051e5a05b";
-    private String compressedPubString = "030947751e3022ecf3016be03ec77ab0ce3c2662b4843898cb068d74f698ccc8ad";
-    private byte[] pubKey = Hex.decode(pubString);
-    private byte[] compressedPubKey = Hex.decode(compressedPubString);
-    private String address = "cd2a3d9f938e13cd947ec05abc7fe734df8dd826";
+    private final String pubString = "040947751e3022ecf3016be03ec77ab0ce3c2662b4843898cb068d74f698ccc8ad75aa17564ae80a20bb044ee7a6d903e8e8df624b089c95d66a0570f051e5a05b";
+    private final String compressedPubString = "030947751e3022ecf3016be03ec77ab0ce3c2662b4843898cb068d74f698ccc8ad";
+    private final byte[] pubKey = Hex.decode(pubString);
+    private final byte[] compressedPubKey = Hex.decode(compressedPubString);
 
-    private String exampleMessage = "This is an example of a signed message.";
-    private String sigBase64 = "HNLOSI9Nop5o8iywXKwbGbdd8XChK0rRvdRTG46RFcb7dcH+UKlejM/8u1SCoeQvu91jJBMd/nXDs7f5p8ch7Ms=";
-    private String signatureHex = "d2ce488f4da29e68f22cb05cac1b19b75df170a12b4ad1bdd4531b8e9115c6fb75c1fe50a95e8ccffcbb5482a1e42fbbdd6324131dfe75c3b3b7f9a7c721eccb01";
+    private final String exampleMessage = "This is an example of a signed message.";
+    private final String sigBase64 = "HNLOSI9Nop5o8iywXKwbGbdd8XChK0rRvdRTG46RFcb7dcH+UKlejM/8u1SCoeQvu91jJBMd/nXDs7f5p8ch7Ms=";
 
     @Test
     public void testHashCode() {
@@ -144,6 +132,7 @@ public class ECKeyTest {
     @Test
     public void testGetAddress() {
         ECKey key = ECKey.fromPublicOnly(pubKey);
+        String address = "cd2a3d9f938e13cd947ec05abc7fe734df8dd826";
         assertArrayEquals(Hex.decode(address), key.getAddress());
     }
 
@@ -176,6 +165,7 @@ public class ECKeyTest {
         ECDSASignature signature = key.sign(messageHash);
         String output = signature.toHex();
         System.out.println("Signature\t: " + output + " (Hex, length: " + output.length() + ")");
+        String signatureHex = "d2ce488f4da29e68f22cb05cac1b19b75df170a12b4ad1bdd4531b8e9115c6fb75c1fe50a95e8ccffcbb5482a1e42fbbdd6324131dfe75c3b3b7f9a7c721eccb01";
         assertEquals(signatureHex, output);
     }
 

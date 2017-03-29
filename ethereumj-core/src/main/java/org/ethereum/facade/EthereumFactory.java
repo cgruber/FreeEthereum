@@ -4,7 +4,6 @@ import org.ethereum.config.DefaultConfig;
 import org.ethereum.config.SystemProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
@@ -41,7 +40,7 @@ public class EthereumFactory {
                 createEthereum(DefaultConfig.class, userSpringConfig);
     }
 
-    public static Ethereum createEthereum(Class ... springConfigs) {
+    private static Ethereum createEthereum(Class... springConfigs) {
         logger.info("Starting EthereumJ...");
         ApplicationContext context = new AnnotationConfigApplicationContext(springConfigs);
 

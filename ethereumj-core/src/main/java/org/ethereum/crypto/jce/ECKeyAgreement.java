@@ -1,14 +1,13 @@
 package org.ethereum.crypto.jce;
 
+import javax.crypto.KeyAgreement;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
 
-import javax.crypto.KeyAgreement;
-
 public final class ECKeyAgreement {
 
-  public static final String ALGORITHM = "ECDH";
+    private static final String ALGORITHM = "ECDH";
 
   private static final String algorithmAssertionMsg =
       "Assumed the JRE supports EC key agreement";

@@ -13,9 +13,9 @@ public class GenesisJson {
     String nonce;
     String difficulty;
 
-    Map<String, AllocatedAccount> alloc;
+    private Map<String, AllocatedAccount> alloc;
 
-    GenesisConfig config;
+    private GenesisConfig config;
 
     public GenesisJson() {
     }

@@ -9,269 +9,264 @@ package org.ethereum.vm;
 public class GasCost {
 
     /* backwards compatibility, remove eventually */
-    private final int STEP = 1;
-    private final int SSTORE = 300;
-    /* backwards compatibility, remove eventually */
-
-    private final int ZEROSTEP = 0;
-    private final int QUICKSTEP = 2;
-    private final int FASTESTSTEP = 3;
-    private final int FASTSTEP = 5;
-    private final int MIDSTEP = 8;
-    private final int SLOWSTEP = 10;
-    private final int EXTSTEP = 20;
-
-    private final int GENESISGASLIMIT = 1000000;
-    private final int MINGASLIMIT = 125000;
-
-    private final int BALANCE = 20;
-    private final int SHA3 = 30;
-    private final int SHA3_WORD = 6;
-    private final int SLOAD = 50;
-    private final int STOP = 0;
-    private final int SUICIDE = 0;
-    private final int CLEAR_SSTORE = 5000;
-    private final int SET_SSTORE = 20000;
-    private final int RESET_SSTORE = 5000;
-    private final int REFUND_SSTORE = 15000;
-    private final int CREATE = 32000;
-
-    private final int JUMPDEST = 1;
-    private final int CREATE_DATA_BYTE = 5;
-    private final int CALL = 40;
-    private final int STIPEND_CALL = 2300;
-    private final int VT_CALL = 9000;  //value transfer call
-    private final int NEW_ACCT_CALL = 25000;  //new account call
-    private final int MEMORY = 3;
-    private final int SUICIDE_REFUND = 24000;
-    private final int QUAD_COEFF_DIV = 512;
-    private final int CREATE_DATA = 200;
-    private final int TX_NO_ZERO_DATA = 68;
-    private final int TX_ZERO_DATA = 4;
-    private final int TRANSACTION = 21000;
-    private final int TRANSACTION_CREATE_CONTRACT = 53000;
-    private final int LOG_GAS = 375;
-    private final int LOG_DATA_GAS = 8;
-    private final int LOG_TOPIC_GAS = 375;
-    private final int COPY_GAS = 3;
-    private final int EXP_GAS = 10;
-    private final int EXP_BYTE_GAS = 10;
-    private final int IDENTITY = 15;
-    private final int IDENTITY_WORD = 3;
-    private final int RIPEMD160 = 600;
-    private final int RIPEMD160_WORD = 120;
-    private final int SHA256 = 60;
-    private final int SHA256_WORD = 12;
-    private final int EC_RECOVER = 3000;
-    private final int EXT_CODE_SIZE = 20;
-    private final int EXT_CODE_COPY = 20;
-    private final int NEW_ACCT_SUICIDE = 0;
 
     public int getSTEP() {
+        int STEP = 1;
         return STEP;
     }
 
     public int getSSTORE() {
+        int SSTORE = 300;
         return SSTORE;
     }
 
     public int getZEROSTEP() {
+        int ZEROSTEP = 0;
         return ZEROSTEP;
     }
 
     public int getQUICKSTEP() {
+        int QUICKSTEP = 2;
         return QUICKSTEP;
     }
 
     public int getFASTESTSTEP() {
+        int FASTESTSTEP = 3;
         return FASTESTSTEP;
     }
 
     public int getFASTSTEP() {
+        int FASTSTEP = 5;
         return FASTSTEP;
     }
 
     public int getMIDSTEP() {
+        int MIDSTEP = 8;
         return MIDSTEP;
     }
 
     public int getSLOWSTEP() {
+        int SLOWSTEP = 10;
         return SLOWSTEP;
     }
 
     public int getEXTSTEP() {
+        int EXTSTEP = 20;
         return EXTSTEP;
     }
 
     public int getGENESISGASLIMIT() {
+        int GENESISGASLIMIT = 1000000;
         return GENESISGASLIMIT;
     }
 
     public int getMINGASLIMIT() {
+        int MINGASLIMIT = 125000;
         return MINGASLIMIT;
     }
 
     public int getBALANCE() {
+        int BALANCE = 20;
         return BALANCE;
     }
 
     public int getSHA3() {
+        int SHA3 = 30;
         return SHA3;
     }
 
     public int getSHA3_WORD() {
+        int SHA3_WORD = 6;
         return SHA3_WORD;
     }
 
     public int getSLOAD() {
+        int SLOAD = 50;
         return SLOAD;
     }
 
     public int getSTOP() {
+        int STOP = 0;
         return STOP;
     }
 
     public int getSUICIDE() {
+        int SUICIDE = 0;
         return SUICIDE;
     }
 
     public int getCLEAR_SSTORE() {
+        int CLEAR_SSTORE = 5000;
         return CLEAR_SSTORE;
     }
 
     public int getSET_SSTORE() {
+        int SET_SSTORE = 20000;
         return SET_SSTORE;
     }
 
     public int getRESET_SSTORE() {
+        int RESET_SSTORE = 5000;
         return RESET_SSTORE;
     }
 
     public int getREFUND_SSTORE() {
+        int REFUND_SSTORE = 15000;
         return REFUND_SSTORE;
     }
 
     public int getCREATE() {
+        int CREATE = 32000;
         return CREATE;
     }
 
     public int getJUMPDEST() {
+        int JUMPDEST = 1;
         return JUMPDEST;
     }
 
     public int getCREATE_DATA_BYTE() {
+        int CREATE_DATA_BYTE = 5;
         return CREATE_DATA_BYTE;
     }
 
     public int getCALL() {
+        int CALL = 40;
         return CALL;
     }
 
     public int getSTIPEND_CALL() {
+        int STIPEND_CALL = 2300;
         return STIPEND_CALL;
     }
 
     public int getVT_CALL() {
+        int VT_CALL = 9000;
         return VT_CALL;
     }
 
     public int getNEW_ACCT_CALL() {
+        int NEW_ACCT_CALL = 25000;
         return NEW_ACCT_CALL;
     }
 
     public int getNEW_ACCT_SUICIDE() {
+        int NEW_ACCT_SUICIDE = 0;
         return NEW_ACCT_SUICIDE;
     }
 
     public int getMEMORY() {
+        int MEMORY = 3;
         return MEMORY;
     }
 
     public int getSUICIDE_REFUND() {
+        int SUICIDE_REFUND = 24000;
         return SUICIDE_REFUND;
     }
 
     public int getQUAD_COEFF_DIV() {
+        int QUAD_COEFF_DIV = 512;
         return QUAD_COEFF_DIV;
     }
 
     public int getCREATE_DATA() {
+        int CREATE_DATA = 200;
         return CREATE_DATA;
     }
 
     public int getTX_NO_ZERO_DATA() {
+        int TX_NO_ZERO_DATA = 68;
         return TX_NO_ZERO_DATA;
     }
 
     public int getTX_ZERO_DATA() {
+        int TX_ZERO_DATA = 4;
         return TX_ZERO_DATA;
     }
 
     public int getTRANSACTION() {
+        int TRANSACTION = 21000;
         return TRANSACTION;
     }
 
     public int getTRANSACTION_CREATE_CONTRACT() {
+        int TRANSACTION_CREATE_CONTRACT = 53000;
         return TRANSACTION_CREATE_CONTRACT;
     }
 
     public int getLOG_GAS() {
+        int LOG_GAS = 375;
         return LOG_GAS;
     }
 
     public int getLOG_DATA_GAS() {
+        int LOG_DATA_GAS = 8;
         return LOG_DATA_GAS;
     }
 
     public int getLOG_TOPIC_GAS() {
+        int LOG_TOPIC_GAS = 375;
         return LOG_TOPIC_GAS;
     }
 
     public int getCOPY_GAS() {
+        int COPY_GAS = 3;
         return COPY_GAS;
     }
 
     public int getEXP_GAS() {
+        int EXP_GAS = 10;
         return EXP_GAS;
     }
 
     public int getEXP_BYTE_GAS() {
+        int EXP_BYTE_GAS = 10;
         return EXP_BYTE_GAS;
     }
 
     public int getIDENTITY() {
+        int IDENTITY = 15;
         return IDENTITY;
     }
 
     public int getIDENTITY_WORD() {
+        int IDENTITY_WORD = 3;
         return IDENTITY_WORD;
     }
 
     public int getRIPEMD160() {
+        int RIPEMD160 = 600;
         return RIPEMD160;
     }
 
     public int getRIPEMD160_WORD() {
+        int RIPEMD160_WORD = 120;
         return RIPEMD160_WORD;
     }
 
     public int getSHA256() {
+        int SHA256 = 60;
         return SHA256;
     }
 
     public int getSHA256_WORD() {
+        int SHA256_WORD = 12;
         return SHA256_WORD;
     }
 
     public int getEC_RECOVER() {
+        int EC_RECOVER = 3000;
         return EC_RECOVER;
     }
 
     public int getEXT_CODE_SIZE() {
+        int EXT_CODE_SIZE = 20;
         return EXT_CODE_SIZE;
     }
 
     public int getEXT_CODE_COPY() {
+        int EXT_CODE_COPY = 20;
         return EXT_CODE_COPY;
     }
 }

@@ -3,11 +3,7 @@ package org.ethereum.sync;
 import ch.qos.logback.classic.Level;
 import com.typesafe.config.ConfigFactory;
 import org.ethereum.config.SystemProperties;
-import org.ethereum.core.Block;
-import org.ethereum.core.BlockIdentifier;
-import org.ethereum.core.BlockSummary;
-import org.ethereum.core.Transaction;
-import org.ethereum.core.TransactionReceipt;
+import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.facade.EthereumFactory;
@@ -15,12 +11,7 @@ import org.ethereum.listener.EthereumListener;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.mine.Ethash;
 import org.ethereum.mine.MinerListener;
-import org.ethereum.net.eth.message.EthMessage;
-import org.ethereum.net.eth.message.EthMessageCodes;
-import org.ethereum.net.eth.message.NewBlockHashesMessage;
-import org.ethereum.net.eth.message.NewBlockMessage;
-import org.ethereum.net.eth.message.StatusMessage;
-import org.ethereum.net.eth.message.TransactionsMessage;
+import org.ethereum.net.eth.message.*;
 import org.ethereum.net.message.Message;
 import org.ethereum.net.rlpx.Node;
 import org.ethereum.net.server.Channel;
@@ -34,12 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 
 import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -55,7 +41,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Ignore
 public class BlockTxForwardTest {
 
-    static final Logger testLogger = LoggerFactory.getLogger("TestLogger");
+    private static final Logger testLogger = LoggerFactory.getLogger("TestLogger");
+    private final static Map<String, Boolean> blocks = Collections.synchronizedMap(new HashMap<String, Boolean>());
+    private final static Map<String, Boolean> txs = Collections.synchronizedMap(new HashMap<String, Boolean>());
+    private final static AtomicInteger fatalErrors = new AtomicInteger(0);
+    private final static AtomicBoolean stopTxGeneration = new AtomicBoolean(false);
+    private final static long MAX_RUN_MINUTES = 360L;
+    // Actually there will be several blocks mined after, it's a very soft shutdown
+    private final static int STOP_ON_BLOCK = 100;
+    private static final ScheduledExecutorService statTimer =
+            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "StatTimer");
+                }
+            });
 
     public BlockTxForwardTest() {
         ch.qos.logback.classic.Logger root =
@@ -63,34 +62,199 @@ public class BlockTxForwardTest {
         root.setLevel(Level.INFO);
     }
 
+    private boolean logStats() {
+        testLogger.info("---------====---------");
+        int arrivedBlocks = 0;
+        for (Boolean arrived : blocks.values()) {
+            if (arrived) arrivedBlocks++;
+        }
+        testLogger.info("Arrived blocks / Total: {}/{}", arrivedBlocks, blocks.size());
+        int arrivedTxs = 0;
+        for (Boolean arrived : txs.values()) {
+            if (arrived) arrivedTxs++;
+        }
+        testLogger.info("Arrived txs / Total: {}/{}", arrivedTxs, txs.size());
+        testLogger.info("fatalErrors: {}", fatalErrors);
+        testLogger.info("---------====---------");
+
+        return fatalErrors.get() == 0 && blocks.size() == arrivedBlocks && txs.size() == arrivedTxs;
+    }
+
+    /**
+     * Creating 3 EthereumJ instances with different config classes
+     * 1st - Miner node, no sync
+     * 2nd - Regular node, synced with both Miner and Generator
+     * 3rd - Generator node, sync is on, but can see only 2nd node
+     * We want to check that blocks mined on Miner will reach Generator and
+     * txs from Generator will reach Miner node
+     */
+    @Test
+    public void testTest() throws Exception {
+
+        statTimer.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    logStats();
+                    if (fatalErrors.get() > 0 || blocks.size() >= STOP_ON_BLOCK) {
+                        statTimer.shutdownNow();
+                    }
+                } catch (Throwable t) {
+                    testLogger.error("Unhandled exception", t);
+                }
+            }
+        }, 0, 15, TimeUnit.SECONDS);
+
+        testLogger.info("Starting EthereumJ miner instance!");
+        Ethereum miner = EthereumFactory.createEthereum(MinerConfig.class);
+
+        miner.addListener(new EthereumListenerAdapter() {
+            @Override
+            public void onBlock(BlockSummary blockSummary) {
+                if (blockSummary.getBlock().getNumber() != 0L) {
+                    blocks.put(Hex.toHexString(blockSummary.getBlock().getHash()), Boolean.FALSE);
+                }
+            }
+
+            @Override
+            public void onRecvMessage(Channel channel, Message message) {
+                super.onRecvMessage(channel, message);
+                if (!(message instanceof EthMessage)) return;
+                switch (((EthMessage) message).getCommand()) {
+                    case NEW_BLOCK_HASHES:
+                        testLogger.error("Received new block hash message at miner: {}", message.toString());
+                        fatalErrors.incrementAndGet();
+                        break;
+                    case NEW_BLOCK:
+                        testLogger.error("Received new block message at miner: {}", message.toString());
+                        fatalErrors.incrementAndGet();
+                        break;
+                    case TRANSACTIONS:
+                        TransactionsMessage msgCopy = new TransactionsMessage(message.getEncoded());
+                        for (Transaction transaction : msgCopy.getTransactions()) {
+                            if (txs.put(Hex.toHexString(transaction.getHash()), Boolean.TRUE) == null) {
+                                testLogger.error("Received strange transaction at miner: {}", transaction);
+                                fatalErrors.incrementAndGet();
+                            }
+                        }
+                    default:
+                        break;
+                }
+            }
+        });
+
+        testLogger.info("Starting EthereumJ regular instance!");
+        EthereumFactory.createEthereum(RegularConfig.class);
+
+        testLogger.info("Starting EthereumJ txSender instance!");
+        Ethereum txGenerator = EthereumFactory.createEthereum(GeneratorConfig.class);
+        txGenerator.addListener(new EthereumListenerAdapter() {
+            @Override
+            public void onRecvMessage(Channel channel, Message message) {
+                super.onRecvMessage(channel, message);
+                if (!(message instanceof EthMessage)) return;
+                switch (((EthMessage) message).getCommand()) {
+                    case NEW_BLOCK_HASHES:
+                        testLogger.info("Received new block hash message at generator: {}", message.toString());
+                        NewBlockHashesMessage msgCopy = new NewBlockHashesMessage(message.getEncoded());
+                        for (BlockIdentifier identifier : msgCopy.getBlockIdentifiers()) {
+                            if (blocks.put(Hex.toHexString(identifier.getHash()), Boolean.TRUE) == null) {
+                                testLogger.error("Received strange block: {}", identifier);
+                                fatalErrors.incrementAndGet();
+                            }
+                        }
+                        break;
+                    case NEW_BLOCK:
+                        testLogger.info("Received new block message at generator: {}", message.toString());
+                        NewBlockMessage msgCopy2 = new NewBlockMessage(message.getEncoded());
+                        Block block = msgCopy2.getBlock();
+                        if (blocks.put(Hex.toHexString(block.getHash()), Boolean.TRUE) == null) {
+                            testLogger.error("Received strange block: {}", block);
+                            fatalErrors.incrementAndGet();
+                        }
+                        break;
+                    case BLOCK_BODIES:
+                        testLogger.info("Received block bodies message at generator: {}", message.toString());
+                        break;
+                    case TRANSACTIONS:
+                        testLogger.warn("Received new transaction message at generator: {}, " +
+                                "allowed only after disconnect.", message.toString());
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            @Override
+            public void onSendMessage(Channel channel, Message message) {
+                super.onSendMessage(channel, message);
+                if (!(message instanceof EthMessage)) return;
+                if (((EthMessage) message).getCommand().equals(EthMessageCodes.TRANSACTIONS)) {
+                    TransactionsMessage msgCopy = new TransactionsMessage(message.getEncoded());
+                    for (Transaction transaction : msgCopy.getTransactions()) {
+                        Transaction copyTransaction = new Transaction(transaction.getEncoded());
+                        txs.put(Hex.toHexString(copyTransaction.getHash()), Boolean.FALSE);
+                    }
+                }
+            }
+        });
+
+        if (statTimer.awaitTermination(MAX_RUN_MINUTES, TimeUnit.MINUTES)) {
+            logStats();
+            // Stop generating new txs
+            stopTxGeneration.set(true);
+            Thread.sleep(60000);
+            // Stop miner
+            miner.getBlockMiner().stopMining();
+            // Wait to be sure that last mined blocks will reach Generator
+            Thread.sleep(60000);
+            // Checking stats
+            if (!logStats()) assert false;
+        }
+    }
+
     private static class BasicSample implements Runnable {
         static final Logger sLogger = LoggerFactory.getLogger("sample");
-
-        private String loggerName;
+        final Map<Node, StatusMessage> ethNodes = new Hashtable<>();
+        final List<Node> syncPeers = new Vector<>();
+        private final String loggerName;
         public Logger logger;
-
         @Autowired
-        protected Ethereum ethereum;
-
+        Ethereum ethereum;
         @Autowired
-        protected SystemProperties config;
-
-        // Spring config class which add this sample class as a bean to the components collections
-        // and make it possible for autowiring other components
-        private static class Config {
-            @Bean
-            public BasicSample basicSample() {
-                return new BasicSample();
+        SystemProperties config;
+        Block bestBlock = null;
+        boolean synced = false;
+        boolean syncComplete = false;
+        /**
+         * The main EthereumJ callback.
+         */
+        final EthereumListener listener = new EthereumListenerAdapter() {
+            @Override
+            public void onSyncDone(SyncState state) {
+                synced = true;
             }
-        }
 
-        public static void main(String[] args) throws Exception {
-            sLogger.info("Starting EthereumJ!");
+            @Override
+            public void onEthStatusUpdated(Channel channel, StatusMessage statusMessage) {
+                ethNodes.put(channel.getNode(), statusMessage);
+            }
 
-            // Based on Config class the BasicSample would be created by Spring
-            // and its springInit() method would be called as an entry point
-            EthereumFactory.createEthereum(Config.class);
-        }
+            @Override
+            public void onPeerAddedToSyncPool(Channel peer) {
+                syncPeers.add(peer.getNode());
+            }
+
+            @Override
+            public void onBlock(Block block, List<TransactionReceipt> receipts) {
+                bestBlock = block;
+
+                if (syncComplete) {
+                    logger.info("New block: " + block.getShortDescr());
+                }
+            }
+        };
+
 
         public BasicSample() {
             this("sample");
@@ -102,6 +266,14 @@ public class BlockTxForwardTest {
          */
         public BasicSample(String loggerName) {
             this.loggerName = loggerName;
+        }
+
+        public static void main(String[] args) throws Exception {
+            sLogger.info("Starting EthereumJ!");
+
+            // Based on Config class the BasicSample would be created by Spring
+            // and its springInit() method would be called as an entry point
+            EthereumFactory.createEthereum(Config.class);
         }
 
         /**
@@ -141,7 +313,6 @@ public class BlockTxForwardTest {
             }
         }
 
-
         /**
          * Waits until the whole blockchain sync is complete
          */
@@ -165,42 +336,14 @@ public class BlockTxForwardTest {
             logger.info("Monitoring new blocks in real-time...");
         }
 
-        protected Map<Node, StatusMessage> ethNodes = new Hashtable<>();
-        protected List<Node> syncPeers = new Vector<>();
-
-        protected Block bestBlock = null;
-
-        boolean synced = false;
-        boolean syncComplete = false;
-
-        /**
-         * The main EthereumJ callback.
-         */
-        EthereumListener listener = new EthereumListenerAdapter() {
-            @Override
-            public void onSyncDone(SyncState state) {
-                synced = true;
+        // Spring config class which add this sample class as a bean to the components collections
+        // and make it possible for autowiring other components
+        private static class Config {
+            @Bean
+            public BasicSample basicSample() {
+                return new BasicSample();
             }
-
-            @Override
-            public void onEthStatusUpdated(Channel channel, StatusMessage statusMessage) {
-                ethNodes.put(channel.getNode(), statusMessage);
-            }
-
-            @Override
-            public void onPeerAddedToSyncPool(Channel peer) {
-                syncPeers.add(peer.getNode());
-            }
-
-            @Override
-            public void onBlock(Block block, List<TransactionReceipt> receipts) {
-                bestBlock = block;
-
-                if (syncComplete) {
-                    logger.info("New block: " + block.getShortDescr());
-                }
-            }
-        };
+        }
     }
 
     /**
@@ -437,173 +580,6 @@ public class BlockTxForwardTest {
                 }
                 Thread.sleep(7000);
             }
-        }
-    }
-
-    private final static Map<String, Boolean> blocks = Collections.synchronizedMap(new HashMap<String, Boolean>());
-    private final static Map<String, Boolean> txs =  Collections.synchronizedMap(new HashMap<String, Boolean>());
-    private final static AtomicInteger fatalErrors = new AtomicInteger(0);
-    private final static AtomicBoolean stopTxGeneration = new AtomicBoolean(false);
-
-    private final static long MAX_RUN_MINUTES = 360L;
-    // Actually there will be several blocks mined after, it's a very soft shutdown
-    private final static int STOP_ON_BLOCK = 100;
-
-    private static ScheduledExecutorService statTimer =
-            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "StatTimer");
-                }
-            });
-
-    private boolean logStats() {
-        testLogger.info("---------====---------");
-        int arrivedBlocks = 0;
-        for (Boolean arrived : blocks.values()) {
-            if (arrived) arrivedBlocks++;
-        }
-        testLogger.info("Arrived blocks / Total: {}/{}", arrivedBlocks, blocks.size());
-        int arrivedTxs = 0;
-        for (Boolean arrived : txs.values()) {
-            if (arrived) arrivedTxs++;
-        }
-        testLogger.info("Arrived txs / Total: {}/{}", arrivedTxs, txs.size());
-        testLogger.info("fatalErrors: {}", fatalErrors);
-        testLogger.info("---------====---------");
-
-        return fatalErrors.get() == 0 && blocks.size() == arrivedBlocks && txs.size() == arrivedTxs;
-    }
-
-    /**
-     *  Creating 3 EthereumJ instances with different config classes
-     *  1st - Miner node, no sync
-     *  2nd - Regular node, synced with both Miner and Generator
-     *  3rd - Generator node, sync is on, but can see only 2nd node
-     *  We want to check that blocks mined on Miner will reach Generator and
-     *  txs from Generator will reach Miner node
-     */
-    @Test
-    public void testTest() throws Exception {
-
-        statTimer.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    logStats();
-                    if (fatalErrors.get() > 0 || blocks.size() >= STOP_ON_BLOCK) {
-                        statTimer.shutdownNow();
-                    }
-                } catch (Throwable t) {
-                    testLogger.error("Unhandled exception", t);
-                }
-            }
-        }, 0, 15, TimeUnit.SECONDS);
-
-        testLogger.info("Starting EthereumJ miner instance!");
-        Ethereum miner = EthereumFactory.createEthereum(MinerConfig.class);
-
-        miner.addListener(new EthereumListenerAdapter() {
-            @Override
-            public void onBlock(BlockSummary blockSummary) {
-                if (blockSummary.getBlock().getNumber() != 0L) {
-                    blocks.put(Hex.toHexString(blockSummary.getBlock().getHash()), Boolean.FALSE);
-                }
-            }
-
-            @Override
-            public void onRecvMessage(Channel channel, Message message) {
-                super.onRecvMessage(channel, message);
-                if (!(message instanceof EthMessage)) return;
-                switch (((EthMessage) message).getCommand()) {
-                    case NEW_BLOCK_HASHES:
-                        testLogger.error("Received new block hash message at miner: {}", message.toString());
-                        fatalErrors.incrementAndGet();
-                        break;
-                    case NEW_BLOCK:
-                        testLogger.error("Received new block message at miner: {}", message.toString());
-                        fatalErrors.incrementAndGet();
-                        break;
-                    case TRANSACTIONS:
-                        TransactionsMessage msgCopy = new TransactionsMessage(message.getEncoded());
-                        for (Transaction transaction : msgCopy.getTransactions()) {
-                            if (txs.put(Hex.toHexString(transaction.getHash()), Boolean.TRUE) == null) {
-                                testLogger.error("Received strange transaction at miner: {}", transaction);
-                                fatalErrors.incrementAndGet();
-                            };
-                        }
-                    default:
-                        break;
-                }
-            }
-        });
-
-        testLogger.info("Starting EthereumJ regular instance!");
-        EthereumFactory.createEthereum(RegularConfig.class);
-
-        testLogger.info("Starting EthereumJ txSender instance!");
-        Ethereum txGenerator = EthereumFactory.createEthereum(GeneratorConfig.class);
-        txGenerator.addListener(new EthereumListenerAdapter() {
-            @Override
-            public void onRecvMessage(Channel channel, Message message) {
-                super.onRecvMessage(channel, message);
-                if (!(message instanceof EthMessage)) return;
-                switch (((EthMessage) message).getCommand()) {
-                    case NEW_BLOCK_HASHES:
-                        testLogger.info("Received new block hash message at generator: {}", message.toString());
-                        NewBlockHashesMessage msgCopy = new NewBlockHashesMessage(message.getEncoded());
-                        for (BlockIdentifier identifier : msgCopy.getBlockIdentifiers()) {
-                            if (blocks.put(Hex.toHexString(identifier.getHash()), Boolean.TRUE) == null) {
-                                testLogger.error("Received strange block: {}", identifier);
-                                fatalErrors.incrementAndGet();
-                            };
-                        }
-                        break;
-                    case NEW_BLOCK:
-                        testLogger.info("Received new block message at generator: {}", message.toString());
-                        NewBlockMessage msgCopy2 = new NewBlockMessage(message.getEncoded());
-                        Block block = msgCopy2.getBlock();
-                        if (blocks.put(Hex.toHexString(block.getHash()), Boolean.TRUE) == null) {
-                            testLogger.error("Received strange block: {}", block);
-                            fatalErrors.incrementAndGet();
-                        };
-                        break;
-                    case BLOCK_BODIES:
-                        testLogger.info("Received block bodies message at generator: {}", message.toString());
-                        break;
-                    case TRANSACTIONS:
-                        testLogger.warn("Received new transaction message at generator: {}, " +
-                                "allowed only after disconnect.", message.toString());
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            @Override
-            public void onSendMessage(Channel channel, Message message) {
-                super.onSendMessage(channel, message);
-                if (!(message instanceof EthMessage)) return;
-                if (((EthMessage) message).getCommand().equals(EthMessageCodes.TRANSACTIONS)) {
-                    TransactionsMessage msgCopy = new TransactionsMessage(message.getEncoded());
-                    for (Transaction transaction : msgCopy.getTransactions()) {
-                        Transaction copyTransaction = new Transaction(transaction.getEncoded());
-                        txs.put(Hex.toHexString(copyTransaction.getHash()), Boolean.FALSE);
-                    };
-                }
-            }
-        });
-
-        if(statTimer.awaitTermination(MAX_RUN_MINUTES, TimeUnit.MINUTES)) {
-            logStats();
-            // Stop generating new txs
-            stopTxGeneration.set(true);
-            Thread.sleep(60000);
-            // Stop miner
-            miner.getBlockMiner().stopMining();
-            // Wait to be sure that last mined blocks will reach Generator
-            Thread.sleep(60000);
-            // Checking stats
-            if (!logStats()) assert false;
         }
     }
 }

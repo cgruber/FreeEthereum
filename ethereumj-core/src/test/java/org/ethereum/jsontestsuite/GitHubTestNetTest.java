@@ -9,7 +9,10 @@ import org.ethereum.config.net.BaseNetConfig;
 import org.ethereum.config.net.MainNetConfig;
 import org.ethereum.jsontestsuite.suite.JSONReader;
 import org.json.simple.parser.ParseException;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
@@ -19,7 +22,7 @@ import java.util.Collections;
 public class GitHubTestNetTest {
 
     //SHACOMMIT of tested commit, ethereum/tests.git
-    public String shacommit = "9ed33d7440f13c09ce7f038f92abd02d23b26f0d";
+    private final String shacommit = "9ed33d7440f13c09ce7f038f92abd02d23b26f0d";
 
     @Before
     public void setup() {

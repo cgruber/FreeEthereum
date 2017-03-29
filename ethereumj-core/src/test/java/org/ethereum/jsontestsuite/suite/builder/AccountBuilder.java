@@ -50,8 +50,8 @@ public class AccountBuilder {
 
     public static class StateWrap {
 
-        AccountState accountState;
-        ContractDetailsImpl contractDetails;
+        final AccountState accountState;
+        final ContractDetailsImpl contractDetails;
 
         public StateWrap(AccountState accountState, ContractDetailsImpl contractDetails) {
             this.accountState = accountState;

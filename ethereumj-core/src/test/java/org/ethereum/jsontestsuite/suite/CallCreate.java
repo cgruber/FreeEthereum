@@ -1,16 +1,14 @@
 package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.util.ByteUtil;
-
 import org.json.simple.JSONObject;
-
 import org.spongycastle.util.encoders.Hex;
 
 /**
  * @author Roman Mandeleil
  * @since 28.06.2014
  */
-public class CallCreate {
+class CallCreate {
 
     private final byte[] data;
     private final byte[] destination;

@@ -41,28 +41,28 @@ public class TransactionExecutor {
     private static final Logger stateLogger = LoggerFactory.getLogger("state");
     private final long gasUsedInTheBlock;
     private final EthereumListener listener;
-    SystemProperties config;
-    CommonConfig commonConfig;
-    BlockchainConfig blockchainConfig;
-    PrecompiledContracts.PrecompiledContract precompiledContract;
-    BigInteger m_endGas = BigInteger.ZERO;
-    long basicTxCost = 0;
-    List<LogInfo> logs = null;
-    boolean localCall = false;
-    private Transaction tx;
-    private Repository track;
-    private Repository cacheTrack;
-    private BlockStore blockStore;
+    private final Transaction tx;
+    private final Repository track;
+    private final Repository cacheTrack;
+    private final BlockStore blockStore;
+    private final ProgramInvokeFactory programInvokeFactory;
+    private final byte[] coinbase;
+    private final Block currentBlock;
+    private final ByteArraySet touchedAccounts = new ByteArraySet();
+    private SystemProperties config;
+    private CommonConfig commonConfig;
+    private BlockchainConfig blockchainConfig;
+    private PrecompiledContracts.PrecompiledContract precompiledContract;
+    private BigInteger m_endGas = BigInteger.ZERO;
+    private long basicTxCost = 0;
+    private List<LogInfo> logs = null;
+    private boolean localCall = false;
     private boolean readyToExecute = false;
     private String execError;
-    private ProgramInvokeFactory programInvokeFactory;
-    private byte[] coinbase;
     private TransactionReceipt receipt;
     private ProgramResult result = new ProgramResult();
-    private Block currentBlock;
     private VM vm;
     private Program program;
-    private ByteArraySet touchedAccounts = new ByteArraySet();
 
     public TransactionExecutor(Transaction tx, byte[] coinbase, Repository track, BlockStore blockStore,
                                ProgramInvokeFactory programInvokeFactory, Block currentBlock) {
@@ -436,7 +436,7 @@ public class TransactionExecutor {
         return receipt;
     }
 
-    public List<LogInfo> getVMLogs() {
+    private List<LogInfo> getVMLogs() {
         return logs;
     }
 

@@ -20,12 +20,12 @@ import java.util.*;
  *
  * @see <a href="https://github.com/ethereum/tests/">https://github.com/ethereum/tests/</a>
  */
-public class GitHubJSONTestSuite {
+class GitHubJSONTestSuite {
 
-    private static Logger logger = LoggerFactory.getLogger("TCK-Test");
+    private static final Logger logger = LoggerFactory.getLogger("TCK-Test");
 
 
-    protected static void runGitHubJsonVMTest(String json, String testName) throws ParseException {
+    static void runGitHubJsonVMTest(String json, String testName) throws ParseException {
         Assume.assumeFalse("Online test is not available", json.equals(""));
 
         JSONParser parser = new JSONParser();
@@ -54,13 +54,13 @@ public class GitHubJSONTestSuite {
         }
     }
 
-    protected static void runGitHubJsonVMTest(String json) throws ParseException {
+    static void runGitHubJsonVMTest(String json) throws ParseException {
         Set<String> excluded = new HashSet<>();
         runGitHubJsonVMTest(json, excluded);
     }
 
 
-    protected static void runGitHubJsonVMTest(String json, Set<String> excluded) throws ParseException {
+    static void runGitHubJsonVMTest(String json, Set<String> excluded) throws ParseException {
         Assume.assumeFalse("Online test is not available", json.equals(""));
 
         JSONParser parser = new JSONParser();
@@ -96,7 +96,7 @@ public class GitHubJSONTestSuite {
     }
 
 
-    protected static void runGitHubJsonSingleBlockTest(String json, String testName) throws ParseException, IOException {
+    static void runGitHubJsonSingleBlockTest(String json, String testName) throws ParseException, IOException {
 
         BlockTestSuite testSuite = new BlockTestSuite(json);
         Set<String> testCollection = testSuite.getTestCases().keySet();
@@ -112,7 +112,7 @@ public class GitHubJSONTestSuite {
     }
 
 
-    protected static void runGitHubJsonBlockTest(String json, Set<String> excluded) throws ParseException, IOException {
+    static void runGitHubJsonBlockTest(String json, Set<String> excluded) throws ParseException, IOException {
         Assume.assumeFalse("Online test is not available", json.equals(""));
 
         BlockTestSuite testSuite = new BlockTestSuite(json);

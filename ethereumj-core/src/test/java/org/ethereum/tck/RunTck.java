@@ -1,6 +1,8 @@
 package org.ethereum.tck;
 
-import org.ethereum.jsontestsuite.suite.*;
+import org.ethereum.jsontestsuite.suite.JSONReader;
+import org.ethereum.jsontestsuite.suite.StateTestCase;
+import org.ethereum.jsontestsuite.suite.StateTestSuite;
 import org.ethereum.jsontestsuite.suite.runners.StateTestRunner;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -13,9 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RunTck {
+class RunTck {
 
-    private static Logger logger = LoggerFactory.getLogger("TCK-Test");
+    private static final Logger logger = LoggerFactory.getLogger("TCK-Test");
 
 
     public static void main(String[] args) throws ParseException, IOException {
@@ -35,7 +37,7 @@ public class RunTck {
         }
     }
 
-    public static void runContentTest(String content) throws ParseException, IOException {
+    private static void runContentTest(String content) throws ParseException, IOException {
 
         Map<String, Boolean> summary = new HashMap<>();
 
@@ -81,8 +83,7 @@ public class RunTck {
     }
 
 
-
-    public static void runTest(String name) throws ParseException, IOException {
+    private static void runTest(String name) throws ParseException, IOException {
 
         String testCaseJson = JSONReader.getFromLocal(name);
         runContentTest(testCaseJson);

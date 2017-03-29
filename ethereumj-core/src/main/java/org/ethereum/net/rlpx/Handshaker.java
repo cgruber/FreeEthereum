@@ -12,7 +12,10 @@ import org.ethereum.net.rlpx.EncryptionHandshake.Secrets;
 import org.spongycastle.crypto.digests.KeccakDigest;
 import org.spongycastle.util.encoders.Hex;
 
-import java.io.*;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,10 +24,16 @@ import java.util.Arrays;
 /**
  * Created by devrandom on 2015-04-09.
  */
-public class Handshaker {
+class Handshaker {
     private final ECKey myKey;
     private final byte[] nodeId;
     private Secrets secrets;
+
+    private Handshaker() {
+        myKey = new ECKey();
+        nodeId = myKey.getNodeId();
+        System.out.println("Node ID " + Hex.toHexString(nodeId));
+    }
 
     public static void main(String[] args) throws IOException, URISyntaxException {
         URI uri = new URI(args[0]);
@@ -32,12 +41,6 @@ public class Handshaker {
             throw new RuntimeException("expecting URL in the format enode://PUBKEY@HOST:PORT");
 
         new Handshaker().doHandshake(uri.getHost(), uri.getPort(), uri.getUserInfo());
-    }
-
-    public Handshaker() {
-        myKey = new ECKey();
-        nodeId = myKey.getNodeId();
-        System.out.println("Node ID " + Hex.toHexString(nodeId));
     }
 
     /**
@@ -56,7 +59,7 @@ public class Handshaker {
      packet c180
      </pre>
      */
-    public void doHandshake(String host, int port, String remoteIdHex) throws IOException {
+    private void doHandshake(String host, int port, String remoteIdHex) throws IOException {
         byte[] remoteId = Hex.decode(remoteIdHex);
         EncryptionHandshake initiator = new EncryptionHandshake(ECKey.fromNodeId(remoteId).getPubKeyPoint());
         Socket sock = new Socket(host, port);

@@ -12,7 +12,7 @@ import java.util.List;
  *  upon completion.
  */
 public class AnyFuture<V> extends AbstractFuture<V> {
-    private List<ListenableFuture<V>> futures = new ArrayList<>();
+    private final List<ListenableFuture<V>> futures = new ArrayList<>();
 
     /**
      * Add a Future delegate
@@ -47,7 +47,8 @@ public class AnyFuture<V> extends AbstractFuture<V> {
      * Subclasses my override to perform some task on the calculated
      * value before returning it via Future
      */
-    protected void postProcess(V v) {}
+    void postProcess(V v) {
+    }
 
     private void cancelOthers(ListenableFuture besidesThis) {
         for (ListenableFuture future : futures) {

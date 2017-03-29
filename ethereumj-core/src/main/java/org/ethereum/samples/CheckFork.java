@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by Anton Nashatyrev on 21.07.2016.
  */
-public class CheckFork {
+class CheckFork {
     public static void main(String[] args) throws Exception {
         SystemProperties.getDefault().overrideParams("database.dir", "");
         Source<byte[], byte[]> index = CommonConfig.getDefault().cachedDbSource("index");

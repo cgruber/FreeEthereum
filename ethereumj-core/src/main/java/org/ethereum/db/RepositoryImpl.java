@@ -5,7 +5,10 @@ import org.ethereum.core.AccountState;
 import org.ethereum.core.Block;
 import org.ethereum.core.Repository;
 import org.ethereum.crypto.HashUtil;
-import org.ethereum.datasource.*;
+import org.ethereum.datasource.CachedSource;
+import org.ethereum.datasource.MultiCache;
+import org.ethereum.datasource.Source;
+import org.ethereum.datasource.WriteCache;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.FastByteComparisons;
 import org.ethereum.vm.DataWord;
@@ -20,25 +23,23 @@ import java.util.*;
  */
 public class RepositoryImpl implements Repository, org.ethereum.facade.Repository {
 
-    protected RepositoryImpl parent;
-
-    protected Source<byte[], AccountState> accountStateCache;
-    protected Source<byte[], byte[]> codeCache;
-    protected MultiCache<? extends CachedSource<DataWord, DataWord>> storageCache;
-
+    Source<byte[], AccountState> accountStateCache;
+    MultiCache<? extends CachedSource<DataWord, DataWord>> storageCache;
+    private RepositoryImpl parent;
+    private Source<byte[], byte[]> codeCache;
     @Autowired
-    protected SystemProperties config = SystemProperties.getDefault();
+    private SystemProperties config = SystemProperties.getDefault();
 
-    protected RepositoryImpl() {
+    RepositoryImpl() {
     }
 
-    public RepositoryImpl(Source<byte[], AccountState> accountStateCache, Source<byte[], byte[]> codeCache,
-                          MultiCache<? extends CachedSource<DataWord, DataWord>> storageCache) {
+    private RepositoryImpl(Source<byte[], AccountState> accountStateCache, Source<byte[], byte[]> codeCache,
+                           MultiCache<? extends CachedSource<DataWord, DataWord>> storageCache) {
         init(accountStateCache, codeCache, storageCache);
     }
 
-    protected void init(Source<byte[], AccountState> accountStateCache, Source<byte[], byte[]> codeCache,
-                        MultiCache<? extends CachedSource<DataWord, DataWord>> storageCache) {
+    void init(Source<byte[], AccountState> accountStateCache, Source<byte[], byte[]> codeCache,
+              MultiCache<? extends CachedSource<DataWord, DataWord>> storageCache) {
         this.accountStateCache = accountStateCache;
         this.codeCache = codeCache;
         this.storageCache = storageCache;
@@ -62,7 +63,7 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
         return accountStateCache.get(addr);
     }
 
-    synchronized AccountState getOrCreateAccountState(byte[] addr) {
+    private synchronized AccountState getOrCreateAccountState(byte[] addr) {
         AccountState ret = accountStateCache.get(addr);
         if (ret == null) {
             ret = createAccount(addr);
@@ -204,133 +205,9 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
         return dumpStateTrie();
     }
 
-    public String dumpStateTrie() {
+    String dumpStateTrie() {
         throw new RuntimeException("Not supported");
     }
-
-    class ContractDetailsImpl implements ContractDetails {
-        private byte[] address;
-
-        public ContractDetailsImpl(byte[] address) {
-            this.address = address;
-        }
-
-        @Override
-        public void put(DataWord key, DataWord value) {
-            RepositoryImpl.this.addStorageRow(address, key, value);
-        }
-
-        @Override
-        public DataWord get(DataWord key) {
-            return RepositoryImpl.this.getStorageValue(address, key);
-        }
-
-        @Override
-        public byte[] getCode() {
-            return RepositoryImpl.this.getCode(address);
-        }
-
-        @Override
-        public byte[] getCode(byte[] codeHash) {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public void setCode(byte[] code) {
-            RepositoryImpl.this.saveCode(address, code);
-        }
-
-        @Override
-        public byte[] getStorageHash() {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public void decode(byte[] rlpCode) {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public void setDirty(boolean dirty) {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public void setDeleted(boolean deleted) {
-            RepositoryImpl.this.delete(address);
-        }
-
-        @Override
-        public boolean isDirty() {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public boolean isDeleted() {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public byte[] getEncoded() {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public int getStorageSize() {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public Set<DataWord> getStorageKeys() {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public Map<DataWord, DataWord> getStorage(@Nullable Collection<DataWord> keys) {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public Map<DataWord, DataWord> getStorage() {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public void setStorage(List<DataWord> storageKeys, List<DataWord> storageValues) {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public void setStorage(Map<DataWord, DataWord> storage) {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public byte[] getAddress() {
-            return address;
-        }
-
-        @Override
-        public void setAddress(byte[] address) {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public ContractDetails clone() {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public void syncStorage() {
-            throw new RuntimeException("Not supported");
-        }
-
-        @Override
-        public ContractDetails getSnapshotTo(byte[] hash) {
-            throw new RuntimeException("Not supported");
-        }
-    }
-
 
     @Override
     public Set<byte[]> getAccountsKeys() {
@@ -346,7 +223,6 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
     public void flush() {
         throw new RuntimeException("Not supported");
     }
-
 
     @Override
     public void flushNoReconnect() {
@@ -407,6 +283,129 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
     @Override
     public void loadAccount(byte[] addr, HashMap<ByteArrayWrapper, AccountState> cacheAccounts, HashMap<ByteArrayWrapper, ContractDetails> cacheDetails) {
         throw new RuntimeException("Not supported");
+    }
+
+    class ContractDetailsImpl implements ContractDetails {
+        private final byte[] address;
+
+        public ContractDetailsImpl(byte[] address) {
+            this.address = address;
+        }
+
+        @Override
+        public void put(DataWord key, DataWord value) {
+            RepositoryImpl.this.addStorageRow(address, key, value);
+        }
+
+        @Override
+        public DataWord get(DataWord key) {
+            return RepositoryImpl.this.getStorageValue(address, key);
+        }
+
+        @Override
+        public byte[] getCode() {
+            return RepositoryImpl.this.getCode(address);
+        }
+
+        @Override
+        public void setCode(byte[] code) {
+            RepositoryImpl.this.saveCode(address, code);
+        }
+
+        @Override
+        public byte[] getCode(byte[] codeHash) {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public byte[] getStorageHash() {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public void decode(byte[] rlpCode) {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public boolean isDirty() {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public void setDirty(boolean dirty) {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public boolean isDeleted() {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public void setDeleted(boolean deleted) {
+            RepositoryImpl.this.delete(address);
+        }
+
+        @Override
+        public byte[] getEncoded() {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public int getStorageSize() {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public Set<DataWord> getStorageKeys() {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public Map<DataWord, DataWord> getStorage(@Nullable Collection<DataWord> keys) {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public Map<DataWord, DataWord> getStorage() {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public void setStorage(Map<DataWord, DataWord> storage) {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public void setStorage(List<DataWord> storageKeys, List<DataWord> storageValues) {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public byte[] getAddress() {
+            return address;
+        }
+
+        @Override
+        public void setAddress(byte[] address) {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public ContractDetails clone() {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public void syncStorage() {
+            throw new RuntimeException("Not supported");
+        }
+
+        @Override
+        public ContractDetails getSnapshotTo(byte[] hash) {
+            throw new RuntimeException("Not supported");
+        }
     }
 
 }

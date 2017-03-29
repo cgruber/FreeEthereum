@@ -11,27 +11,27 @@ import org.ethereum.core.Transaction;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.net.MessageQueue;
 import org.ethereum.net.client.Capability;
+import org.ethereum.net.eth.EthVersion;
 import org.ethereum.net.eth.handler.Eth;
 import org.ethereum.net.eth.handler.EthAdapter;
 import org.ethereum.net.eth.handler.EthHandler;
 import org.ethereum.net.eth.handler.EthHandlerFactory;
-import org.ethereum.net.eth.EthVersion;
 import org.ethereum.net.eth.message.Eth62MessageFactory;
 import org.ethereum.net.eth.message.Eth63MessageFactory;
-import org.ethereum.net.message.ReasonCode;
-import org.ethereum.net.rlpx.*;
-import org.ethereum.sync.SyncStatistics;
 import org.ethereum.net.message.MessageFactory;
+import org.ethereum.net.message.ReasonCode;
 import org.ethereum.net.message.StaticMessages;
 import org.ethereum.net.p2p.HelloMessage;
 import org.ethereum.net.p2p.P2pHandler;
 import org.ethereum.net.p2p.P2pMessageFactory;
+import org.ethereum.net.rlpx.*;
 import org.ethereum.net.rlpx.discover.NodeManager;
 import org.ethereum.net.rlpx.discover.NodeStatistics;
 import org.ethereum.net.shh.ShhHandler;
 import org.ethereum.net.shh.ShhMessageFactory;
 import org.ethereum.net.swarm.bzz.BzzHandler;
 import org.ethereum.net.swarm.bzz.BzzMessageFactory;
+import org.ethereum.sync.SyncStatistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,56 +53,39 @@ import java.util.concurrent.TimeUnit;
 public class Channel {
 
     private final static Logger logger = LoggerFactory.getLogger("net");
-
+    private final PeerStatistics peerStats = new PeerStatistics();
     @Autowired
+    private
     SystemProperties config;
-
     @Autowired
     private MessageQueue msgQueue;
-
     @Autowired
     private P2pHandler p2pHandler;
-
     @Autowired
     private ShhHandler shhHandler;
-
     @Autowired
     private BzzHandler bzzHandler;
-
     @Autowired
     private MessageCodec messageCodec;
-
     @Autowired
     private HandshakeHandler handshakeHandler;
-
     @Autowired
     private NodeManager nodeManager;
-
     @Autowired
     private EthHandlerFactory ethHandlerFactory;
-
     @Autowired
     private StaticMessages staticMessages;
-
     @Autowired
     private WireTrafficStats stats;
-
     private ChannelManager channelManager;
-
     private Eth eth = new EthAdapter();
-
     private InetSocketAddress inetSocketAddress;
-
     private Node node;
     private NodeStatistics nodeStatistics;
-
     private boolean discoveryMode;
     private boolean isActive;
     private boolean isDisconnected;
-
     private String remoteId;
-
-    private PeerStatistics peerStats = new PeerStatistics();
 
     public void init(ChannelPipeline pipeline, String remoteId, boolean discoveryMode, ChannelManager channelManager) {
         this.channelManager = channelManager;
@@ -217,10 +200,6 @@ public class Channel {
         bzzHandler.activate();
     }
 
-    public void setInetSocketAddress(InetSocketAddress inetSocketAddress) {
-        this.inetSocketAddress = inetSocketAddress;
-    }
-
     public NodeStatistics getNodeStatistics() {
         return nodeStatistics;
     }
@@ -304,6 +283,10 @@ public class Channel {
         return inetSocketAddress;
     }
 
+    public void setInetSocketAddress(InetSocketAddress inetSocketAddress) {
+        this.inetSocketAddress = inetSocketAddress;
+    }
+
     public PeerStatistics getPeerStats() {
         return peerStats;
     }
@@ -370,7 +353,7 @@ public class Channel {
         eth.sendNewBlockHashes(block);
     }
 
-    public EthVersion getEthVersion() {
+    private EthVersion getEthVersion() {
         return eth.getVersion();
     }
 

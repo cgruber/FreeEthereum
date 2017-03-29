@@ -10,8 +10,8 @@ package org.ethereum.datasource;
 public class SourceCodec<Key, Value, SourceKey, SourceValue>
         extends AbstractChainedSource<Key, Value, SourceKey, SourceValue>  {
 
-    protected Serializer<Key, SourceKey> keySerializer;
-    protected Serializer<Value, SourceValue> valSerializer;
+    private final Serializer<Key, SourceKey> keySerializer;
+    private final Serializer<Value, SourceValue> valSerializer;
 
     /**
      * Instantiates class

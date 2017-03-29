@@ -17,7 +17,7 @@ public class Util {
 
     // for testing purposes when the timer might be changed
     // to manage current time according to test scenarios
-    public static Timer TIMER = new Timer();
+    private static final Timer TIMER = new Timer();
 
     public static String getCommonPrefix(String s1, String s2) {
         int pos = 0;
@@ -51,7 +51,7 @@ public class Util {
 
     public static long curTime() { return TIMER.curTime();}
 
-    public static byte[] rlpEncodeLong(long n) {
+    private static byte[] rlpEncodeLong(long n) {
         // TODO for now leaving int cast
         return RLP.encodeInt((int) n);
     }
@@ -108,8 +108,8 @@ public class Util {
     }
 
     public static class ChunkConsumer extends LinkedBlockingQueue<Chunk> {
-        ChunkStore destination;
-        boolean synchronous = true;
+        final ChunkStore destination;
+        final boolean synchronous = true;
 
         public ChunkConsumer(ChunkStore destination) {
             this.destination = destination;
@@ -127,7 +127,7 @@ public class Util {
     }
 
     public static class ArrayReader implements SectionReader {
-        byte[] arr;
+        final byte[] arr;
 
         public ArrayReader(byte[] arr) {
             this.arr = arr;

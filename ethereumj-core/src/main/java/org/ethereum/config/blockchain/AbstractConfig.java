@@ -5,7 +5,10 @@ import org.ethereum.config.BlockchainConfig;
 import org.ethereum.config.BlockchainNetConfig;
 import org.ethereum.config.Constants;
 import org.ethereum.config.SystemProperties;
-import org.ethereum.core.*;
+import org.ethereum.core.Block;
+import org.ethereum.core.BlockHeader;
+import org.ethereum.core.Repository;
+import org.ethereum.core.Transaction;
 import org.ethereum.db.BlockStore;
 import org.ethereum.mine.EthashMiner;
 import org.ethereum.mine.MinerIfc;
@@ -30,16 +33,15 @@ import static org.ethereum.util.BIUtil.max;
  */
 public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetConfig {
     private static final GasCost GAS_COST = new GasCost();
+    private final List<Pair<Long, BlockHeaderValidator>> headerValidators = new ArrayList<>();
+    Constants constants;
+    private MinerIfc miner;
 
-    protected Constants constants;
-    protected MinerIfc miner;
-    private List<Pair<Long, BlockHeaderValidator>> headerValidators = new ArrayList<>();
-
-    public AbstractConfig() {
+    AbstractConfig() {
         this(new Constants());
     }
 
-    public AbstractConfig(Constants constants) {
+    AbstractConfig(Constants constants) {
         this.constants = constants;
     }
 
@@ -85,7 +87,7 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
 
     protected abstract BigInteger getCalcDifficultyMultiplier(BlockHeader curBlock, BlockHeader parent);
 
-    protected int getExplosion(BlockHeader curBlock, BlockHeader parent) {
+    private int getExplosion(BlockHeader curBlock, BlockHeader parent) {
         int periodCount = (int) (curBlock.getNumber() / getConstants().getEXP_DIFFICULTY_PERIOD());
         return periodCount - 2;
     }

@@ -33,9 +33,9 @@ import static org.junit.Assert.assertNull;
  */
 public class MultiThreadSourcesTest {
 
-    volatile int maxConcurrency = 0;
-    volatile int maxWriteConcurrency = 0;
-    volatile int maxReadWriteConcurrency = 0;
+    private volatile int maxConcurrency = 0;
+    private volatile int maxWriteConcurrency = 0;
+    private volatile int maxReadWriteConcurrency = 0;
 
     private static byte[] key(int key) {
         return sha3(intToBytes(key));
@@ -120,8 +120,8 @@ public class MultiThreadSourcesTest {
     @Test
     public void testStateSourceConcurrency() throws Exception {
         HashMapDB<byte[]> src = new HashMapDB<byte[]>() {
-            AtomicInteger concurrentReads = new AtomicInteger(0);
-            AtomicInteger concurrentWrites = new AtomicInteger(0);
+            final AtomicInteger concurrentReads = new AtomicInteger(0);
+            final AtomicInteger concurrentWrites = new AtomicInteger(0);
 
             void checkConcurrency(boolean write) {
                 maxConcurrency = max(concurrentReads.get() + concurrentWrites.get(), maxConcurrency);
@@ -162,12 +162,7 @@ public class MultiThreadSourcesTest {
         final StateSource stateSource = new StateSource(src, false);
         stateSource.getReadCache().withMaxCapacity(10);
 
-        new Thread() {
-            @Override
-            public void run() {
-                stateSource.get(key(1));
-            }
-        }.start();
+        new Thread(() -> stateSource.get(key(1))).start();
 
         stateSource.get(key(2));
 
@@ -196,10 +191,10 @@ public class MultiThreadSourcesTest {
         final AtomicInteger putCnt = new AtomicInteger(1);
         final AtomicInteger delCnt = new AtomicInteger(1);
         final AtomicInteger checkCnt = new AtomicInteger(0);
+        private final Source<byte[], byte[]> cache;
         boolean isCounting = false;
         boolean noDelete = false;
         boolean running = true;
-        private Source<byte[], byte[]> cache;
         final Thread readThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -327,17 +322,17 @@ public class MultiThreadSourcesTest {
     }
 
     private class TestExecutor1 {
-        public int writerThreads = 4;
-        public int readerThreads = 8;
-        public int deleterThreads = 0;
-        public int flusherThreads = 2;
-        public int maxKey = 10000;
+        public final int writerThreads = 4;
+        public final int readerThreads = 8;
+        public final int deleterThreads = 0;
+        public final int flusherThreads = 2;
+        public final int maxKey = 10000;
+        final Map<byte[], byte[]> map = Collections.synchronizedMap(new ByteArrayMap<byte[]>());
+        final ReadWriteLock rwLock = new ReentrantReadWriteLock();
+        final ALock rLock = new ALock(rwLock.readLock());
+        final ALock wLock = new ALock(rwLock.writeLock());
+        private final Source<byte[], byte[]> cache;
         boolean stopped;
-        Map<byte[], byte[]> map = Collections.synchronizedMap(new ByteArrayMap<byte[]>());
-        ReadWriteLock rwLock = new ReentrantReadWriteLock();
-        ALock rLock = new ALock(rwLock.readLock());
-        ALock wLock = new ALock(rwLock.writeLock());
-        private Source<byte[], byte[]> cache;
 
         public TestExecutor1(Source<byte[], byte[]> cache) {
             this.cache = cache;

@@ -142,9 +142,9 @@ public class TreeChunker implements Chunker {
      * A 'subReader'
      */
     public static class SlicedReader implements SectionReader {
-        SectionReader delegate;
-        long offset;
-        long len;
+        final SectionReader delegate;
+        final long offset;
+        final long len;
 
         public SlicedReader(SectionReader delegate, long offset, long len) {
             this.delegate = delegate;
@@ -263,8 +263,8 @@ public class TreeChunker implements Chunker {
     private class LazyChunkReader implements SectionReader {
         final long size;
         final Chunk root;
-        Key key;
-        ChunkStore chunkStore;
+        final Key key;
+        final ChunkStore chunkStore;
 
         public LazyChunkReader(ChunkStore chunkStore, Key key) {
             this.chunkStore = chunkStore;

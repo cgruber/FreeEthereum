@@ -11,7 +11,7 @@ import org.ethereum.util.ByteUtil;
  * Created by Anton Nashatyrev on 18.02.2016.
  */
 public class XorDataSource<V> extends AbstractChainedSource<byte[], V, byte[], V> {
-    private byte[] subKey;
+    private final byte[] subKey;
 
     /**
      * Creates instance with a value all keys are XORed with

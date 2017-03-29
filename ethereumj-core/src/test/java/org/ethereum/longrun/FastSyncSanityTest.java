@@ -39,13 +39,21 @@ import static java.lang.Thread.sleep;
 @Ignore
 public class FastSyncSanityTest {
 
-    private Ethereum regularNode;
-    private static AtomicBoolean firstRun = new AtomicBoolean(true);
-    private static AtomicBoolean secondRun = new AtomicBoolean(true);
+    private static final AtomicBoolean firstRun = new AtomicBoolean(true);
+    private static final AtomicBoolean secondRun = new AtomicBoolean(true);
     private static final Logger testLogger = LoggerFactory.getLogger("TestLogger");
     private static final MutableObject<String> configPath = new MutableObject<>("longrun/conf/ropsten-fast.conf");
     private static final MutableObject<Boolean> resetDBOnFirstRun = new MutableObject<>(null);
     private static final AtomicBoolean allChecksAreOver =  new AtomicBoolean(false);
+    private final static AtomicInteger fatalErrors = new AtomicInteger(0);
+    private final static long MAX_RUN_MINUTES = 180L;
+    private static final ScheduledExecutorService statTimer =
+            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "StatTimer");
+                }
+            });
+    private Ethereum regularNode;
 
     public FastSyncSanityTest() throws Exception {
 
@@ -70,6 +78,73 @@ public class FastSyncSanityTest {
                 }
             }
         }, 0, 15, TimeUnit.SECONDS);
+    }
+
+    private static boolean logStats() {
+        testLogger.info("---------====---------");
+        testLogger.info("fatalErrors: {}", fatalErrors);
+        testLogger.info("---------====---------");
+
+        return fatalErrors.get() == 0;
+    }
+
+    private static void fullSanityCheck(Ethereum ethereum, CommonConfig commonConfig) {
+        BlockchainValidation.fullCheck(ethereum, commonConfig, fatalErrors);
+        logStats();
+        allChecksAreOver.set(true);
+        statTimer.shutdownNow();
+    }
+
+    @Test
+    public void testTripleCheck() throws Exception {
+
+        runEthereum();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (firstRun.get()) {
+                        sleep(1000);
+                    }
+                    testLogger.info("Stopping first run");
+                    regularNode.close();
+                    testLogger.info("First run stopped");
+                    sleep(10_000);
+                    testLogger.info("Starting second run");
+                    runEthereum();
+                    while (secondRun.get()) {
+                        sleep(1000);
+                    }
+                    testLogger.info("Stopping second run");
+                    regularNode.close();
+                    testLogger.info("Second run stopped");
+                    sleep(10_000);
+                    testLogger.info("Starting third run");
+                    runEthereum();
+                    while (!allChecksAreOver.get()) {
+                        sleep(1000);
+                    }
+                    testLogger.info("Stopping third run");
+                    regularNode.close();
+                    testLogger.info("All checks are finished");
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        if (statTimer.awaitTermination(MAX_RUN_MINUTES, TimeUnit.MINUTES)) {
+            logStats();
+            // Checking for errors
+            assert allChecksAreOver.get();
+            if (!logStats()) assert false;
+        }
+    }
+
+    private void runEthereum() throws Exception {
+        testLogger.info("Starting EthereumJ regular instance!");
+        this.regularNode = EthereumFactory.createEthereum(RegularConfig.class);
     }
 
     /**
@@ -150,83 +225,5 @@ public class FastSyncSanityTest {
             // Full sanity check
             fullSanityCheck(ethereum, commonConfig);
         }
-    }
-
-    private final static AtomicInteger fatalErrors = new AtomicInteger(0);
-
-    private final static long MAX_RUN_MINUTES = 180L;
-
-    private static ScheduledExecutorService statTimer =
-            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "StatTimer");
-                }
-            });
-
-    private static boolean logStats() {
-        testLogger.info("---------====---------");
-        testLogger.info("fatalErrors: {}", fatalErrors);
-        testLogger.info("---------====---------");
-
-        return fatalErrors.get() == 0;
-    }
-
-    private static void fullSanityCheck(Ethereum ethereum, CommonConfig commonConfig) {
-        BlockchainValidation.fullCheck(ethereum, commonConfig, fatalErrors);
-        logStats();
-        allChecksAreOver.set(true);
-        statTimer.shutdownNow();
-    }
-
-    @Test
-    public void testTripleCheck() throws Exception {
-
-        runEthereum();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-            try {
-                while(firstRun.get()) {
-                    sleep(1000);
-                }
-                testLogger.info("Stopping first run");
-                regularNode.close();
-                testLogger.info("First run stopped");
-                sleep(10_000);
-                testLogger.info("Starting second run");
-                runEthereum();
-                while(secondRun.get()) {
-                    sleep(1000);
-                }
-                testLogger.info("Stopping second run");
-                regularNode.close();
-                testLogger.info("Second run stopped");
-                sleep(10_000);
-                testLogger.info("Starting third run");
-                runEthereum();
-                while(!allChecksAreOver.get()) {
-                    sleep(1000);
-                }
-                testLogger.info("Stopping third run");
-                regularNode.close();
-                testLogger.info("All checks are finished");
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-            }
-        }).start();
-
-        if(statTimer.awaitTermination(MAX_RUN_MINUTES, TimeUnit.MINUTES)) {
-            logStats();
-            // Checking for errors
-            assert allChecksAreOver.get();
-            if (!logStats()) assert false;
-        }
-    }
-
-    public void runEthereum() throws Exception {
-        testLogger.info("Starting EthereumJ regular instance!");
-        this.regularNode = EthereumFactory.createEthereum(RegularConfig.class);
     }
 }

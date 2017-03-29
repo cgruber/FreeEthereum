@@ -29,7 +29,7 @@ import static org.ethereum.crypto.ECKey.CURVE;
 public class ECIESCoder {
 
 
-    public static final int KEY_SIZE = 128;
+    private static final int KEY_SIZE = 128;
 
     public static byte[] decrypt(BigInteger privKey, byte[] cipher) throws IOException, InvalidCipherTextException {
         return decrypt(privKey, cipher, null);
@@ -54,7 +54,7 @@ public class ECIESCoder {
         return plaintext;
     }
 
-    public static byte[] decrypt(ECPoint ephem, BigInteger prv, byte[] IV, byte[] cipher, byte[] macData) throws InvalidCipherTextException {
+    private static byte[] decrypt(ECPoint ephem, BigInteger prv, byte[] IV, byte[] cipher, byte[] macData) throws InvalidCipherTextException {
         AESFastEngine aesFastEngine = new AESFastEngine();
 
         EthereumIESEngine iesEngine = new EthereumIESEngine(

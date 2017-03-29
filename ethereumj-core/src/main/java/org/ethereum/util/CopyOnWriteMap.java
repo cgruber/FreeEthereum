@@ -36,7 +36,7 @@ import java.util.Set;
  * @author The Apache MINA Project (dev@mina.apache.org)
  * @version $Rev$, $Date$
  */
-public class CopyOnWriteMap<K, V> implements Map<K, V>, Cloneable {
+class CopyOnWriteMap<K, V> implements Map<K, V>, Cloneable {
     private volatile Map<K, V> internalMap;
 
     /**

@@ -12,7 +12,7 @@ import org.ethereum.core.Block;
  *
  * Created by Anton Nashatyrev on 24.03.2016.
  */
-public interface LocalBlockchain extends EasyBlockchain {
+interface LocalBlockchain extends EasyBlockchain {
 
     /**
      * Creates a new block which includes all the transactions

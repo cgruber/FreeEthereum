@@ -9,7 +9,7 @@ import org.spongycastle.util.encoders.Hex;
  */
 public class BlockCustomHashRule extends BlockHeaderRule {
 
-    public final byte[] blockHash;
+    private final byte[] blockHash;
 
     public BlockCustomHashRule(byte[] blockHash) {
         this.blockHash = blockHash;

@@ -13,7 +13,7 @@ public class StateTestSuite {
 
     private Logger logger = LoggerFactory.getLogger("TCK-Test");
 
-    Map<String, StateTestCase> testCases = new HashMap<>();
+    private Map<String, StateTestCase> testCases = new HashMap<>();
 
     public StateTestSuite(String json) throws IOException {
 

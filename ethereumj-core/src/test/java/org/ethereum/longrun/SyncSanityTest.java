@@ -38,12 +38,20 @@ import static java.lang.Thread.sleep;
 @Ignore
 public class SyncSanityTest {
 
-    private Ethereum regularNode;
-    private static AtomicBoolean firstRun = new AtomicBoolean(true);
+    private static final AtomicBoolean firstRun = new AtomicBoolean(true);
     private static final Logger testLogger = LoggerFactory.getLogger("TestLogger");
     private static final MutableObject<String> configPath = new MutableObject<>("longrun/conf/ropsten.conf");
     private static final MutableObject<Boolean> resetDBOnFirstRun = new MutableObject<>(null);
     private static final AtomicBoolean allChecksAreOver =  new AtomicBoolean(false);
+    private final static AtomicInteger fatalErrors = new AtomicInteger(0);
+    private final static long MAX_RUN_MINUTES = 180L;
+    private static final ScheduledExecutorService statTimer =
+            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "StatTimer");
+                }
+            });
+    private Ethereum regularNode;
 
     public SyncSanityTest() throws Exception {
 
@@ -69,78 +77,6 @@ public class SyncSanityTest {
             }
         }, 0, 15, TimeUnit.SECONDS);
     }
-
-    /**
-     * Spring configuration class for the Regular peer
-     */
-    private static class RegularConfig {
-
-        @Bean
-        public RegularNode node() {
-            return new RegularNode();
-        }
-
-        /**
-         * Instead of supplying properties via config file for the peer
-         * we are substituting the corresponding bean which returns required
-         * config for this instance.
-         */
-        @Bean
-        public SystemProperties systemProperties() {
-            SystemProperties props = new SystemProperties();
-            props.overrideParams(ConfigFactory.parseResources(configPath.getValue()));
-            if (firstRun.get() && resetDBOnFirstRun.getValue() != null) {
-                props.setDatabaseReset(resetDBOnFirstRun.getValue());
-            }
-            return props;
-        }
-    }
-
-    /**
-     * Just regular EthereumJ node
-     */
-    static class RegularNode extends BasicNode {
-        public RegularNode() {
-            super("sampleNode");
-        }
-
-        @Override
-        public void waitForSync() throws Exception {
-            testLogger.info("Waiting for the whole blockchain sync (will take up to an hour on fast sync for the whole chain)...");
-            while(true) {
-                sleep(10000);
-
-                if (syncComplete) {
-                    testLogger.info("[v] Sync complete! The best block: " + bestBlock.getShortDescr());
-
-                    // Stop syncing
-                    config.setSyncEnabled(false);
-                    config.setDiscoveryEnabled(false);
-                    ethereum.getChannelManager().close();
-                    syncPool.close();
-
-                    return;
-                }
-            }
-        }
-
-        @Override
-        public void onSyncDone() throws Exception {
-            // Full sanity check
-            fullSanityCheck(ethereum, commonConfig);
-        }
-    }
-
-    private final static AtomicInteger fatalErrors = new AtomicInteger(0);
-
-    private final static long MAX_RUN_MINUTES = 180L;
-
-    private static ScheduledExecutorService statTimer =
-            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "StatTimer");
-                }
-            });
 
     private static boolean logStats() {
         testLogger.info("---------====---------");
@@ -195,8 +131,69 @@ public class SyncSanityTest {
         }
     }
 
-    public void runEthereum() throws Exception {
+    private void runEthereum() throws Exception {
         testLogger.info("Starting EthereumJ regular instance!");
         this.regularNode = EthereumFactory.createEthereum(RegularConfig.class);
+    }
+
+    /**
+     * Spring configuration class for the Regular peer
+     */
+    private static class RegularConfig {
+
+        @Bean
+        public RegularNode node() {
+            return new RegularNode();
+        }
+
+        /**
+         * Instead of supplying properties via config file for the peer
+         * we are substituting the corresponding bean which returns required
+         * config for this instance.
+         */
+        @Bean
+        public SystemProperties systemProperties() {
+            SystemProperties props = new SystemProperties();
+            props.overrideParams(ConfigFactory.parseResources(configPath.getValue()));
+            if (firstRun.get() && resetDBOnFirstRun.getValue() != null) {
+                props.setDatabaseReset(resetDBOnFirstRun.getValue());
+            }
+            return props;
+        }
+    }
+
+    /**
+     * Just regular EthereumJ node
+     */
+    static class RegularNode extends BasicNode {
+        public RegularNode() {
+            super("sampleNode");
+        }
+
+        @Override
+        public void waitForSync() throws Exception {
+            testLogger.info("Waiting for the whole blockchain sync (will take up to an hour on fast sync for the whole chain)...");
+            while (true) {
+                sleep(10000);
+
+                if (syncComplete) {
+                    testLogger.info("[v] Sync complete! The best block: " + bestBlock.getShortDescr());
+
+                    // Stop syncing
+                    config.setSyncEnabled(false);
+                    config.setDiscoveryEnabled(false);
+                    ethereum.getChannelManager().close();
+                    syncPool.close();
+
+                    return;
+                }
+            }
+        }
+
+        @Override
+        public void onSyncDone() throws Exception {
+            // Full sanity check
+            fullSanityCheck(ethereum, commonConfig);
+        }
     }
 }

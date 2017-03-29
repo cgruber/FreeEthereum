@@ -8,11 +8,20 @@ import java.util.BitSet;
 public class BloomFilter implements Cloneable {
     private static final int BITS_PER_BLOOM = 3;
     private static final int BLOOM_BYTES = 64;
-
-    BitSet mask = new BitSet(BLOOM_BYTES * 8);
-    int[] counters = new int[BLOOM_BYTES * 8];
+    private final int[] counters = new int[BLOOM_BYTES * 8];
+    private BitSet mask = new BitSet(BLOOM_BYTES * 8);
 
     private BloomFilter() {
+    }
+
+    private BloomFilter(Topic topic) {
+        addTopic(topic);
+    }
+
+    public BloomFilter(byte[] bloomMask) {
+        if (bloomMask.length != BLOOM_BYTES)
+            throw new RuntimeException("Invalid bloom filter array length: " + bloomMask.length);
+        mask = BitSet.valueOf(bloomMask);
     }
 
     public static BloomFilter createNone() {
@@ -23,15 +32,6 @@ public class BloomFilter implements Cloneable {
         BloomFilter bloomFilter = new BloomFilter();
         bloomFilter.mask.set(0, bloomFilter.mask.length());
         return bloomFilter;
-    }
-
-    public BloomFilter(Topic topic) {
-        addTopic(topic);
-    }
-
-    public BloomFilter(byte[] bloomMask) {
-        if (bloomMask.length != BLOOM_BYTES) throw new RuntimeException("Invalid bloom filter array length: " + bloomMask.length);
-        mask = BitSet.valueOf(bloomMask);
     }
 
     private void incCounters(BitSet bs) {

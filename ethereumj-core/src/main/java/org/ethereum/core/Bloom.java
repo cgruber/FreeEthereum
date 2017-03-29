@@ -14,9 +14,9 @@ import java.util.Arrays;
 
 public class Bloom {
 
-    final static int _8STEPS = 8;
-    final static int _3LOW_BITS = 7;
-    final static int ENSURE_BYTE = 255;
+    private final static int _8STEPS = 8;
+    private final static int _3LOW_BITS = 7;
+    private final static int ENSURE_BYTE = 255;
 
     byte[] data = new byte[256];
 
@@ -60,7 +60,7 @@ public class Bloom {
         return data;
     }
 
-    public Bloom copy() {
+    private Bloom copy() {
         return new Bloom(Arrays.copyOf(getData(), getData().length));
     }
 

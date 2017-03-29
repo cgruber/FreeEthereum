@@ -17,12 +17,9 @@ import java.util.List;
  */
 public class LogInfo {
 
-    byte[] address = new byte[]{};
-    List<DataWord> topics = new ArrayList<>();
-    byte[] data = new byte[]{};
-
-    /* Log info in encoded form */
-    private byte[] rlpEncoded;
+    private byte[] address = new byte[]{};
+    private List<DataWord> topics = new ArrayList<>();
+    private byte[] data = new byte[]{};
 
     public LogInfo(byte[] rlp) {
 
@@ -41,7 +38,7 @@ public class LogInfo {
             this.topics.add(new DataWord(topic));
         }
 
-        rlpEncoded = rlp;
+        byte[] rlpEncoded = rlp;
     }
 
     public LogInfo(byte[] address, List<DataWord> topics, byte[] data) {

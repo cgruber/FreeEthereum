@@ -12,7 +12,7 @@ import java.util.List;
 public class BzzStoreReqMessage extends BzzMessage {
 
     // optional
-    byte[] metadata = new byte[0];
+    private byte[] metadata = new byte[0];
     private Key key;
     private byte[] data;
 

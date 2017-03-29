@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 public class IndexedBlockStoreTest {
 
     private static final Logger logger = LoggerFactory.getLogger("test");
-    private List<Block> blocks = new ArrayList<>();
+    private final List<Block> blocks = new ArrayList<>();
     private BigInteger cumDifficulty = ZERO;
 
     @AfterClass

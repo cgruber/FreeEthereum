@@ -12,7 +12,7 @@ import java.util.List;
  * Created by Anton Nashatyrev on 14.01.2016.
  */
 public class NodeFilter {
-    private List<Entry> entries = new ArrayList<>();
+    private final List<Entry> entries = new ArrayList<>();
 
     public void add(byte[] nodeId, String hostIpPattern) {
         entries.add(new Entry(nodeId, hostIpPattern));
@@ -33,8 +33,8 @@ public class NodeFilter {
     }
 
     private class Entry {
-        byte[] nodeId;
-        String hostIpPattern;
+        final byte[] nodeId;
+        final String hostIpPattern;
 
         public Entry(byte[] nodeId, String hostIpPattern) {
             this.nodeId = nodeId;

@@ -280,7 +280,7 @@ public class ByteUtil {
      * @param arg - not more that 32 bits
      * @return - bytes of the value pad with complete to 32 zeroes
      */
-    public static byte[] encodeValFor32Bits(Object arg) {
+    private static byte[] encodeValFor32Bits(Object arg) {
 
         byte[] data;
 

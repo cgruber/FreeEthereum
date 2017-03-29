@@ -1,12 +1,10 @@
 package org.ethereum.util;
 
 import com.cedarsoftware.util.DeepEquals;
-
 import org.ethereum.crypto.HashUtil;
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,21 +19,7 @@ public class Value {
 
     private boolean decoded = false;
 
-    public static Value fromRlpEncoded(byte[] data) {
-
-        if (data != null && data.length != 0) {
-            Value v = new Value();
-            v.init(data);
-            return v;
-        }
-        return null;
-    }
-
-    public Value(){
-    }
-
-    public void init(byte[] rlp){
-        this.rlp = rlp;
+    private Value() {
     }
 
     public Value(Object obj) {
@@ -48,6 +32,20 @@ public class Value {
         } else {
             this.value = obj;
         }
+    }
+
+    public static Value fromRlpEncoded(byte[] data) {
+
+        if (data != null && data.length != 0) {
+            Value v = new Value();
+            v.init(data);
+            return v;
+        }
+        return null;
+    }
+
+    private void init(byte[] rlp) {
+        this.rlp = rlp;
     }
 
     public Value withHash(byte[] hash) {
@@ -147,7 +145,7 @@ public class Value {
      *      Utility
      * *****************/
 
-    public void decode(){
+    private void decode() {
         if (!this.decoded) {
             this.value = RLP.decode(rlp, 0).getDecoded();
             this.decoded = true;
@@ -179,17 +177,17 @@ public class Value {
         return value != null && value.getClass().isArray() && !value.getClass().getComponentType().isPrimitive();
     }
 
-    public boolean isString() {
+    private boolean isString() {
         decode();
         return value instanceof String;
     }
 
-    public boolean isInt() {
+    private boolean isInt() {
         decode();
         return value instanceof Integer;
     }
 
-    public boolean isLong() {
+    private boolean isLong() {
         decode();
         return value instanceof Long;
     }
@@ -199,13 +197,13 @@ public class Value {
         return value instanceof BigInteger;
     }
 
-    public boolean isBytes() {
+    private boolean isBytes() {
         decode();
         return value instanceof byte[];
     }
 
     // it's only if the isBytes() = true;
-    public boolean isReadableString() {
+    private boolean isReadableString() {
 
         decode();
         int readableChars = 0;
@@ -244,19 +242,18 @@ public class Value {
         return this.asBytes().length == 32;
     }
 
-    public boolean isNull() {
+    private boolean isNull() {
         decode();
         return value == null;
     }
 
-    public boolean isEmpty() {
+    private boolean isEmpty() {
         decode();
         if (isNull()) return true;
         if (isBytes() && asBytes().length == 0) return true;
         if (isList() && asList().isEmpty()) return true;
-        if (isString() && asString().equals("")) return true;
+        return isString() && asString().equals("");
 
-        return false;
     }
 
     public int length() {
@@ -340,7 +337,7 @@ public class Value {
         return "Unexpected type";
     }
 
-    public int countBranchNodes() {
+    private int countBranchNodes() {
         decode();
         if (this.isList()) {
             List<Object> objList = this.asList();

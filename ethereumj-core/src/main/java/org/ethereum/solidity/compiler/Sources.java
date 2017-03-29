@@ -6,7 +6,7 @@ import java.util.Map;
 
 import static org.ethereum.solidity.compiler.ContractException.assembleError;
 
-public class Sources {
+class Sources {
 
     private final Map<String, SourceArtifact> artifacts = new HashMap<>();
     private String targetArtifact;
@@ -26,7 +26,7 @@ public class Sources {
                     throw assembleError("can't resolve dependency: dependency '%s' not found.", dep);
                 }
                 src.injectDependency(depArtifact);
-            };
+            }
         }
 
         for (SourceArtifact artifact : artifacts.values()) {

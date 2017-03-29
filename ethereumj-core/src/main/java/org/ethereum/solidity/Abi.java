@@ -37,7 +37,7 @@ public class Abi extends ArrayList<Abi.Entry> {
         }
     }
 
-    public String toJson() {
+    private String toJson() {
         try {
             return new ObjectMapper().writeValueAsString(this);
         } catch (JsonProcessingException e) {
@@ -80,6 +80,64 @@ public class Abi extends ArrayList<Abi.Entry> {
     @JsonInclude(Include.NON_NULL)
     public static abstract class Entry {
 
+        public final Boolean anonymous;
+        public final Boolean constant;
+        public final Boolean payable;
+        public final String name;
+        public final List<Param> inputs;
+        public final List<Param> outputs;
+        public final Type type;
+        public Entry(Boolean anonymous, Boolean constant, String name, List<Param> inputs, List<Param> outputs, Type type, Boolean payable) {
+            this.anonymous = anonymous;
+            this.constant = constant;
+            this.payable = payable;
+            this.name = name;
+            this.inputs = inputs;
+            this.outputs = outputs;
+            this.type = type;
+        }
+
+        @JsonCreator
+        public static Entry create(@JsonProperty("anonymous") boolean anonymous,
+                                   @JsonProperty("constant") boolean constant,
+                                   @JsonProperty("name") String name,
+                                   @JsonProperty("inputs") List<Param> inputs,
+                                   @JsonProperty("outputs") List<Param> outputs,
+                                   @JsonProperty("type") Type type,
+                                   @JsonProperty(value = "payable", required = false, defaultValue = "false") Boolean payable) {
+            Entry result = null;
+            switch (type) {
+                case constructor:
+                    result = new Constructor(inputs, outputs);
+                    break;
+                case function:
+                    result = new Function(constant, name, inputs, outputs, payable);
+                    break;
+                case event:
+                    result = new Event(anonymous, name, inputs, outputs);
+                    break;
+            }
+
+            return result;
+        }
+
+        public String formatSignature() {
+            StringBuilder paramsTypes = new StringBuilder();
+            for (Entry.Param param : inputs) {
+                paramsTypes.append(param.type.getCanonicalName()).append(",");
+            }
+
+            return format("%s(%s)", name, stripEnd(paramsTypes.toString(), ","));
+        }
+
+        public byte[] fingerprintSignature() {
+            return sha3(formatSignature().getBytes());
+        }
+
+        public byte[] encodeSignature() {
+            return fingerprintSignature();
+        }
+
         public enum Type {
             constructor,
             function,
@@ -114,66 +172,6 @@ public class Abi extends ArrayList<Abi.Entry> {
                 return format("%s%s%s", type.getCanonicalName(), (indexed != null && indexed) ? " indexed " : " ", name);
             }
         }
-
-        public final Boolean anonymous;
-        public final Boolean constant;
-        public final Boolean payable;
-        public final String name;
-        public final List<Param> inputs;
-        public final List<Param> outputs;
-        public final Type type;
-
-
-        public Entry(Boolean anonymous, Boolean constant, String name, List<Param> inputs, List<Param> outputs, Type type, Boolean payable) {
-            this.anonymous = anonymous;
-            this.constant = constant;
-            this.payable = payable;
-            this.name = name;
-            this.inputs = inputs;
-            this.outputs = outputs;
-            this.type = type;
-        }
-
-        public String formatSignature() {
-            StringBuilder paramsTypes = new StringBuilder();
-            for (Entry.Param param : inputs) {
-                paramsTypes.append(param.type.getCanonicalName()).append(",");
-            }
-
-            return format("%s(%s)", name, stripEnd(paramsTypes.toString(), ","));
-        }
-
-        public byte[] fingerprintSignature() {
-            return sha3(formatSignature().getBytes());
-        }
-
-        public byte[] encodeSignature() {
-            return fingerprintSignature();
-        }
-
-        @JsonCreator
-        public static Entry create(@JsonProperty("anonymous") boolean anonymous,
-                                   @JsonProperty("constant") boolean constant,
-                                   @JsonProperty("name") String name,
-                                   @JsonProperty("inputs") List<Param> inputs,
-                                   @JsonProperty("outputs") List<Param> outputs,
-                                   @JsonProperty("type") Type type,
-                                   @JsonProperty(value = "payable", required = false, defaultValue = "false") Boolean payable) {
-            Entry result = null;
-            switch (type) {
-                case constructor:
-                    result = new Constructor(inputs, outputs);
-                    break;
-                case function:
-                    result = new Function(constant, name, inputs, outputs, payable);
-                    break;
-                case event:
-                    result = new Event(anonymous, name, inputs, outputs);
-                    break;
-            }
-
-            return result;
-        }
     }
 
     public static class Constructor extends Entry {
@@ -197,6 +195,10 @@ public class Abi extends ArrayList<Abi.Entry> {
 
         public Function(boolean constant, String name, List<Param> inputs, List<Param> outputs, Boolean payable) {
             super(null, constant, name, inputs, outputs, Type.function, payable);
+        }
+
+        public static byte[] extractSignature(byte[] data) {
+            return subarray(data, 0, ENCODED_SIGN_LENGTH);
         }
 
         public byte[] encode(Object... args) {
@@ -246,10 +248,6 @@ public class Abi extends ArrayList<Abi.Entry> {
         @Override
         public byte[] encodeSignature() {
             return extractSignature(super.encodeSignature());
-        }
-
-        public static byte[] extractSignature(byte[] data) {
-            return subarray(data, 0, ENCODED_SIGN_LENGTH);
         }
 
         @Override

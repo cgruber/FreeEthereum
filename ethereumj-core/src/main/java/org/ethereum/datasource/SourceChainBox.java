@@ -13,10 +13,10 @@ import java.util.List;
 public class SourceChainBox<Key, Value, SourceKey, SourceValue>
         extends AbstractChainedSource<Key, Value, SourceKey, SourceValue> {
 
-    List<Source> chain = new ArrayList<>();
-    Source<Key, Value> lastSource;
+    private final List<Source> chain = new ArrayList<>();
+    private Source<Key, Value> lastSource;
 
-    public SourceChainBox(Source<SourceKey, SourceValue> source) {
+    protected SourceChainBox(Source<SourceKey, SourceValue> source) {
         super(source);
     }
 
@@ -26,7 +26,7 @@ public class SourceChainBox<Key, Value, SourceKey, SourceValue>
      * All calls to the SourceChainBox will be delegated to the last added
      * Source
      */
-    public void add(Source src) {
+    protected void add(Source src) {
         chain.add(src);
         lastSource = src;
     }

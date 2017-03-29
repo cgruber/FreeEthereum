@@ -12,9 +12,9 @@ import org.ethereum.core.BlockHeader;
  */
 public class EthashMiner implements MinerIfc {
 
-    SystemProperties config;
+    private final SystemProperties config;
 
-    private int cpuThreads;
+    private final int cpuThreads;
     private boolean fullMining = true;
 
     public EthashMiner(SystemProperties config) {

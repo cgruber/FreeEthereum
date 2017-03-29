@@ -8,23 +8,9 @@ import static org.junit.Assert.assertTrue;
 
 public class FilterTest {
 
-    String to = WhisperImpl.toIdentity(new ECKey());
-    String from = WhisperImpl.toIdentity(new ECKey());
-    String[] topics = {"topic1", "topic2", "topic3", "topic4"};
-
-    class FilterStub extends MessageWatcher {
-        public FilterStub() {
-        }
-
-        public FilterStub(String to, String from, Topic[] filterTopics) {
-            super(to, from, filterTopics);
-        }
-
-        @Override
-        protected void newMessage(WhisperMessage msg) {
-
-        }
-    }
+    private final String to = WhisperImpl.toIdentity(new ECKey());
+    private final String from = WhisperImpl.toIdentity(new ECKey());
+    private final String[] topics = {"topic1", "topic2", "topic3", "topic4"};
 
     @Test
     public void test1() {
@@ -65,6 +51,20 @@ public class FilterTest {
     @Test
     public void test7() {
         MessageWatcher matcher = new FilterStub(null, null,  Topic.createTopics(topics));
-        assertTrue(!matcher.match(to, from,  Topic.createTopics(new String[]{})));
+        assertTrue(!matcher.match(to, from, Topic.createTopics()));
+    }
+
+    class FilterStub extends MessageWatcher {
+        public FilterStub() {
+        }
+
+        public FilterStub(String to, String from, Topic[] filterTopics) {
+            super(to, from, filterTopics);
+        }
+
+        @Override
+        protected void newMessage(WhisperMessage msg) {
+
+        }
     }
 }

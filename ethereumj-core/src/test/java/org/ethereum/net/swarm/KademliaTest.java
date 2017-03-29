@@ -12,6 +12,23 @@ import java.util.*;
  */
 public class KademliaTest {
 
+    private static final Random gen = new Random(0);
+
+    private static byte[] getNodeId() {
+        byte[] id = new byte[64];
+        gen.nextBytes(id);
+        return id;
+    }
+
+    private static Node getNode(int port) {
+        return new Node(getNodeId(), "127.0.0.1", port);
+    }
+
+    private static NodeTable getTestNodeTable() {
+        NodeTable testTable = new NodeTable(getNode(3333));
+        return testTable;
+    }
+
     @Ignore
     @Test
     public void nodesConnectivityTest() {
@@ -51,22 +68,6 @@ public class KademliaTest {
 //                System.out.println("    " + nameMap.get(nb));
 //            }
         }
-    }
-
-    static Random gen = new Random(0);
-    public static byte[] getNodeId() {
-        byte[] id = new byte[64];
-        gen.nextBytes(id);
-        return id;
-    }
-
-    public static Node getNode(int port) {
-        return new Node(getNodeId(), "127.0.0.1", port);
-    }
-
-    public static NodeTable getTestNodeTable() {
-        NodeTable testTable = new NodeTable(getNode(3333));
-        return testTable;
     }
 
     private void addAll(Map<Node, Set<Node>> reachableMap, Set<Node> reachable, Set<Node> ret) {

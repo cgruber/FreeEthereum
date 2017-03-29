@@ -25,8 +25,8 @@ import static org.ethereum.util.ByteUtil.xor;
 public class WhisperMessage extends ShhMessage {
     private final static Logger logger = LoggerFactory.getLogger("net.shh");
 
-    public static final int SIGNATURE_FLAG = 1;
-    public static final int SIGNATURE_LENGTH = 65;
+    private static final int SIGNATURE_FLAG = 1;
+    private static final int SIGNATURE_LENGTH = 65;
 
     private Topic[] topics = new Topic[0];
     private byte[] payload;
@@ -37,11 +37,10 @@ public class WhisperMessage extends ShhMessage {
 
     private int expire;
     private int ttl;
-    int nonce = 0;
+    private int nonce = 0;
 
     private boolean encrypted = false;
     private long pow = 0;
-    private byte[] messageBytes;
 
     public WhisperMessage() {
         setTtl(50);
@@ -58,8 +57,20 @@ public class WhisperMessage extends ShhMessage {
         return topics;
     }
 
+    /***********   Encode routines   ************/
+
+    public WhisperMessage setTopics(Topic... topics) {
+        this.topics = topics != null ? topics : new Topic[0];
+        return this;
+    }
+
     public byte[] getPayload() {
         return payload;
+    }
+
+    public WhisperMessage setPayload(byte[] payload) {
+        this.payload = payload;
+        return this;
     }
 
     public int getExpire() {
@@ -70,6 +81,12 @@ public class WhisperMessage extends ShhMessage {
         return ttl;
     }
 
+    public WhisperMessage setTtl(int ttl) {
+        this.ttl = ttl;
+        expire = (int) (Utils.toUnixTime(System.currentTimeMillis()) + ttl);
+        return this;
+    }
+
     public long getPow() {
         return pow;
     }
@@ -78,8 +95,24 @@ public class WhisperMessage extends ShhMessage {
         return from == null ? null : WhisperImpl.toIdentity(from);
     }
 
+    public WhisperMessage setFrom(String from) {
+        this.from = WhisperImpl.fromIdentityToPub(from);
+        return this;
+    }
+
     public String getTo() {
         return to;
+    }
+
+    /**
+     * If set the message will be encrypted with the receiver public key
+     * If not the message will be encrypted as broadcast with Topics
+     *
+     * @param to public key
+     */
+    public WhisperMessage setTo(String to) {
+        this.to = to;
+        return this;
     }
 
     /***********   Decode routines   ************/
@@ -98,7 +131,7 @@ public class WhisperMessage extends ShhMessage {
             this.topics = new Topic[topics.size()];
             topics.toArray(this.topics);
 
-            messageBytes = paramsList.get(3).getRLPData();
+            byte[] messageBytes = paramsList.get(3).getRLPData();
             this.nonce = rlpDecodeInt(paramsList.get(4));
             payload = messageBytes;
 
@@ -227,7 +260,7 @@ public class WhisperMessage extends ShhMessage {
         return outKey;
     }
 
-    public byte[] hash() {
+    private byte[] hash() {
         return sha3(payload);
     }
 
@@ -238,30 +271,8 @@ public class WhisperMessage extends ShhMessage {
         return getFirstBitSet(sha3(d));
     }
 
-    /***********   Encode routines   ************/
-
-    public WhisperMessage setTopics(Topic ... topics) {
-        this.topics = topics != null ? topics : new Topic[0];
-        return this;
-    }
-
     public WhisperMessage setPayload(String payload) {
         this.payload = payload.getBytes(StandardCharsets.UTF_8);
-        return this;
-    }
-
-    public WhisperMessage setPayload(byte[] payload) {
-        this.payload = payload;
-        return this;
-    }
-
-    /**
-     * If set the message will be encrypted with the receiver public key
-     * If not the message will be encrypted as broadcast with Topics
-     * @param to public key
-     */
-    public WhisperMessage setTo(String to) {
-        this.to = to;
         return this;
     }
 
@@ -271,17 +282,6 @@ public class WhisperMessage extends ShhMessage {
      */
     public WhisperMessage setFrom(ECKey from) {
         this.from = from;
-        return this;
-    }
-
-    public WhisperMessage setFrom(String from) {
-        this.from = WhisperImpl.fromIdentityToPub(from);
-        return this;
-    }
-
-    public WhisperMessage setTtl(int ttl) {
-        this.ttl = ttl;
-        expire = (int) (Utils.toUnixTime(System.currentTimeMillis()) + ttl);
         return this;
     }
 
@@ -306,7 +306,7 @@ public class WhisperMessage extends ShhMessage {
         return encoded;
     }
 
-    public byte[] encode(boolean withNonce) {
+    private byte[] encode(boolean withNonce) {
         byte[] expire = RLP.encode(this.expire);
         byte[] ttl = RLP.encode(this.ttl);
 
@@ -356,7 +356,7 @@ public class WhisperMessage extends ShhMessage {
         return 0;
     }
 
-    public byte[] getBytes() {
+    private byte[] getBytes() {
         if (signature != null) {
             return merge(new byte[]{flags}, payload, signature);
         } else {

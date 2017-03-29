@@ -15,7 +15,7 @@ public class OlympicConfig extends AbstractConfig {
     public OlympicConfig() {
     }
 
-    public OlympicConfig(Constants constants) {
+    OlympicConfig(Constants constants) {
         super(constants);
     }
 

@@ -22,12 +22,12 @@ package org.ethereum.net.swarm;
  *
  * Created by Anton Nashatyrev on 18.06.2015.
  */
-public class DPA {
+class DPA {
     // this is now the default and the only possible Chunker implementation
-    private Chunker chunker = new TreeChunker();
-    private ChunkStore chunkStore;
+    private final Chunker chunker = new TreeChunker();
+    private final ChunkStore chunkStore;
 
-    public DPA(ChunkStore chunkStore) {
+    DPA(ChunkStore chunkStore) {
         this.chunkStore = chunkStore;
     }
 

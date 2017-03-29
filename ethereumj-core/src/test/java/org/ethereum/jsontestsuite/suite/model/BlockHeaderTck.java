@@ -2,23 +2,23 @@ package org.ethereum.jsontestsuite.suite.model;
 
 public class BlockHeaderTck {
 
-    String bloom;
-    String coinbase;
-    String difficulty;
-    String extraData;
-    String gasLimit;
-    String gasUsed;
-    String hash;
-    String mixHash;
-    String nonce;
-    String number;
-    String parentHash;
-    String receiptTrie;
-    String seedHash;
-    String stateRoot;
-    String timestamp;
-    String transactionsTrie;
-    String uncleHash;
+    private String bloom;
+    private String coinbase;
+    private String difficulty;
+    private String extraData;
+    private String gasLimit;
+    private String gasUsed;
+    private String hash;
+    private String mixHash;
+    private String nonce;
+    private String number;
+    private String parentHash;
+    private String receiptTrie;
+    private String seedHash;
+    private String stateRoot;
+    private String timestamp;
+    private String transactionsTrie;
+    private String uncleHash;
 
     public BlockHeaderTck() {
     }

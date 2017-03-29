@@ -1,8 +1,5 @@
 package org.ethereum.net.server;
 
-import org.ethereum.config.SystemProperties;
-import org.ethereum.listener.EthereumListener;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -11,10 +8,10 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
-
+import org.ethereum.config.SystemProperties;
+import org.ethereum.listener.EthereumListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -32,19 +29,19 @@ public class PeerServer {
 
     private static final Logger logger = LoggerFactory.getLogger("net");
 
-    private SystemProperties config;
+    private final SystemProperties config;
 
-    private ApplicationContext ctx;
+    private final ApplicationContext ctx;
 
-    private EthereumListener ethereumListener;
+    private final EthereumListener ethereumListener;
 
-    public EthereumChannelInitializer ethereumChannelInitializer;
+    private EthereumChannelInitializer ethereumChannelInitializer;
 
     private boolean listening;
 
-    EventLoopGroup bossGroup;
-    EventLoopGroup workerGroup;
-    ChannelFuture channelFuture;
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
+    private ChannelFuture channelFuture;
 
     @Autowired
     public PeerServer(final SystemProperties config, final ApplicationContext ctx,

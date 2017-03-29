@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class BatchSourceWriter<Key, Value> extends AbstractChainedSource<Key, Value, Key, Value> {
 
-    Map<Key, Value> buf = new HashMap<>();
+    private final Map<Key, Value> buf = new HashMap<>();
 
     public BatchSourceWriter(BatchSource<Key, Value> src) {
         super(src);

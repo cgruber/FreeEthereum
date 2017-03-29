@@ -5,25 +5,21 @@ import java.util.List;
 
 public class Bucket {
 
-    public static int MAX_KADEMLIA_K = 5;
-
+    private static final int MAX_KADEMLIA_K = 5;
+    private final String name;
     // if bit = 1 go left
-    Bucket left;
-
+    private Bucket left;
     // if bit = 0 go right
-    Bucket right;
-
-    String name;
-
-    List<Peer> peers = new ArrayList<>();
+    private Bucket right;
+    private List<Peer> peers = new ArrayList<>();
 
 
-    public Bucket(String name) {
+    private Bucket(String name) {
         this.name = name;
     }
 
 
-    public void add(Peer peer) {
+    private void add(Peer peer) {
 
         if (peer == null) throw new Error("Not a leaf");
 
@@ -43,7 +39,7 @@ public class Bucket {
             splitBucket();
     }
 
-    public void splitBucket() {
+    private void splitBucket() {
         left = new Bucket(name + "1");
         right = new Bucket(name + "0");
 
@@ -94,13 +90,20 @@ public class Bucket {
 
     /********************/
      // tree operations //
+    public String getName() {
+        return name;
+    }
+
+    public List<Peer> getPeers() {
+        return peers;
+    }
+
     /********************/
 
     public interface DoOnTree {
 
         void call(Bucket bucket);
     }
-
 
     public static class SaveLeaf implements DoOnTree {
 
@@ -118,13 +121,5 @@ public class Bucket {
         public void setLeafs(List<Bucket> leafs) {
             this.leafs = leafs;
         }
-    }
-
-    public String getName(){
-        return name;
-    }
-
-    public List<Peer> getPeers() {
-        return peers;
     }
 }

@@ -17,40 +17,7 @@ import java.util.List;
  */
 public class ProcessNewBlockHashesTest {
     private static final Logger logger = LoggerFactory.getLogger("test");
-
-    private class Eth62Tester extends Eth62 {
-
-        private byte[] blockHash;
-        private int maxBlockAsk;
-        private int skip;
-        private boolean reverse;
-
-        private boolean wasCalled = false;
-
-        Eth62Tester() {
-            this.syncDone = true;
-            this.channel = new Channel();
-        }
-
-        void setGetNewBlockHeadersParams(byte[] blockHash, int maxBlocksAsk, int skip, boolean reverse) {
-            this.blockHash = blockHash;
-            this.maxBlockAsk = maxBlocksAsk;
-            this.skip = skip;
-            this.reverse = reverse;
-            this.wasCalled = false;
-        }
-
-        @Override
-        protected synchronized void sendGetNewBlockHeaders(byte[] blockHash, int maxBlocksAsk, int skip, boolean reverse) {
-            this.wasCalled = true;
-            logger.error("Request for sending new headers: hash {}, max {}, skip {}, reverse {}",
-                    Hex.toHexString(blockHash), maxBlocksAsk, skip, reverse);
-            assert Arrays.equals(blockHash, this.blockHash) &&
-                    maxBlocksAsk == this.maxBlockAsk && skip == this.skip && reverse == this.reverse;
-        }
-    }
-
-    private Eth62Tester ethHandler;
+    private final Eth62Tester ethHandler;
 
     public ProcessNewBlockHashesTest() {
         ethHandler = new Eth62Tester();
@@ -105,5 +72,37 @@ public class ProcessNewBlockHashesTest {
         ethHandler.setGetNewBlockHeadersParams(blockHash2, 3, 0, false);
         ethHandler.processNewBlockHashes(msg);
         assert ethHandler.wasCalled;
+    }
+
+    private class Eth62Tester extends Eth62 {
+
+        private byte[] blockHash;
+        private int maxBlockAsk;
+        private int skip;
+        private boolean reverse;
+
+        private boolean wasCalled = false;
+
+        Eth62Tester() {
+            this.syncDone = true;
+            this.channel = new Channel();
+        }
+
+        void setGetNewBlockHeadersParams(byte[] blockHash, int maxBlocksAsk, int skip, boolean reverse) {
+            this.blockHash = blockHash;
+            this.maxBlockAsk = maxBlocksAsk;
+            this.skip = skip;
+            this.reverse = reverse;
+            this.wasCalled = false;
+        }
+
+        @Override
+        protected synchronized void sendGetNewBlockHeaders(byte[] blockHash, int maxBlocksAsk, int skip, boolean reverse) {
+            this.wasCalled = true;
+            logger.error("Request for sending new headers: hash {}, max {}, skip {}, reverse {}",
+                    Hex.toHexString(blockHash), maxBlocksAsk, skip, reverse);
+            assert Arrays.equals(blockHash, this.blockHash) &&
+                    maxBlocksAsk == this.maxBlockAsk && skip == this.skip && reverse == this.reverse;
+        }
     }
 }

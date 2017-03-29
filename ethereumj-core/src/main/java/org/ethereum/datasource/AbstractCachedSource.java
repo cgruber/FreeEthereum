@@ -11,30 +11,11 @@ public abstract class AbstractCachedSource <Key, Value>
         implements CachedSource<Key, Value> {
 
     private final Object lock = new Object();
-
-    /**
-     * Like the Optional interface represents either the value cached
-     * or null cached (i.e. cache knows that underlying storage contain null)
-     */
-    public interface Entry<V> {
-        V value();
-    }
-
-    static final class SimpleEntry<V> implements Entry<V> {
-        private V val;
-        public SimpleEntry(V val) {
-            this.val = val;
-        }
-        public V value() {
-            return val;
-        }
-    }
-
-    protected MemSizeEstimator<Key> keySizeEstimator;
-    protected MemSizeEstimator<Value> valueSizeEstimator;
+    MemSizeEstimator<Key> keySizeEstimator;
+    MemSizeEstimator<Value> valueSizeEstimator;
     private int size = 0;
 
-    public AbstractCachedSource(Source<Key, Value> source) {
+    AbstractCachedSource(Source<Key, Value> source) {
         super(source);
     }
 
@@ -52,7 +33,7 @@ public abstract class AbstractCachedSource <Key, Value>
      * If the value for the key is changed the {@link #cacheRemoved}
      * needs to be called first
      */
-    protected void cacheAdded(Key key, Value value) {
+    void cacheAdded(Key key, Value value) {
         synchronized (lock) {
             if (keySizeEstimator != null) {
                 size += keySizeEstimator.estimateSize(key);
@@ -66,7 +47,7 @@ public abstract class AbstractCachedSource <Key, Value>
     /**
      * Needs to be called by the implementation when cache entry is removed
      */
-    protected void cacheRemoved(Key key, Value value) {
+    void cacheRemoved(Key key, Value value) {
         synchronized (lock) {
             if (keySizeEstimator != null) {
                 size -= keySizeEstimator.estimateSize(key);
@@ -80,7 +61,7 @@ public abstract class AbstractCachedSource <Key, Value>
     /**
      * Needs to be called by the implementation when cache is cleared
      */
-    protected void cacheCleared() {
+    void cacheCleared() {
         synchronized (lock) {
             size = 0;
         }
@@ -98,5 +79,25 @@ public abstract class AbstractCachedSource <Key, Value>
     @Override
     public long estimateCacheSize() {
         return size;
+    }
+
+    /**
+     * Like the Optional interface represents either the value cached
+     * or null cached (i.e. cache knows that underlying storage contain null)
+     */
+    public interface Entry<V> {
+        V value();
+    }
+
+    static final class SimpleEntry<V> implements Entry<V> {
+        private final V val;
+
+        public SimpleEntry(V val) {
+            this.val = val;
+        }
+
+        public V value() {
+            return val;
+        }
     }
 }

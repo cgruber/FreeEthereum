@@ -32,19 +32,19 @@ import static org.ethereum.util.ByteUtil.longToBytes;
  */
 public class Ethash {
     private static final Logger logger = LoggerFactory.getLogger("mine");
-    public static boolean fileCacheEnabled = true;
-    private static EthashParams ethashParams = new EthashParams();
-    private static Ethash cachedInstance = null;
-    private static long cachedBlockEpoch = 0;
+    private static final EthashParams ethashParams = new EthashParams();
     //    private static ExecutorService executor = Executors.newSingleThreadExecutor();
-    private static ListeningExecutorService executor = MoreExecutors.listeningDecorator(
+    private static final ListeningExecutorService executor = MoreExecutors.listeningDecorator(
             new ThreadPoolExecutor(8, 8, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
             new ThreadFactoryBuilder().setNameFormat("ethash-pool-%d").build()));
-    private EthashAlgo ethashAlgo = new EthashAlgo(ethashParams);
-    private long blockNumber;
+    public static boolean fileCacheEnabled = true;
+    private static Ethash cachedInstance = null;
+    private static long cachedBlockEpoch = 0;
+    private final EthashAlgo ethashAlgo = new EthashAlgo(ethashParams);
+    private final long blockNumber;
+    private final SystemProperties config;
     private int[] cacheLight = null;
     private int[] fullData = null;
-    private SystemProperties config;
     private long startNonce = -1;
     public Ethash(SystemProperties config, long blockNumber) {
         this.config = config;
@@ -66,7 +66,7 @@ public class Ethash {
         return cachedInstance;
     }
 
-    public synchronized int[] getCacheLight() {
+    private synchronized int[] getCacheLight() {
         if (cacheLight == null) {
             File file = new File(config.ethashDir(), "mine-dag-light.dat");
             if (fileCacheEnabled && file.canRead()) {
@@ -155,7 +155,7 @@ public class Ethash {
     /**
      *  See {@link EthashAlgo#hashimotoLight}
      */
-    public Pair<byte[], byte[]> hashimotoLight(BlockHeader header, long nonce) {
+    private Pair<byte[], byte[]> hashimotoLight(BlockHeader header, long nonce) {
         return hashimotoLight(header, longToBytes(nonce));
     }
 
@@ -189,7 +189,7 @@ public class Ethash {
      */
     public ListenableFuture<MiningResult> mine(final Block block, int nThreads) {
         return new MineTask(block, nThreads,  new Callable<MiningResult>() {
-            AtomicLong taskStartNonce = new AtomicLong(startNonce >= 0 ? startNonce : new Random().nextLong());
+            final AtomicLong taskStartNonce = new AtomicLong(startNonce >= 0 ? startNonce : new Random().nextLong());
             @Override
             public MiningResult call() throws Exception {
                 long threadStartNonce = taskStartNonce.getAndAdd(0x100000000L);
@@ -219,7 +219,7 @@ public class Ethash {
      */
     public ListenableFuture<MiningResult> mineLight(final Block block, int nThreads) {
         return new MineTask(block, nThreads,  new Callable<MiningResult>() {
-            AtomicLong taskStartNonce = new AtomicLong(startNonce >= 0 ? startNonce : new Random().nextLong());
+            final AtomicLong taskStartNonce = new AtomicLong(startNonce >= 0 ? startNonce : new Random().nextLong());
             @Override
             public MiningResult call() throws Exception {
                 long threadStartNonce = taskStartNonce.getAndAdd(0x100000000L);
@@ -243,9 +243,9 @@ public class Ethash {
     }
 
     class MineTask extends AnyFuture<MiningResult> {
-        Block block;
-        int nThreads;
-        Callable<MiningResult> miner;
+        final Block block;
+        final int nThreads;
+        final Callable<MiningResult> miner;
 
         public MineTask(Block block, int nThreads, Callable<MiningResult> miner) {
             this.block = block;

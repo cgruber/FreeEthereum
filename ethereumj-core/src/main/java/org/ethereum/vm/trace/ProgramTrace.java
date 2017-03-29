@@ -42,7 +42,7 @@ public class ProgramTrace {
         return result;
     }
 
-    public void setResult(String result) {
+    private void setResult(String result) {
         this.result = result;
     }
 
@@ -50,7 +50,7 @@ public class ProgramTrace {
         return error;
     }
 
-    public void setError(String error) {
+    private void setError(String error) {
         this.error = error;
     }
 

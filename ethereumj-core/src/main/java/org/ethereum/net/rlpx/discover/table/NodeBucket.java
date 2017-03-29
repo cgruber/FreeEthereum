@@ -9,7 +9,7 @@ import java.util.List;
 public class NodeBucket {
 
     private final int depth;
-    private List<NodeEntry> nodes = new ArrayList<>();
+    private final List<NodeEntry> nodes = new ArrayList<>();
 
     NodeBucket(int depth) {
         this.depth = depth;

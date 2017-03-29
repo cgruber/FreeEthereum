@@ -49,39 +49,38 @@ import static org.spongycastle.util.encoders.Hex.toHexString;
 @Scope("prototype")
 public class Eth62 extends EthHandler {
 
-    protected static final int MAX_HASHES_TO_SEND = 65536;
-
-    protected final static Logger logger = LoggerFactory.getLogger("sync");
-    protected final static Logger loggerNet = LoggerFactory.getLogger("net");
+    final static Logger logger = LoggerFactory.getLogger("sync");
+    private static final int MAX_HASHES_TO_SEND = 65536;
+    private final static Logger loggerNet = LoggerFactory.getLogger("net");
     private static final EthVersion version = V62;
+    final long connectedTime = System.currentTimeMillis();
     /**
      * Header list sent in GET_BLOCK_BODIES message,
      * used to create blocks from headers and bodies
      * also, is useful when returned BLOCK_BODIES msg doesn't cover all sent hashes
      * or in case when peer is disconnected
      */
-    protected final List<BlockHeaderWrapper> sentHeaders = Collections.synchronizedList(new ArrayList<BlockHeaderWrapper>());
-    protected final SyncStatistics syncStats = new SyncStatistics();
-    @Autowired
-    protected BlockStore blockstore;
-    @Autowired
-    protected SyncManager syncManager;
-    @Autowired
-    protected PendingState pendingState;
+    private final List<BlockHeaderWrapper> sentHeaders = Collections.synchronizedList(new ArrayList<BlockHeaderWrapper>());
+    private final SyncStatistics syncStats = new SyncStatistics();
     @Autowired
     protected NodeManager nodeManager;
-    protected EthState ethState = EthState.INIT;
-    protected PeerState peerState = IDLE;
-    protected boolean syncDone = false;
+    @Autowired
+    BlockStore blockstore;
+    @Autowired
+    SyncManager syncManager;
+    PeerState peerState = IDLE;
+    boolean syncDone = false;
+    long lastReqSentTime;
+    long processingTime = 0;
+    @Autowired
+    private PendingState pendingState;
+    private EthState ethState = EthState.INIT;
     /**
      * Number and hash of best known remote block
      */
-    protected BlockIdentifier bestKnownBlock;
-    protected SettableFuture<List<Block>> futureBlocks;
-    protected GetBlockHeadersMessageWrapper headerRequest;
-    protected long lastReqSentTime;
-    protected long connectedTime = System.currentTimeMillis();
-    protected long processingTime = 0;
+    private BlockIdentifier bestKnownBlock;
+    private SettableFuture<List<Block>> futureBlocks;
+    private GetBlockHeadersMessageWrapper headerRequest;
     private BigInteger totalDifficulty;
     private Map<Long, BlockHeaderValidator> validatorMap;
 
@@ -217,11 +216,11 @@ public class Eth62 extends EthHandler {
         return sendGetBlockHeaders(blockHash, maxBlocksAsk, skip, reverse, false);
     }
 
-    protected synchronized void sendGetNewBlockHeaders(byte[] blockHash, int maxBlocksAsk, int skip, boolean reverse) {
+    synchronized void sendGetNewBlockHeaders(byte[] blockHash, int maxBlocksAsk, int skip, boolean reverse) {
         sendGetBlockHeaders(blockHash, maxBlocksAsk, skip, reverse, true);
     }
 
-    protected synchronized ListenableFuture<List<BlockHeader>> sendGetBlockHeaders(byte[] blockHash, int maxBlocksAsk, int skip, boolean reverse, boolean newHashes) {
+    private synchronized ListenableFuture<List<BlockHeader>> sendGetBlockHeaders(byte[] blockHash, int maxBlocksAsk, int skip, boolean reverse, boolean newHashes) {
 
         if (peerState != IDLE) return null;
 
@@ -286,7 +285,7 @@ public class Eth62 extends EthHandler {
      *  Message Processing   *
      *************************/
 
-    protected synchronized void processStatus(StatusMessage msg, ChannelHandlerContext ctx) throws InterruptedException {
+    private synchronized void processStatus(StatusMessage msg, ChannelHandlerContext ctx) throws InterruptedException {
 
         try {
 
@@ -326,7 +325,7 @@ public class Eth62 extends EthHandler {
         }
     }
 
-    protected synchronized void processNewBlockHashes(NewBlockHashesMessage msg) {
+    synchronized void processNewBlockHashes(NewBlockHashesMessage msg) {
 
         if(logger.isTraceEnabled()) logger.trace(
                 "Peer {}: processing NewBlockHashes, size [{}]",
@@ -365,7 +364,7 @@ public class Eth62 extends EthHandler {
         }
     }
 
-    protected synchronized void processTransactions(TransactionsMessage msg) {
+    private synchronized void processTransactions(TransactionsMessage msg) {
         if(!processTransactions) {
             return;
         }
@@ -390,7 +389,7 @@ public class Eth62 extends EthHandler {
         sendMessage(response);
     }
 
-    protected synchronized void processBlockHeaders(BlockHeadersMessage msg) {
+    private synchronized void processBlockHeaders(BlockHeadersMessage msg) {
 
         if(logger.isTraceEnabled()) logger.trace(
                 "Peer {}: processing BlockHeaders, size [{}]",
@@ -428,7 +427,7 @@ public class Eth62 extends EthHandler {
         sendMessage(response);
     }
 
-    protected synchronized void processBlockBodies(BlockBodiesMessage msg) {
+    private synchronized void processBlockBodies(BlockBodiesMessage msg) {
 
         if (logger.isTraceEnabled()) logger.trace(
                 "Peer {}: process BlockBodies, size [{}]",
@@ -465,7 +464,7 @@ public class Eth62 extends EthHandler {
         peerState = IDLE;
     }
 
-    protected synchronized void processNewBlock(NewBlockMessage newBlockMessage) {
+    private synchronized void processNewBlock(NewBlockMessage newBlockMessage) {
 
         Block newBlock = newBlockMessage.getBlock();
 
@@ -494,7 +493,7 @@ public class Eth62 extends EthHandler {
         sendGetBlockBodies(headers);
     }
 
-    protected synchronized void sendNextHeaderRequest() {
+    private synchronized void sendNextHeaderRequest() {
 
         // do not send header requests if status hasn't been passed yet
         if (ethState == EthState.INIT) return;
@@ -510,7 +509,7 @@ public class Eth62 extends EthHandler {
         lastReqSentTime = System.currentTimeMillis();
     }
 
-    protected synchronized void processInitHeaders(List<BlockHeader> received) {
+    private synchronized void processInitHeaders(List<BlockHeader> received) {
 
         final BlockHeader blockHeader = received.get(0);
         final long blockNumber = blockHeader.getNumber();
@@ -711,7 +710,7 @@ public class Eth62 extends EthHandler {
         return response.getBlockBodies().size() <= sentHeaders.size();
     }
 
-    protected boolean isValid(BlockHeadersMessage response, GetBlockHeadersMessageWrapper requestWrapper) {
+    boolean isValid(BlockHeadersMessage response, GetBlockHeadersMessageWrapper requestWrapper) {
 
         GetBlockHeadersMessage request = requestWrapper.getMessage();
         List<BlockHeader> headers = response.getBlockHeaders();

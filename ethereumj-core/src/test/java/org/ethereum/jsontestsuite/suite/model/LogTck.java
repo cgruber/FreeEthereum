@@ -4,10 +4,10 @@ import java.util.List;
 
 public class LogTck {
 
-    String address;
-    String bloom;
-    String data;
-    List<String> topics;
+    private String address;
+    private String bloom;
+    private String data;
+    private List<String> topics;
 
     public LogTck() {
     }

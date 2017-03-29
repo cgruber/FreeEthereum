@@ -40,7 +40,7 @@ public class ChunkerTest {
     }
 
     public static class SimpleChunkStore implements ChunkStore {
-        Map<Key, byte[]> map = new HashMap<>();
+        final Map<Key, byte[]> map = new HashMap<>();
 
         @Override
         public void put(Chunk chunk) {

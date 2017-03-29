@@ -9,20 +9,19 @@ import org.ethereum.core.Transaction;
 public class TransactionResultDTO {
 
     public String hash;
-    public String nonce;
-    public String blockHash;
-    public String blockNumber;
-    public String transactionIndex;
-
-    public String from;
-    public String to;
-    public String gas;
-    public String gasPrice;
-    public String value;
-    public String input;
     public String v;
     public String r;
     public String s;
+    private String nonce;
+    private String blockHash;
+    private String blockNumber;
+    private String transactionIndex;
+    private String from;
+    private String to;
+    private String gas;
+    private String gasPrice;
+    private String value;
+    private String input;
 
     public TransactionResultDTO() {
     }

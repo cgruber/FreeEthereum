@@ -60,24 +60,24 @@ import static org.ethereum.util.ByteUtil.longToBytes;
 
 public class QuotientFilter implements Iterable<Long> {
 //    static final XXHashFactory hashFactory = XXHashFactory.fastestInstance();
-    byte QUOTIENT_BITS;
-    byte REMAINDER_BITS;
-    byte ELEMENT_BITS;
-    long INDEX_MASK;
-    long REMAINDER_MASK;
-    long ELEMENT_MASK;
-    long MAX_SIZE;
-    long MAX_INSERTIONS;
-    int MAX_DUPLICATES = 2;
-    long[] table;
+private byte QUOTIENT_BITS;
+    private byte REMAINDER_BITS;
+    private byte ELEMENT_BITS;
+    private long INDEX_MASK;
+    private long REMAINDER_MASK;
+    private long ELEMENT_MASK;
+    private long MAX_SIZE;
+    private long MAX_INSERTIONS;
+    private int MAX_DUPLICATES = 2;
+    private long[] table;
 
-    boolean overflowed = false;
-    long entries;
+    private boolean overflowed = false;
+    private long entries;
 
     private QuotientFilter() {
     }
 
-    public QuotientFilter(int quotientBits, int remainderBits) {
+    private QuotientFilter(int quotientBits, int remainderBits) {
         Preconditions.checkArgument(quotientBits > 0);
         Preconditions.checkArgument(remainderBits > 0);
         Preconditions.checkArgument(quotientBits + remainderBits <= 64);
@@ -113,17 +113,17 @@ public class QuotientFilter implements Iterable<Long> {
         return ret;
     }
 
-    static long LOW_MASK(long n) {
+    private static long LOW_MASK(long n) {
         return (1L << n) - 1L;
     }
 
-    static int TABLE_SIZE(int quotientBits, int remainderBits) {
+    private static int TABLE_SIZE(int quotientBits, int remainderBits) {
         long bits = (1 << quotientBits) * (remainderBits + 3);
         long longs = bits / 64;
         return Ints.checkedCast((bits % 64) > 0 ? (longs + 1) : longs);
     }
 
-    static int bitsForNumElementsWithLoadFactor(long numElements) {
+    private static int bitsForNumElementsWithLoadFactor(long numElements) {
         if (numElements == 0) {
             return 1;
         }
@@ -162,55 +162,55 @@ public class QuotientFilter implements Iterable<Long> {
         return new QuotientFilter(quotientBits, remainderBits);
     }
 
-    static boolean isElementOccupied(long elt) {
+    private static boolean isElementOccupied(long elt) {
         return (elt & 1) != 0;
     }
 
-    static long setElementOccupied(long elt) {
+    private static long setElementOccupied(long elt) {
         return elt | 1;
     }
 
-    static long clearElementOccupied(long elt) {
+    private static long clearElementOccupied(long elt) {
         return elt & ~1;
     }
 
-    static boolean isElementContinuation(long elt) {
+    private static boolean isElementContinuation(long elt) {
         return (elt & 2) != 0;
     }
 
-    static long setElementContinuation(long elt) {
+    private static long setElementContinuation(long elt) {
         return elt | 2;
     }
 
-    static long clearElementContinuation(long elt) {
+    private static long clearElementContinuation(long elt) {
         return elt & ~2;
     }
 
-    static boolean isElementShifted(long elt) {
+    private static boolean isElementShifted(long elt) {
         return (elt & 4) != 0;
     }
 
-    static long setElementShifted(long elt) {
+    private static long setElementShifted(long elt) {
         return elt | 4;
     }
 
-    static long clearElementShifted(long elt) {
+    private static long clearElementShifted(long elt) {
         return elt & ~4;
     }
 
-    static long getElementRemainder(long elt) {
+    private static long getElementRemainder(long elt) {
         return elt >>> 3;
     }
 
-    static boolean isElementEmpty(long elt) {
+    private static boolean isElementEmpty(long elt) {
         return (elt & 7) == 0;
     }
 
-    static boolean isElementClusterStart(long elt) {
+    private static boolean isElementClusterStart(long elt) {
         return isElementOccupied(elt) & !isElementContinuation(elt) & !isElementShifted(elt);
     }
 
-    static boolean isElementRunStart(long elt) {
+    private static boolean isElementRunStart(long elt) {
         return !isElementContinuation(elt) & (isElementOccupied(elt) | isElementShifted(elt));
     }
 
@@ -238,7 +238,7 @@ public class QuotientFilter implements Iterable<Long> {
     }
 
     /* Return QF[idx] in the lower bits. */
-    long getElement(long idx) {
+    private long getElement(long idx) {
         long elt = 0;
         long bitpos = ELEMENT_BITS * idx;
         int tabpos = Ints.checkedCast(bitpos / 64);
@@ -254,7 +254,7 @@ public class QuotientFilter implements Iterable<Long> {
     }
 
     /* Store the lower bits of elt into QF[idx]. */
-    void setElement(long idx, long elt) {
+    private void setElement(long idx, long elt) {
         long bitpos = ELEMENT_BITS * idx;
         int tabpos = Ints.checkedCast(bitpos / 64);
         long slotpos = bitpos % 64;
@@ -269,24 +269,24 @@ public class QuotientFilter implements Iterable<Long> {
         }
     }
 
-    long incrementIndex(long idx) {
+    private long incrementIndex(long idx) {
         return (idx + 1) & INDEX_MASK;
     }
 
-    long decrementIndex(long idx) {
+    private long decrementIndex(long idx) {
         return (idx - 1) & INDEX_MASK;
     }
 
-    long hashToQuotient(long hash) {
+    private long hashToQuotient(long hash) {
         return (hash >>> REMAINDER_BITS) & INDEX_MASK;
     }
 
-    long hashToRemainder(long hash) {
+    private long hashToRemainder(long hash) {
         return hash & REMAINDER_MASK;
     }
 
     /* Find the start index of the run for fq (given that the run exists). */
-    long findRunIndex(long fq) {
+    private long findRunIndex(long fq) {
         /* Find the start of the cluster. */
         long b = fq;
         while (isElementShifted(getElement(b))) {
@@ -310,7 +310,7 @@ public class QuotientFilter implements Iterable<Long> {
     }
 
     /* Insert elt into QF[s], shifting over elements as necessary. */
-    void insertInto(long s, long elt) {
+    private void insertInto(long s, long elt) {
         long prev;
         long curr = elt;
         boolean empty;
@@ -480,7 +480,7 @@ public class QuotientFilter implements Iterable<Long> {
         return false;
     }
 
-    public synchronized boolean maybeContainsXTimes(long hash, int num) {
+    private synchronized boolean maybeContainsXTimes(long hash, int num) {
         if (overflowed) {
             //Can't check for existence after overflow occurred
             //and things are missing
@@ -513,7 +513,7 @@ public class QuotientFilter implements Iterable<Long> {
     }
 
     /* Remove the entry in QF[s] and slide the rest of the cluster forward. */
-    void deleteEntry(long s, long quot) {
+    private void deleteEntry(long s, long quot) {
         long next;
         long curr = getElement(s);
         long sp = incrementIndex(s);
@@ -664,7 +664,7 @@ public class QuotientFilter implements Iterable<Long> {
      * Resizes the filter return a filter with the same contents and space for the minimum specified number
      * of entries. This may allocate a new filter or return the existing filter.
      */
-    public QuotientFilter resize(long minimumEntries) {
+    private QuotientFilter resize(long minimumEntries) {
         if (minimumEntries <= MAX_INSERTIONS) {
             return this;
         }

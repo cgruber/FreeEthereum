@@ -16,8 +16,8 @@ import static org.junit.Assert.assertEquals;
 public class DaoLightMiningTest {
 
     // configure
-    final int FORK_BLOCK = 20;
-    final int FORK_BLOCK_AFFECTED = 10; // hardcoded in DAO config
+    private final int FORK_BLOCK = 20;
+    private final int FORK_BLOCK_AFFECTED = 10; // hardcoded in DAO config
 
 
     @Test

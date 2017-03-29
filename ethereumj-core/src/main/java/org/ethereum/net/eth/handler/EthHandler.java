@@ -2,15 +2,19 @@ package org.ethereum.net.eth.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.ethereum.db.BlockStore;
-import org.ethereum.listener.EthereumListener;
 import org.ethereum.config.SystemProperties;
-import org.ethereum.core.*;
+import org.ethereum.core.Block;
+import org.ethereum.core.Blockchain;
+import org.ethereum.core.TransactionReceipt;
+import org.ethereum.db.BlockStore;
 import org.ethereum.listener.CompositeEthereumListener;
+import org.ethereum.listener.EthereumListener;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.net.MessageQueue;
 import org.ethereum.net.eth.EthVersion;
-import org.ethereum.net.eth.message.*;
+import org.ethereum.net.eth.message.EthMessage;
+import org.ethereum.net.eth.message.EthMessageCodes;
+import org.ethereum.net.eth.message.StatusMessage;
 import org.ethereum.net.message.ReasonCode;
 import org.ethereum.net.server.Channel;
 import org.slf4j.Logger;
@@ -27,38 +31,29 @@ import java.util.List;
 public abstract class EthHandler extends SimpleChannelInboundHandler<EthMessage> implements Eth {
 
     private final static Logger logger = LoggerFactory.getLogger("net");
-
+    private final EthVersion version;
     protected Blockchain blockchain;
-
-    protected SystemProperties config;
-
-    protected CompositeEthereumListener ethereumListener;
-
-    protected Channel channel;
-
+    SystemProperties config;
+    CompositeEthereumListener ethereumListener;
+    Channel channel;
+    boolean peerDiscoveryMode = false;
+    boolean processTransactions = false;
     private MessageQueue msgQueue = null;
-
-    protected EthVersion version;
-
-    protected boolean peerDiscoveryMode = false;
-
-    protected Block bestBlock;
-    protected EthereumListener listener = new EthereumListenerAdapter() {
+    private Block bestBlock;
+    private final EthereumListener listener = new EthereumListenerAdapter() {
         @Override
         public void onBlock(Block block, List<TransactionReceipt> receipts) {
             bestBlock = block;
         }
     };
 
-    protected boolean processTransactions = false;
-
-    protected EthHandler(EthVersion version) {
+    EthHandler(EthVersion version) {
         this.version = version;
     }
 
-    protected EthHandler(final EthVersion version, final SystemProperties config,
-                         final Blockchain blockchain, final BlockStore blockStore,
-                         final CompositeEthereumListener ethereumListener) {
+    EthHandler(final EthVersion version, final SystemProperties config,
+               final Blockchain blockchain, final BlockStore blockStore,
+               final CompositeEthereumListener ethereumListener) {
         this.version = version;
         this.config = config;
         this.ethereumListener = ethereumListener;
@@ -101,7 +96,7 @@ public abstract class EthHandler extends SimpleChannelInboundHandler<EthMessage>
         sendStatus();
     }
 
-    protected void disconnect(ReasonCode reason) {
+    void disconnect(ReasonCode reason) {
         msgQueue.disconnect(reason);
         channel.getNodeStatistics().nodeDisconnectedLocal(reason);
     }

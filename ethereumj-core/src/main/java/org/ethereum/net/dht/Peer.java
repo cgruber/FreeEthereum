@@ -6,10 +6,10 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 
-public class Peer {
-    byte[] id;
-    String host = "127.0.0.1";
-    int port = 0;
+class Peer {
+    private byte[] id;
+    private String host = "127.0.0.1";
+    private int port = 0;
 
     public Peer(byte[] id, String host, int port) {
         this.id = id;
@@ -43,7 +43,7 @@ public class Peer {
     }
 
 
-    public byte[] getId() {
+    private byte[] getId() {
         return id;
     }
 

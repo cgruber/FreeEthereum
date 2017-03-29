@@ -12,7 +12,7 @@ import java.util.Arrays;
  * @author Mikhail Kalinin
  * @since 11.08.2015
  */
-public class PendingTransaction {
+class PendingTransaction {
 
     /**
      * transaction
@@ -45,7 +45,7 @@ public class PendingTransaction {
         return blockNumber;
     }
 
-    public byte[] getSender() {
+    private byte[] getSender() {
         return transaction.getSender();
     }
 

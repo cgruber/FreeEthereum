@@ -31,32 +31,30 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 @Component
 public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
-    static final org.slf4j.Logger logger = LoggerFactory.getLogger("discover");
     static final int MAX_NODES = 2000;
-    static final int NODES_TRIM_THRESHOLD = 3000;
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("discover");
+    private static final int NODES_TRIM_THRESHOLD = 3000;
     private static final long LISTENER_REFRESH_RATE = 1000;
     private static final long DB_COMMIT_RATE = 1 * 60 * 1000;
     final ECKey key;
     final Node homeNode;
+    final NodeTable table;
     private final boolean PERSIST;
-    PeerConnectionTester peerConnectionManager;
-    PeerSource peerSource;
-    EthereumListener ethereumListener;
-    SystemProperties config = SystemProperties.getDefault();
-    Functional.Consumer<DiscoveryEvent> messageSender;
-    NodeTable table;
+    private final PeerConnectionTester peerConnectionManager;
+    private final EthereumListener ethereumListener;
     // option to handle inbounds only from known peers (i.e. which were discovered by ourselves)
-    boolean inboundOnlyFromKnownNodes = false;
-    private Map<String, NodeHandler> nodeHandlerMap = new HashMap<>();
+    private final boolean inboundOnlyFromKnownNodes = false;
+    private final Map<String, NodeHandler> nodeHandlerMap = new HashMap<>();
+    private final boolean discoveryEnabled;
+    private final Map<DiscoverListener, ListenerHandler> listeners = new IdentityHashMap<>();
+    private final Timer logStatsTimer = new Timer();
+    private final Timer nodeManagerTasksTimer = new Timer("NodeManagerTasks");
+    private final ScheduledExecutorService pongTimer;
+    private PeerSource peerSource;
+    private SystemProperties config = SystemProperties.getDefault();
+    private Functional.Consumer<DiscoveryEvent> messageSender;
     private List<Node> bootNodes;
-    private boolean discoveryEnabled;
-
-    private Map<DiscoverListener, ListenerHandler> listeners = new IdentityHashMap<>();
-
     private boolean inited = false;
-    private Timer logStatsTimer = new Timer();
-    private Timer nodeManagerTasksTimer = new Timer("NodeManagerTasks");
-    private ScheduledExecutorService pongTimer;
 
     @Autowired
     public NodeManager(SystemProperties config, EthereumListener ethereumListener,
@@ -206,7 +204,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
     }
 
 
-    boolean hasNodeHandler(Node n) {
+    private boolean hasNodeHandler(Node n) {
         return nodeHandlerMap.containsKey(getKey(n));
     }
 
@@ -330,7 +328,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
         listeners.remove(listener);
     }
 
-    public synchronized String dumpAllStatistics() {
+    private synchronized String dumpAllStatistics() {
         List<NodeHandler> l = new ArrayList<>(nodeHandlerMap.values());
         l.sort(new Comparator<NodeHandler>() {
             public int compare(NodeHandler o1, NodeHandler o2) {
@@ -391,9 +389,9 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
     }
 
     private class ListenerHandler {
-        Map<NodeHandler, Object> discoveredNodes = new IdentityHashMap<>();
-        DiscoverListener listener;
-        Functional.Predicate<NodeStatistics> filter;
+        final Map<NodeHandler, Object> discoveredNodes = new IdentityHashMap<>();
+        final DiscoverListener listener;
+        final Functional.Predicate<NodeStatistics> filter;
 
         ListenerHandler(DiscoverListener listener, Functional.Predicate<NodeStatistics> filter) {
             this.listener = listener;

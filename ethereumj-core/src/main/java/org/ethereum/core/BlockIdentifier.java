@@ -21,12 +21,12 @@ public class BlockIdentifier {
     /**
      * Block hash
      */
-    private byte[] hash;
+    private final byte[] hash;
 
     /**
      * Block number
      */
-    private long number;
+    private final long number;
 
     public BlockIdentifier(RLPList rlp) {
         this.hash = rlp.get(0).getRLPData();

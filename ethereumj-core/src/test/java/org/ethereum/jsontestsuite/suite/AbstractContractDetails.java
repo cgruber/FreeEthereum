@@ -7,8 +7,8 @@ import org.spongycastle.util.encoders.Hex;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.crypto.HashUtil.EMPTY_DATA_HASH;
+import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 
 /**
@@ -29,6 +29,13 @@ public abstract class AbstractContractDetails implements ContractDetails {
     }
 
     @Override
+    public void setCode(byte[] code) {
+        if (code == null) return;
+        codes.put(new ByteArrayWrapper(sha3(code)), code);
+        setDirty(true);
+    }
+
+    @Override
     public byte[] getCode(byte[] codeHash) {
         if (java.util.Arrays.equals(codeHash, EMPTY_DATA_HASH))
             return EMPTY_BYTE_ARRAY;
@@ -36,28 +43,16 @@ public abstract class AbstractContractDetails implements ContractDetails {
         return code == null ? EMPTY_BYTE_ARRAY : code;
     }
 
-    @Override
-    public void setCode(byte[] code) {
-        if (code == null) return;
-        codes.put(new ByteArrayWrapper(sha3(code)), code);
-        setDirty(true);
-    }
-
-    protected Map<ByteArrayWrapper, byte[]> getCodes() {
+    Map<ByteArrayWrapper, byte[]> getCodes() {
         return codes;
     }
 
-    protected void setCodes(Map<ByteArrayWrapper, byte[]> codes) {
+    void setCodes(Map<ByteArrayWrapper, byte[]> codes) {
         this.codes = new HashMap<>(codes);
     }
 
-    protected void appendCodes(Map<ByteArrayWrapper, byte[]> codes) {
+    void appendCodes(Map<ByteArrayWrapper, byte[]> codes) {
         this.codes.putAll(codes);
-    }
-
-    @Override
-    public void setDirty(boolean dirty) {
-        this.dirty = dirty;
     }
 
     @Override
@@ -66,13 +61,18 @@ public abstract class AbstractContractDetails implements ContractDetails {
     }
 
     @Override
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
     }
 
     @Override
     public boolean isDeleted() {
         return deleted;
+    }
+
+    @Override
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     public abstract ContractDetails clone();

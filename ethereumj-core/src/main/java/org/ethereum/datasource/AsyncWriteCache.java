@@ -18,13 +18,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public abstract class AsyncWriteCache<Key, Value> extends AbstractCachedSource<Key, Value> implements AsyncFlushable {
     private static final Logger logger = LoggerFactory.getLogger("db");
 
-    private static ListeningExecutorService flushExecutor = MoreExecutors.listeningDecorator(
+    private static final ListeningExecutorService flushExecutor = MoreExecutors.listeningDecorator(
             Executors.newFixedThreadPool(2, new ThreadFactoryBuilder().setNameFormat("AsyncWriteCacheThread-%d").build()));
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
     private final ALock rLock = new ALock(rwLock.readLock());
     private final ALock wLock = new ALock(rwLock.writeLock());
-    protected volatile WriteCache<Key, Value> curCache;
-    protected WriteCache<Key, Value> flushingCache;
+    private final WriteCache<Key, Value> flushingCache;
+    private volatile WriteCache<Key, Value> curCache;
     private ListenableFuture<Boolean> lastFlush = Futures.immediateFuture(false);
     private String name = "<null>";
 

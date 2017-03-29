@@ -14,9 +14,9 @@ import java.util.List;
 public class FollowAccount extends EthereumListenerAdapter {
 
 
-    Ethereum ethereum = null;
+    private Ethereum ethereum = null;
 
-    public FollowAccount(Ethereum ethereum) {
+    private FollowAccount(Ethereum ethereum) {
         this.ethereum = ethereum;
     }
 

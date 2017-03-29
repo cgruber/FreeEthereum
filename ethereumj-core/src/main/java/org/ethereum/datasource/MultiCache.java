@@ -66,7 +66,7 @@ public abstract class MultiCache<V extends CachedSource> extends ReadWriteCache.
      * Some additional tasks may be performed by subclasses here
      */
     protected boolean flushChild(byte[] key, V childCache) {
-        return childCache != null ? childCache.flush() : true;
+        return childCache == null || childCache.flush();
     }
 
     /**

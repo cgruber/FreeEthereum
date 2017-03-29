@@ -13,7 +13,7 @@ public class BlockTestSuite {
 
     private Logger logger = LoggerFactory.getLogger("TCK-Test");
 
-    Map<String, BlockTestCase> testCases = new HashMap<>();
+    private Map<String, BlockTestCase> testCases = new HashMap<>();
 
     public BlockTestSuite(String json) throws IOException {
 

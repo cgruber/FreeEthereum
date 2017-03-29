@@ -3,7 +3,10 @@ package org.ethereum.core;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.trie.Trie;
 import org.ethereum.trie.TrieImpl;
-import org.ethereum.util.*;
+import org.ethereum.util.ByteUtil;
+import org.ethereum.util.RLP;
+import org.ethereum.util.RLPElement;
+import org.ethereum.util.RLPList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.Arrays;
@@ -30,21 +33,18 @@ import static org.ethereum.crypto.HashUtil.sha3;
 public class Block {
 
     private static final Logger logger = LoggerFactory.getLogger("blockchain");
-
+    private final StringBuffer toStringBuff = new StringBuffer();
     private BlockHeader header;
-
     /* Transactions */
     private List<Transaction> transactionsList = new CopyOnWriteArrayList<>();
 
+    /* Private */
     /* Uncles */
     private List<BlockHeader> uncleList = new CopyOnWriteArrayList<>();
-
-    /* Private */
-
     private byte[] rlpEncoded;
-    private boolean parsed = false;
 
     /* Constructors */
+    private boolean parsed = false;
 
     private Block() {
     }
@@ -75,6 +75,7 @@ public class Block {
                 uncleList);
     }
 
+
     public Block(byte[] parentHash, byte[] unclesHash, byte[] coinbase, byte[] logsBloom,
                  byte[] difficulty, long number, byte[] gasLimit,
                  long gasUsed, long timestamp, byte[] extraData,
@@ -93,7 +94,6 @@ public class Block {
         this.header.setStateRoot(stateRoot);
         this.header.setReceiptsRoot(receiptsRoot);
     }
-
 
     public Block(byte[] parentHash, byte[] unclesHash, byte[] coinbase, byte[] logsBloom,
                  byte[] difficulty, long number, byte[] gasLimit,
@@ -187,7 +187,6 @@ public class Block {
         return this.header.getReceiptsRoot();
     }
 
-
     public byte[] getLogBloom() {
         parseRLP();
         return this.header.getLogsBloom();
@@ -202,7 +201,6 @@ public class Block {
         parseRLP();
         return this.header.getDifficultyBI();
     }
-
 
     public BigInteger getCumulativeDifficulty() {
         parseRLP();
@@ -233,10 +231,14 @@ public class Block {
         return this.header.getGasUsed();
     }
 
-
     public byte[] getExtraData() {
         parseRLP();
         return this.header.getExtraData();
+    }
+
+    public void setExtraData(byte[] data) {
+        this.header.setExtraData(data);
+        rlpEncoded = null;
     }
 
     public byte[] getMixHash() {
@@ -244,6 +246,10 @@ public class Block {
         return this.header.getMixHash();
     }
 
+    public void setMixHash(byte[] hash) {
+        this.header.setMixHash(hash);
+        rlpEncoded = null;
+    }
 
     public byte[] getNonce() {
         parseRLP();
@@ -252,16 +258,6 @@ public class Block {
 
     public void setNonce(byte[] nonce) {
         this.header.setNonce(nonce);
-        rlpEncoded = null;
-    }
-
-    public void setMixHash(byte[] hash) {
-        this.header.setMixHash(hash);
-        rlpEncoded = null;
-    }
-
-    public void setExtraData(byte[] data) {
-        this.header.setExtraData(data);
         rlpEncoded = null;
     }
 
@@ -274,8 +270,6 @@ public class Block {
         parseRLP();
         return uncleList;
     }
-
-    private StringBuffer toStringBuff = new StringBuffer();
     // [parent_hash, uncles_hash, coinbase, state_root, tx_trie_root,
     // difficulty, number, minGasPrice, gasLimit, gasUsed, timestamp,
     // extradata, nonce]

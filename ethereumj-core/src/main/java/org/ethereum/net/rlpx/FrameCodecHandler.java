@@ -19,8 +19,8 @@ public class FrameCodecHandler extends NettyByteToMessageCodec<FrameCodec.Frame>
     private static final Logger loggerWire = LoggerFactory.getLogger("wire");
     private static final Logger loggerNet = LoggerFactory.getLogger("net");
 
-    public FrameCodec frameCodec;
-    public Channel channel;
+    private final FrameCodec frameCodec;
+    private final Channel channel;
 
     public FrameCodecHandler(FrameCodec frameCodec, Channel channel) {
         this.frameCodec = frameCodec;

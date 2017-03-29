@@ -38,9 +38,8 @@ import static org.ethereum.vm.VMUtils.saveProgramTraceFile;
  */
 public class TestRunner {
 
-    private Logger logger = LoggerFactory.getLogger("TCK-Test");
+    private final Logger logger = LoggerFactory.getLogger("TCK-Test");
     private ProgramTrace trace = null;
-    private boolean setNewStateRoot;
     private String bestStateRoot;
 
     public List<String> runTestSuite(TestSuite testSuite) {
@@ -95,9 +94,9 @@ public class TestRunner {
                     blockTck.getTransactions(),
                     blockTck.getUncleHeaders());
 
-            setNewStateRoot = !((blockTck.getTransactions() == null)
-                && (blockTck.getUncleHeaders() == null)
-                && (blockTck.getBlockHeader() == null));
+            boolean setNewStateRoot = !((blockTck.getTransactions() == null)
+                    && (blockTck.getUncleHeaders() == null)
+                    && (blockTck.getBlockHeader() == null));
 
             Block tBlock = null;
             try {
@@ -533,7 +532,7 @@ public class TestRunner {
         return transaction;
     }
 
-    public Repository loadRepository(Repository track, Map<ByteArrayWrapper, AccountState> pre) {
+    private Repository loadRepository(Repository track, Map<ByteArrayWrapper, AccountState> pre) {
 
 
             /* 1. Store pre-exist accounts - Pre */

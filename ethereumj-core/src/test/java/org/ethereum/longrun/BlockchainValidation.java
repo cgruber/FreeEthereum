@@ -24,7 +24,7 @@ import static org.ethereum.core.BlockchainImpl.calcReceiptsTrie;
 /**
  * Validation for all kind of blockchain data
  */
-public class BlockchainValidation {
+class BlockchainValidation {
 
     private static final Logger testLogger = LoggerFactory.getLogger("TestLogger");
 
@@ -69,7 +69,7 @@ public class BlockchainValidation {
         }
     }
 
-    public static void checkHeaders(Ethereum ethereum, AtomicInteger fatalErrors) {
+    private static void checkHeaders(Ethereum ethereum, AtomicInteger fatalErrors) {
         int blockNumber = (int) ethereum.getBlockchain().getBestBlock().getHeader().getNumber();
         byte[] lastParentHash = null;
         testLogger.info("Checking headers from best block: {}", blockNumber);
@@ -119,7 +119,7 @@ public class BlockchainValidation {
         }
     }
 
-    public static void checkBlocks(Ethereum ethereum, AtomicInteger fatalErrors) {
+    private static void checkBlocks(Ethereum ethereum, AtomicInteger fatalErrors) {
         Block currentBlock = ethereum.getBlockchain().getBestBlock();
         int blockNumber = (int) currentBlock.getHeader().getNumber();
 
@@ -158,7 +158,7 @@ public class BlockchainValidation {
         }
     }
 
-    public static void checkTransactions(Ethereum ethereum, AtomicInteger fatalErrors) {
+    private static void checkTransactions(Ethereum ethereum, AtomicInteger fatalErrors) {
         int blockNumber = (int) ethereum.getBlockchain().getBestBlock().getHeader().getNumber();
         testLogger.info("Checking block transactions from best block: {}", blockNumber);
 

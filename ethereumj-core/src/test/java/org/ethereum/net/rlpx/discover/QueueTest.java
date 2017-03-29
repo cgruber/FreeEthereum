@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class QueueTest {
 
-    boolean exception = false;
+    private boolean exception = false;
 
     @Test
     public void simple() throws Exception {

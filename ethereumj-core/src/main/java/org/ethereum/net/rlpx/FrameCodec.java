@@ -29,11 +29,10 @@ public class FrameCodec {
     private final KeccakDigest egressMac;
     private final KeccakDigest ingressMac;
     private final byte[] mac;
-    boolean isHeadRead;
+    private boolean isHeadRead;
     private int totalBodySize;
     private int contextId = -1;
     private int totalFrameSize = -1;
-    private int protocol;
 
     public FrameCodec(EncryptionHandshake.Secrets secrets) {
         this.mac = secrets.mac;
@@ -51,41 +50,6 @@ public class FrameCodec {
         AESFastEngine macc = new AESFastEngine();
         macc.init(true, new KeyParameter(mac));
         return macc;
-    }
-
-    public static class Frame {
-        long type;
-        int size;
-        InputStream payload;
-
-        int totalFrameSize = -1;
-        int contextId = -1;
-
-        public Frame(long type, int size, InputStream payload) {
-            this.type = type;
-            this.size = size;
-            this.payload = payload;
-        }
-
-        public Frame(int type, byte[] payload) {
-            this.type = type;
-            this.size = payload.length;
-            this.payload = new ByteArrayInputStream(payload);
-        }
-
-        public int getSize() {
-            return size;
-        }
-
-        public long getType() {return  type;}
-
-        public InputStream getStream() {
-            return payload;
-        }
-        public boolean isChunked() {
-            return contextId >= 0;
-        }
-
     }
 
     public void writeFrame(Frame frame, ByteBuf buf) throws IOException {
@@ -165,7 +129,7 @@ public class FrameCodec {
 
             RLPList rlpList = (RLPList) decode2OneItem(headBuffer, 3);
 
-            protocol = Util.rlpDecodeInt(rlpList.get(0));
+            int protocol = Util.rlpDecodeInt(rlpList.get(0));
             contextId = -1;
             totalFrameSize = -1;
             if (rlpList.size() > 1) {
@@ -235,6 +199,44 @@ public class FrameCodec {
     private void doSum(KeccakDigest mac, byte[] out) {
         // doFinal without resetting the MAC by using clone of digest state
         new KeccakDigest(mac).doFinal(out, 0);
+    }
+
+    public static class Frame {
+        final long type;
+        final int size;
+        final InputStream payload;
+
+        int totalFrameSize = -1;
+        int contextId = -1;
+
+        public Frame(long type, int size, InputStream payload) {
+            this.type = type;
+            this.size = size;
+            this.payload = payload;
+        }
+
+        public Frame(int type, byte[] payload) {
+            this.type = type;
+            this.size = payload.length;
+            this.payload = new ByteArrayInputStream(payload);
+        }
+
+        public int getSize() {
+            return size;
+        }
+
+        public long getType() {
+            return type;
+        }
+
+        public InputStream getStream() {
+            return payload;
+        }
+
+        public boolean isChunked() {
+            return contextId >= 0;
+        }
+
     }
 
 }

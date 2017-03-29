@@ -68,7 +68,7 @@ public class AbstractCryptoTest {
         assertArrayEquals(expected, dig2.digest());
     }
 
-    protected void testKatHex(Digest dig, String data, String ref) {
+    void testKatHex(Digest dig, String data, String ref) {
         testFrom(dig, Hex.decode(data), Hex.decode(ref));
     }
 }

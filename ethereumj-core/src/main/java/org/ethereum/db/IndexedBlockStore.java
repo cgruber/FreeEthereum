@@ -63,9 +63,9 @@ public class IndexedBlockStore extends AbstractBlockstore{
     };
     private static final Logger logger = LoggerFactory.getLogger("general");
     Source<byte[], byte[]> indexDS;
-    DataSourceArray<List<BlockInfo>> index;
     Source<byte[], byte[]> blocksDS;
-    ObjectDataSource<Block> blocks;
+    private DataSourceArray<List<BlockInfo>> index;
+    private ObjectDataSource<Block> blocks;
 
     public IndexedBlockStore(){
     }

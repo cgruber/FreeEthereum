@@ -25,7 +25,7 @@ public class TrieImpl implements Trie<byte[]> {
     private final static Object NULL_NODE = new Object();
     private final static int MIN_BRANCHES_CONCURRENTLY = 3;
     private static ExecutorService executor;
-    private Source<byte[], byte[]> cache;
+    private final Source<byte[], byte[]> cache;
     private Node root;
     private boolean async = true;
 
@@ -33,7 +33,7 @@ public class TrieImpl implements Trie<byte[]> {
         this((byte[]) null);
     }
 
-    public TrieImpl(byte[] root) {
+    TrieImpl(byte[] root) {
         this(new HashMapDB<>(), root);
     }
 
@@ -46,7 +46,7 @@ public class TrieImpl implements Trie<byte[]> {
         setRoot(root);
     }
 
-    public static ExecutorService getExecutor() {
+    private static ExecutorService getExecutor() {
         if (executor == null) {
             executor = Executors.newFixedThreadPool(4,
                     new ThreadFactoryBuilder().setNameFormat("trie-calc-thread-%d").build());
@@ -303,12 +303,12 @@ public class TrieImpl implements Trie<byte[]> {
         return dumpTrie(true);
     }
 
-    public String dumpTrie(boolean compact) {
+    private String dumpTrie(boolean compact) {
         if (root == null) return "<empty>";
         encode();
         StrBuilder ret = new StrBuilder();
         List<String> strings = root.dumpTrieNode(compact);
-        ret.append("Root: " + hash2str(getRootHash(), compact) + "\n");
+        ret.append("Root: ").append(hash2str(getRootHash(), compact)).append("\n");
         for (String s : strings) {
             ret.append(s).append('\n');
         }
@@ -319,7 +319,7 @@ public class TrieImpl implements Trie<byte[]> {
         scanTree(root, TrieKey.empty(false), scanAction);
     }
 
-    public void scanTree(Node node, TrieKey k, ScanAction scanAction) {
+    private void scanTree(Node node, TrieKey k, ScanAction scanAction) {
         if (node == null) return;
         if (node.hash != null) {
             scanAction.doOnNode(node.hash, node);

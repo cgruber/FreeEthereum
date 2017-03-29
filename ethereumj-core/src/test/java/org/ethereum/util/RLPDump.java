@@ -8,7 +8,7 @@ import org.spongycastle.util.encoders.Hex;
  * Created by Anton Nashatyrev on 29.09.2015.
  */
 public class RLPDump {
-    public static String dump(RLPElement el, int indent) {
+    private static String dump(RLPElement el, int indent) {
         StringBuilder ret = new StringBuilder();
         if (el instanceof RLPList) {
             ret = new StringBuilder(Utils.repeat("  ", indent) + "[\n");

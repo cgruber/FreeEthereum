@@ -44,26 +44,24 @@ import static org.ethereum.util.ByteUtil.wrap;
  */
 public class StandaloneBlockchain implements LocalBlockchain {
 
-    Genesis genesis;
-    byte[] coinbase;
-    BlockchainImpl blockchain;
-    PendingStateImpl pendingState;
-    CompositeEthereumListener listener;
-    ECKey txSender;
-    long gasPrice;
-    long gasLimit;
-    boolean autoBlock;
-    long dbDelay = 0;
-    long totalDbHits = 0;
-    BlockchainNetConfig netConfig;
-
-    int blockGasIncreasePercent = 0;
-
-    long time = 0;
-    long timeIncrement = 13;
-    JournalSource<byte[]> pruningStateDS;
-    PruneManager pruneManager;
-    List<PendingTx> submittedTxes = new CopyOnWriteArrayList<>();
+    private final long timeIncrement = 13;
+    private final List<PendingTx> submittedTxes = new CopyOnWriteArrayList<>();
+    private Genesis genesis;
+    private byte[] coinbase;
+    private BlockchainImpl blockchain;
+    private PendingStateImpl pendingState;
+    private CompositeEthereumListener listener;
+    private ECKey txSender;
+    private long gasPrice;
+    private long gasLimit;
+    private boolean autoBlock;
+    private long dbDelay = 0;
+    private long totalDbHits = 0;
+    private BlockchainNetConfig netConfig;
+    private int blockGasIncreasePercent = 0;
+    private long time = 0;
+    private JournalSource<byte[]> pruningStateDS;
+    private PruneManager pruneManager;
     private HashMapDB<byte[]> stateDS;
     private BlockSummary lastSummary;
 
@@ -94,7 +92,7 @@ public class StandaloneBlockchain implements LocalBlockchain {
         return this;
     }
 
-    public StandaloneBlockchain withMinerCoinbase(byte[] coinbase) {
+    private StandaloneBlockchain withMinerCoinbase(byte[] coinbase) {
         this.coinbase = coinbase;
         return this;
     }
@@ -506,8 +504,8 @@ public class StandaloneBlockchain implements LocalBlockchain {
     }
 
     public class SolidityFunctionImpl implements SolidityFunction {
-        SolidityContractImpl contract;
-        CallTransaction.Function abi;
+        final SolidityContractImpl contract;
+        final CallTransaction.Function abi;
 
         public SolidityFunctionImpl(SolidityContractImpl contract, CallTransaction.Function abi) {
             this.contract = contract;
@@ -526,9 +524,9 @@ public class StandaloneBlockchain implements LocalBlockchain {
     }
 
     public class SolidityContractImpl implements SolidityContract {
+        public final CallTransaction.Contract contract;
+        public final List<CallTransaction.Contract> relatedContracts = new ArrayList<>();
         public CompilationResult.ContractMetadata compiled;
-        public CallTransaction.Contract contract;
-        public List<CallTransaction.Contract> relatedContracts = new ArrayList<>();
         byte[] address;
 
         public SolidityContractImpl(String abi) {
@@ -645,8 +643,8 @@ public class StandaloneBlockchain implements LocalBlockchain {
     }
 
     public class SolidityCallResultImpl extends SolidityCallResult {
-        SolidityContractImpl contract;
-        CallTransaction.Function function;
+        final SolidityContractImpl contract;
+        final CallTransaction.Function function;
 
         SolidityCallResultImpl(SolidityContractImpl contract, CallTransaction.Function function) {
             this.contract = contract;
@@ -687,7 +685,7 @@ public class StandaloneBlockchain implements LocalBlockchain {
     }
 
     class SolidityStorageImpl implements SolidityStorage {
-        byte[] contractAddr;
+        final byte[] contractAddr;
 
         public SolidityStorageImpl(byte[] contractAddr) {
             this.contractAddr = contractAddr;

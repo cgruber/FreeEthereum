@@ -2,9 +2,9 @@ package org.ethereum.net.dht;
 
 import java.util.List;
 
-import static org.ethereum.net.dht.Bucket.*;
+import static org.ethereum.net.dht.Bucket.SaveLeaf;
 
-public class DHTUtils {
+class DHTUtils {
 
     public static void printAllLeafs(Bucket root){
         SaveLeaf saveLeaf = new SaveLeaf();

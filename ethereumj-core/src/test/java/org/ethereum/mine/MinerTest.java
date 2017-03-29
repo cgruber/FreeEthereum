@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 @Ignore
 public class MinerTest {
 
-    Map<ByteArrayWrapper, Pair<Transaction, Long>> submittedTxs = Collections.synchronizedMap(
+    private final Map<ByteArrayWrapper, Pair<Transaction, Long>> submittedTxs = Collections.synchronizedMap(
             new HashMap<ByteArrayWrapper, Pair<Transaction, Long>>());
 
     @BeforeClass
@@ -49,7 +49,7 @@ public class MinerTest {
 //        Constants.MINIMUM_DIFFICULTY = BigInteger.valueOf(1);
     }
 
-    static String blockInfo(Block b) {
+    private static String blockInfo(Block b) {
         boolean ours = Hex.toHexString(b.getExtraData()).startsWith("cccccccccc");
         StringBuilder txs = new StringBuilder("Tx[");
         for (Transaction tx : b.getTransactionsList()) {
@@ -307,9 +307,8 @@ public class MinerTest {
     @Configuration
     @NoAutoscan
     public static class SysPropConfig1 {
+        static final SystemProperties props = new SystemProperties();
         static Eth62 testHandler = null;
-
-        static SystemProperties props = new SystemProperties();
 
         @Bean
         public SystemProperties systemProperties() {
@@ -320,9 +319,8 @@ public class MinerTest {
     @Configuration
     @NoAutoscan
     public static class SysPropConfig2 {
+        static final SystemProperties props = new SystemProperties();
         static Eth62 testHandler = null;
-
-        static SystemProperties props = new SystemProperties();
 
         @Bean
         public SystemProperties systemProperties() {

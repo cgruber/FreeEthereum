@@ -1,21 +1,18 @@
 package org.ethereum.json;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.AccountState;
 import org.ethereum.core.Block;
+import org.ethereum.core.Repository;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.db.ContractDetails;
-import org.ethereum.core.Repository;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.vm.DataWord;
-
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,10 +41,10 @@ import java.util.List;
  * @author Roman Mandeleil
  * @since 26.06.2014
  */
-public class JSONHelper {
+class JSONHelper {
 
     @SuppressWarnings("uncheked")
-    public static void dumpState(ObjectNode statesNode, String address, AccountState state, ContractDetails details) {
+    private static void dumpState(ObjectNode statesNode, String address, AccountState state, ContractDetails details) {
 
         List<DataWord> storageKeys = new ArrayList<>(details.getStorage().keySet());
         Collections.sort(storageKeys);

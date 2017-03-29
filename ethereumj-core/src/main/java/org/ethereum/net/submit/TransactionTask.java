@@ -26,7 +26,7 @@ public class TransactionTask implements Callable<List<Transaction>> {
         this(Collections.singletonList(tx), channelManager);
     }
 
-    public TransactionTask(List<Transaction> tx, ChannelManager channelManager) {
+    private TransactionTask(List<Transaction> tx, ChannelManager channelManager) {
         this(tx, channelManager, null);
     }
 

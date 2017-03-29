@@ -31,7 +31,7 @@ public class NodeTable {
         return node;
     }
 
-    public final void initialize()
+    private void initialize()
     {
         nodes = new ArrayList<>();
         buckets = new NodeBucket[KademliaOptions.BINS];
@@ -93,7 +93,7 @@ public class NodeTable {
         return buckets;
     }
 
-    public int getBucketId(NodeEntry e) {
+    private int getBucketId(NodeEntry e) {
         int id = e.getDistance() - 1;
         return id < 0 ? 0 : id;
     }

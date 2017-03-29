@@ -36,17 +36,16 @@ public class TrieTest {
 
     private static final Logger logger = LoggerFactory.getLogger("test");
 
-    private static String LONG_STRING = "1234567890abcdefghijklmnopqrstuvwxxzABCEFGHIJKLMNOPQRSTUVWXYZ";
-    private static String ROOT_HASH_EMPTY = Hex.toHexString(EMPTY_TRIE_HASH);
+    private static final String LONG_STRING = "1234567890abcdefghijklmnopqrstuvwxxzABCEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String ROOT_HASH_EMPTY = Hex.toHexString(EMPTY_TRIE_HASH);
 
-    private static String c = "c";
-    private static String ca = "ca";
-    private static String cat = "cat";
-    private static String dog = "dog";
-    private static String doge = "doge";
-    private static String test = "test";
-    private static String dude = "dude";
-    private static Serializer<String, byte[]> STR_SERIALIZER = new Serializer<String, byte[]>() {
+    private static final String ca = "ca";
+    private static final String cat = "cat";
+    private static final String dog = "dog";
+    private static final String doge = "doge";
+    private static final String test = "test";
+    private static final String dude = "dude";
+    private static final Serializer<String, byte[]> STR_SERIALIZER = new Serializer<String, byte[]>() {
         public byte[] serialize(String object) {
             return object == null ? null : object.getBytes();
         }
@@ -58,8 +57,8 @@ public class TrieTest {
     private final String randomDictionary = "spinneries, archipenko, prepotency, herniotomy, preexpress, relaxative, insolvably, debonnaire, apophysate, virtuality, cavalryman, utilizable, diagenesis, vitascopic, governessy, abranchial, cyanogenic, gratulated, signalment, predicable, subquality, crystalize, prosaicism, oenologist, repressive, impanelled, cockneyism, bordelaise, compigne, konstantin, predicated, unsublimed, hydrophane, phycomyces, capitalise, slippingly, untithable, unburnable, deoxidizer, misteacher, precorrect, disclaimer, solidified, neuraxitis, caravaning, betelgeuse, underprice, uninclosed, acrogynous, reirrigate, dazzlingly, chaffiness, corybantes, intumesced, intentness, superexert, abstrusely, astounding, pilgrimage, posttarsal, prayerless, nomologist, semibelted, frithstool, unstinging, ecalcarate, amputating, megascopic, graphalloy, platteland, adjacently, mingrelian, valentinus, appendical, unaccurate, coriaceous, waterworks, sympathize, doorkeeper, overguilty, flaggingly, admonitory, aeriferous, normocytic, parnellism, catafalque, odontiasis, apprentice, adulterous, mechanisma, wilderness, undivorced, reinterred, effleurage, pretrochal, phytogenic, swirlingly, herbarized, unresolved, classifier, diosmosing, microphage, consecrate, astarboard, predefying, predriving, lettergram, ungranular, overdozing, conferring, unfavorite, peacockish, coinciding, erythraeum, freeholder, zygophoric, imbitterer, centroidal, appendixes, grayfishes, enological, indiscreet, broadcloth, divulgated, anglophobe, stoopingly, bibliophil, laryngitis, separatist, estivating, bellarmine, greasiness, typhlology, xanthation, mortifying, endeavorer, aviatrices, unequalise, metastatic, leftwinger, apologizer, quatrefoil, nonfouling, bitartrate, outchiding, undeported, poussetted, haemolysis, asantehene, montgomery, unjoinable, cedarhurst, unfastener, nonvacuums, beauregard, animalized, polyphides, cannizzaro, gelatinoid, apologised, unscripted, tracheidal, subdiscoid, gravelling, variegated, interabang, inoperable, immortelle, laestrygon, duplicatus, proscience, deoxidised, manfulness, channelize, nondefense, ectomorphy, unimpelled, headwaiter, hexaemeric, derivation, prelexical, limitarian, nonionized, prorefugee, invariably, patronizer, paraplegia, redivision, occupative, unfaceable, hypomnesia, psalterium, doctorfish, gentlefolk, overrefine, heptastich, desirously, clarabelle, uneuphonic, autotelism, firewarden, timberjack, fumigation, drainpipes, spathulate, novelvelle, bicorporal, grisliness, unhesitant, supergiant, unpatented, womanpower, toastiness, multichord, paramnesia, undertrick, contrarily, neurogenic, gunmanship, settlement, brookville, gradualism, unossified, villanovan, ecospecies, organising, buckhannon, prefulfill, johnsonese, unforegone, unwrathful, dunderhead, erceldoune, unwadeable, refunction, understuff, swaggering, freckliest, telemachus, groundsill, outslidden, bolsheviks, recognizer, hemangioma, tarantella, muhammedan, talebearer, relocation, preemption, chachalaca, septuagint, ubiquitous, plexiglass, humoresque, biliverdin, tetraploid, capitoline, summerwood, undilating, undetested, meningitic, petrolatum, phytotoxic, adiphenine, flashlight, protectory, inwreathed, rawishness, tendrillar, hastefully, bananaquit, anarthrous, unbedimmed, herborized, decenniums, deprecated, karyotypic, squalidity, pomiferous, petroglyph, actinomere, peninsular, trigonally, androgenic, resistance, unassuming, frithstool, documental, eunuchised, interphone, thymbraeus, confirmand, expurgated, vegetation, myographic, plasmagene, spindrying, unlackeyed, foreknower, mythically, albescence, rebudgeted, implicitly, unmonastic, torricelli, mortarless, labialized, phenacaine, radiometry, sluggishly, understood, wiretapper, jacobitely, unbetrayed, stadholder, directress, emissaries, corelation, sensualize, uncurbable, permillage, tentacular, thriftless, demoralize, preimagine, iconoclast, acrobatism, firewarden, transpired, bluethroat, wanderjahr, groundable, pedestrian, unulcerous, preearthly, freelanced, sculleries, avengingly, visigothic, preharmony, bressummer, acceptable, unfoolable, predivider, overseeing, arcosolium, piriformis, needlecord, homebodies, sulphation, phantasmic, unsensible, unpackaged, isopiestic, cytophagic, butterlike, frizzliest, winklehawk, necrophile, mesothorax, cuchulainn, unrentable, untangible, unshifting, unfeasible, poetastric, extermined, gaillardia, nonpendent, harborside, pigsticker, infanthood, underrower, easterling, jockeyship, housebreak, horologium, undepicted, dysacousma, incurrable, editorship, unrelented, peritricha, interchaff, frothiness, underplant, proafrican, squareness, enigmatise, reconciled, nonnumeral, nonevident, hamantasch, victualing, watercolor, schrdinger, understand, butlerlike, hemiglobin, yankeeland";
 //    public TrieCache mockDb = new TrieCache();
 //    public TrieCache mockDb_2 = new TrieCache();
-    public NoDoubleDeleteMapDB mockDb = new NoDoubleDeleteMapDB();
-    public NoDoubleDeleteMapDB mockDb_2 = new NoDoubleDeleteMapDB();
+private final NoDoubleDeleteMapDB mockDb = new NoDoubleDeleteMapDB();
+    private final NoDoubleDeleteMapDB mockDb_2 = new NoDoubleDeleteMapDB();
 
 //      ROOT: [ '\x16', A ]
 //      A: [ '', '', '', '', B, '', '', '', C, '', '', '', '', '', '', '', '' ]
@@ -79,7 +78,7 @@ public class TrieTest {
         Source<String, String> trie = new StringTrie(mockDb, null);
 
         trie.put("", dog);
-        assertEquals(dog, new String(trie.get("")));
+        assertEquals(dog, trie.get(""));
     }
 
     @Test
@@ -87,7 +86,7 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(cat, dog);
-        assertEquals(dog, new String(trie.get(cat)));
+        assertEquals(dog, trie.get(cat));
     }
 
     @Test
@@ -95,33 +94,33 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(cat, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(cat)));
+        assertEquals(LONG_STRING, trie.get(cat));
     }
 
     @Test
     public void testInsertMultipleItems1() {
         StringTrie trie = new StringTrie(mockDb);
         trie.put(ca, dude);
-        assertEquals(dude, new String(trie.get(ca)));
+        assertEquals(dude, trie.get(ca));
 
         trie.put(cat, dog);
-        assertEquals(dog, new String(trie.get(cat)));
+        assertEquals(dog, trie.get(cat));
 
         trie.put(dog, test);
-        assertEquals(test, new String(trie.get(dog)));
+        assertEquals(test, trie.get(dog));
 
         trie.put(doge, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(doge)));
+        assertEquals(LONG_STRING, trie.get(doge));
 
         trie.put(test, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(test)));
+        assertEquals(LONG_STRING, trie.get(test));
 
         // Test if everything is still there
-        assertEquals(dude, new String(trie.get(ca)));
-        assertEquals(dog, new String(trie.get(cat)));
-        assertEquals(test, new String(trie.get(dog)));
-        assertEquals(LONG_STRING, new String(trie.get(doge)));
-        assertEquals(LONG_STRING, new String(trie.get(test)));
+        assertEquals(dude, trie.get(ca));
+        assertEquals(dog, trie.get(cat));
+        assertEquals(test, trie.get(dog));
+        assertEquals(LONG_STRING, trie.get(doge));
+        assertEquals(LONG_STRING, trie.get(test));
     }
 
     @Test
@@ -209,19 +208,19 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(cat, dog);
-        assertEquals(dog, new String(trie.get(cat)));
+        assertEquals(dog, trie.get(cat));
 
         trie.put(cat, dog + "1");
-        assertEquals(dog + "1", new String(trie.get(cat)));
+        assertEquals(dog + "1", trie.get(cat));
     }
 
     @Test
     public void testUpdateLongToLongString() {
         StringTrie trie = new StringTrie(mockDb);
         trie.put(cat, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(cat)));
+        assertEquals(LONG_STRING, trie.get(cat));
         trie.put(cat, LONG_STRING + "1");
-        assertEquals(LONG_STRING + "1", new String(trie.get(cat)));
+        assertEquals(LONG_STRING + "1", trie.get(cat));
     }
 
     @Test
@@ -229,10 +228,10 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(cat, dog);
-        assertEquals(dog, new String(trie.get(cat)));
+        assertEquals(dog, trie.get(cat));
 
         trie.put(cat, LONG_STRING + "1");
-        assertEquals(LONG_STRING + "1", new String(trie.get(cat)));
+        assertEquals(LONG_STRING + "1", trie.get(cat));
     }
 
     @Test
@@ -240,10 +239,10 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(cat, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(cat)));
+        assertEquals(LONG_STRING, trie.get(cat));
 
         trie.put(cat, dog + "1");
-        assertEquals(dog + "1", new String(trie.get(cat)));
+        assertEquals(dog + "1", trie.get(cat));
     }
 
     @Test
@@ -253,14 +252,14 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(cat, dog);
-        assertEquals(dog, new String(trie.get(cat)));
+        assertEquals(dog, trie.get(cat));
 
         trie.put(ca, dude);
-        assertEquals(dude, new String(trie.get(ca)));
+        assertEquals(dude, trie.get(ca));
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.getRootHash()));
 
         trie.delete(ca);
-        assertEquals("", new String(trie.get(ca)));
+        assertEquals("", trie.get(ca));
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.getRootHash()));
     }
 
@@ -271,14 +270,14 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(ca, dude);
-        assertEquals(dude, new String(trie.get(ca)));
+        assertEquals(dude, trie.get(ca));
 
         trie.put(cat, dog);
-        assertEquals(dog, new String(trie.get(cat)));
+        assertEquals(dog, trie.get(cat));
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.getRootHash()));
 
         trie.delete(cat);
-        assertEquals("", new String(trie.get(cat)));
+        assertEquals("", trie.get(cat));
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.getRootHash()));
     }
 
@@ -289,14 +288,14 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(cat, dude);
-        assertEquals(dude, new String(trie.get(cat)));
+        assertEquals(dude, trie.get(cat));
 
         trie.put(dog, test);
-        assertEquals(test, new String(trie.get(dog)));
+        assertEquals(test, trie.get(dog));
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.getRootHash()));
 
         trie.delete(dog);
-        assertEquals("", new String(trie.get(dog)));
+        assertEquals("", trie.get(dog));
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.getRootHash()));
     }
 
@@ -307,14 +306,14 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(cat, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(cat)));
+        assertEquals(LONG_STRING, trie.get(cat));
 
         trie.put(dog, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(dog)));
+        assertEquals(LONG_STRING, trie.get(dog));
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.getRootHash()));
 
         trie.delete(dog);
-        assertEquals("", new String(trie.get(dog)));
+        assertEquals("", trie.get(dog));
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.getRootHash()));
     }
 
@@ -325,14 +324,14 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(ca, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(ca)));
+        assertEquals(LONG_STRING, trie.get(ca));
 
         trie.put(cat, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(cat)));
+        assertEquals(LONG_STRING, trie.get(cat));
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.getRootHash()));
 
         trie.delete(cat);
-        assertEquals("", new String(trie.get(cat)));
+        assertEquals("", trie.get(cat));
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.getRootHash()));
     }
 
@@ -343,14 +342,14 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(cat, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(cat)));
+        assertEquals(LONG_STRING, trie.get(cat));
 
         trie.put(ca, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(ca)));
+        assertEquals(LONG_STRING, trie.get(ca));
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.getRootHash()));
 
         trie.delete(ca);
-        assertEquals("", new String(trie.get(ca)));
+        assertEquals("", trie.get(ca));
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.getRootHash()));
     }
 
@@ -382,19 +381,19 @@ public class TrieTest {
         StringTrie trie = new StringTrie(mockDb);
 
         trie.put(cat, dog);
-        assertEquals(dog, new String(trie.get(cat)));
+        assertEquals(dog, trie.get(cat));
 
         trie.put(ca, dude);
-        assertEquals(dude, new String(trie.get(ca)));
+        assertEquals(dude, trie.get(ca));
 
         trie.put(doge, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(doge)));
+        assertEquals(LONG_STRING, trie.get(doge));
 
         trie.put(dog, test);
-        assertEquals(test, new String(trie.get(dog)));
+        assertEquals(test, trie.get(dog));
 
         trie.put(test, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(test)));
+        assertEquals(LONG_STRING, trie.get(test));
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.getRootHash()));
 
         System.out.println(trie.dumpStructure());
@@ -416,22 +415,23 @@ public class TrieTest {
         String ROOT_HASH_AFTER2 = "c59fdc16a80b11cc2f7a8b107bb0c954c0d8059e49c760ec3660eea64053ac91";
 
         StringTrie trie = new StringTrie(mockDb);
+        String c = "c";
         trie.put(c, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(c)));
+        assertEquals(LONG_STRING, trie.get(c));
 
         trie.put(ca, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(ca)));
+        assertEquals(LONG_STRING, trie.get(ca));
 
         trie.put(cat, LONG_STRING);
-        assertEquals(LONG_STRING, new String(trie.get(cat)));
+        assertEquals(LONG_STRING, trie.get(cat));
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.getRootHash()));
 
         trie.delete(ca);
-        assertEquals("", new String(trie.get(ca)));
+        assertEquals("", trie.get(ca));
         assertEquals(ROOT_HASH_AFTER1, Hex.toHexString(trie.getRootHash()));
 
         trie.delete(cat);
-        assertEquals("", new String(trie.get(cat)));
+        assertEquals("", trie.get(cat));
         assertEquals(ROOT_HASH_AFTER2, Hex.toHexString(trie.getRootHash()));
     }
 
@@ -604,7 +604,7 @@ public class TrieTest {
             for (String mapWord1 : testerMap.keySet()) {
 
                 String mapWord2 = testerMap.get(mapWord1);
-                String treeWord2 = new String(trie.get(mapWord1));
+                String treeWord2 = trie.get(mapWord1);
 
                 Assert.assertEquals(mapWord2, treeWord2);
             }
@@ -709,7 +709,7 @@ public class TrieTest {
 
                 String mapWord1 = keys.next();
                 String mapWord2 = testerMap.get(mapWord1);
-                String treeWord2 = new String(trie.get(mapWord1));
+                String treeWord2 = trie.get(mapWord1);
 
                 Assert.assertEquals(mapWord2, treeWord2);
             }

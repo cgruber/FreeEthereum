@@ -8,7 +8,7 @@ import org.spongycastle.util.encoders.Hex;
  */
 public class TraceAllNodes implements TrieImpl.ScanAction {
 
-    StringBuilder output = new StringBuilder();
+    private final StringBuilder output = new StringBuilder();
 
     @Override
     public void doOnNode(byte[] hash, TrieImpl.Node node) {

@@ -5,22 +5,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Created by devrandom on 2015-04-12.
  */
-public class RlpxConnection {
+class RlpxConnection {
     private static final Logger logger = LoggerFactory.getLogger("discover");
 
-    private final EncryptionHandshake.Secrets secrets;
     private final FrameCodec codec;
     private final DataInputStream inp;
     private final OutputStream out;
     private HandshakeMessage handshakeMessage;
 
     public RlpxConnection(EncryptionHandshake.Secrets secrets, InputStream inp, OutputStream out) {
-        this.secrets = secrets;
+        EncryptionHandshake.Secrets secrets1 = secrets;
         this.inp = new DataInputStream(inp);
         this.out = out;
         this.codec = new FrameCodec(secrets);

@@ -1,22 +1,14 @@
 package org.ethereum.jsontestsuite;
 
 import org.ethereum.config.SystemProperties;
-import org.ethereum.config.blockchain.DaoHFConfig;
-import org.ethereum.config.blockchain.Eip150HFConfig;
-import org.ethereum.config.blockchain.Eip160HFConfig;
-import org.ethereum.config.blockchain.FrontierConfig;
-import org.ethereum.config.blockchain.HomesteadConfig;
+import org.ethereum.config.blockchain.*;
 import org.ethereum.config.net.BaseNetConfig;
 import org.ethereum.config.net.MainNetConfig;
 import org.ethereum.jsontestsuite.suite.JSONReader;
 import org.ethereum.jsontestsuite.suite.TransactionTestSuite;
 import org.ethereum.jsontestsuite.suite.runners.TransactionTestRunner;
 import org.json.simple.parser.ParseException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
@@ -28,7 +20,7 @@ import java.util.Set;
 public class GitHubTransactionTest {
 
     //SHACOMMIT of tested commit, ethereum/tests.git
-    public String shacommit = "289b3e4524786618c7ec253b516bc8e76350f947";
+    private final String shacommit = "289b3e4524786618c7ec253b516bc8e76350f947";
 
     @Before
     public void setup() {

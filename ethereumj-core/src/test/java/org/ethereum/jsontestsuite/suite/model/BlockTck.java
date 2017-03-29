@@ -8,12 +8,12 @@ import java.util.List;
 @JsonIgnoreProperties({"acomment", "comment", "chainname", "chainnetwork"})
 public class BlockTck {
 
-    BlockHeaderTck blockHeader;
-    List<TransactionTck> transactions;
-    List<BlockHeaderTck> uncleHeaders;
-    String rlp;
-    String blocknumber;
-    boolean reverted;
+    private BlockHeaderTck blockHeader;
+    private List<TransactionTck> transactions;
+    private List<BlockHeaderTck> uncleHeaders;
+    private String rlp;
+    private String blocknumber;
+    private boolean reverted;
 
     public BlockTck() {
     }

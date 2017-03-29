@@ -8,11 +8,21 @@ import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
  * Created by Anton Nashatyrev on 13.02.2017.
  */
 public final class TrieKey {
-    public static final int ODD_OFFSET_FLAG = 0x1;
-    public static final int TERMINATOR_FLAG = 0x2;
+    private static final int ODD_OFFSET_FLAG = 0x1;
+    private static final int TERMINATOR_FLAG = 0x2;
     private final byte[] key;
     private final int off;
     private final boolean terminal;
+
+    private TrieKey(byte[] key, int off, boolean terminal) {
+        this.terminal = terminal;
+        this.off = off;
+        this.key = key;
+    }
+
+    private TrieKey(byte[] key) {
+        this(key, 0, true);
+    }
 
     public static TrieKey fromNormal(byte[] key) {
         return new TrieKey(key);
@@ -30,16 +40,6 @@ public final class TrieKey {
         TrieKey ret = new TrieKey(new byte[1], 1, false);
         ret.setHex(0, hex);
         return ret;
-    }
-
-    public TrieKey(byte[] key, int off, boolean terminal) {
-        this.terminal = terminal;
-        this.off = off;
-        this.key = key;
-    }
-
-    private TrieKey(byte[] key) {
-        this(key, 0, true);
     }
 
     public byte[] toPacked() {

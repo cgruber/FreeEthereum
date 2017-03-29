@@ -31,9 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class JsonRpcWhisper extends Whisper {
     private final static Logger logger = LoggerFactory.getLogger("net.shh");
 
-    URL rpcUrl;
-    Map<Integer, MessageWatcher> watchers = new HashMap<>();
-    ScheduledExecutorService poller = Executors.newSingleThreadScheduledExecutor();
+    private final URL rpcUrl;
+    private final Map<Integer, MessageWatcher> watchers = new HashMap<>();
+    private final ScheduledExecutorService poller = Executors.newSingleThreadScheduledExecutor();
 
     public JsonRpcWhisper(URL rpcUrl) {
         this.rpcUrl = rpcUrl;
@@ -50,21 +50,21 @@ public class JsonRpcWhisper extends Whisper {
         }, 1, 1, TimeUnit.SECONDS);
     }
 
-    static String add0X(String s) {
+    private static String add0X(String s) {
         if (s == null) return null;
         return s.startsWith("0x") ? s : "0x" + s;
     }
 
-    static String del0X(String s) {
+    private static String del0X(String s) {
         if (s == null) return null;
         return s.startsWith("0x") ? s.substring(2) : s;
     }
 
-    static String encodeString(String s) {
+    private static String encodeString(String s) {
         return s == null ? null : "0x" + Hex.toHexString(s.getBytes());
     }
 
-    static String decodeString(String s) {
+    private static String decodeString(String s) {
         if (s.startsWith("0x")) s = s.substring(2);
         return new String(Hex.decode(s));
     }
@@ -226,12 +226,12 @@ public class JsonRpcWhisper extends Whisper {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class JsonRpcRequest<ParamT> {
-        private static AtomicInteger idCount = new AtomicInteger(0);
+        private static final AtomicInteger idCount = new AtomicInteger(0);
 
         public final String jsonrpc = "2.0";
+        public final String method;
+        public final List<ParamT> params;
         public int id = idCount.incrementAndGet();
-        public String method;
-        public List<ParamT> params;
 
         public JsonRpcRequest(String method, ParamT params) {
             this.method = method;
@@ -273,8 +273,8 @@ public class JsonRpcWhisper extends Whisper {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class FilterParams {
-        public String to;
-        public String[] topics;
+        public final String to;
+        public final String[] topics;
 
         public FilterParams(String to, String[] topics) {
             this.to = to;

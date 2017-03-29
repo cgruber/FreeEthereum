@@ -18,11 +18,7 @@ import java.util.List;
 
 import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
-import static org.ethereum.vm.OpCode.CALL;
-import static org.ethereum.vm.OpCode.CALLCODE;
-import static org.ethereum.vm.OpCode.CREATE;
-import static org.ethereum.vm.OpCode.DELEGATECALL;
-import static org.ethereum.vm.OpCode.PUSH1;
+import static org.ethereum.vm.OpCode.*;
 
 /**
  * The Ethereum Virtual Machine (EVM) is responsible for initialization
@@ -65,20 +61,16 @@ public class VM {
 
     private static final Logger logger = LoggerFactory.getLogger("VM");
     private static final Logger dumpLogger = LoggerFactory.getLogger("dump");
-    private static BigInteger _32_ = BigInteger.valueOf(32);
+    private static final BigInteger _32_ = BigInteger.valueOf(32);
     private static final String logString = "{}    Op: [{}]  Gas: [{}] Deep: [{}]  Hint: [{}]";
 
-    private static BigInteger MAX_GAS = BigInteger.valueOf(Long.MAX_VALUE / 2);
-
-
+    private static final BigInteger MAX_GAS = BigInteger.valueOf(Long.MAX_VALUE / 2);
+    private static VMHook vmHook;
+    private final boolean vmTrace;
+    private final long dumpBlock;
+    private final SystemProperties config;
     /* Keeps track of the number of steps performed in this VM */
     private int vmCounter = 0;
-
-    private static VMHook vmHook;
-    private boolean vmTrace;
-    private long dumpBlock;
-
-    private final SystemProperties config;
 
     public VM() {
         this(SystemProperties.getDefault());
@@ -89,6 +81,22 @@ public class VM {
         this.config = config;
         vmTrace = config.vmTrace();
         dumpBlock = config.dumpBlock();
+    }
+
+    public static void setVmHook(VMHook vmHook) {
+        VM.vmHook = vmHook;
+    }
+
+    /**
+     * Utility to calculate new total memory size needed for an operation.
+     * <br/> Basically just offset + size, unless size is 0, in which case the result is also 0.
+     *
+     * @param offset starting position of the memory
+     * @param size   number of bytes needed
+     * @return offset + size, unless size is 0. In that case memNeeded is also 0.
+     */
+    private static BigInteger memNeeded(DataWord offset, DataWord size) {
+        return size.isZero() ? BigInteger.ZERO : offset.value().add(size.value());
     }
 
     private long calcMemGas(GasCost gasCosts, long oldMemSize, BigInteger newMemSize, long copySize) {
@@ -1248,22 +1256,6 @@ public class VM {
                 vmHook.stopPlay(program);
             }
         }
-    }
-
-    public static void setVmHook(VMHook vmHook) {
-        VM.vmHook = vmHook;
-    }
-
-    /**
-     * Utility to calculate new total memory size needed for an operation.
-     * <br/> Basically just offset + size, unless size is 0, in which case the result is also 0.
-     *
-     * @param offset starting position of the memory
-     * @param size number of bytes needed
-     * @return offset + size, unless size is 0. In that case memNeeded is also 0.
-     */
-    private static BigInteger memNeeded(DataWord offset, DataWord size) {
-        return size.isZero() ? BigInteger.ZERO : offset.value().add(size.value());
     }
 
     /*

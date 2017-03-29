@@ -20,11 +20,10 @@ import java.util.*;
  */
 public class Hive {
     private final static Logger LOG = LoggerFactory.getLogger("net.bzz");
-
-    private PeerAddress thisAddress;
-    protected NodeTable nodeTable;
-
-    private Map<Node, BzzProtocol> connectedPeers = new IdentityHashMap<>();
+    final NodeTable nodeTable;
+    private final PeerAddress thisAddress;
+    private final Map<Node, BzzProtocol> connectedPeers = new IdentityHashMap<>();
+    private final Map<HiveTask, Object> hiveTasks = new IdentityHashMap<>();
 
     public Hive(PeerAddress thisAddress) {
         this.thisAddress = thisAddress;
@@ -32,6 +31,7 @@ public class Hive {
     }
 
     public void start() {}
+
     public void stop() {}
 
     public PeerAddress getSelfAddress() {
@@ -99,7 +99,7 @@ public class Hive {
         peersAdded();
     }
 
-    protected void peersAdded() {
+    private void peersAdded() {
         for (HiveTask task : new ArrayList<>(hiveTasks.keySet())) {
             if (!task.peersAdded()) {
                 hiveTasks.remove(task);
@@ -137,17 +137,15 @@ public class Hive {
         }
     }
 
-    private Map<HiveTask, Object> hiveTasks = new IdentityHashMap<>();
-
     /**
      * The task to be executed when another one closest Peer is discovered
      * until the timeout or maxPeers is reached.
      */
     public abstract class HiveTask {
-        Key targetKey;
-        Map<BzzProtocol, Object> processedPeers = new IdentityHashMap<>();
-        long expireTime;
-        int maxPeers;
+        final Key targetKey;
+        final Map<BzzProtocol, Object> processedPeers = new IdentityHashMap<>();
+        final long expireTime;
+        final int maxPeers;
 
         public HiveTask(Key targetKey, long timeout, int maxPeers) {
             this.targetKey = targetKey;

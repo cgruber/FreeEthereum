@@ -9,18 +9,10 @@ public enum Denomination {
     FINNEY(newBigInt(15)),
     ETHER(newBigInt(18));
 
-    private BigInteger amount;
+    private final BigInteger amount;
 
-    private Denomination(BigInteger value) {
+    Denomination(BigInteger value) {
         this.amount = value;
-    }
-
-    public BigInteger value() {
-        return amount;
-    }
-
-    public long longValue() {
-        return value().longValue();
     }
 
     private static BigInteger newBigInt(int value) {
@@ -39,5 +31,13 @@ public enum Denomination {
         }
         else
             return Float.toString(value.divide(WEI.value()).floatValue()) +  " WEI";
+    }
+
+    public BigInteger value() {
+        return amount;
+    }
+
+    public long longValue() {
+        return value().longValue();
     }
 }

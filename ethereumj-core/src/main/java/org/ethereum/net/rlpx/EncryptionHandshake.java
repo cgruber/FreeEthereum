@@ -20,12 +20,12 @@ import static org.ethereum.crypto.HashUtil.sha3;
  * Created by devrandom on 2015-04-08.
  */
 public class EncryptionHandshake {
-    public static final int NONCE_SIZE = 32;
-    public static final int MAC_SIZE = 256;
-    public static final int SECRET_SIZE = 32;
-    private SecureRandom random = new SecureRandom();
-    private boolean isInitiator;
-    private ECKey ephemeralKey;
+    private static final int NONCE_SIZE = 32;
+    private static final int MAC_SIZE = 256;
+    private static final int SECRET_SIZE = 32;
+    private final SecureRandom random = new SecureRandom();
+    private final boolean isInitiator;
+    private final ECKey ephemeralKey;
     private ECPoint remotePublicKey;
     private ECPoint remoteEphemeralKey;
     private byte[] initiatorNonce;
@@ -53,6 +53,23 @@ public class EncryptionHandshake {
         responderNonce = new byte[NONCE_SIZE];
         random.nextBytes(responderNonce);
         isInitiator = false;
+    }
+
+    private static byte[] xor(byte[] b1, byte[] b2) {
+        Preconditions.checkArgument(b1.length == b2.length);
+        byte[] out = new byte[b1.length];
+        for (int i = 0; i < b1.length; i++) {
+            out[i] = (byte) (b1[i] ^ b2[i]);
+        }
+        return out;
+    }
+
+    static public byte recIdFromSignatureV(int v) {
+        if (v >= 31) {
+            // compressed
+            v -= 4;
+        }
+        return (byte) (v - 27);
     }
 
     /**
@@ -155,7 +172,7 @@ public class EncryptionHandshake {
         return response;
     }
 
-    byte[] encryptAuthEIP8(byte[] msg) {
+    private byte[] encryptAuthEIP8(byte[] msg) {
 
         short size = (short) (msg.length + ECIESCoder.getOverhead());
         byte[] prefix = ByteUtil.shortToBytes(size);
@@ -197,15 +214,6 @@ public class EncryptionHandshake {
         return message;
     }
 
-    private static byte[] xor(byte[] b1, byte[] b2) {
-        Preconditions.checkArgument(b1.length == b2.length);
-        byte[] out = new byte[b1.length];
-        for (int i = 0; i < b1.length; i++) {
-            out[i] = (byte) (b1[i] ^ b2[i]);
-        }
-        return out;
-    }
-
     public byte[] encryptAuthMessage(AuthInitiateMessage message) {
         return ECIESCoder.encrypt(remotePublicKey, message.encode());
     }
@@ -214,7 +222,7 @@ public class EncryptionHandshake {
         return ECIESCoder.encrypt(remotePublicKey, message.encode());
     }
 
-    public AuthResponseMessage decryptAuthResponse(byte[] ciphertext, ECKey myKey) {
+    private AuthResponseMessage decryptAuthResponse(byte[] ciphertext, ECKey myKey) {
         try {
             byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext);
             return AuthResponseMessage.decode(plaintext);
@@ -283,7 +291,7 @@ public class EncryptionHandshake {
         return responsePacket;
     }
 
-    AuthResponseMessage makeAuthInitiate(byte[] initiatePacket, ECKey key) throws InvalidCipherTextException {
+    private AuthResponseMessage makeAuthInitiate(byte[] initiatePacket, ECKey key) throws InvalidCipherTextException {
         AuthInitiateMessage initiate = decryptAuthInitiate(initiatePacket, key);
         return makeAuthInitiate(initiate, key);
     }
@@ -325,20 +333,16 @@ public class EncryptionHandshake {
         return paddedMessage;
     }
 
-    static public byte recIdFromSignatureV(int v) {
-        if (v >= 31) {
-            // compressed
-            v -= 4;
-        }
-        return (byte)(v - 27);
-    }
-
     public Secrets getSecrets() {
         return secrets;
     }
 
     public ECPoint getRemotePublicKey() {
         return remotePublicKey;
+    }
+
+    public boolean isInitiator() {
+        return isInitiator;
     }
 
     public static class Secrets {
@@ -367,9 +371,5 @@ public class EncryptionHandshake {
         public KeccakDigest getEgressMac() {
             return egressMac;
         }
-    }
-
-    public boolean isInitiator() {
-        return isInitiator;
     }
 }

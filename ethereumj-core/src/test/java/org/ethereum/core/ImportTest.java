@@ -39,6 +39,7 @@ public class ImportTest {
 
     private static final Logger logger = LoggerFactory.getLogger("test");
     @Autowired
+    private
     WorldManager worldManager;
 
     @AfterClass

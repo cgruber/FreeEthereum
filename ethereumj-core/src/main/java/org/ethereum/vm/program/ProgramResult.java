@@ -20,12 +20,11 @@ import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
  */
 public class ProgramResult {
 
+    private final ByteArraySet touchedAccounts = new ByteArraySet();
     private long gasUsed;
     private byte[] hReturn = EMPTY_BYTE_ARRAY;
     private RuntimeException exception;
-
     private Set<DataWord> deleteAccounts;
-    private ByteArraySet touchedAccounts = new ByteArraySet();
     private List<InternalTransaction> internalTransactions;
     private List<LogInfo> logInfoList;
     private long futureRefund = 0;
@@ -37,6 +36,12 @@ public class ProgramResult {
      */
     private List<CallCreate> callCreateList;
 
+    public static ProgramResult empty() {
+        ProgramResult result = new ProgramResult();
+        result.setHReturn(EMPTY_BYTE_ARRAY);
+        return result;
+    }
+
     public void spendGas(long gas) {
         gasUsed += gas;
     }
@@ -45,25 +50,25 @@ public class ProgramResult {
         gasUsed -= gas;
     }
 
+    public byte[] getHReturn() {
+        return hReturn;
+    }
+
     public void setHReturn(byte[] hReturn) {
         this.hReturn = hReturn;
 
-    }
-
-    public byte[] getHReturn() {
-        return hReturn;
     }
 
     public RuntimeException getException() {
         return exception;
     }
 
-    public long getGasUsed() {
-        return gasUsed;
-    }
-
     public void setException(RuntimeException exception) {
         this.exception = exception;
+    }
+
+    public long getGasUsed() {
+        return gasUsed;
     }
 
     public Set<DataWord> getDeleteAccounts() {
@@ -77,7 +82,7 @@ public class ProgramResult {
         getDeleteAccounts().add(address);
     }
 
-    public void addDeleteAccounts(Set<DataWord> accounts) {
+    private void addDeleteAccounts(Set<DataWord> accounts) {
         if (!isEmpty(accounts)) {
             getDeleteAccounts().addAll(accounts);
         }
@@ -91,7 +96,7 @@ public class ProgramResult {
         return touchedAccounts;
     }
 
-    public void addTouchAccounts(Set<byte[]> accounts) {
+    private void addTouchAccounts(Set<byte[]> accounts) {
         if (!isEmpty(accounts)) {
             getTouchedAccounts().addAll(accounts);
         }
@@ -108,7 +113,7 @@ public class ProgramResult {
         getLogInfoList().add(logInfo);
     }
 
-    public void addLogInfos(List<LogInfo> logInfos) {
+    private void addLogInfos(List<LogInfo> logInfos) {
         if (!isEmpty(logInfos)) {
             getLogInfoList().addAll(logInfos);
         }
@@ -139,7 +144,7 @@ public class ProgramResult {
         return transaction;
     }
 
-    public void addInternalTransactions(List<InternalTransaction> internalTransactions) {
+    private void addInternalTransactions(List<InternalTransaction> internalTransactions) {
         getInternalTransactions().addAll(internalTransactions);
     }
 
@@ -169,11 +174,5 @@ public class ProgramResult {
             addFutureRefund(another.getFutureRefund());
             addTouchAccounts(another.getTouchedAccounts());
         }
-    }
-    
-    public static ProgramResult empty() {
-        ProgramResult result = new ProgramResult();
-        result.setHReturn(EMPTY_BYTE_ARRAY);
-        return result;
     }
 }

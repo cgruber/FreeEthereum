@@ -13,39 +13,7 @@ import java.util.Map;
 
 public class TransactionTouchedStorage {
 
-    public static class Entry extends AbstractKeyValue<DataWord,DataWord> {
-
-        private boolean changed;
-
-        public Entry(DataWord key, DataWord value, boolean changed) {
-            super(key, value);
-            this.changed = changed;
-        }
-
-        public Entry() {
-            super(null, null);
-        }
-
-        @Override
-        protected DataWord setKey(DataWord key) {
-            return super.setKey(key);
-        }
-
-        @Override
-        protected DataWord setValue(DataWord value) {
-            return super.setValue(value);
-        }
-
-        public boolean isChanged() {
-            return changed;
-        }
-
-        public void setChanged(boolean changed) {
-            this.changed = changed;
-        }
-    }
-
-    private Map<DataWord, Entry> entries = new HashMap<>();
+    private final Map<DataWord, Entry> entries = new HashMap<>();
 
     public TransactionTouchedStorage() {
     }
@@ -125,5 +93,37 @@ public class TransactionTouchedStorage {
 
     public boolean isEmpty() {
         return entries.isEmpty();
+    }
+
+    public static class Entry extends AbstractKeyValue<DataWord, DataWord> {
+
+        private boolean changed;
+
+        public Entry(DataWord key, DataWord value, boolean changed) {
+            super(key, value);
+            this.changed = changed;
+        }
+
+        public Entry() {
+            super(null, null);
+        }
+
+        @Override
+        protected DataWord setKey(DataWord key) {
+            return super.setKey(key);
+        }
+
+        @Override
+        protected DataWord setValue(DataWord value) {
+            return super.setValue(value);
+        }
+
+        public boolean isChanged() {
+            return changed;
+        }
+
+        public void setChanged(boolean changed) {
+            this.changed = changed;
+        }
     }
 }

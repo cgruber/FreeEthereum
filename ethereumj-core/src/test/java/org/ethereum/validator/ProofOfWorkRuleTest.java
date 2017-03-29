@@ -5,9 +5,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Mikhail Kalinin
@@ -15,7 +13,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ProofOfWorkRuleTest {
 
-    private ProofOfWorkRule rule = new ProofOfWorkRule();
+    private final ProofOfWorkRule rule = new ProofOfWorkRule();
 
     @Test // check exact values
     public void test_0() {

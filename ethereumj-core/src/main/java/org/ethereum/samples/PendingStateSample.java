@@ -35,14 +35,29 @@ public class PendingStateSample extends TestNetSample {
 
     // remember here what transactions have been sent
     // removing transaction from here on block arrival
-    private Map<ByteArrayWrapper, Transaction> pendingTxs = Collections.synchronizedMap(
+    private final Map<ByteArrayWrapper, Transaction> pendingTxs = Collections.synchronizedMap(
             new HashMap<ByteArrayWrapper, Transaction>());
-
+    // some random receiver
+    private final byte[] receiverAddress = new ECKey().getAddress();
     @Autowired
+    private
     PendingState pendingState;
 
-    // some random receiver
-    private byte[] receiverAddress = new ECKey().getAddress();
+    public static void main(String[] args) throws Exception {
+        sLogger.info("Starting EthereumJ!");
+
+        class Config extends TestNetConfig {
+            @Override
+            @Bean
+            public TestNetSample sampleBean() {
+                return new PendingStateSample();
+            }
+        }
+
+        // Based on Config class the BasicSample would be created by Spring
+        // and its springInit() method would be called as an entry point
+        EthereumFactory.createEthereum(Config.class);
+    }
 
     @Override
     public void onSyncDone() {
@@ -78,7 +93,7 @@ public class PendingStateSample extends TestNetSample {
      * Periodically send value transfer transactions and each 5 transactions
      * wait for all sent transactions to be included into blocks
      */
-    void sendTransactions() throws InterruptedException {
+    private void sendTransactions() throws InterruptedException {
         // initial sender nonce needs to be retrieved from the repository
         // for further transactions we just do nonce++
         BigInteger nonce = ethereum.getRepository().getNonce(senderAddress);
@@ -118,7 +133,7 @@ public class PendingStateSample extends TestNetSample {
      *  Prints the current receiver balance (based on blocks) and the pending balance
      *  which should immediately reflect receiver balance change
      */
-    void onPendingTransactionReceived(Transaction tx) {
+    private void onPendingTransactionReceived(Transaction tx) {
         logger.info("onPendingTransactionReceived: " + tx);
         if (Arrays.equals(tx.getSender(), senderAddress)) {
             BigInteger receiverBalance = ethereum.getRepository().getBalance(receiverAddress);
@@ -136,7 +151,7 @@ public class PendingStateSample extends TestNetSample {
      * For each block we are looking for our transactions and clearing them
      * The actual receiver balance is confirmed upon block arrival
      */
-    public void onBlock(Block block, List<TransactionReceipt> receipts) {
+    private void onBlock(Block block, List<TransactionReceipt> receipts) {
         int cleared = 0;
         for (Transaction tx : block.getTransactionsList()) {
             ByteArrayWrapper txHash = new ByteArrayWrapper(tx.getHash());
@@ -154,22 +169,5 @@ public class PendingStateSample extends TestNetSample {
         logger.info("" + cleared + " transactions cleared in the block " + block.getShortDescr());
         logger.info("Receiver pending/current balance: " + receiverBalancePending + " / " + receiverBalance +
                 " (" + pendingTxs.size() + " pending txs)");
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        sLogger.info("Starting EthereumJ!");
-
-        class Config extends TestNetConfig{
-            @Override
-            @Bean
-            public TestNetSample sampleBean() {
-                return new PendingStateSample();
-            }
-        }
-
-        // Based on Config class the BasicSample would be created by Spring
-        // and its springInit() method would be called as an entry point
-        EthereumFactory.createEthereum(Config.class);
     }
 }

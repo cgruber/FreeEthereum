@@ -24,14 +24,16 @@ import java.util.Scanner;
 @Component
 public class BlockLoader {
     private static final Logger logger = LoggerFactory.getLogger("blockqueue");
+    private final DateFormat df = new SimpleDateFormat("HH:mm:ss.SSSS");
     @Autowired
+    private
     SystemProperties config;
     @Autowired
+    private
     DbFlushManager dbFlushManager;
-    Scanner scanner = null;
-    DateFormat df = new SimpleDateFormat("HH:mm:ss.SSSS");
-    ExecutorPipeline<Block, Block> exec1;
-    ExecutorPipeline<Block, ?> exec2;
+    private Scanner scanner = null;
+    private ExecutorPipeline<Block, Block> exec1;
+    private ExecutorPipeline<Block, ?> exec2;
     @Autowired
     private BlockHeaderValidator headerValidator;
     @Autowired

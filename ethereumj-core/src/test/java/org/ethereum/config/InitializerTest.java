@@ -9,24 +9,23 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 import java.io.IOException;
 
 import static org.ethereum.config.Initializer.DatabaseVersionHandler.Behavior;
 import static org.ethereum.config.Initializer.DatabaseVersionHandler.Behavior.*;
+import static org.junit.Assert.*;
 
 /**
  * Created by Stan Reshetnyk on 11.09.16.
  */
 public class InitializerTest {
 
-    final Initializer.DatabaseVersionHandler resetHelper = new Initializer.DatabaseVersionHandler();
+    private final Initializer.DatabaseVersionHandler resetHelper = new Initializer.DatabaseVersionHandler();
 
-    File tempFile;
-    String databaseDir;
-    File versionFile;
+    private File tempFile;
+    private String databaseDir;
+    private File versionFile;
 
     @Before
     public void before() {

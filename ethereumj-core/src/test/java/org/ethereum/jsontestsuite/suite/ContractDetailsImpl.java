@@ -29,12 +29,12 @@ import static org.ethereum.util.ByteUtil.wrap;
 public class ContractDetailsImpl extends AbstractContractDetails {
     private static final Logger logger = LoggerFactory.getLogger("general");
 
-    CommonConfig commonConfig = CommonConfig.getDefault();
+    private CommonConfig commonConfig = CommonConfig.getDefault();
 
-    SystemProperties config = SystemProperties.getDefault();
+    private SystemProperties config = SystemProperties.getDefault();
 
-    DbSource dataSource;
-    boolean externalStorage;
+    private DbSource dataSource;
+    private boolean externalStorage;
     private byte[] address = EMPTY_BYTE_ARRAY;
     private Set<ByteArrayWrapper> keys = new HashSet<>();
     private SecureTrie storageTrie = new SecureTrie((byte[]) null);

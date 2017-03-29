@@ -101,7 +101,7 @@ public class PriceFeedSample extends BasicSample {
         /**
          * @param contractAddr address of the target contract as a hex String
          */
-        protected EthereumContract(String contractAddr) {
+        EthereumContract(String contractAddr) {
             this.contractAddr = contractAddr;
         }
 
@@ -133,7 +133,7 @@ public class PriceFeedSample extends BasicSample {
          *    bytesN, byte[] -> byte[]
          *    Solidity dynamic array -> Java array
          */
-        protected Object[] callFunction(String name, String[] inParamTypes, String[] outParamTypes, Object ... args) {
+        Object[] callFunction(String name, String[] inParamTypes, String[] outParamTypes, Object... args) {
             CallTransaction.Function function = CallTransaction.Function.fromSignature(name, inParamTypes, outParamTypes);
             ProgramResult result = ethereum.callConstantFunction(contractAddr, function, args);
             return function.decodeResult(result.getHReturn());
@@ -142,7 +142,7 @@ public class PriceFeedSample extends BasicSample {
         /**
          *  Use this method if the contract ABI was passed
          */
-        protected Object[] callFunction(String functionName, Object ... args) {
+        Object[] callFunction(String functionName, Object... args) {
             if (contractFromABI == null) {
                 throw new RuntimeException("The contract JSON ABI should be passed to constructor to use this method");
             }

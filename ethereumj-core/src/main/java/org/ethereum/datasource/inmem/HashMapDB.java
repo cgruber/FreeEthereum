@@ -16,15 +16,15 @@ public class HashMapDB<V> implements DbSource<V> {
 
     protected final Map<byte[], V> storage;
 
-    protected ReadWriteLock rwLock = new ReentrantReadWriteLock();
-    protected ALock readLock = new ALock(rwLock.readLock());
-    protected ALock writeLock = new ALock(rwLock.writeLock());
+    private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private final ALock readLock = new ALock(rwLock.readLock());
+    private final ALock writeLock = new ALock(rwLock.writeLock());
 
     public HashMapDB() {
         this(new ByteArrayMap<>());
     }
 
-    public HashMapDB(ByteArrayMap<V> storage) {
+    private HashMapDB(ByteArrayMap<V> storage) {
         this.storage = storage;
     }
 

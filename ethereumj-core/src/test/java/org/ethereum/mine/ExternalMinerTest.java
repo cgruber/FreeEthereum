@@ -34,9 +34,9 @@ import static org.mockito.Mockito.when;
  */
 public class ExternalMinerTest {
 
-    private StandaloneBlockchain bc = new StandaloneBlockchain().withAutoblock(false);
+    private final StandaloneBlockchain bc = new StandaloneBlockchain().withAutoblock(false);
 
-    private CompositeEthereumListener listener = new CompositeEthereumListener();
+    private final CompositeEthereumListener listener = new CompositeEthereumListener();
 
     @Mock
     private EthereumImpl ethereum;

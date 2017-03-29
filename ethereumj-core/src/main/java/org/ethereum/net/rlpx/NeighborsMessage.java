@@ -10,8 +10,8 @@ import static org.ethereum.util.ByteUtil.longToBytesNoLeadZeroes;
 
 public class NeighborsMessage extends Message {
 
-    List<Node> nodes;
-    long expires;
+    private List<Node> nodes;
+    private long expires;
 
     public static NeighborsMessage create(List<Node> nodes, ECKey privKey) {
 

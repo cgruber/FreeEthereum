@@ -6,7 +6,7 @@ import org.ethereum.core.TransactionReceipt;
 /**
  * Created by Anton Nashatyrev on 26.07.2016.
  */
-public class TransactionResult {
+class TransactionResult {
     TransactionReceipt receipt;
     TransactionExecutionSummary executionSummary;
 

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class CompositeProgramListener implements ProgramListener {
 
-    private List<ProgramListener> listeners = new ArrayList<>();
+    private final List<ProgramListener> listeners = new ArrayList<>();
 
     @Override
     public void onMemoryExtend(int delta) {

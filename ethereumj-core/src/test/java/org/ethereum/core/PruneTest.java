@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class PruneTest {
 
-    static HashMapDB<byte[]> stateDS;
+    private static HashMapDB<byte[]> stateDS;
 
     @AfterClass
     public static void cleanup() {
@@ -463,7 +463,7 @@ public class PruneTest {
         Assert.assertEquals(BigInteger.valueOf(0xaaaaaaaaaaaaL), contr.callConstFunction("n")[0]);
     }
 
-    public void checkPruning(final HashMapDB<byte[]> stateDS, final Source<byte[], byte[]> stateJournalDS, byte[] ... roots) {
+    private void checkPruning(final HashMapDB<byte[]> stateDS, final Source<byte[], byte[]> stateJournalDS, byte[]... roots) {
         System.out.println("Pruned storage size: " + stateDS.getStorage().size());
 
         Set<ByteArrayWrapper> allRefs = new HashSet<>();
@@ -492,8 +492,8 @@ public class PruneTest {
         }
     }
 
-    public Set<ByteArrayWrapper> getReferencedTrieNodes(final Source<byte[], byte[]> stateDS, final boolean includeAccounts,
-                                                        byte[] ... roots) {
+    private Set<ByteArrayWrapper> getReferencedTrieNodes(final Source<byte[], byte[]> stateDS, final boolean includeAccounts,
+                                                         byte[]... roots) {
         final Set<ByteArrayWrapper> ret = new HashSet<>();
         for (byte[] root : roots) {
             SecureTrie trie = new SecureTrie(stateDS, root);
@@ -520,8 +520,8 @@ public class PruneTest {
         return ret;
     }
 
-    public String dumpState(final Source<byte[], byte[]> stateDS, final boolean includeAccounts,
-                                                        byte[] root) {
+    private String dumpState(final Source<byte[], byte[]> stateDS, final boolean includeAccounts,
+                             byte[] root) {
         final StringBuilder ret = new StringBuilder();
         SecureTrie trie = new SecureTrie(stateDS, root);
         trie.scanTree(new TrieImpl.ScanAction() {
@@ -533,15 +533,15 @@ public class PruneTest {
             public void doOnValue(byte[] nodeHash, TrieImpl.Node node, byte[] key, byte[] value) {
                 if (includeAccounts) {
                     AccountState accountState = new AccountState(value);
-                    ret.append(Hex.toHexString(nodeHash) + ": Account: " + Hex.toHexString(key) + ", Nonce: " + accountState.getNonce() + ", Balance: " + accountState.getBalance() + "\n");
+                    ret.append(Hex.toHexString(nodeHash)).append(": Account: ").append(Hex.toHexString(key)).append(", Nonce: ").append(accountState.getNonce()).append(", Balance: ").append(accountState.getBalance()).append("\n");
                     if (!FastByteComparisons.equal(accountState.getCodeHash(), HashUtil.EMPTY_DATA_HASH)) {
-                        ret.append("    CodeHash: " + Hex.toHexString(accountState.getCodeHash()) + "\n");
+                        ret.append("    CodeHash: ").append(Hex.toHexString(accountState.getCodeHash())).append("\n");
                     }
                     if (!FastByteComparisons.equal(accountState.getStateRoot(), HashUtil.EMPTY_TRIE_HASH)) {
                         ret.append(dumpState(stateDS, false, accountState.getStateRoot()));
                     }
                 } else {
-                    ret.append("    " + Hex.toHexString(nodeHash) + ": " + Hex.toHexString(key) + " = " + Hex.toHexString(value) + "\n");
+                    ret.append("    ").append(Hex.toHexString(nodeHash)).append(": ").append(Hex.toHexString(key)).append(" = ").append(Hex.toHexString(value)).append("\n");
                 }
             }
         });

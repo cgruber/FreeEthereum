@@ -34,5 +34,5 @@ public abstract class Whisper {
         send(fromIdentity, toIdentity, payload, topics, 50, 50);
     }
 
-    public abstract void send(String fromIdentity, String toIdentity, byte[] payload, Topic[] topics, int ttl, int workToProve);
+    protected abstract void send(String fromIdentity, String toIdentity, byte[] payload, Topic[] topics, int ttl, int workToProve);
 }

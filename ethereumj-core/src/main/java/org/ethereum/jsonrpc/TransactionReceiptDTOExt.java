@@ -10,8 +10,8 @@ import static org.ethereum.jsonrpc.TypeConverter.toJsonHex;
  */
 public class TransactionReceiptDTOExt extends TransactionReceiptDTO {
 
-    public String returnData;
-    public String error;
+    private final String returnData;
+    private final String error;
 
     public TransactionReceiptDTOExt(Block block, TransactionInfo txInfo) {
         super(block, txInfo);

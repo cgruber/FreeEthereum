@@ -14,12 +14,12 @@ import java.util.*;
 @Component
 public class WhisperImpl extends Whisper {
     private final static Logger logger = LoggerFactory.getLogger("net.shh");
-    BloomFilter hostBloomFilter = BloomFilter.createAll();
-    private Set<MessageWatcher> filters = new HashSet<>();
-    private List<Topic> knownTopics = new ArrayList<>();
-    private Map<WhisperMessage, ?> known = new LRUMap<>(1024); // essentially Set
-    private Map<String, ECKey> identities = new HashMap<>();
-    private List<ShhHandler> activePeers = new ArrayList<>();
+    final BloomFilter hostBloomFilter = BloomFilter.createAll();
+    private final Set<MessageWatcher> filters = new HashSet<>();
+    private final List<Topic> knownTopics = new ArrayList<>();
+    private final Map<WhisperMessage, ?> known = new LRUMap<>(1024); // essentially Set
+    private final Map<String, ECKey> identities = new HashMap<>();
+    private final List<ShhHandler> activePeers = new ArrayList<>();
 
     public WhisperImpl() {
     }
@@ -137,7 +137,7 @@ public class WhisperImpl extends Whisper {
         return addIdentity(new ECKey());
     }
 
-    public ECKey getIdentity(String identity) {
+    private ECKey getIdentity(String identity) {
         if (identities.containsKey(identity)) {
             return identities.get(identity);
         }

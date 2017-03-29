@@ -39,52 +39,35 @@ import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
 public class WorldManager {
 
     private static final Logger logger = LoggerFactory.getLogger("general");
-
+    private final SystemProperties config;
+    private final EthereumListener listener;
+    private final Blockchain blockchain;
+    private final Repository repository;
+    private final BlockStore blockStore;
     @Autowired
     private PeerClient activePeer;
-
     @Autowired
     private ChannelManager channelManager;
-
     @Autowired
     private AdminInfo adminInfo;
-
     @Autowired
     private NodeManager nodeManager;
-
     @Autowired
     private SyncManager syncManager;
-
     @Autowired
     private FastSyncManager fastSyncManager;
-
     @Autowired
     private SyncPool pool;
-
     @Autowired
     private PendingState pendingState;
-
     @Autowired
     private UDPListener discoveryUdpListener;
-
     @Autowired
     private EventDispatchThread eventDispatchThread;
-
     @Autowired
     private DbFlushManager dbFlushManager;
-
     @Autowired
     private ApplicationContext ctx;
-
-    private SystemProperties config;
-
-    private EthereumListener listener;
-
-    private Blockchain blockchain;
-
-    private Repository repository;
-
-    private BlockStore blockStore;
 
     @Autowired
     public WorldManager(final SystemProperties config, final Repository repository,
@@ -149,7 +132,7 @@ public class WorldManager {
         return pendingState;
     }
 
-    public void loadBlockchain() {
+    private void loadBlockchain() {
 
         if (!config.databaseReset() || config.databaseResetBlock() != 0)
             blockStore.load();

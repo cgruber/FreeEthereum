@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static org.ethereum.net.eth.EthVersion.fromCode;
 import static org.ethereum.net.client.Capability.*;
+import static org.ethereum.net.eth.EthVersion.fromCode;
 
 /**
  * Created by Anton Nashatyrev on 13.10.2015.
@@ -21,9 +21,9 @@ import static org.ethereum.net.client.Capability.*;
 @Component
 public class ConfigCapabilities {
 
-    SystemProperties config;
+    private final SystemProperties config;
 
-    private SortedSet<Capability> AllCaps = new TreeSet<>();
+    private final SortedSet<Capability> AllCaps = new TreeSet<>();
 
     @Autowired
     public ConfigCapabilities(final SystemProperties config) {

@@ -18,11 +18,11 @@ import java.math.BigInteger;
  */
 public class TransactionInfo {
 
-    TransactionReceipt receipt;
+    private final TransactionReceipt receipt;
     byte[] blockHash;
     // user for pending transaction
-    byte[] parentBlockHash;
-    int index;
+    private byte[] parentBlockHash;
+    private int index;
 
     public TransactionInfo(TransactionReceipt receipt, byte[] blockHash, int index) {
         this.receipt = receipt;

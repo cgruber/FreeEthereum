@@ -28,21 +28,21 @@ public class NetStore implements ChunkStore {
     public final Statter statInMsg = Statter.create("net.swarm.bzz.inMessages");
     public final Statter statOutMsg = Statter.create("net.swarm.bzz.outMessages");
     public final Statter statHandshakes = Statter.create("net.swarm.bzz.handshakes");
-    public final Statter statInStoreReq = Statter.create("net.swarm.in.storeReq");
-    public final Statter statInGetReq = Statter.create("net.swarm.in.getReq");
-    public final Statter statOutStoreReq = Statter.create("net.swarm.out.storeReq");
-    public final Statter statOutGetReq = Statter.create("net.swarm.out.getReq");
-    public int requesterCount = 3;
+    private final Statter statInStoreReq = Statter.create("net.swarm.in.storeReq");
+    private final Statter statInGetReq = Statter.create("net.swarm.in.getReq");
+    private final Statter statOutStoreReq = Statter.create("net.swarm.out.storeReq");
+    private final Statter statOutGetReq = Statter.create("net.swarm.out.getReq");
+    private final int requesterCount = 3;
+    private final int maxSearchPeers = 6;
+    private final int timeout = 600 * 1000;
+    private final LocalStore localStore;
+    private final Hive hive;
+    private final Map<Chunk, PeerAddress> chunkSourceAddr = new IdentityHashMap<>();
+    private final Map<Key, ChunkRequest> chunkRequestMap = new HashMap<>();
     public int maxStorePeers = 3;
-    public int maxSearchPeers = 6;
-    public int timeout = 600 * 1000;
     @Autowired
     WorldManager worldManager;
-    private LocalStore localStore;
-    private Hive hive;
     private PeerAddress selfAddress;
-    private Map<Chunk, PeerAddress> chunkSourceAddr = new IdentityHashMap<>();
-    private Map<Key, ChunkRequest> chunkRequestMap = new HashMap<>();
 
     @Autowired
     public NetStore(SystemProperties config) {
@@ -91,7 +91,7 @@ public class NetStore implements ChunkStore {
     }
 
     // store logic common to local and network chunk store requests
-    void putImpl(Chunk chunk) {
+    private void putImpl(Chunk chunk) {
         localStore.put(chunk);
         if (chunkRequestMap.get(chunk.getKey()) != null &&
                 chunkRequestMap.get(chunk.getKey()).status == EntryReqStatus.Searching) {
@@ -174,7 +174,7 @@ public class NetStore implements ChunkStore {
         }
     }
 
-    public synchronized Future<Chunk> getAsync(Key key) {
+    private synchronized Future<Chunk> getAsync(Key key) {
         Chunk chunk = localStore.get(key);
         Promise<Chunk> ret = new DefaultPromise<Chunk>() {};
         if (chunk == null) {
@@ -262,7 +262,7 @@ public class NetStore implements ChunkStore {
     only add if less than requesterCount peers forwarded the same request id so far
     note this is done irrespective of status (searching or found)
     */
-    void addRequester(ChunkRequest rs, BzzRetrieveReqMessage req) {
+    private void addRequester(ChunkRequest rs, BzzRetrieveReqMessage req) {
         Collection<BzzRetrieveReqMessage> list = rs.requesters.computeIfAbsent(req.getId(), k -> new ArrayList<>());
         list.add(req);
     }
@@ -302,9 +302,9 @@ public class NetStore implements ChunkStore {
     }
 
     private class ChunkRequest {
+        final Map<Long, Collection<BzzRetrieveReqMessage>> requesters = new HashMap<>();
+        final List<Promise<Chunk>> localRequesters = new ArrayList<>();
         EntryReqStatus status = EntryReqStatus.Searching;
-        Map<Long, Collection<BzzRetrieveReqMessage>> requesters = new HashMap<>();
-        List<Promise<Chunk>> localRequesters = new ArrayList<>();
     }
 }
 

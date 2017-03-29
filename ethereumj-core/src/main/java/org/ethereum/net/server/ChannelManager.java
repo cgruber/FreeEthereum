@@ -39,40 +39,36 @@ public class ChannelManager {
     // too active peers
     private static final int inboundConnectionBanTimeout = 10 * 1000;
     private final Map<ByteArrayWrapper, Channel> activePeers = new ConcurrentHashMap<>();
-    Random rnd = new Random();  // Used for distributing new blocks / hashes logic
-    @Autowired
-    SyncPool syncPool;
-    private List<Channel> newPeers = new CopyOnWriteArrayList<>();
-    private ScheduledExecutorService mainWorker = Executors.newSingleThreadScheduledExecutor();
-    private int maxActivePeers;
-    private Map<InetAddress, Date> recentlyDisconnected = Collections.synchronizedMap(new LRUMap<InetAddress, Date>(500));
-    private NodeFilter trustedPeers;
+    private final Random rnd = new Random();  // Used for distributing new blocks / hashes logic
+    private final List<Channel> newPeers = new CopyOnWriteArrayList<>();
+    private final ScheduledExecutorService mainWorker = Executors.newSingleThreadScheduledExecutor();
+    private final int maxActivePeers;
+    private final Map<InetAddress, Date> recentlyDisconnected = Collections.synchronizedMap(new LRUMap<InetAddress, Date>(500));
+    private final NodeFilter trustedPeers;
     /**
      * Queue with new blocks from other peers
      */
-    private BlockingQueue<BlockWrapper> newForeignBlocks = new LinkedBlockingQueue<>();
+    private final BlockingQueue<BlockWrapper> newForeignBlocks = new LinkedBlockingQueue<>();
     /**
      * Queue with new peers used for after channel init tasks
      */
-    private BlockingQueue<Channel> newActivePeers = new LinkedBlockingQueue<>();
-    private Thread blockDistributeThread;
-    private Thread txDistributeThread;
+    private final BlockingQueue<Channel> newActivePeers = new LinkedBlockingQueue<>();
+    private final Thread blockDistributeThread;
+    private final Thread txDistributeThread;
+    private final SyncManager syncManager;
+    private final PeerServer peerServer;
+    @Autowired
+    private
+    SyncPool syncPool;
     @Autowired
     private Ethereum ethereum;
-
     @Autowired
     private PendingState pendingState;
-
-    private SystemProperties config;
-
-    private SyncManager syncManager;
-
-    private PeerServer peerServer;
 
     @Autowired
     private ChannelManager(final SystemProperties config, final SyncManager syncManager,
                            final PeerServer peerServer) {
-        this.config = config;
+        SystemProperties config1 = config;
         this.syncManager = syncManager;
         this.peerServer = peerServer;
         maxActivePeers = config.maxActivePeers();
@@ -119,7 +115,7 @@ public class ChannelManager {
         ethereum.connect(node);
     }
 
-    public Set<String> nodesInUse() {
+    private Set<String> nodesInUse() {
         Set<String> ids = new HashSet<>();
         for (Channel peer : getActivePeers()) {
             ids.add(peer.getPeerId());

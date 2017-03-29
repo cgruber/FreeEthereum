@@ -13,11 +13,9 @@ import java.util.List;
 @Component
 public class AdminInfo {
     private static final int ExecTimeListLimit = 10000;
-
+    private final List<Long> blockExecTime = new LinkedList<>();
     private long startupTimeStamp;
     private boolean consensus = true;
-    private List<Long> blockExecTime = new LinkedList<>();
-
 
     @PostConstruct
     public void init() {

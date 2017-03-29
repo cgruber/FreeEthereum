@@ -39,14 +39,6 @@ package org.ethereum.crypto.cryptohash;
 
 abstract class KeccakCore extends DigestEngine{
 
-	KeccakCore(String alg)
-	{
-		super(alg);
-	}
-
-	private long[] A;
-	private byte[] tmpOut;
-
 	private static final long[] RC = {
 		0x0000000000000001L, 0x0000000000008082L,
 		0x800000000000808AL, 0x8000000080008000L,
@@ -61,6 +53,12 @@ abstract class KeccakCore extends DigestEngine{
 		0x8000000080008081L, 0x8000000000008080L,
 		0x0000000080000001L, 0x8000000080008008L
 	};
+    private long[] A;
+    private byte[] tmpOut;
+
+    KeccakCore(String alg) {
+        super(alg);
+    }
 
 	/**
 	 * Encode the 64-bit word {@code val} into the array
@@ -572,8 +570,7 @@ abstract class KeccakCore extends DigestEngine{
 	}
 
 	/** @see org.ethereum.crypto.cryptohash.DigestEngine */
-	protected Digest copyState(KeccakCore dst)
-	{
+    Digest copyState(KeccakCore dst) {
 		System.arraycopy(A, 0, dst.A, 0, 25);
 		return super.copyState(dst);
 	}

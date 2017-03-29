@@ -6,35 +6,10 @@ package org.ethereum.vm;
  */
 public class MessageCall {
 
-    public enum MsgType {
-        CALL,
-        CALLCODE,
-        DELEGATECALL,
-        POST;
-
-        /**
-         *  Indicates that the code is executed in the context of the caller
-         */
-        public boolean isStateless() {
-            return this == CALLCODE || this == DELEGATECALL;
-        }
-
-        public static MsgType fromOpcode(OpCode opCode) {
-            switch (opCode) {
-                case CALL: return CALL;
-                case CALLCODE: return CALLCODE;
-                case DELEGATECALL: return DELEGATECALL;
-                default:
-                    throw new RuntimeException("Invalid call opCode: " + opCode);
-            }
-        }
-    }
-
     /**
      * Type of internal call. Either CALL, CALLCODE or POST
      */
     private final MsgType type;
-
     /**
      * gas to pay for the call, remaining gas will be refunded to the caller
      */
@@ -64,8 +39,8 @@ public class MessageCall {
      */
     private DataWord outDataSize;
 
-    public MessageCall(MsgType type, DataWord gas, DataWord codeAddress,
-                       DataWord endowment, DataWord inDataOffs, DataWord inDataSize) {
+    private MessageCall(MsgType type, DataWord gas, DataWord codeAddress,
+                        DataWord endowment, DataWord inDataOffs, DataWord inDataSize) {
         this.type = type;
         this.gas = gas;
         this.codeAddress = codeAddress;
@@ -112,5 +87,32 @@ public class MessageCall {
 
     public DataWord getOutDataSize() {
         return outDataSize;
+    }
+
+    public enum MsgType {
+        CALL,
+        CALLCODE,
+        DELEGATECALL,
+        POST;
+
+        public static MsgType fromOpcode(OpCode opCode) {
+            switch (opCode) {
+                case CALL:
+                    return CALL;
+                case CALLCODE:
+                    return CALLCODE;
+                case DELEGATECALL:
+                    return DELEGATECALL;
+                default:
+                    throw new RuntimeException("Invalid call opCode: " + opCode);
+            }
+        }
+
+        /**
+         * Indicates that the code is executed in the context of the caller
+         */
+        public boolean isStateless() {
+            return this == CALLCODE || this == DELEGATECALL;
+        }
     }
 }

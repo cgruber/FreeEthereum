@@ -29,21 +29,19 @@ import static org.fusesource.leveldbjni.JniDBFactory.factory;
 public class LevelDbDataSource implements DbSource<byte[]> {
 
     private static final Logger logger = LoggerFactory.getLogger("db");
-
-    @Autowired
-    SystemProperties config  = SystemProperties.getDefault(); // initialized for standalone test
-
-    String name;
-    DB db;
-    boolean alive;
-
     // The native LevelDB insert/update/delete are normally thread-safe
     // However close operation is not thread-safe and may lead to a native crash when
     // accessing a closed DB.
     // The leveldbJNI lib has a protection over accessing closed DB but it is not synchronized
     // This ReadWriteLock still permits concurrent execution of insert/delete/update operations
     // however blocks them on init/close/delete operations
-    private ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
+    @Autowired
+    private
+    SystemProperties config = SystemProperties.getDefault(); // initialized for standalone test
+    private String name;
+    private DB db;
+    private boolean alive;
 
     public LevelDbDataSource() {
     }
@@ -141,13 +139,13 @@ public class LevelDbDataSource implements DbSource<byte[]> {
     }
 
     @Override
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return name;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

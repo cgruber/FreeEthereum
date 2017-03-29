@@ -11,21 +11,8 @@ import static org.ethereum.util.ByteUtil.longToBytesNoLeadZeroes;
 
 public class FindNodeMessage extends Message {
 
-    byte[] target;
-    long expires;
-
-    @Override
-    public void parse(byte[] data) {
-
-        RLPList list = (RLPList) RLP.decode2OneItem(data, 0);
-
-        RLPItem target = (RLPItem) list.get(0);
-        RLPItem expires = (RLPItem) list.get(1);
-
-        this.target = target.getRLPData();
-        this.expires = ByteUtil.byteArrayToLong(expires.getRLPData());
-    }
-
+    private byte[] target;
+    private long expires;
 
     public static FindNodeMessage create(byte[] target, ECKey privKey) {
 
@@ -46,6 +33,18 @@ public class FindNodeMessage extends Message {
         findNode.expires = expiration;
 
         return findNode;
+    }
+
+    @Override
+    public void parse(byte[] data) {
+
+        RLPList list = (RLPList) RLP.decode2OneItem(data, 0);
+
+        RLPItem target = (RLPItem) list.get(0);
+        RLPItem expires = (RLPItem) list.get(1);
+
+        this.target = target.getRLPData();
+        this.expires = ByteUtil.byteArrayToLong(expires.getRLPData());
     }
 
     public byte[] getTarget() {

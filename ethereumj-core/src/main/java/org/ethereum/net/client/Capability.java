@@ -10,8 +10,8 @@ public class Capability implements Comparable<Capability> {
     public final static String SHH = "shh";
     public final static String BZZ = "bzz";
 
-    private String name;
-    private byte version;
+    private final String name;
+    private final byte version;
 
     public Capability(String name, byte version) {
         this.name = name;

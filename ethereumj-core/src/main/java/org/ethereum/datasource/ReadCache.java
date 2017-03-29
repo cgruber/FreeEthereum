@@ -40,7 +40,7 @@ public class ReadCache<Key, Value> extends AbstractCachedSource<Key, Value> {
     /**
      * Installs the specific cache Map implementation
      */
-    public ReadCache<Key, Value> withCache(Map<Key, Value> cache) {
+    ReadCache<Key, Value> withCache(Map<Key, Value> cache) {
         byteKeyMap = cache instanceof ByteArrayMap;
         this.cache = Collections.synchronizedMap(cache);
         return this;

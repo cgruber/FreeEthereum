@@ -22,35 +22,28 @@ import java.util.concurrent.TimeUnit;
  * Created by Anton Nashatyrev on 17.07.2015.
  */
 @Component
-public class PeerConnectionTester {
+class PeerConnectionTester {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("discover");
 
-    private int ConnectThreads;
-    private long ReconnectPeriod;
-    private long ReconnectMaxPeers;
-
+    private final long ReconnectPeriod;
+    private final long ReconnectMaxPeers;
+    // NodeHandler instance should be unique per Node instance
+    private final Map<NodeHandler, ?> connectedCandidates = Collections.synchronizedMap(new IdentityHashMap());
+    // executor with Queue which picks up the Node with the best reputation
+    private final ExecutorService peerConnectionPool;
+    private final Timer reconnectTimer = new Timer("DiscoveryReconnectTimer");
     @Autowired
     private PeerClient peerClient;
-
-    private SystemProperties config = SystemProperties.getDefault();
-
-    // NodeHandler instance should be unique per Node instance
-    private Map<NodeHandler, ?> connectedCandidates = Collections.synchronizedMap(new IdentityHashMap());
-
-    // executor with Queue which picks up the Node with the best reputation
-    private ExecutorService peerConnectionPool;
-
-    private Timer reconnectTimer = new Timer("DiscoveryReconnectTimer");
     private int reconnectPeersCount = 0;
 
     @Autowired
     public PeerConnectionTester(final SystemProperties config) {
-        this.config = config;
-        ConnectThreads = config.peerDiscoveryWorkers();
+        SystemProperties config1 = config;
+        int connectThreads = config.peerDiscoveryWorkers();
         ReconnectPeriod = config.peerDiscoveryTouchPeriod() * 1000;
         ReconnectMaxPeers = config.peerDiscoveryTouchMaxNodes();
-        peerConnectionPool = new ThreadPoolExecutor(ConnectThreads,
-                ConnectThreads, 0L, TimeUnit.SECONDS,
+        peerConnectionPool = new ThreadPoolExecutor(connectThreads,
+                connectThreads, 0L, TimeUnit.SECONDS,
                 new MutablePriorityQueue<>(new Comparator<ConnectTask>() {
                     @Override
                     public int compare(ConnectTask h1, ConnectTask h2) {
@@ -93,7 +86,7 @@ public class PeerConnectionTester {
      * though the implementation should be inheritedly thread-safe
      */
     public static class MutablePriorityQueue<T, C extends T> extends LinkedBlockingQueue<T> {
-        Comparator<C> comparator;
+        final Comparator<C> comparator;
 
         public MutablePriorityQueue(Comparator<C> comparator) {
             this.comparator = comparator;
@@ -144,7 +137,7 @@ public class PeerConnectionTester {
     }
 
     private class ConnectTask implements Runnable {
-        NodeHandler nodeHandler;
+        final NodeHandler nodeHandler;
 
         public ConnectTask(NodeHandler nodeHandler) {
             this.nodeHandler = nodeHandler;

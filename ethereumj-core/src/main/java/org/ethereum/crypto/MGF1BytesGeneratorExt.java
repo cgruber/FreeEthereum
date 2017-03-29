@@ -11,11 +11,11 @@ import org.spongycastle.crypto.params.MGFParameters;
  * The only change made is addition of 'counterStart' parameter to
  * conform to Crypto++ capabilities
  */
-public class MGF1BytesGeneratorExt implements DerivationFunction {
-    private Digest digest;
+class MGF1BytesGeneratorExt implements DerivationFunction {
+    private final Digest digest;
+    private final int hLen;
+    private final int counterStart;
     private byte[] seed;
-    private int hLen;
-    private int counterStart;
 
     public MGF1BytesGeneratorExt(Digest digest, int counterStart) {
         this.digest = digest;

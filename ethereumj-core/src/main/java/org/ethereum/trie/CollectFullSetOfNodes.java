@@ -10,7 +10,7 @@ import java.util.Set;
  * @since 29.08.2014
  */
 public class CollectFullSetOfNodes implements TrieImpl.ScanAction {
-    Set<ByteArrayWrapper> nodes = new HashSet<>();
+    private final Set<ByteArrayWrapper> nodes = new HashSet<>();
 
     @Override
     public void doOnNode(byte[] hash, TrieImpl.Node node) {

@@ -14,8 +14,8 @@ import org.spongycastle.util.Pack;
 public class ConcatKDFBytesGenerator
     implements DigestDerivationFunction
 {
-    private int    counterStart;
-    private Digest digest;
+    private final int counterStart;
+    private final Digest digest;
     private byte[] shared;
     private byte[] iv;
 
@@ -28,7 +28,7 @@ public class ConcatKDFBytesGenerator
      * @param digest
      *            the digest to be used as the source of derived keys.
      */
-    protected ConcatKDFBytesGenerator(int counterStart, Digest digest)
+    private ConcatKDFBytesGenerator(int counterStart, Digest digest)
     {
         this.counterStart = counterStart;
         this.digest = digest;

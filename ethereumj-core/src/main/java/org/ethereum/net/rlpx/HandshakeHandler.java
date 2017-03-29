@@ -49,9 +49,9 @@ public class HandshakeHandler extends ByteToMessageDecoder {
 
     private static final Logger loggerWire = LoggerFactory.getLogger("wire");
     private static final Logger loggerNet = LoggerFactory.getLogger("net");
-
-    private FrameCodec frameCodec;
     private final ECKey myKey;
+    private final SystemProperties config;
+    private FrameCodec frameCodec;
     private byte[] nodeId;
     private byte[] remoteId;
     private EncryptionHandshake handshake;
@@ -59,13 +59,10 @@ public class HandshakeHandler extends ByteToMessageDecoder {
     private Channel channel;
     private boolean isHandshakeDone;
 
-    private final SystemProperties config;
-    private final NodeManager nodeManager;
-
     @Autowired
     public HandshakeHandler(final SystemProperties config, final NodeManager nodeManager) {
         this.config = config;
-        this.nodeManager = nodeManager;
+        NodeManager nodeManager1 = nodeManager;
 
         myKey = config.getMyKey();
     }
@@ -91,7 +88,7 @@ public class HandshakeHandler extends ByteToMessageDecoder {
         }
     }
 
-    public void initiate(ChannelHandlerContext ctx) throws Exception {
+    private void initiate(ChannelHandlerContext ctx) throws Exception {
 
         loggerNet.debug("RLPX protocol activated");
 

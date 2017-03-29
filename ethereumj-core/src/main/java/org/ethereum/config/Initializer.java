@@ -22,7 +22,7 @@ class Initializer implements BeanPostProcessor {
     private static final Logger logger = LoggerFactory.getLogger("general");
 
     // Util to ensure database directory is compatible with code
-    private DatabaseVersionHandler databaseVersionHandler = new DatabaseVersionHandler();
+    private final DatabaseVersionHandler databaseVersionHandler = new DatabaseVersionHandler();
 
     /**
      * Method to be called right after the config is instantiated.
@@ -79,10 +79,6 @@ class Initializer implements BeanPostProcessor {
      * Logic will assume that database has version 1 if file with version is absent.
      */
     public static class DatabaseVersionHandler {
-
-        public enum Behavior {
-            EXIT, RESET, IGNORE
-        }
 
         public void process(SystemProperties config) {
             if (config.databaseReset() && config.databaseResetBlock() == 0){
@@ -174,6 +170,10 @@ class Initializer implements BeanPostProcessor {
 
         private File getDatabaseVersionFile(SystemProperties config) {
             return new File(config.databaseDir() + "/version.properties");
+        }
+
+        public enum Behavior {
+            EXIT, RESET, IGNORE
         }
     }
 }

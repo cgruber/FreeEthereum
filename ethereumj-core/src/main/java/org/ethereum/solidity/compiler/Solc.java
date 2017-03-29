@@ -1,5 +1,7 @@
 package org.ethereum.solidity.compiler;
 
+import org.ethereum.config.SystemProperties;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,12 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
 
-import org.ethereum.config.SystemProperties;
-
 /**
  * Created by Anton Nashatyrev on 03.03.2016.
  */
-public class Solc {
+class Solc {
 
     private File solc = null;
 

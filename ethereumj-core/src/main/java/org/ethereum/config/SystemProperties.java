@@ -53,109 +53,52 @@ import static org.ethereum.crypto.HashUtil.sha3;
  * @since 22.05.2014
  */
 public class SystemProperties {
-    private static Logger logger = LoggerFactory.getLogger("general");
-
     public final static String PROPERTY_DB_DIR = "database.dir";
     public final static String PROPERTY_LISTEN_PORT = "peer.listen.port";
     public final static String PROPERTY_PEER_ACTIVE = "peer.active";
     public final static String PROPERTY_DB_RESET = "database.reset";
     public final static String PROPERTY_PEER_DISCOVERY_ENABLED = "peer.discovery.enabled";
-
+    private static final Logger logger = LoggerFactory.getLogger("general");
     /* Testing */
     private final static Boolean DEFAULT_VMTEST_LOAD_LOCAL = false;
     private final static String DEFAULT_BLOCKS_LOADER = "";
 
     private static SystemProperties CONFIG;
     private static boolean useOnlySpringConfig = false;
+    private final ClassLoader classLoader;
+    Integer databaseVersion = null;
     private String generatedNodePrivateKey;
-
-    /**
-     * Returns the static config instance. If the config is passed
-     * as a Spring bean by the application this instance shouldn't
-     * be used
-     * This method is mainly used for testing purposes
-     * (Autowired fields are initialized with this static instance
-     * but when running within Spring context they replaced with the
-     * bean config instance)
-     */
-    public static SystemProperties getDefault() {
-        return useOnlySpringConfig ? null : getSpringDefault();
-    }
-
-    static SystemProperties getSpringDefault() {
-        if (CONFIG == null) {
-            CONFIG = new SystemProperties();
-        }
-        return CONFIG;
-    }
-
-    public static void resetToDefault() {
-        CONFIG = null;
-    }
-
-    /**
-     * Used mostly for testing purposes to ensure the application
-     * refers only to the config passed as a Spring bean.
-     * If this property is set to true {@link #getDefault()} returns null
-     */
-    public static void setUseOnlySpringConfig(boolean useOnlySpringConfig) {
-        SystemProperties.useOnlySpringConfig = useOnlySpringConfig;
-    }
-
-    static boolean isUseOnlySpringConfig() {
-        return useOnlySpringConfig;
-    }
-
-    /**
-     * Marks config accessor methods which need to be called (for value validation)
-     * upon config creation or modification
-     */
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.RUNTIME)
-    private @interface ValidateMe {};
-
-
     private Config config;
-
     // mutable options for tests
     private String databaseDir = null;
     private Boolean databaseReset = null;
     private String projectVersion = null;
     private String projectVersionModifier = null;
-    protected Integer databaseVersion = null;
-
     private String genesisInfo = null;
-
     private String bindIp = null;
     private String externalIp = null;
-
     private Boolean syncEnabled = null;
     private Boolean discoveryEnabled = null;
-
     private GenesisJson genesisJson;
     private BlockchainNetConfig blockchainConfig;
     private Genesis genesis;
     private Boolean vmTrace;
-
-    private final ClassLoader classLoader;
-
     public SystemProperties() {
         this(ConfigFactory.empty());
     }
 
-    public SystemProperties(File configFile) {
+    private SystemProperties(File configFile) {
         this(ConfigFactory.parseFile(configFile));
     }
 
-    public SystemProperties(String configResource) {
+    private SystemProperties(String configResource) {
         this(ConfigFactory.parseResources(configResource));
     }
-
     public SystemProperties(Config apiConfig) {
         this(apiConfig, SystemProperties.class.getClassLoader());
     }
 
-    public SystemProperties(Config apiConfig, ClassLoader classLoader) {
+    private SystemProperties(Config apiConfig, ClassLoader classLoader) {
         try {
             this.classLoader = classLoader;
 
@@ -209,6 +152,43 @@ public class SystemProperties {
             logger.error("Can't read config.", e);
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Returns the static config instance. If the config is passed
+     * as a Spring bean by the application this instance shouldn't
+     * be used
+     * This method is mainly used for testing purposes
+     * (Autowired fields are initialized with this static instance
+     * but when running within Spring context they replaced with the
+     * bean config instance)
+     */
+    public static SystemProperties getDefault() {
+        return useOnlySpringConfig ? null : getSpringDefault();
+    }
+
+    static SystemProperties getSpringDefault() {
+        if (CONFIG == null) {
+            CONFIG = new SystemProperties();
+        }
+        return CONFIG;
+    }
+
+    public static void resetToDefault() {
+        CONFIG = null;
+    }
+
+    static boolean isUseOnlySpringConfig() {
+        return useOnlySpringConfig;
+    }
+
+    /**
+     * Used mostly for testing purposes to ensure the application
+     * refers only to the config passed as a Spring bean.
+     * If this property is set to true {@link #getDefault()} returns null
+     */
+    public static void setUseOnlySpringConfig(boolean useOnlySpringConfig) {
+        SystemProperties.useOnlySpringConfig = useOnlySpringConfig;
     }
 
     public Config getConfig() {
@@ -377,7 +357,6 @@ public class SystemProperties {
         return config.hasPath("peer.p2p.framing.maxSize") ? config.getInt("peer.p2p.framing.maxSize") : MessageCodec.NO_FRAMING;
     }
 
-
     @ValidateMe
     public int transactionApproveTimeout() {
         return config.getInt("transaction.approve.timeout") * 1000;
@@ -465,11 +444,11 @@ public class SystemProperties {
         return ret;
     }
 
-
     @ValidateMe
     public Integer blockQueueSize() {
         return config.getInt("cache.blockQueueSize") * 1024 * 1024;
     }
+
     @ValidateMe
     public Integer headerQueueSize() {
         return config.getInt("cache.headerQueueSize") * 1024 * 1024;
@@ -614,7 +593,7 @@ public class SystemProperties {
         return config.hasPath("solc.path") ? config.getString("solc.path"): null;
     }
 
-    public String privateKey() {
+    private String privateKey() {
         if (config.hasPath("peer.privateKey")) {
             String key = config.getString("peer.privateKey");
             if (key.length() != 64) {
@@ -684,7 +663,6 @@ public class SystemProperties {
     public int listenPort() {
         return config.getInt("peer.listen.port");
     }
-
 
     /**
      * This can be a blocking call with long timeout (thus no ValidateMe)
@@ -833,7 +811,7 @@ public class SystemProperties {
     public String getCryptoProviderName() {
         return config.getString("crypto.providerName");
     }
-    
+
     @ValidateMe
     public String getHash256AlgName() {
         return config.getString("crypto.hash.alg256");
@@ -884,5 +862,14 @@ public class SystemProperties {
     public String blocksLoader() {
         return config.hasPath("blocks.loader") ?
                 config.getString("blocks.loader") : DEFAULT_BLOCKS_LOADER;
+    }
+
+    /**
+     * Marks config accessor methods which need to be called (for value validation)
+     * upon config creation or modification
+     */
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    private @interface ValidateMe {
     }
 }

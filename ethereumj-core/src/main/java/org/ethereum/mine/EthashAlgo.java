@@ -20,8 +20,9 @@ import static org.spongycastle.util.Arrays.reverse;
  *
  * Created by Anton Nashatyrev on 27.11.2015.
  */
-public class EthashAlgo {
-    EthashParams params;
+class EthashAlgo {
+    private static final int FNV_PRIME = 0x01000193;
+    private final EthashParams params;
 
     public EthashAlgo() {
         this(new EthashParams());
@@ -31,12 +32,8 @@ public class EthashAlgo {
         this.params = params;
     }
 
-    public EthashParams getParams() {
-        return params;
-    }
-
     // Little-Endian !
-    static int getWord(byte[] arr, int wordOff) {
+    private static int getWord(byte[] arr, int wordOff) {
         return ByteBuffer.wrap(arr, wordOff * 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
     }
 
@@ -46,7 +43,7 @@ public class EthashAlgo {
         bb.get(arr, wordOff * 4, 4);
     }
 
-    public static int remainderUnsigned(int dividend, int divisor) {
+    private static int remainderUnsigned(int dividend, int divisor) {
         if (divisor >= 0) {
             if (dividend >= 0) {
                 return dividend % divisor;
@@ -63,6 +60,13 @@ public class EthashAlgo {
         return dividend >= 0 || dividend < divisor ? dividend : dividend - divisor;
     }
 
+    private static int fnv(int v1, int v2) {
+        return (v1 * FNV_PRIME) ^ v2;
+    }
+
+    public EthashParams getParams() {
+        return params;
+    }
 
     private byte[][] makeCacheBytes(long cacheSize, byte[] seed) {
         int n = (int) (cacheSize / params.getHASH_BYTES());
@@ -92,12 +96,7 @@ public class EthashAlgo {
         return ret;
     }
 
-    private static final int FNV_PRIME = 0x01000193;
-    private static int fnv(int v1, int v2) {
-        return (v1 * FNV_PRIME) ^ v2;
-    }
-
-    int[] sha512(int[] arr, boolean bigEndian) {
+    private int[] sha512(int[] arr, boolean bigEndian) {
         byte[] bytesTmp = new byte[arr.length << 2];
         intsToBytes(arr, bytesTmp, bigEndian);
         bytesTmp = HashUtil.sha512(bytesTmp);
@@ -135,8 +134,8 @@ public class EthashAlgo {
         return ret;
     }
 
-    public Pair<byte[], byte[]> hashimoto(byte[] blockHeaderTruncHash, byte[] nonce, long fullSize,
-                                          int[] cacheOrDataset, boolean full) {
+    private Pair<byte[], byte[]> hashimoto(byte[] blockHeaderTruncHash, byte[] nonce, long fullSize,
+                                           int[] cacheOrDataset, boolean full) {
         if (nonce.length != 8) throw new RuntimeException("nonce.length != 8");
 
         int hashWords = params.getHASH_BYTES() / 4;

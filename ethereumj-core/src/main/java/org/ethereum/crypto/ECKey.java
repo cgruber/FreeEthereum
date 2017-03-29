@@ -79,7 +79,6 @@ public class ECKey implements Serializable {
      * The parameters of the secp256k1 curve that Ethereum uses.
      */
     public static final ECDomainParameters CURVE;
-    public static final ECParameterSpec CURVE_SPEC;
     /**
      * Equal to CURVE.getN().shiftRight(1), used for canonicalising the S value of a signature.
      * ECDSA signatures are mutable in the sense that for a given (R, S) pair,
@@ -89,6 +88,7 @@ public class ECKey implements Serializable {
      * See https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#Low_S_values_in_signatures
      */
     public static final BigInteger HALF_CURVE_ORDER;
+    private static final ECParameterSpec CURVE_SPEC;
     private static final Logger logger = LoggerFactory.getLogger(ECKey.class);
     private static final SecureRandom secureRandom;
     private static final long serialVersionUID = -728224901792295832L;
@@ -102,7 +102,7 @@ public class ECKey implements Serializable {
         secureRandom = new SecureRandom();
     }
 
-    protected final ECPoint pub;
+    private final ECPoint pub;
     // The two parts of the key. If "priv" is set, "pub" can always be calculated. If "pub" is set but not "priv", we
     // can only verify signatures not make them.
     // TODO: Redesign this class to use consistent internals and more efficient serialization.
@@ -354,7 +354,7 @@ public class ECKey implements Serializable {
      * @param pubBytes an encoded (uncompressed) public key
      * @return 20-byte address
      */
-    public static byte[] computeAddress(byte[] pubBytes) {
+    private static byte[] computeAddress(byte[] pubBytes) {
         return HashUtil.sha3omit12(
             Arrays.copyOfRange(pubBytes, 1, pubBytes.length));
     }
@@ -365,7 +365,7 @@ public class ECKey implements Serializable {
      * @param pubPoint a public point
      * @return 20-byte address
      */
-    public static byte[] computeAddress(ECPoint pubPoint) {
+    private static byte[] computeAddress(ECPoint pubPoint) {
         return computeAddress(pubPoint.getEncoded(/* uncompressed */ false));
     }
 
@@ -377,7 +377,7 @@ public class ECKey implements Serializable {
      * @param pubPoint a public point
      * @return 64-byte X,Y point pair
      */
-    public static byte[] pubBytesWithoutFormat(ECPoint pubPoint) {
+    private static byte[] pubBytesWithoutFormat(ECPoint pubPoint) {
         final byte[] pubBytes = pubPoint.getEncoded(/* uncompressed */ false);
         return Arrays.copyOfRange(pubBytes, 1, pubBytes.length);
     }
@@ -406,7 +406,7 @@ public class ECKey implements Serializable {
      * @return -
      * @throws SignatureException If the public key could not be recovered or if there was a signature format error.
      */
-    public static byte[] signatureToKeyBytes(byte[] messageHash, String signatureBase64) throws SignatureException {
+    private static byte[] signatureToKeyBytes(byte[] messageHash, String signatureBase64) throws SignatureException {
         byte[] signatureEncoded;
         try {
             signatureEncoded = Base64.decode(signatureBase64);
@@ -426,7 +426,7 @@ public class ECKey implements Serializable {
                 (byte) (signatureEncoded[0] & 0xFF)));
     }
 
-    public static byte[] signatureToKeyBytes(byte[] messageHash, ECDSASignature sig) throws SignatureException {
+    private static byte[] signatureToKeyBytes(byte[] messageHash, ECDSASignature sig) throws SignatureException {
         check(messageHash.length == 32, "messageHash argument has length " + messageHash.length);
         int header = sig.v;
         // The header byte: 0x1B = first key with even y, 0x1C = first key with odd y,
@@ -501,7 +501,7 @@ public class ECKey implements Serializable {
      *
      * @return -
      */
-    public static boolean verify(byte[] data, ECDSASignature signature, byte[] pub) {
+    private static boolean verify(byte[] data, ECDSASignature signature, byte[] pub) {
         ECDSASigner signer = new ECDSASigner();
         ECPublicKeyParameters params = new ECPublicKeyParameters(CURVE.getCurve().decodePoint(pub), CURVE);
         signer.init(false, params);
@@ -524,7 +524,7 @@ public class ECKey implements Serializable {
      *
      * @return  -
      */
-    public static boolean verify(byte[] data, byte[] signature, byte[] pub) {
+    private static boolean verify(byte[] data, byte[] signature, byte[] pub) {
         return verify(data, ECDSASignature.decodeFromDER(signature), pub);
     }
 

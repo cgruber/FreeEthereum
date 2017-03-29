@@ -3,7 +3,6 @@ package org.ethereum.net.eth.message;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPList;
-
 import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
@@ -15,21 +14,21 @@ import java.math.BigInteger;
  */
 public class StatusMessage extends EthMessage {
 
-    protected byte protocolVersion;
-    protected int networkId;
+    private byte protocolVersion;
+    private int networkId;
 
     /**
      * Total difficulty of the best chain as found in block header.
      */
-    protected byte[] totalDifficulty;
+    private byte[] totalDifficulty;
     /**
      * The hash of the best (i.e. highest TD) known block.
      */
-    protected byte[] bestHash;
+    private byte[] bestHash;
     /**
      * The hash of the Genesis block
      */
-    protected byte[] genesisHash;
+    private byte[] genesisHash;
 
     public StatusMessage(byte[] encoded) {
         super(encoded);
@@ -45,7 +44,7 @@ public class StatusMessage extends EthMessage {
         this.parsed = true;
     }
 
-    protected synchronized void parse() {
+    private synchronized void parse() {
         if (parsed) return;
         RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 
@@ -61,7 +60,7 @@ public class StatusMessage extends EthMessage {
         parsed = true;
     }
 
-    protected void encode() {
+    private void encode() {
         byte[] protocolVersion = RLP.encodeByte(this.protocolVersion);
         byte[] networkId = RLP.encodeInt(this.networkId);
         byte[] totalDifficulty = RLP.encodeElement(this.totalDifficulty);

@@ -40,30 +40,22 @@ import static org.ethereum.util.BIUtil.isIn20PercentRange;
 @Component
 public class SyncPool {
 
-    public static final Logger logger = LoggerFactory.getLogger("sync");
+    private static final Logger logger = LoggerFactory.getLogger("sync");
 
     private static final long WORKER_TIMEOUT = 3; // 3 seconds
 
     private final List<Channel> activePeers = Collections.synchronizedList(new ArrayList<Channel>());
-
+    private final Blockchain blockchain;
+    private final SystemProperties config;
+    private final ScheduledExecutorService poolLoopExecutor = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService logExecutor = Executors.newSingleThreadScheduledExecutor();
     private BigInteger lowerUsefulDifficulty = BigInteger.ZERO;
-
     @Autowired
     private EthereumListener ethereumListener;
-
     @Autowired
     private NodeManager nodeManager;
-
     private ChannelManager channelManager;
-
-    private Blockchain blockchain;
-
-    private SystemProperties config;
-
-    private ScheduledExecutorService poolLoopExecutor = Executors.newSingleThreadScheduledExecutor();
-
     private Functional.Predicate<NodeHandler> nodesSelector;
-    private ScheduledExecutorService logExecutor = Executors.newSingleThreadScheduledExecutor();
 
     @Autowired
     public SyncPool(final SystemProperties config, final Blockchain blockchain) {
@@ -186,7 +178,7 @@ public class SyncPool {
         }
     }
 
-    public synchronized Set<String> nodesInUse() {
+    private synchronized Set<String> nodesInUse() {
         Set<String> ids = new HashSet<>();
         for (Channel peer : channelManager.getActivePeers()) {
             ids.add(peer.getPeerId());
@@ -194,7 +186,7 @@ public class SyncPool {
         return ids;
     }
 
-    synchronized void logActivePeers() {
+    private synchronized void logActivePeers() {
         if (logger.isInfoEnabled()) {
             StringBuilder sb = new StringBuilder("Peer stats:\n");
             sb.append("Active peers\n");
@@ -336,7 +328,7 @@ public class SyncPool {
     }
 
     class NodeSelector implements Functional.Predicate<NodeHandler> {
-        BigInteger lowerDifficulty;
+        final BigInteger lowerDifficulty;
         Set<String> nodesInUse;
 
         public NodeSelector(BigInteger lowerDifficulty) {

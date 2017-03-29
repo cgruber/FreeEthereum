@@ -1037,7 +1037,7 @@ public class ShortSyncTest {
     @Configuration
     @NoAutoscan
     public static class SysPropConfigA {
-        static SystemProperties props = new SystemProperties();
+        static final SystemProperties props = new SystemProperties();
         static Eth62 eth62 = null;
 
         @Bean
@@ -1056,7 +1056,7 @@ public class ShortSyncTest {
     @Configuration
     @NoAutoscan
     public static class SysPropConfigB {
-        static SystemProperties props = new SystemProperties();
+        static final SystemProperties props = new SystemProperties();
 
         @Bean
         public SystemProperties systemProperties() {

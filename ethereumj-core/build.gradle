@@ -109,7 +109,7 @@ ext {
     scastleVersion = '1.53.0.0'
     springVersion = '4.2.0.RELEASE'
     hibernateVersion = '4.3.7.Final'
-    junitVersion = '4.11'
+    junitVersion = '4.12'
 }
 
 dependencies {
@@ -151,19 +151,6 @@ dependencies {
     testCompile "org.mockito:mockito-core:2.+"
     testCompile "com.github.briandilley.jsonrpc4j:jsonrpc4j:1.1"
 }
-
-
-javadoc {
-    options.author = true
-    options.header = project.name
-    options.addStringOption('-quiet')
-    options.encoding = "UTF-8"
-    options.links(
-            "http://docs.oracle.com/javase/7/docs/api/",
-            "http://netty.io/4.0/api/"
-    )
-}
-
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'

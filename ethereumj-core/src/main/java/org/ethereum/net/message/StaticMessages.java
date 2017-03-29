@@ -22,23 +22,23 @@ import java.util.regex.Pattern;
 @Component
 public class StaticMessages {
 
-    @Autowired
-    SystemProperties config;
-
-    @Autowired
-    ConfigCapabilities configCapabilities;
-
     public final static PingMessage PING_MESSAGE = new PingMessage();
     public final static PongMessage PONG_MESSAGE = new PongMessage();
     public final static GetPeersMessage GET_PEERS_MESSAGE = new GetPeersMessage();
     public final static DisconnectMessage DISCONNECT_MESSAGE = new DisconnectMessage(ReasonCode.REQUESTED);
-
     public static final byte[] SYNC_TOKEN = Hex.decode("22400891");
+    @Autowired
+    private
+    SystemProperties config;
+    @Autowired
+    private
+    ConfigCapabilities configCapabilities;
 
     public HelloMessage createHelloMessage(String peerId) {
         return createHelloMessage(peerId, config.listenPort());
     }
-    public HelloMessage createHelloMessage(String peerId, int listenPort) {
+
+    private HelloMessage createHelloMessage(String peerId, int listenPort) {
 
         String helloAnnouncement = buildHelloAnnouncement();
         byte p2pVersion = (byte) config.defaultP2PVersion();

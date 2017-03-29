@@ -17,11 +17,10 @@ import java.util.*;
  * Created by Anton Nashatyrev on 01.12.2016.
  */
 public class IterableTestRepository implements Repository {
-    Repository src;
-
-    Set<byte[]> accounts = new ByteArraySet();
-    Map<byte[], Set<DataWord>> storageKeys = new ByteArrayMap<>();
+    final Repository src;
     boolean environmental;
+    private Set<byte[]> accounts = new ByteArraySet();
+    private Map<byte[], Set<DataWord>> storageKeys = new ByteArrayMap<>();
 
     private IterableTestRepository(Repository src, IterableTestRepository parent) {
         this.src = src;
@@ -248,7 +247,7 @@ public class IterableTestRepository implements Repository {
     }
 
     private class IterableContractDetails implements ContractDetails {
-        ContractDetails src;
+        final ContractDetails src;
 
         public IterableContractDetails(ContractDetails src) {
             this.src = src;

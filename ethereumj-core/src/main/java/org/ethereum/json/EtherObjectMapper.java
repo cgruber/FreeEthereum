@@ -1,6 +1,5 @@
 package org.ethereum.json;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -16,7 +15,7 @@ import java.io.IOException;
  *
  * @author Alon Muroch
  */
-public class EtherObjectMapper extends ObjectMapper {
+class EtherObjectMapper extends ObjectMapper {
 
     @Override
     public String writeValueAsString(Object value)
@@ -52,7 +51,7 @@ public class EtherObjectMapper extends ObjectMapper {
 
         @Override
         public void writeObjectFieldValueSeparator(JsonGenerator jg)
-                throws IOException, JsonGenerationException {
+                throws IOException {
             /**
              * Custom object separator (Default is " : ") to make it easier to compare state dumps with other
              * ethereum client implementations

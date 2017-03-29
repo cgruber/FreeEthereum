@@ -1,12 +1,12 @@
 package org.ethereum.core;
 
-import static org.ethereum.crypto.HashUtil.sha3;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
+
+import static org.ethereum.crypto.HashUtil.sha3;
 
 /**
  * @author Anton Nashatyrev
@@ -14,6 +14,67 @@ import org.spongycastle.util.encoders.Hex;
 public class ABITest {
 
     private static final Logger logger = LoggerFactory.getLogger("test");
+    private static String funcJson1 = "{ \n" +
+                            "  'constant': false, \n" +
+                            "  'inputs': [{'name':'to', 'type':'address'}], \n" +
+                            "  'name': 'delegate', \n" +
+                            "  'outputs': [], \n" +
+                            "  'type': 'function' \n" +
+                            "} \n";
+    private static String funcJson2 = "{\n" +
+            " 'constant':false, \n" +
+            " 'inputs':[], \n" +
+            " 'name':'tst', \n" +
+            " 'outputs':[], \n" +
+            " 'type':'function' \n" +
+            "}";
+    private static String funcJson3 = "{\n" +
+            " 'constant':false, \n" +
+            " 'inputs':[ \n" +
+            "   {'name':'i','type':'int'}, \n" +
+            "   {'name':'u','type':'uint'}, \n" +
+            "   {'name':'i8','type':'int8'}, \n" +
+            "   {'name':'b2','type':'bytes2'}, \n" +
+            "   {'name':'b32','type':'bytes32'} \n" +
+            "  ], \n" +
+            "  'name':'f1', \n" +
+            "  'outputs':[], \n" +
+            "  'type':'function' \n" +
+            "}\n";
+    private static String funcJson4 = "{\n" +
+            " 'constant':false, \n" +
+            " 'inputs':[{'name':'i','type':'int[3]'}, {'name':'j','type':'int[]'}], \n" +
+            " 'name':'f2', \n" +
+            " 'outputs':[], \n" +
+            " 'type':'function' \n" +
+            "}\n";
+    private static String funcJson5 = "{\n" +
+            "   'constant':false, \n" +
+            "   'inputs':[{'name':'i','type':'int'}, \n" +
+            "               {'name':'s','type':'bytes'}, \n" +
+            "               {'name':'j','type':'int'}], \n" +
+            "    'name':'f4', \n" +
+            "    'outputs':[], \n" +
+            "    'type':'function' \n" +
+            "}\n";
+
+    static {funcJson1 = funcJson1.replaceAll("'", "\"");}
+
+    static {
+        funcJson2 = funcJson2.replaceAll("'", "\"");
+    }
+
+    static {
+        funcJson3 = funcJson3.replaceAll("'", "\"");
+    }
+
+    static {
+        funcJson4 = funcJson4.replaceAll("'", "\"");
+    }
+
+    static {
+        funcJson5 = funcJson5.replaceAll("'", "\"");
+    }
 
     @Test
     public void testTransactionCreate() {
@@ -23,15 +84,6 @@ public class ABITest {
                 "86e0497e32a8e1d79fe38ab87dc80140df5470d9", 0, function, "1234567890abcdef1234567890abcdef12345678");
         ctx.sign(sha3("974f963ee4571e86e5f9bc3b493e453db9c15e5bd19829a4ef9a790de0da0015".getBytes()));
     }
-
-    static String funcJson1 = "{ \n" +
-                            "  'constant': false, \n" +
-                            "  'inputs': [{'name':'to', 'type':'address'}], \n" +
-                            "  'name': 'delegate', \n" +
-                            "  'outputs': [], \n" +
-                            "  'type': 'function' \n" +
-                            "} \n";
-    static {funcJson1 = funcJson1.replaceAll("'", "\"");}
 
     @Test
     public void testSimple1() {
@@ -55,15 +107,6 @@ public class ABITest {
         } catch (Exception e) {}
     }
 
-    static String funcJson2 = "{\n" +
-            " 'constant':false, \n" +
-            " 'inputs':[], \n" +
-            " 'name':'tst', \n" +
-            " 'outputs':[], \n" +
-            " 'type':'function' \n" +
-            "}";
-    static {funcJson2 = funcJson2.replaceAll("'", "\"");}
-
     @Test
     public void testSimple2() {
 
@@ -76,21 +119,6 @@ public class ABITest {
 
         Assert.assertEquals("91888f2e", Hex.toHexString(ctx.getData()));
     }
-
-    static String funcJson3 = "{\n" +
-            " 'constant':false, \n" +
-            " 'inputs':[ \n" +
-            "   {'name':'i','type':'int'}, \n" +
-            "   {'name':'u','type':'uint'}, \n" +
-            "   {'name':'i8','type':'int8'}, \n" +
-            "   {'name':'b2','type':'bytes2'}, \n" +
-            "   {'name':'b32','type':'bytes32'} \n" +
-            "  ], \n" +
-            "  'name':'f1', \n" +
-            "  'outputs':[], \n" +
-            "  'type':'function' \n" +
-            "}\n";
-    static {funcJson3 = funcJson3.replaceAll("'", "\"");}
 
     @Test
     public void test3() {
@@ -107,16 +135,6 @@ public class ABITest {
                 "6520737472696e6700000000000000000000000000000000000000000000",
                 Hex.toHexString(function.encode(-1234, 1234, 123, "a", "the string")));
     }
-
-    static String funcJson4 = "{\n" +
-            " 'constant':false, \n" +
-            " 'inputs':[{'name':'i','type':'int[3]'}, {'name':'j','type':'int[]'}], \n" +
-            " 'name':'f2', \n" +
-            " 'outputs':[], \n" +
-            " 'type':'function' \n" +
-            "}\n";
-    static {funcJson4 = funcJson4.replaceAll("'", "\"");};
-
 
     @Test
     public void test4() {
@@ -141,17 +159,6 @@ public class ABITest {
                 Hex.toHexString(function.encode(new int[]{1, 2, 3}, new int[]{4, 5})));
 
     }
-
-    static String funcJson5 = "{\n" +
-            "   'constant':false, \n" +
-            "   'inputs':[{'name':'i','type':'int'}, \n" +
-            "               {'name':'s','type':'bytes'}, \n" +
-            "               {'name':'j','type':'int'}], \n" +
-            "    'name':'f4', \n" +
-            "    'outputs':[], \n" +
-            "    'type':'function' \n" +
-            "}\n";
-    static {funcJson5 = funcJson5.replaceAll("'", "\"");};
 
     @Test
     public void test5() {

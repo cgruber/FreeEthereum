@@ -26,16 +26,16 @@ public class DbFlushManager {
     private final BlockingQueue<Runnable> executorQueue = new ArrayBlockingQueue<>(1);
     private final ExecutorService flushThread = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             executorQueue, new ThreadFactoryBuilder().setNameFormat("DbFlushManagerThread-%d").build());
-    List<AbstractCachedSource<byte[], byte[]>> writeCaches = new ArrayList<>();
-    Set<DbSource> dbSources = new HashSet<>();
-    AbstractCachedSource<byte[], byte[]> stateDbCache;
-    long sizeThreshold;
-    int commitsCountThreshold;
-    boolean syncDone = false;
-    boolean flushAfterSyncDone;
-    SystemProperties config;
-    int commitCount = 0;
-    Future<Boolean> lastFlush = Futures.immediateFuture(false);
+    private final List<AbstractCachedSource<byte[], byte[]>> writeCaches = new ArrayList<>();
+    private final AbstractCachedSource<byte[], byte[]> stateDbCache;
+    private final int commitsCountThreshold;
+    private final boolean flushAfterSyncDone;
+    private final SystemProperties config;
+    private Set<DbSource> dbSources = new HashSet<>();
+    private long sizeThreshold;
+    private boolean syncDone = false;
+    private int commitCount = 0;
+    private Future<Boolean> lastFlush = Futures.immediateFuture(false);
 
     public DbFlushManager(SystemProperties config, Set<DbSource> dbSources, AbstractCachedSource<byte[], byte[]> stateDbCache) {
         this.config = config;
@@ -68,7 +68,7 @@ public class DbFlushManager {
         writeCaches.add(cache);
     }
 
-    public long getCacheSize() {
+    private long getCacheSize() {
         long ret = 0;
         for (AbstractCachedSource<byte[], byte[]> writeCache : writeCaches) {
             ret += writeCache.estimateCacheSize();

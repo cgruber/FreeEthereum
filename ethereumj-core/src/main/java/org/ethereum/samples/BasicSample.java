@@ -44,34 +44,94 @@ public class BasicSample implements Runnable {
     public static final Logger sLogger = LoggerFactory.getLogger("sample");
     private static CustomFilter CUSTOM_FILTER;
 
-    private String loggerName;
-    protected Logger logger;
-
+    private final String loggerName;
+    private final List<Node> nodesDiscovered = new Vector<>();
+    private final Map<Node, StatusMessage> ethNodes = new Hashtable<>();
+    private final List<Node> syncPeers = new Vector<>();
+    Logger logger;
     @Autowired
-    protected Ethereum ethereum;
-
+    Ethereum ethereum;
     @Autowired
-    protected SystemProperties config;
-
+    SystemProperties config;
     private volatile long txCount;
     private volatile long gasSpent;
-
-    // Spring config class which add this sample class as a bean to the components collections
-    // and make it possible for autowiring other components
-    private static class Config {
-        @Bean
-        public BasicSample basicSample() {
-            return new BasicSample();
+    private Block bestBlock = null;
+    private boolean synced = false;
+    private boolean syncComplete = false;
+    /**
+     * The main EthereumJ callback.
+     */
+    private final EthereumListener listener = new EthereumListenerAdapter() {
+        @Override
+        public void onSyncDone(SyncState state) {
+            synced = true;
         }
-    }
 
-    public static void main(String[] args) throws Exception {
-        sLogger.info("Starting EthereumJ!");
+        @Override
+        public void onNodeDiscovered(Node node) {
+            if (nodesDiscovered.size() < 1000) {
+                nodesDiscovered.add(node);
+            }
+        }
 
-        // Based on Config class the BasicSample would be created by Spring
-        // and its springInit() method would be called as an entry point
-        EthereumFactory.createEthereum(Config.class);
-    }
+        @Override
+        public void onEthStatusUpdated(Channel channel, StatusMessage statusMessage) {
+            ethNodes.put(channel.getNode(), statusMessage);
+        }
+
+        @Override
+        public void onPeerAddedToSyncPool(Channel peer) {
+            syncPeers.add(peer.getNode());
+        }
+
+        @Override
+        public void onBlock(Block block, List<TransactionReceipt> receipts) {
+            bestBlock = block;
+            txCount += receipts.size();
+            for (TransactionReceipt receipt : receipts) {
+                gasSpent += ByteUtil.byteArrayToLong(receipt.getGasUsed());
+            }
+            if (syncComplete) {
+                logger.info("New block: " + block.getShortDescr());
+            }
+        }
+
+        @Override
+        public void onRecvMessage(Channel channel, Message message) {
+        }
+
+        @Override
+        public void onSendMessage(Channel channel, Message message) {
+        }
+
+        @Override
+        public void onPeerDisconnect(String host, long port) {
+        }
+
+        @Override
+        public void onPendingTransactionsReceived(List<Transaction> transactions) {
+        }
+
+        @Override
+        public void onPendingStateChanged(PendingState pendingState) {
+        }
+
+        @Override
+        public void onHandShakePeer(Channel channel, HelloMessage helloMessage) {
+        }
+
+        @Override
+        public void onNoConnections() {
+        }
+
+        @Override
+        public void onVMTraceCreated(String transactionHash, String trace) {
+        }
+
+        @Override
+        public void onTransactionExecuted(TransactionExecutionSummary summary) {
+        }
+    };
 
     public BasicSample() {
         this("sample");
@@ -85,9 +145,12 @@ public class BasicSample implements Runnable {
         this.loggerName = loggerName;
     }
 
-    protected void setupLogging() {
-        addSampleLogger(loggerName);
-        logger = LoggerFactory.getLogger(loggerName);
+    public static void main(String[] args) throws Exception {
+        sLogger.info("Starting EthereumJ!");
+
+        // Based on Config class the BasicSample would be created by Spring
+        // and its springInit() method would be called as an entry point
+        EthereumFactory.createEthereum(Config.class);
     }
 
     /**
@@ -104,6 +167,11 @@ public class BasicSample implements Runnable {
             ca.addFilter(CUSTOM_FILTER);
         }
         CUSTOM_FILTER.addVisibleLogger(loggerName);
+    }
+
+    private void setupLogging() {
+        addSampleLogger(loggerName);
+        logger = LoggerFactory.getLogger(loggerName);
     }
 
     /**
@@ -159,12 +227,10 @@ public class BasicSample implements Runnable {
         logger.info("Monitoring new blocks in real-time...");
     }
 
-    protected List<Node> nodesDiscovered = new Vector<>();
-
     /**
      * Waits until any new nodes are discovered by the UDP discovery protocol
      */
-    protected void waitForDiscovery() throws Exception {
+    void waitForDiscovery() throws Exception {
         logger.info("Waiting for nodes discovery...");
 
         int bootNodes = config.peerDiscoveryIPList().size();
@@ -189,13 +255,11 @@ public class BasicSample implements Runnable {
         }
     }
 
-    protected Map<Node, StatusMessage> ethNodes = new Hashtable<>();
-
     /**
      * Discovering nodes is only the first step. No we need to find among discovered nodes
      * those ones which are live, accepting inbound connections, and has compatible subprotocol versions
      */
-    protected void waitForAvailablePeers() throws Exception {
+    private void waitForAvailablePeers() throws Exception {
         logger.info("Waiting for available Eth capable nodes...");
         int cnt = 0;
         while(true) {
@@ -215,13 +279,11 @@ public class BasicSample implements Runnable {
         }
     }
 
-    protected List<Node> syncPeers = new Vector<>();
-
     /**
      * When live nodes found SyncManager should select from them the most
      * suitable and add them as peers for syncing the blocks
      */
-    protected void waitForSyncPeers() throws Exception {
+    private void waitForSyncPeers() throws Exception {
         logger.info("Searching for peers to sync with...");
         int cnt = 0;
         while(true) {
@@ -241,12 +303,10 @@ public class BasicSample implements Runnable {
         }
     }
 
-    protected Block bestBlock = null;
-
     /**
      * Waits until blocks import started
      */
-    protected void waitForFirstBlock() throws Exception {
+    private void waitForFirstBlock() throws Exception {
         Block currentBest = ethereum.getBlockchain().getBestBlock();
         logger.info("Current BEST block: " + currentBest.getShortDescr());
         logger.info("Waiting for blocks start importing (may take a while)...");
@@ -267,9 +327,6 @@ public class BasicSample implements Runnable {
             cnt++;
         }
     }
-
-    boolean synced = false;
-    boolean syncComplete = false;
 
     /**
      * Waits until the whole blockchain sync is complete
@@ -292,81 +349,17 @@ public class BasicSample implements Runnable {
         }
     }
 
-    /**
-     * The main EthereumJ callback.
-     */
-    EthereumListener listener = new EthereumListenerAdapter() {
-        @Override
-        public void onSyncDone(SyncState state) {
-            synced = true;
+    // Spring config class which add this sample class as a bean to the components collections
+    // and make it possible for autowiring other components
+    private static class Config {
+        @Bean
+        public BasicSample basicSample() {
+            return new BasicSample();
         }
-
-        @Override
-        public void onNodeDiscovered(Node node) {
-            if (nodesDiscovered.size() < 1000) {
-                nodesDiscovered.add(node);
-            }
-        }
-
-        @Override
-        public void onEthStatusUpdated(Channel channel, StatusMessage statusMessage) {
-            ethNodes.put(channel.getNode(), statusMessage);
-        }
-
-        @Override
-        public void onPeerAddedToSyncPool(Channel peer) {
-            syncPeers.add(peer.getNode());
-        }
-
-        @Override
-        public void onBlock(Block block, List<TransactionReceipt> receipts) {
-            bestBlock = block;
-            txCount += receipts.size();
-            for (TransactionReceipt receipt : receipts) {
-                gasSpent += ByteUtil.byteArrayToLong(receipt.getGasUsed());
-            }
-            if (syncComplete) {
-                logger.info("New block: " + block.getShortDescr());
-            }
-        }
-        @Override
-        public void onRecvMessage(Channel channel, Message message) {
-        }
-
-        @Override
-        public void onSendMessage(Channel channel, Message message) {
-        }
-
-        @Override
-        public void onPeerDisconnect(String host, long port) {
-        }
-
-        @Override
-        public void onPendingTransactionsReceived(List<Transaction> transactions) {
-        }
-
-        @Override
-        public void onPendingStateChanged(PendingState pendingState) {
-        }
-        @Override
-        public void onHandShakePeer(Channel channel, HelloMessage helloMessage) {
-        }
-
-        @Override
-        public void onNoConnections() {
-        }
-
-        @Override
-        public void onVMTraceCreated(String transactionHash, String trace) {
-        }
-
-        @Override
-        public void onTransactionExecuted(TransactionExecutionSummary summary) {
-        }
-    };
+    }
 
     private static class CustomFilter extends Filter<ILoggingEvent> {
-        private Set<String> visibleLoggers = new HashSet<>();
+        private final Set<String> visibleLoggers = new HashSet<>();
         @Override
         public synchronized FilterReply decide(ILoggingEvent event) {
             return visibleLoggers.contains(event.getLoggerName()) && event.getLevel().isGreaterOrEqual(Level.INFO) ||

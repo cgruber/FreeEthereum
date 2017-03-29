@@ -11,8 +11,8 @@ import java.util.AbstractList;
  * Created by Anton Nashatyrev on 17.03.2016.
  */
 public class DataSourceArray<V> extends AbstractList<V> {
-    private ObjectDataSource<V> src;
     private static final byte[] SIZE_KEY = Hex.decode("FFFFFFFFFFFFFFFF");
+    private final ObjectDataSource<V> src;
     private int size = -1;
 
     public DataSourceArray(ObjectDataSource<V> src) {

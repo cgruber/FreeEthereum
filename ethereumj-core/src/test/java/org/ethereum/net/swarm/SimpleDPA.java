@@ -8,8 +8,8 @@ import java.util.Random;
  * Created by Admin on 11.06.2015.
  */
 public class SimpleDPA extends DPA {
-    Random rnd = new Random(0);
-    Map<Key, SectionReader> store = new HashMap<>();
+    private final Random rnd = new Random(0);
+    private final Map<Key, SectionReader> store = new HashMap<>();
 
     public SimpleDPA() {
         super(null);

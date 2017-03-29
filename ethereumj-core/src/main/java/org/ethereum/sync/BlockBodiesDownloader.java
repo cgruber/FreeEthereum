@@ -1,6 +1,9 @@
 package org.ethereum.sync;
 
-import org.ethereum.core.*;
+import org.ethereum.core.Block;
+import org.ethereum.core.BlockHeader;
+import org.ethereum.core.BlockHeaderWrapper;
+import org.ethereum.core.BlockWrapper;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.DataSourceArray;
 import org.ethereum.db.DbFlushManager;
@@ -28,28 +31,32 @@ import java.util.List;
 public class BlockBodiesDownloader extends BlockDownloader {
     private final static Logger logger = LoggerFactory.getLogger("sync");
 
-    public final static byte[] EMPTY_BODY = new byte[] {-62, -64, -64};
+    private final static byte[] EMPTY_BODY = new byte[]{-62, -64, -64};
 
     @Autowired
+    private
     SyncPool syncPool;
 
     @Autowired
+    private
     IndexedBlockStore blockStore;
 
     @Autowired @Qualifier("headerSource")
+    private
     DataSourceArray<BlockHeader> headerStore;
 
     @Autowired
+    private
     DbFlushManager dbFlushManager;
 
-    long t;
+    private long t;
 
-    SyncQueueIfc syncQueue;
-    int curBlockIdx = 1;
-    BigInteger curTotalDiff;
+    private SyncQueueIfc syncQueue;
+    private int curBlockIdx = 1;
+    private BigInteger curTotalDiff;
 
-    Thread headersThread;
-    int downloadCnt = 0;
+    private Thread headersThread;
+    private int downloadCnt = 0;
 
     @Autowired
     public BlockBodiesDownloader(BlockHeaderValidator headerValidator) {

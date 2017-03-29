@@ -17,12 +17,10 @@ import java.util.Vector;
 
 public class RLPTestCase {
     private static Logger logger = LoggerFactory.getLogger("rlp");
-
+    private final List<String> computed = new ArrayList<>();
+    private final List<String> expected = new ArrayList<>();
     private Object in;
     private String out;
-
-    private List<String> computed = new ArrayList<>();
-    private List<String> expected = new ArrayList<>();
 
     public Object getIn() {
         return in;
@@ -62,7 +60,7 @@ public class RLPTestCase {
         checkRLPAgainstJson(list.get(0), in);
     }
 
-    public byte[] buildRLP(Object in) {
+    private byte[] buildRLP(Object in) {
         if (in instanceof ArrayList) {
             List<byte[]> elementList = new Vector<>();
             for (Object o : ((ArrayList) in).toArray()) {
@@ -83,7 +81,7 @@ public class RLPTestCase {
         }
     }
 
-    public void checkRLPAgainstJson(RLPElement element, Object in) {
+    private void checkRLPAgainstJson(RLPElement element, Object in) {
         if (in instanceof List) {
             Object[] array = ((List) in).toArray();
             RLPList list = (RLPList) element;

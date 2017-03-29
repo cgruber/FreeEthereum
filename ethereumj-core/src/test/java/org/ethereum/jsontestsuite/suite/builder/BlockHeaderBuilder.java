@@ -6,7 +6,7 @@ import org.ethereum.jsontestsuite.suite.model.BlockHeaderTck;
 
 import java.math.BigInteger;
 
-public class BlockHeaderBuilder {
+class BlockHeaderBuilder {
 
 
     public static BlockHeader  build(BlockHeaderTck headerTck){

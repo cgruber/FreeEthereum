@@ -33,7 +33,7 @@ import static java.util.Arrays.asList;
 public class CommonConfig {
     private static final Logger logger = LoggerFactory.getLogger("general");
     private static CommonConfig defaultInstance;
-    private Set<DbSource> dbSources = new HashSet<>();
+    private final Set<DbSource> dbSources = new HashSet<>();
 
     public static CommonConfig getDefault() {
         if (defaultInstance == null && !SystemProperties.isUseOnlySpringConfig()) {

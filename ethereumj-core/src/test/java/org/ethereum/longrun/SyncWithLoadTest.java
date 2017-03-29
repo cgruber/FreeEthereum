@@ -56,9 +56,9 @@ public class SyncWithLoadTest {
     private static final AtomicLong lastImport =  new AtomicLong();
     private static final int LAST_IMPORT_TIMEOUT = 10 * 60 * 1000;
     private final static AtomicInteger fatalErrors = new AtomicInteger(0);
-    private static AtomicBoolean isRunning = new AtomicBoolean(true);
-    private static AtomicBoolean firstRun = new AtomicBoolean(true);
-    private static ScheduledExecutorService statTimer =
+    private static final AtomicBoolean isRunning = new AtomicBoolean(true);
+    private static final AtomicBoolean firstRun = new AtomicBoolean(true);
+    private static final ScheduledExecutorService statTimer =
             Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
                 public Thread newThread(Runnable r) {
                     return new Thread(r, "StatTimer");
@@ -153,7 +153,7 @@ public class SyncWithLoadTest {
         if (!logStats()) assert false;
     }
 
-    public void runEthereum() throws Exception {
+    private void runEthereum() throws Exception {
         testLogger.info("Starting EthereumJ regular instance!");
         this.regularNode = EthereumFactory.createEthereum(RegularConfig.class);
     }
@@ -191,14 +191,10 @@ public class SyncWithLoadTest {
 
         @Autowired
         ProgramInvokeFactory programInvokeFactory;
-
-        @Autowired
-        SyncManager syncManager;
-
         /**
          * The main EthereumJ callback.
          */
-        EthereumListener blockListener = new EthereumListenerAdapter() {
+        final EthereumListener blockListener = new EthereumListenerAdapter() {
             @Override
             public void onBlock(BlockSummary blockSummary) {
                 lastImport.set(System.currentTimeMillis());
@@ -259,6 +255,8 @@ public class SyncWithLoadTest {
                 }
             }
         };
+        @Autowired
+        SyncManager syncManager;
 
         public RegularNode() {
             super("sampleNode");

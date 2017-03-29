@@ -5,8 +5,8 @@ import java.util.Comparator;
 /**
  * Created by kest on 5/26/15.
  */
-public class DistanceComparator implements Comparator<NodeEntry>  {
-    byte[] targetId;
+class DistanceComparator implements Comparator<NodeEntry> {
+    private final byte[] targetId;
 
     DistanceComparator(byte[] targetId) {
         this.targetId = targetId;

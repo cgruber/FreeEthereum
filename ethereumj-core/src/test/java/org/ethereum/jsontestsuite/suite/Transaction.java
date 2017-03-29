@@ -1,22 +1,24 @@
 package org.ethereum.jsontestsuite.suite;
 
 import org.json.simple.JSONObject;
+
 import java.math.BigInteger;
+
 import static org.ethereum.util.ByteUtil.toHexString;
 
 /**
  * @author Roman Mandeleil
  * @since 28.06.2014
  */
-public class Transaction {
+class Transaction {
 
-    byte[] data;
-    byte[] gasLimit;
-    long gasPrice;
-    long nonce;
-    byte[] secretKey;
-    byte[] to;
-    long value;
+    final byte[] gasLimit;
+    final long gasPrice;
+    final long nonce;
+    final long value;
+    private final byte[] data;
+    private final byte[] secretKey;
+    private final byte[] to;
 
 /* e.g.
     "transaction" : {

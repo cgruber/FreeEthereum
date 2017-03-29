@@ -1,8 +1,8 @@
 package org.ethereum.jsonrpc;
 
 import org.ethereum.core.Block;
-import org.ethereum.core.TransactionReceipt;
 import org.ethereum.core.TransactionInfo;
+import org.ethereum.core.TransactionReceipt;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.vm.LogInfo;
 
@@ -13,14 +13,14 @@ import static org.ethereum.jsonrpc.TypeConverter.toJsonHex;
  */
 public class TransactionReceiptDTO {
 
-    public String transactionHash;  // hash of the transaction.
-    public int transactionIndex;    // integer of the transactions index position in the block.
-    public String blockHash;        // hash of the block where this transaction was in.
+    public final long gasUsed;             //The amount of gas used by this specific transaction alone.
+    private final String transactionHash;  // hash of the transaction.
+    private final int transactionIndex;    // integer of the transactions index position in the block.
+    private final long cumulativeGasUsed;   // The total amount of gas used when this transaction was executed in the block.
+    private final JsonRpc.LogFilterElement[] logs;         // Array of log objects, which this transaction generated.
     public long blockNumber;         // block number where this transaction was in.
-    public long cumulativeGasUsed;   // The total amount of gas used when this transaction was executed in the block.
-    public long gasUsed;             //The amount of gas used by this specific transaction alone.
     public String contractAddress; // The contract address created, if the transaction was a contract creation, otherwise  null .
-    public JsonRpc.LogFilterElement[] logs;         // Array of log objects, which this transaction generated.
+    private String blockHash;        // hash of the block where this transaction was in.
 
     public  TransactionReceiptDTO(Block block, TransactionInfo txInfo){
         TransactionReceipt receipt = txInfo.getReceipt();

@@ -22,6 +22,7 @@ public class Account {
     private final Set<Transaction> pendingTransactions =
             Collections.synchronizedSet(new HashSet<Transaction>());
     @Autowired
+    private
     Repository repository;
     private ECKey ecKey;
     private byte[] address;
@@ -81,7 +82,7 @@ public class Account {
         this.address = address;
     }
 
-    public Set<Transaction> getPendingTransactions() {
+    private Set<Transaction> getPendingTransactions() {
         return this.pendingTransactions;
     }
 

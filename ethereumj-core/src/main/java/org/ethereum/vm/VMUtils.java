@@ -18,11 +18,12 @@ import static org.springframework.util.StringUtils.isEmpty;
 public final class VMUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("VM");
+    private static final int BUF_SIZE = 4096;
 
     private VMUtils() {
     }
 
-    public static void closeQuietly(Closeable closeable) {
+    private static void closeQuietly(Closeable closeable) {
         try {
             if (closeable != null) {
                 closeable.close();
@@ -78,8 +79,6 @@ public final class VMUtils {
         }
     }
 
-    private static final int BUF_SIZE = 4096;
-
     private static void write(InputStream in, OutputStream out, int bufSize) throws IOException {
         try {
             byte[] buf = new byte[bufSize];
@@ -92,7 +91,7 @@ public final class VMUtils {
         }
     }
 
-    public static byte[] compress(byte[] bytes) throws IOException {
+    private static byte[] compress(byte[] bytes) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
@@ -103,11 +102,11 @@ public final class VMUtils {
         return baos.toByteArray();
     }
 
-    public static byte[] compress(String content) throws IOException {
+    private static byte[] compress(String content) throws IOException {
         return compress(content.getBytes("UTF-8"));
     }
 
-    public static byte[] decompress(byte[] data) throws IOException {
+    private static byte[] decompress(byte[] data) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(data.length);
 
         ByteArrayInputStream in = new ByteArrayInputStream(data);

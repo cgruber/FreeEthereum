@@ -15,9 +15,8 @@ import static java.util.Collections.unmodifiableMap;
  */
 public class ContractDetailsCacheImpl extends AbstractContractDetails {
 
+    private final ContractDetails origContract;
     private Map<DataWord, DataWord> storage = new HashMap<>();
-
-    ContractDetails origContract;
 
     public ContractDetailsCacheImpl(ContractDetails origContract) {
         this.origContract = origContract;
@@ -86,6 +85,11 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
     }
 
     @Override
+    public void setStorage(Map<DataWord, DataWord> storage) {
+        this.storage = storage;
+    }
+
+    @Override
     public Map<DataWord, DataWord> getStorage(Collection<DataWord> keys) {
         if (keys == null) return getStorage();
 
@@ -122,11 +126,6 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
                 storage.put(key, null);
         }
 
-    }
-
-    @Override
-    public void setStorage(Map<DataWord, DataWord> storage) {
-        this.storage = storage;
     }
 
     @Override

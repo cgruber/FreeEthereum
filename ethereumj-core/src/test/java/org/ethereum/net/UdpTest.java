@@ -48,7 +48,7 @@ public class UdpTest {
 
     private final SimpleNodeManager nodeManager = new SimpleNodeManager();
 
-    public static String bindIp() {
+    private static String bindIp() {
         String bindIp;
         try {
             Socket s = new Socket("www.google.com", 80);
@@ -61,7 +61,7 @@ public class UdpTest {
         return bindIp;
     }
 
-    public Channel create(String bindAddr, int port) throws InterruptedException {
+    private Channel create(String bindAddr, int port) throws InterruptedException {
         NioEventLoopGroup group = new NioEventLoopGroup(1);
 
         Bootstrap b = new Bootstrap();
@@ -81,11 +81,11 @@ public class UdpTest {
         return b.bind(bindAddr, port).sync().channel();
     }
 
-    public void startServer() throws InterruptedException {
+    private void startServer() throws InterruptedException {
         create(serverAddr, serverPort).closeFuture().sync();
     }
 
-    public void startClient()
+    private void startClient()
             throws InterruptedException {
         String defaultMessage = RandomStringUtils.randomAlphanumeric(MAX_LENGTH);
         for (int i = defaultMessage.length() - 1; i >= 0 ; i--) {
@@ -126,9 +126,9 @@ public class UdpTest {
     private class SimpleMessageHandler extends SimpleChannelInboundHandler<DiscoveryEvent>
             implements Functional.Consumer<DiscoveryEvent> {
 
-        Channel channel;
+        final Channel channel;
 
-        SimpleNodeManager nodeManager;
+        final SimpleNodeManager nodeManager;
 
         public SimpleMessageHandler(Channel channel, SimpleNodeManager nodeManager) {
             this.channel = channel;

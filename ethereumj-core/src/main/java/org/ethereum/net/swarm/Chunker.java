@@ -23,7 +23,7 @@ import java.util.Collection;
  * Once the DPA finds the data has been joined, it is free to deliver it back to swarm in full (if the original
  * request was via the bzz protocol) or save and serve if it it was a local client request.
  */
-public interface Chunker {
+interface Chunker {
 
     /**
      * When splitting, data is given as a SectionReader, and the key is a hashSize long byte slice (Key),

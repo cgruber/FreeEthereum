@@ -13,9 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class SolidityType {
-    protected String name;
+    private final String name;
 
-    public SolidityType(String name) {
+    SolidityType(String name) {
         this.name = name;
     }
 
@@ -80,7 +80,7 @@ public abstract class SolidityType {
 
 
     public static abstract class ArrayType extends SolidityType {
-        SolidityType elementType;
+        final SolidityType elementType;
 
         public ArrayType(String name) {
             super(name);
@@ -124,7 +124,7 @@ public abstract class SolidityType {
     }
 
     public static class StaticArrayType extends ArrayType {
-        int size;
+        final int size;
 
         public StaticArrayType(String name) {
             super(name);
@@ -225,7 +225,7 @@ public abstract class SolidityType {
     }
 
     public static class BytesType extends SolidityType {
-        protected BytesType(String name) {
+        BytesType(String name) {
             super(name);
         }
 

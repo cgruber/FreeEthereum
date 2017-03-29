@@ -2,11 +2,11 @@ package org.ethereum.core;
 
 import java.math.BigInteger;
 
-public class PremineRaw {
+class PremineRaw {
 
-    byte[] addr;
-    BigInteger value;
-    Denomination denomination;
+    private final byte[] addr;
+    private final BigInteger value;
+    private final Denomination denomination;
 
     public PremineRaw(byte[] addr, BigInteger value, Denomination denomination) {
         this.addr = addr;

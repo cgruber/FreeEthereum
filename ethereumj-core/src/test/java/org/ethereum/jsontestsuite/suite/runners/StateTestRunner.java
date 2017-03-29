@@ -5,11 +5,7 @@ import org.ethereum.db.BlockStoreDummy;
 import org.ethereum.jsontestsuite.suite.Env;
 import org.ethereum.jsontestsuite.suite.StateTestCase;
 import org.ethereum.jsontestsuite.suite.TestProgramInvokeFactory;
-import org.ethereum.jsontestsuite.suite.builder.BlockBuilder;
-import org.ethereum.jsontestsuite.suite.builder.EnvBuilder;
-import org.ethereum.jsontestsuite.suite.builder.LogBuilder;
-import org.ethereum.jsontestsuite.suite.builder.RepositoryBuilder;
-import org.ethereum.jsontestsuite.suite.builder.TransactionBuilder;
+import org.ethereum.jsontestsuite.suite.builder.*;
 import org.ethereum.jsontestsuite.suite.validators.LogsValidator;
 import org.ethereum.jsontestsuite.suite.validators.OutputValidator;
 import org.ethereum.jsontestsuite.suite.validators.RepositoryValidator;
@@ -25,22 +21,20 @@ import java.util.List;
 
 public class StateTestRunner {
 
-    private static Logger logger = LoggerFactory.getLogger("TCK-Test");
+    private static final Logger logger = LoggerFactory.getLogger("TCK-Test");
+    private final StateTestCase stateTestCase;
+    protected Repository repository;
+    protected ProgramInvokeFactory invokeFactory;
+    protected Block block;
+    private Transaction transaction;
+    private BlockchainImpl blockchain;
+    private Env env;
+    public StateTestRunner(StateTestCase stateTestCase) {
+        this.stateTestCase = stateTestCase;
+    }
 
     public static List<String> run(StateTestCase stateTestCase2) {
         return new StateTestRunner(stateTestCase2).runImpl();
-    }
-
-    protected StateTestCase stateTestCase;
-    protected Repository repository;
-    protected Transaction transaction;
-    protected BlockchainImpl blockchain;
-    protected Env env;
-    protected ProgramInvokeFactory invokeFactory;
-    protected Block block;
-
-    public StateTestRunner(StateTestCase stateTestCase) {
-        this.stateTestCase = stateTestCase;
     }
 
     protected ProgramResult executeTransaction(Transaction tx) {

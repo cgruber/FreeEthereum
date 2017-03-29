@@ -2,7 +2,7 @@ package org.ethereum.solidity.compiler;
 
 public class ContractException extends RuntimeException {
 
-    public ContractException(String message) {
+    private ContractException(String message) {
         super(message);
     }
 

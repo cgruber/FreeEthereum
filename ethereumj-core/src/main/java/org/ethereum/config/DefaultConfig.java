@@ -1,6 +1,6 @@
 package org.ethereum.config;
 
-import org.ethereum.datasource.*;
+import org.ethereum.datasource.Source;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.IndexedBlockStore;
 import org.ethereum.db.PruneManager;
@@ -21,15 +21,17 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import(CommonConfig.class)
 public class DefaultConfig {
-    private static Logger logger = LoggerFactory.getLogger("general");
+    private static final Logger logger = LoggerFactory.getLogger("general");
 
     @Autowired
     ApplicationContext appCtx;
 
     @Autowired
+    private
     CommonConfig commonConfig;
 
     @Autowired
+    private
     SystemProperties config;
 
     public DefaultConfig() {

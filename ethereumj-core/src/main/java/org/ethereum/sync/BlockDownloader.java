@@ -23,16 +23,16 @@ import static java.util.Collections.singletonList;
 /**
  * Created by Anton Nashatyrev on 27.10.2016.
  */
-public abstract class BlockDownloader {
+abstract class BlockDownloader {
 
     private final static Logger logger = LoggerFactory.getLogger("sync");
     // Max number of Blocks / Headers in one request
-    private static int MAX_IN_REQUEST = 192;
-    private static int REQUESTS = 32;
-    protected boolean headersDownloadComplete;
+    private static final int MAX_IN_REQUEST = 192;
+    private final BlockHeaderValidator headerValidator;
+    private final CountDownLatch stopLatch = new CountDownLatch(1);
+    boolean headersDownloadComplete;
     private int blockQueueLimit = 2000;
     private int headerQueueLimit = 10000;
-    private BlockHeaderValidator headerValidator;
     private SyncPool pool;
     private SyncQueueIfc syncQueue;
     private boolean headersDownload = true;
@@ -43,9 +43,7 @@ public abstract class BlockDownloader {
     private Thread getBodiesThread;
     private boolean downloadComplete;
 
-    private CountDownLatch stopLatch = new CountDownLatch(1);
-
-    public BlockDownloader(BlockHeaderValidator headerValidator) {
+    BlockDownloader(BlockHeaderValidator headerValidator) {
         this.headerValidator = headerValidator;
     }
 
@@ -53,21 +51,22 @@ public abstract class BlockDownloader {
     protected abstract void pushHeaders(List<BlockHeaderWrapper> headers);
     protected abstract int getBlockQueueFreeSize();
 
-    protected void finishDownload() {}
+    void finishDownload() {
+    }
 
     public boolean isDownloadComplete() {
         return downloadComplete;
     }
 
-    public void setBlockBodiesDownload(boolean blockBodiesDownload) {
+    void setBlockBodiesDownload(boolean blockBodiesDownload) {
         this.blockBodiesDownload = blockBodiesDownload;
     }
 
-    public void setHeadersDownload(boolean headersDownload) {
+    void setHeadersDownload(boolean headersDownload) {
         this.headersDownload = headersDownload;
     }
 
-    public void init(SyncQueueIfc syncQueue, final SyncPool pool) {
+    void init(SyncQueueIfc syncQueue, final SyncPool pool) {
         this.syncQueue = syncQueue;
         this.pool = pool;
 
@@ -94,7 +93,7 @@ public abstract class BlockDownloader {
         }
     }
 
-    public void stop() {
+    void stop() {
         if (getHeadersThread != null) getHeadersThread.interrupt();
         if (getBodiesThread != null) getBodiesThread.interrupt();
         stopLatch.countDown();
@@ -108,11 +107,11 @@ public abstract class BlockDownloader {
         }
     }
 
-    public void setHeaderQueueLimit(int headerQueueLimit) {
+    void setHeaderQueueLimit(int headerQueueLimit) {
         this.headerQueueLimit = headerQueueLimit;
     }
 
-    public int getBlockQueueLimit() {
+    int getBlockQueueLimit() {
         return blockQueueLimit;
     }
 
@@ -243,6 +242,7 @@ public abstract class BlockDownloader {
                     }
 
                     int maxRequests = blocksToAsk / MAX_IN_REQUEST;
+                    int REQUESTS = 32;
                     int maxBlocks = MAX_IN_REQUEST * Math.min(maxRequests, REQUESTS);
                     int reqBlocksCounter = 0;
                     int blocksRequested = 0;
@@ -371,7 +371,7 @@ public abstract class BlockDownloader {
      * @param header block header
      * @return true if block is valid, false otherwise
      */
-    protected boolean isValid(BlockHeader header) {
+    boolean isValid(BlockHeader header) {
         return headerValidator.validateAndLog(header, logger);
     }
 
@@ -379,11 +379,11 @@ public abstract class BlockDownloader {
         return pool.getAnyIdle();
     }
 
-    public boolean isSyncDone() {
+    boolean isSyncDone() {
         return false;
     }
 
-    public void close() {
+    void close() {
         try {
             if (pool != null) pool.close();
             stop();

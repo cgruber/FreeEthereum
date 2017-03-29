@@ -24,7 +24,8 @@ import static org.spongycastle.util.Arrays.reverse;
  * @deprecated Use a faster version {@link EthashAlgo}, this class is for reference only
  */
 public class EthashAlgoSlow {
-    EthashParams params;
+    private static final long FNV_PRIME = 0x01000193;
+    private final EthashParams params;
 
     public EthashAlgoSlow() {
         this(new EthashParams());
@@ -34,18 +35,19 @@ public class EthashAlgoSlow {
         this.params = params;
     }
 
-    public EthashParams getParams() {
-        return params;
-    }
-
     // Little-Endian !
-    static long getWord(byte[] arr, int wordOff) {
+    private static long getWord(byte[] arr, int wordOff) {
         return ByteBuffer.wrap(arr, wordOff * 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFFL;
     }
-    static void setWord(byte[] arr, int wordOff, long val) {
+
+    private static void setWord(byte[] arr, int wordOff, long val) {
         ByteBuffer bb = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt((int) val);
         bb.rewind();
         bb.get(arr, wordOff * 4, 4);
+    }
+
+    public EthashParams getParams() {
+        return params;
     }
 
     public byte[][] makeCache(long cacheSize, byte[] seed) {
@@ -65,12 +67,11 @@ public class EthashAlgoSlow {
         return o;
     }
 
-    private static final long FNV_PRIME = 0x01000193;
-    long fnv(long v1, long v2) {
+    private long fnv(long v1, long v2) {
         return ((v1 * FNV_PRIME) ^ v2) % (1L << 32);
     }
 
-    byte[] fnv(byte[] b1, byte[] b2) {
+    private byte[] fnv(byte[] b1, byte[] b2) {
         if (b1.length != b2.length || b1.length % 4 != 0) throw new RuntimeException();
 
         byte[] ret = new byte[b1.length];
@@ -82,7 +83,7 @@ public class EthashAlgoSlow {
         return ret;
     }
 
-    public byte[] calcDatasetItem(byte[][] cache, int i) {
+    private byte[] calcDatasetItem(byte[][] cache, int i) {
         int n = cache.length;
         int r = params.getHASH_BYTES() / params.getWORD_BYTES();
         byte[] mix = cache[i % n].clone();
@@ -104,7 +105,7 @@ public class EthashAlgoSlow {
         return ret;
     }
 
-    public Pair<byte[], byte[]> hashimoto(byte[] blockHeaderTruncHash, byte[] nonce, long fullSize, DatasetLookup lookup) {
+    private Pair<byte[], byte[]> hashimoto(byte[] blockHeaderTruncHash, byte[] nonce, long fullSize, DatasetLookup lookup) {
 //        if (nonce.length != 4) throw new RuntimeException("nonce.length != 4");
 
         int w = params.getMIX_BYTES() / params.getWORD_BYTES();
@@ -137,8 +138,8 @@ public class EthashAlgoSlow {
         return Pair.of(cmix, sha3(merge(s, cmix)));
     }
 
-    public Pair<byte[], byte[]> hashimotoLight(long fullSize, final byte[][] cache, byte[] blockHeaderTruncHash,
-                                               byte[]  nonce) {
+    private Pair<byte[], byte[]> hashimotoLight(long fullSize, final byte[][] cache, byte[] blockHeaderTruncHash,
+                                                byte[] nonce) {
         return hashimoto(blockHeaderTruncHash, nonce, fullSize, new DatasetLookup() {
             @Override
             public byte[] lookup(int idx) {
@@ -147,8 +148,8 @@ public class EthashAlgoSlow {
         });
     }
 
-    public Pair<byte[], byte[]> hashimotoFull(long fullSize, final byte[][] dataset, byte[] blockHeaderTruncHash,
-                                              byte[]  nonce) {
+    private Pair<byte[], byte[]> hashimotoFull(long fullSize, final byte[][] dataset, byte[] blockHeaderTruncHash,
+                                               byte[] nonce) {
         return hashimoto(blockHeaderTruncHash, nonce, fullSize, new DatasetLookup() {
             @Override
             public byte[] lookup(int idx) {

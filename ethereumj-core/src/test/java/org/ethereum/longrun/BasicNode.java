@@ -30,42 +30,56 @@ import static java.lang.Thread.sleep;
  * BasicNode of ethereum instance
  */
 class BasicNode implements Runnable {
-    static final Logger sLogger = LoggerFactory.getLogger("sample");
+    private static final Logger sLogger = LoggerFactory.getLogger("sample");
 
-    private String loggerName;
-    public Logger logger;
-
-    @Autowired
-    protected Ethereum ethereum;
-
-    @Autowired
-    protected SystemProperties config;
-
-    @Autowired
-    protected SyncPool syncPool;
-
-    @Autowired
-    protected CommonConfig commonConfig;
-
+    private final String loggerName;
+    private final Map<Node, StatusMessage> ethNodes = new Hashtable<>();
+    private final List<Node> syncPeers = new Vector<>();
     @Autowired
     protected DbFlushManager dbFlushManager;
-
-    // Spring config class which add this sample class as a bean to the components collections
-    // and make it possible for autowiring other components
-    private static class Config {
-        @Bean
-        public BasicNode basicSample() {
-            return new BasicNode();
+    @Autowired
+    Ethereum ethereum;
+    @Autowired
+    SystemProperties config;
+    @Autowired
+    SyncPool syncPool;
+    @Autowired
+    CommonConfig commonConfig;
+    Block bestBlock = null;
+    EthereumListener.SyncState syncState = null;
+    boolean syncComplete = false;
+    private Logger logger;
+    /**
+     * The main EthereumJ callback.
+     */
+    private final EthereumListener listener = new EthereumListenerAdapter() {
+        @Override
+        public void onSyncDone(SyncState state) {
+            syncState = state;
+            if (state.equals(SyncState.COMPLETE)) syncComplete = true;
+            onSyncDoneImpl(state);
         }
-    }
 
-    public static void main(String[] args) throws Exception {
-        sLogger.info("Starting EthereumJ!");
+        @Override
+        public void onEthStatusUpdated(Channel channel, StatusMessage statusMessage) {
+            ethNodes.put(channel.getNode(), statusMessage);
+        }
 
-        // Based on Config class the BasicNode would be created by Spring
-        // and its springInit() method would be called as an entry point
-        EthereumFactory.createEthereum(Config.class);
-    }
+        @Override
+        public void onPeerAddedToSyncPool(Channel peer) {
+            syncPeers.add(peer.getNode());
+        }
+
+        @Override
+        public void onBlock(Block block, List<TransactionReceipt> receipts) {
+            bestBlock = block;
+
+            if (syncComplete) {
+                logger.info("New block: " + block.getShortDescr());
+            }
+        }
+    };
+
 
     public BasicNode() {
         this("sample");
@@ -77,6 +91,14 @@ class BasicNode implements Runnable {
      */
     public BasicNode(String loggerName) {
         this.loggerName = loggerName;
+    }
+
+    public static void main(String[] args) throws Exception {
+        sLogger.info("Starting EthereumJ!");
+
+        // Based on Config class the BasicNode would be created by Spring
+        // and its springInit() method would be called as an entry point
+        EthereumFactory.createEthereum(Config.class);
     }
 
     /**
@@ -116,7 +138,6 @@ class BasicNode implements Runnable {
         }
     }
 
-
     /**
      * Waits until the whole blockchain sync is complete
      */
@@ -138,46 +159,16 @@ class BasicNode implements Runnable {
         logger.info("Monitoring new blocks in real-time...");
     }
 
-    public void onSyncDoneImpl(EthereumListener.SyncState state) {
+    void onSyncDoneImpl(EthereumListener.SyncState state) {
         logger.info("onSyncDone: " + state);
     }
 
-    protected Map<Node, StatusMessage> ethNodes = new Hashtable<>();
-    protected List<Node> syncPeers = new Vector<>();
-
-    protected Block bestBlock = null;
-
-    EthereumListener.SyncState syncState = null;
-    boolean syncComplete = false;
-
-    /**
-     * The main EthereumJ callback.
-     */
-    EthereumListener listener = new EthereumListenerAdapter() {
-        @Override
-        public void onSyncDone(SyncState state) {
-            syncState = state;
-            if (state.equals(SyncState.COMPLETE)) syncComplete = true;
-            onSyncDoneImpl(state);
+    // Spring config class which add this sample class as a bean to the components collections
+    // and make it possible for autowiring other components
+    private static class Config {
+        @Bean
+        public BasicNode basicSample() {
+            return new BasicNode();
         }
-
-        @Override
-        public void onEthStatusUpdated(Channel channel, StatusMessage statusMessage) {
-            ethNodes.put(channel.getNode(), statusMessage);
-        }
-
-        @Override
-        public void onPeerAddedToSyncPool(Channel peer) {
-            syncPeers.add(peer.getNode());
-        }
-
-        @Override
-        public void onBlock(Block block, List<TransactionReceipt> receipts) {
-            bestBlock = block;
-
-            if (syncComplete) {
-                logger.info("New block: " + block.getShortDescr());
-            }
-        }
-    };
+    }
 }

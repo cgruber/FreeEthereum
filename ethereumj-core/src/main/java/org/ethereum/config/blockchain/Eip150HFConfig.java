@@ -25,20 +25,8 @@ import java.util.List;
  * Created by Anton Nashatyrev on 14.10.2016.
  */
 public class Eip150HFConfig implements BlockchainConfig, BlockchainNetConfig {
-    protected BlockchainConfig parent;
-
-
-    static class GasCostEip150HF extends GasCost {
-        public int getBALANCE()             {     return 400;     }
-        public int getEXT_CODE_SIZE()       {     return 700;     }
-        public int getEXT_CODE_COPY()       {     return 700;     }
-        public int getSLOAD()               {     return 200;     }
-        public int getCALL()                {     return 700;     }
-        public int getSUICIDE()             {     return 5000;    }
-        public int getNEW_ACCT_SUICIDE()    {     return 25000;   }
-    };
-
     private static final GasCost NEW_GAS_COST = new GasCostEip150HF();
+    private final BlockchainConfig parent;
 
     public Eip150HFConfig(BlockchainConfig parent) {
         this.parent = parent;
@@ -123,5 +111,35 @@ public class Eip150HFConfig implements BlockchainConfig, BlockchainNetConfig {
     @Override
     public Integer getChainId() {
         return null;
+    }
+
+    static class GasCostEip150HF extends GasCost {
+        public int getBALANCE() {
+            return 400;
+        }
+
+        public int getEXT_CODE_SIZE() {
+            return 700;
+        }
+
+        public int getEXT_CODE_COPY() {
+            return 700;
+        }
+
+        public int getSLOAD() {
+            return 200;
+        }
+
+        public int getCALL() {
+            return 700;
+        }
+
+        public int getSUICIDE() {
+            return 5000;
+        }
+
+        public int getNEW_ACCT_SUICIDE() {
+            return 25000;
+        }
     }
 }

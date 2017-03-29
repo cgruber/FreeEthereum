@@ -30,12 +30,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.ethereum.solidity.SolidityType.IntType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.ethereum.solidity.SolidityType.*;
 
 public class TransactionTest {
 
+
+    // Testdata from: https://github.com/ethereum/tests/blob/master/txtest.json
+    private final String RLP_ENCODED_RAW_TX = "e88085e8d4a510008227109413978aee95f38490e9769c39b2773ed763d9cd5f872386f26fc1000080";
+    private final String RLP_ENCODED_UNSIGNED_TX = "eb8085e8d4a510008227109413978aee95f38490e9769c39b2773ed763d9cd5f872386f26fc1000080808080";
+    private final String HASH_TX = "328ea6d24659dec48adea1aced9a136e5ebdf40258db30d1b1d97ed2b74be34e";
+    private final String RLP_ENCODED_SIGNED_TX = "f86b8085e8d4a510008227109413978aee95f38490e9769c39b2773ed763d9cd5f872386f26fc10000801ba0eab47c1a49bf2fe5d40e01d313900e19ca485867d462fe06e139e3a536c6d4f4a014a569d327dcda4b29f74f93c0e9729d2f49ad726e703f9cd90dbb0fbf6649f1";
+    private final String KEY = "c85ef7d79691fe79573b1a7064c19c1a9819ebdbd1faaab1a8ec92344438aaf4";
+    private final byte[] testNonce = Hex.decode("");
+    private final byte[] testGasPrice = BigIntegers.asUnsignedByteArray(BigInteger.valueOf(1000000000000L));
+    private final byte[] testGasLimit = BigIntegers.asUnsignedByteArray(BigInteger.valueOf(10000));
+    private final byte[] testReceiveAddress = Hex.decode("13978aee95f38490e9769c39b2773ed763d9cd5f");
+    private final byte[] testValue = BigIntegers.asUnsignedByteArray(BigInteger.valueOf(10000000000000000L));
+    private final byte[] testData = Hex.decode("");
+    byte[] testInit = Hex.decode("");
 
     @Test /* sign transaction  https://tools.ietf.org/html/rfc6979 */
     public void test1() throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException, IOException {
@@ -102,7 +116,6 @@ public class TransactionTest {
         System.out.println(tx.toString());
     }
 
-
     @Ignore
     @Test  /* achieve public key of the sender nonce: 01 */
     public void test3() throws Exception {
@@ -141,20 +154,6 @@ public class TransactionTest {
         assertEquals("cd2a3d9f938e13cd947ec05abc7fe734df8dd826",
                 Hex.toHexString(key.getAddress()));
     }
-
-    // Testdata from: https://github.com/ethereum/tests/blob/master/txtest.json
-    String RLP_ENCODED_RAW_TX = "e88085e8d4a510008227109413978aee95f38490e9769c39b2773ed763d9cd5f872386f26fc1000080";
-    String RLP_ENCODED_UNSIGNED_TX = "eb8085e8d4a510008227109413978aee95f38490e9769c39b2773ed763d9cd5f872386f26fc1000080808080";
-    String HASH_TX = "328ea6d24659dec48adea1aced9a136e5ebdf40258db30d1b1d97ed2b74be34e";
-    String RLP_ENCODED_SIGNED_TX = "f86b8085e8d4a510008227109413978aee95f38490e9769c39b2773ed763d9cd5f872386f26fc10000801ba0eab47c1a49bf2fe5d40e01d313900e19ca485867d462fe06e139e3a536c6d4f4a014a569d327dcda4b29f74f93c0e9729d2f49ad726e703f9cd90dbb0fbf6649f1";
-    String KEY = "c85ef7d79691fe79573b1a7064c19c1a9819ebdbd1faaab1a8ec92344438aaf4";
-    byte[] testNonce = Hex.decode("");
-    byte[] testGasPrice = BigIntegers.asUnsignedByteArray(BigInteger.valueOf(1000000000000L));
-    byte[] testGasLimit = BigIntegers.asUnsignedByteArray(BigInteger.valueOf(10000));
-    byte[] testReceiveAddress = Hex.decode("13978aee95f38490e9769c39b2773ed763d9cd5f");
-    byte[] testValue = BigIntegers.asUnsignedByteArray(BigInteger.valueOf(10000000000000000L));
-    byte[] testData = Hex.decode("");
-    byte[] testInit = Hex.decode("");
 
     @Ignore
     @Test
@@ -655,11 +654,12 @@ public class TransactionTest {
         }
     }
 
-    protected Transaction createTx(BlockchainImpl blockchain, ECKey sender, byte[] receiveAddress, byte[] data) {
+    private Transaction createTx(BlockchainImpl blockchain, ECKey sender, byte[] receiveAddress, byte[] data) {
         return createTx(blockchain, sender, receiveAddress, data, 0);
     }
-    protected Transaction createTx(BlockchainImpl blockchain, ECKey sender, byte[] receiveAddress,
-                                   byte[] data, long value) {
+
+    private Transaction createTx(BlockchainImpl blockchain, ECKey sender, byte[] receiveAddress,
+                                 byte[] data, long value) {
         BigInteger nonce = blockchain.getRepository().getNonce(sender.getAddress());
         Transaction tx = new Transaction(
                 ByteUtil.bigIntegerToBytes(nonce),
@@ -672,7 +672,7 @@ public class TransactionTest {
         return tx;
     }
 
-    public TransactionExecutor executeTransaction(BlockchainImpl blockchain, Transaction tx) {
+    private TransactionExecutor executeTransaction(BlockchainImpl blockchain, Transaction tx) {
         Repository track = blockchain.getRepository().startTracking();
         TransactionExecutor executor = new TransactionExecutor(tx, new byte[32], blockchain.getRepository(),
                 blockchain.getBlockStore(), blockchain.getProgramInvokeFactory(), blockchain.getBestBlock());

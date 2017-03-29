@@ -10,9 +10,9 @@ import org.spongycastle.util.encoders.Hex;
  */
 public class ExtraDataPresenceRule extends BlockHeaderRule {
 
-    public final byte[] data;
+    private final byte[] data;
 
-    public final boolean required;
+    private final boolean required;
 
     public ExtraDataPresenceRule(byte[] data, boolean required) {
         this.data = data;

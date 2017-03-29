@@ -15,9 +15,9 @@ import java.util.List;
  */
 public abstract class DependentBlockHeaderRule extends AbstractValidationRule {
 
-    protected List<String> errors = new LinkedList<>();
+    final List<String> errors = new LinkedList<>();
 
-    public List<String> getErrors() {
+    List<String> getErrors() {
         return errors;
     }
 

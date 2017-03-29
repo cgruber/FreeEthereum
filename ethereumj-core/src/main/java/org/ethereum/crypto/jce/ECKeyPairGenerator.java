@@ -5,8 +5,8 @@ import java.security.spec.ECGenParameterSpec;
 
 public final class ECKeyPairGenerator {
 
-  public static final String ALGORITHM = "EC";
-  public static final String CURVE_NAME = "secp256k1";
+    private static final String ALGORITHM = "EC";
+    private static final String CURVE_NAME = "secp256k1";
 
   private static final String algorithmAssertionMsg =
       "Assumed JRE supports EC key pair generation";

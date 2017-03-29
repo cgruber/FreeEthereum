@@ -18,7 +18,7 @@ import java.util.List;
 
 public class JSONReader {
 
-    private static Logger logger = LoggerFactory.getLogger("TCK-Test");
+    private static final Logger logger = LoggerFactory.getLogger("TCK-Test");
 
     public static String loadJSON(String filename) {
         String json = "";

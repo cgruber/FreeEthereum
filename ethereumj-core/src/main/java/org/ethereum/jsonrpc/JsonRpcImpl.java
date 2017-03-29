@@ -50,43 +50,54 @@ import static org.ethereum.util.ByteUtil.bigIntegerToBytes;
 @Lazy
 public class JsonRpcImpl implements JsonRpc {
     private static final Logger logger = LoggerFactory.getLogger("jsonrpc");
-    @Autowired
-    public WorldManager worldManager;
-    @Autowired
-    public Repository repository;
-    @Autowired
-    SystemProperties config;
-    @Autowired
-    ConfigCapabilities configCapabilities;
-    @Autowired
-    Ethereum eth;
-    @Autowired
-    PeerServer peerServer;
-    @Autowired
-    SyncManager syncManager;
+    private final BlockchainImpl blockchain;
+    private final CompositeEthereumListener compositeEthereumListener;
+    private final long initialBlockNumber;
+    private final Map<ByteArrayWrapper, Account> accounts = new HashMap<>();
+    private final AtomicInteger filterCounter = new AtomicInteger(1);
+    private final Map<Integer, Filter> installedFilters = new Hashtable<>();
+    private final Map<ByteArrayWrapper, TransactionReceipt> pendingReceipts = Collections.synchronizedMap(new LRUMap<ByteArrayWrapper, TransactionReceipt>(1024));
     @Autowired
     TransactionStore txStore;
     @Autowired
-    ChannelManager channelManager;
-    @Autowired
-    BlockMiner blockMiner;
-    @Autowired
     TransactionStore transactionStore;
     @Autowired
+    private WorldManager worldManager;
+    @Autowired
+    private Repository repository;
+    @Autowired
+    private
+    SystemProperties config;
+    @Autowired
+    private
+    ConfigCapabilities configCapabilities;
+    @Autowired
+    private
+    Ethereum eth;
+    @Autowired
+    private
+    PeerServer peerServer;
+    @Autowired
+    private
+    SyncManager syncManager;
+    @Autowired
+    private
+    ChannelManager channelManager;
+    @Autowired
+    private
+    BlockMiner blockMiner;
+    @Autowired
+    private
     PendingStateImpl pendingState;
     @Autowired
+    private
     SolidityCompiler solidityCompiler;
     @Autowired
+    private
     ProgramInvokeFactory programInvokeFactory;
     @Autowired
+    private
     CommonConfig commonConfig = CommonConfig.getDefault();
-    BlockchainImpl blockchain;
-    CompositeEthereumListener compositeEthereumListener;
-    long initialBlockNumber;
-    Map<ByteArrayWrapper, Account> accounts = new HashMap<>();
-    AtomicInteger filterCounter = new AtomicInteger(1);
-    Map<Integer, Filter> installedFilters = new Hashtable<>();
-    Map<ByteArrayWrapper, TransactionReceipt> pendingReceipts = Collections.synchronizedMap(new LRUMap<ByteArrayWrapper, TransactionReceipt>(1024));
     @Autowired
     public JsonRpcImpl(final BlockchainImpl blockchain, final CompositeEthereumListener compositeEthereumListener) {
         this.blockchain = blockchain;
@@ -123,28 +134,28 @@ public class JsonRpcImpl implements JsonRpc {
 
     }
 
-    public long JSonHexToLong(String x) throws Exception {
+    private long JSonHexToLong(String x) throws Exception {
         if (!x.startsWith("0x"))
             throw new Exception("Incorrect hex syntax");
         x = x.substring(2);
         return Long.parseLong(x, 16);
     }
 
-    public int JSonHexToInt(String x) throws Exception {
+    private int JSonHexToInt(String x) throws Exception {
         if (!x.startsWith("0x"))
             throw new Exception("Incorrect hex syntax");
         x = x.substring(2);
         return Integer.parseInt(x, 16);
     }
 
-    public String JSonHexToHex(String x) throws Exception {
+    private String JSonHexToHex(String x) throws Exception {
         if (!x.startsWith("0x"))
             throw new Exception("Incorrect hex syntax");
         x = x.substring(2);
         return x;
     }
 
-    public Block getBlockByJSonHash(String blockHash) throws Exception  {
+    private Block getBlockByJSonHash(String blockHash) throws Exception {
         byte[] bhash = TypeConverter.StringHexToByteArray(blockHash);
         return worldManager.getBlockchain().getBlockByHash(bhash);
     }
@@ -180,15 +191,15 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    protected Account getAccount(String address) throws Exception {
+    private Account getAccount(String address) throws Exception {
         return accounts.get(new ByteArrayWrapper(StringHexToByteArray(address)));
     }
 
-    protected Account addAccount(String seed) {
+    private Account addAccount(String seed) {
         return addAccount(ECKey.fromPrivate(sha3(seed.getBytes())));
     }
 
-    protected Account addAccount(ECKey key) {
+    private Account addAccount(ECKey key) {
         Account account = new Account();
         account.init(key);
         accounts.put(new ByteArrayWrapper(account.getAddress()), account);
@@ -524,7 +535,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public TransactionReceipt createCallTxAndExecute(CallArguments args, Block block) throws Exception {
+    private TransactionReceipt createCallTxAndExecute(CallArguments args, Block block) throws Exception {
         Repository repository = ((Repository) worldManager.getRepository())
                 .getSnapshotTo(block.getStateRoot())
                 .startTracking();
@@ -532,7 +543,7 @@ public class JsonRpcImpl implements JsonRpc {
         return createCallTxAndExecute(args, block, repository, worldManager.getBlockStore());
     }
 
-    public TransactionReceipt createCallTxAndExecute(CallArguments args, Block block, Repository repository, BlockStore blockStore) throws Exception {
+    private TransactionReceipt createCallTxAndExecute(CallArguments args, Block block, Repository repository, BlockStore blockStore) throws Exception {
         BinaryCallArguments bca = new BinaryCallArguments();
         bca.setArguments(args);
         Transaction tx = CallTransaction.createRawTransaction(0,
@@ -592,7 +603,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public BlockResult getBlockResult(Block b, boolean fullTx) {
+    private BlockResult getBlockResult(Block b, boolean fullTx) {
         if (b==null)
             return null;
         boolean isPending = ByteUtil.byteArrayToLong(b.getNonce()) == 0;
@@ -1317,7 +1328,7 @@ public class JsonRpcImpl implements JsonRpc {
 
     static class Filter {
         static final int MAX_EVENT_COUNT = 1024; // prevent OOM when Filers are forgotten
-        List<FilterEvent> events = new LinkedList<>();
+        final List<FilterEvent> events = new LinkedList<>();
 
         public synchronized boolean hasNew() {
             return !events.isEmpty();
@@ -1332,7 +1343,7 @@ public class JsonRpcImpl implements JsonRpc {
             return ret;
         }
 
-        protected synchronized void add(FilterEvent evt) {
+        synchronized void add(FilterEvent evt) {
             events.add(evt);
             if (events.size() > MAX_EVENT_COUNT) events.remove(0);
         }
@@ -1423,7 +1434,7 @@ public class JsonRpcImpl implements JsonRpc {
     }
 
     class JsonLogFilter extends Filter {
-        LogFilter logFilter;
+        final LogFilter logFilter;
         boolean onNewBlock;
         boolean onPendingTx;
 

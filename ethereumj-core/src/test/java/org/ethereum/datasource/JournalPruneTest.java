@@ -142,7 +142,7 @@ public class JournalPruneTest {
         assertEquals(0, ((HashMapDB) jds.journal).getStorage().size());
     }
 
-    public byte[] hashInt(int i) {
+    private byte[] hashInt(int i) {
         return HashUtil.sha3(ByteUtil.intToBytes(i));
     }
 

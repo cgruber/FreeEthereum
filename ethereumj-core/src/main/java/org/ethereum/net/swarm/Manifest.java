@@ -17,9 +17,9 @@ import java.util.Map;
  * - the non-leaf item which contains reference to the child manifest with the dedicated content type
  */
 public class Manifest {
-    public final static String MANIFEST_MIME_TYPE = "application/bzz-manifest+json";
+    private final static String MANIFEST_MIME_TYPE = "application/bzz-manifest+json";
     private final StringTrie<ManifestEntry> trie;
-    private DPA dpa;
+    private final DPA dpa;
 
     /**
      * Constructs the Manifest instance with backing DPA storage
@@ -76,7 +76,7 @@ public class Manifest {
         add(null, entry);
     }
 
-    void add(ManifestEntry parent, ManifestEntry entry) {
+    private void add(ManifestEntry parent, ManifestEntry entry) {
         ManifestEntry added = parent == null ? trie.add(entry.path) : trie.add(parent, entry.path);
         added.hash = entry.hash;
         added.contentType = entry.contentType;
@@ -133,7 +133,7 @@ public class Manifest {
         OK(200),
         NOT_FOUND(404);
 
-        private int code;
+        private final int code;
         Status(int code) {
             this.code = code;
         }

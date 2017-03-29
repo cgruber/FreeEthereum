@@ -1,15 +1,15 @@
 package org.ethereum.crypto;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-
 import org.spongycastle.crypto.*;
 import org.spongycastle.crypto.generators.EphemeralKeyPairGenerator;
 import org.spongycastle.crypto.params.*;
 import org.spongycastle.util.Arrays;
 import org.spongycastle.util.BigIntegers;
 import org.spongycastle.util.Pack;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  * Support class for constructing integrated encryption cipher
@@ -19,24 +19,25 @@ import org.spongycastle.util.Pack;
  * - Hash the MAC key before use
  * - Include the encryption IV in the MAC computation
  */
-public class EthereumIESEngine
+class EthereumIESEngine
 {
     private final Digest hash;
-    BasicAgreement agree;
-    DerivationFunction kdf;
-    Mac mac;
-    BufferedBlockCipher cipher;
-    byte[] macBuf;
+    private final BasicAgreement agree;
+    private final DerivationFunction kdf;
+    private final Mac mac;
+    private final BufferedBlockCipher cipher;
+    private final byte[] macBuf;
 
-    boolean forEncryption;
-    CipherParameters privParam, pubParam;
-    IESParameters param;
+    private boolean forEncryption;
+    private CipherParameters privParam;
+    private CipherParameters pubParam;
+    private IESParameters param;
 
-    byte[] V;
+    private byte[] V;
     private EphemeralKeyPairGenerator keyPairGenerator;
     private KeyParser keyParser;
     private byte[] IV;
-    boolean hashK2 = true;
+    private boolean hashK2 = true;
 
     /**
      * set up for use with stream mode, where the key derivation function

@@ -14,11 +14,11 @@ import java.net.InetSocketAddress;
 
 public class MessageHandler extends SimpleChannelInboundHandler<DiscoveryEvent>
         implements Functional.Consumer<DiscoveryEvent> {
-    static final org.slf4j.Logger logger = LoggerFactory.getLogger("discover");
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("discover");
 
-    public Channel channel;
+    private final Channel channel;
 
-    NodeManager nodeManager;
+    private final NodeManager nodeManager;
 
     public MessageHandler(NioDatagramChannel ch, NodeManager nodeManager) {
         channel = ch;
@@ -41,7 +41,7 @@ public class MessageHandler extends SimpleChannelInboundHandler<DiscoveryEvent>
         sendPacket(discoveryEvent.getMessage().getPacket(), address);
     }
 
-    void sendPacket(byte[] wire, InetSocketAddress address) {
+    private void sendPacket(byte[] wire, InetSocketAddress address) {
         DatagramPacket packet = new DatagramPacket(Unpooled.copiedBuffer(wire), address);
         channel.write(packet);
         channel.flush();

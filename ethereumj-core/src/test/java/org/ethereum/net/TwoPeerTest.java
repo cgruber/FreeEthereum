@@ -38,42 +38,21 @@ import static org.ethereum.crypto.HashUtil.sha3;
 @Ignore
 public class TwoPeerTest {
 
-    @Configuration
-    @NoAutoscan
-    public static class SysPropConfig1 {
-        static Eth62 testHandler = null;
-        @Bean
-        @Scope("prototype")
-        public Eth62 eth62() {
-            return testHandler;
-//            return new Eth62();
-        }
-
-        static SystemProperties props = new SystemProperties();;
-        @Bean
-        public SystemProperties systemProperties() {
-            return props;
-        }
-    }
-    @Configuration
-    @NoAutoscan
-    public static class SysPropConfig2 {
-        static SystemProperties props= new SystemProperties();
-        @Bean
-        public SystemProperties systemProperties() {
-            return props;
-        }
-
+    public static void main(String[] args) throws Exception {
+        ECKey k = ECKey.fromPrivate(Hex.decode("6ef8da380c27cea8fdf7448340ea99e8e2268fc2950d79ed47cbf6f85dc977ec"));
+        System.out.println(Hex.toHexString(k.getPrivKeyBytes()));
+        System.out.println(Hex.toHexString(k.getAddress()));
+        System.out.println(Hex.toHexString(k.getNodeId()));
     }
 
-    public Block createNextBlock(Block parent, String stateRoot, String extraData) {
+    private Block createNextBlock(Block parent, String stateRoot, String extraData) {
         Block b = new Block(parent.getHash(), sha3(RLP.encodeList()), parent.getCoinbase(), parent.getLogBloom(),
                 parent.getDifficulty(), parent.getNumber() + 1, parent.getGasLimit(), parent.getGasUsed(),
                 System.currentTimeMillis() / 1000, new byte[0], new byte[0], new byte[0],
                 parent.getReceiptsRoot(), parent.getTxTrieRoot(),
                 Hex.decode(stateRoot),
 //                    Hex.decode("7c22bebbe3e6cf5af810bef35ad7a7b8172e0a247eaeb44f63fffbce87285a7a"),
-                Collections.<Transaction>emptyList(), Collections.<BlockHeader>emptyList());
+                Collections.emptyList(), Collections.emptyList());
         //        b.getHeader().setDifficulty(b.getHeader().calcDifficulty(bestBlock.getHeader()).toByteArray());
         if (extraData != null) {
             b.getHeader().setExtraData(extraData.getBytes());
@@ -81,7 +60,7 @@ public class TwoPeerTest {
         return b;
     }
 
-    public Block addNextBlock(BlockchainImpl blockchain1, Block parent, String extraData) {
+    private Block addNextBlock(BlockchainImpl blockchain1, Block parent, String extraData) {
         Block b = createNextBlock(parent, "00", extraData);
         System.out.println("Adding block.");
 //        blockchain1.add(b, new Miner() {
@@ -247,10 +226,34 @@ public class TwoPeerTest {
 
     }
 
-    public static void main(String[] args) throws Exception {
-        ECKey k = ECKey.fromPrivate(Hex.decode("6ef8da380c27cea8fdf7448340ea99e8e2268fc2950d79ed47cbf6f85dc977ec"));
-        System.out.println(Hex.toHexString(k.getPrivKeyBytes()));
-        System.out.println(Hex.toHexString(k.getAddress()));
-        System.out.println(Hex.toHexString(k.getNodeId()));
+    @Configuration
+    @NoAutoscan
+    public static class SysPropConfig1 {
+        static final SystemProperties props = new SystemProperties();
+        static Eth62 testHandler = null;
+
+        @Bean
+        @Scope("prototype")
+        public Eth62 eth62() {
+            return testHandler;
+//            return new Eth62();
+        }
+
+        @Bean
+        public SystemProperties systemProperties() {
+            return props;
+        }
+    }
+
+    @Configuration
+    @NoAutoscan
+    public static class SysPropConfig2 {
+        static final SystemProperties props = new SystemProperties();
+
+        @Bean
+        public SystemProperties systemProperties() {
+            return props;
+        }
+
     }
 }

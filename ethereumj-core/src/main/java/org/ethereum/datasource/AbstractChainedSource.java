@@ -9,18 +9,22 @@ package org.ethereum.datasource;
  */
 public abstract class AbstractChainedSource<Key, Value, SourceKey, SourceValue> implements Source<Key, Value> {
 
+    boolean flushSource;
     private Source<SourceKey, SourceValue> source;
-    protected boolean flushSource;
 
     /**
      * Intended for subclasses which wishes to initialize the source
      * later via {@link #setSource(Source)} method
      */
-    protected AbstractChainedSource() {
+    AbstractChainedSource() {
     }
 
-    public AbstractChainedSource(Source<SourceKey, SourceValue> source) {
+    AbstractChainedSource(Source<SourceKey, SourceValue> source) {
         this.source = source;
+    }
+
+    public Source<SourceKey, SourceValue> getSource() {
+        return source;
     }
 
     /**
@@ -28,10 +32,6 @@ public abstract class AbstractChainedSource<Key, Value, SourceKey, SourceValue> 
      */
     protected void setSource(Source<SourceKey, SourceValue> src) {
         source = src;
-    }
-
-    public Source<SourceKey, SourceValue> getSource() {
-        return source;
     }
 
     public void setFlushSource(boolean flushSource) {

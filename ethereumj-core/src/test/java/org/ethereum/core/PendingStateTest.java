@@ -588,11 +588,11 @@ public class PendingStateTest {
     }
 
     static class PendingListener extends EthereumListenerAdapter {
-        public BlockingQueue<Pair<Block, List<TransactionReceipt>>> onBlock = new LinkedBlockingQueue<>();
-        public BlockingQueue<Object> onPendingStateChanged = new LinkedBlockingQueue<>();
+        public final BlockingQueue<Pair<Block, List<TransactionReceipt>>> onBlock = new LinkedBlockingQueue<>();
+        public final BlockingQueue<Object> onPendingStateChanged = new LinkedBlockingQueue<>();
 //        public BlockingQueue<Triple<TransactionReceipt, PendingTransactionState, Block>> onPendingTransactionUpdate = new LinkedBlockingQueue<>();
 
-        Map<ByteArrayWrapper, BlockingQueue<Triple<TransactionReceipt, PendingTransactionState, Block>>>
+        final Map<ByteArrayWrapper, BlockingQueue<Triple<TransactionReceipt, PendingTransactionState, Block>>>
                 onPendingTransactionUpdate = new HashMap<>();
 
         @Override

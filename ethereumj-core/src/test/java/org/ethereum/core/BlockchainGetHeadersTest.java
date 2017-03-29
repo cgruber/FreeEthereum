@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class BlockchainGetHeadersTest {
 
-    private BlockchainImpl blockchain;
+    private final BlockchainImpl blockchain;
 
 
     public BlockchainGetHeadersTest() {
@@ -104,7 +104,7 @@ public class BlockchainGetHeadersTest {
 
     private class BlockStoreMock extends BlockStoreDummy {
 
-        private List<Block> dummyBlocks = new ArrayList<>();
+        private final List<Block> dummyBlocks = new ArrayList<>();
 
         public BlockStoreMock() {
             byte[] emptyArray = new byte[0];

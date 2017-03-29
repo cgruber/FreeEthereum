@@ -19,11 +19,31 @@ public class TestNetSample extends BasicSample {
     /**
      * Use that sender key to sign transactions
      */
-    protected final byte[] senderPrivateKey = sha3("cow".getBytes());
+    final byte[] senderPrivateKey = sha3("cow".getBytes());
     // sender address is derived from the private key
-    protected final byte[] senderAddress = ECKey.fromPrivate(senderPrivateKey).getAddress();
+    final byte[] senderAddress = ECKey.fromPrivate(senderPrivateKey).getAddress();
 
-    protected abstract static class TestNetConfig {
+    public static void main(String[] args) throws Exception {
+        sLogger.info("Starting EthereumJ!");
+
+        class SampleConfig extends TestNetConfig {
+            @Bean
+            public TestNetSample sampleBean() {
+                return new TestNetSample();
+            }
+        }
+
+        // Based on Config class the BasicSample would be created by Spring
+        // and its springInit() method would be called as an entry point
+        EthereumFactory.createEthereum(SampleConfig.class);
+    }
+
+    @Override
+    public void onSyncDone() throws Exception {
+        super.onSyncDone();
+    }
+
+    abstract static class TestNetConfig {
         private final String config =
                 // network has no discovery, peers are connected directly
                 "peer.discovery.enabled = false \n" +
@@ -51,25 +71,5 @@ public class TestNetSample extends BasicSample {
             props.overrideParams(ConfigFactory.parseString(config.replaceAll("'", "\"")));
             return props;
         }
-    }
-
-    @Override
-    public void onSyncDone() throws Exception {
-        super.onSyncDone();
-    }
-
-    public static void main(String[] args) throws Exception {
-        sLogger.info("Starting EthereumJ!");
-
-        class SampleConfig extends TestNetConfig {
-            @Bean
-            public TestNetSample sampleBean() {
-                return new TestNetSample();
-            }
-        }
-
-        // Based on Config class the BasicSample would be created by Spring
-        // and its springInit() method would be called as an entry point
-        EthereumFactory.createEthereum(SampleConfig.class);
     }
 }

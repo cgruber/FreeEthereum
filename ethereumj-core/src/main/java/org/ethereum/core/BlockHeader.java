@@ -28,7 +28,7 @@ public class BlockHeader {
     public static final int MAX_HEADER_SIZE = 592;
 
     /* The SHA3 256-bit hash of the parent block, in its entirety */
-    private byte[] parentHash;
+    private final byte[] parentHash;
     /* The SHA3 256-bit hash of the uncles list portion of this block */
     private byte[] unclesHash;
     /* The 160-bit address to which all fees collected from the
@@ -288,7 +288,7 @@ public class BlockHeader {
         return this.getEncoded(false);
     }
 
-    public byte[] getEncoded(boolean withNonce) {
+    private byte[] getEncoded(boolean withNonce) {
         byte[] parentHash = RLP.encodeElement(this.parentHash);
 
         byte[] unclesHash = RLP.encodeElement(this.unclesHash);

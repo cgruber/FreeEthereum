@@ -22,7 +22,7 @@ import java.util.Collections;
 public class GitHubBlockTest {
 
     //SHACOMMIT of tested commit, ethereum/tests.git
-    public String shacommit = "289b3e4524786618c7ec253b516bc8e76350f947";
+    private final String shacommit = "289b3e4524786618c7ec253b516bc8e76350f947";
 
     @Ignore // test for conveniently running a single test
     @Test
@@ -134,7 +134,7 @@ public class GitHubBlockTest {
     }
 
     @Test
-    public void runBCWalletTest() throws Exception, IOException {
+    public void runBCWalletTest() throws Exception {
         run("bcWalletTest", true, true, true);
     }
 

@@ -2,10 +2,8 @@ package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.vm.DataWord;
 import org.ethereum.vm.LogInfo;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
@@ -13,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Logs {
-    List<LogInfo> logs = new ArrayList<>();
+    private final List<LogInfo> logs = new ArrayList<>();
 
     public Logs(JSONArray jLogs) {
 

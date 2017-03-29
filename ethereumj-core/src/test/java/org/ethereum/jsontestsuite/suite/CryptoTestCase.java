@@ -14,7 +14,7 @@ import java.math.BigInteger;
  */
 public class CryptoTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger("TCK-Test");
+    private static final Logger logger = LoggerFactory.getLogger("TCK-Test");
 
     private String decryption_type = "";
     private String key = "";

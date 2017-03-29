@@ -31,26 +31,7 @@ import java.util.concurrent.TimeUnit;
 @Ignore
 public class SanityLongRunTest {
 
-    @Configuration
-    @NoAutoscan
-    public static class SysPropConfig1 {
-        static SystemProperties props;
-        @Bean
-        public SystemProperties systemProperties() {
-            return props;
-        }
-    }
-    @Configuration
-    @NoAutoscan
-    public static class SysPropConfig2 {
-        static SystemProperties props;
-        @Bean
-        public SystemProperties systemProperties() {
-            return props;
-        }
-    }
-
-    String config1 =
+    private final String config1 =
             "peer.discovery.enabled = true \n" +
 //            "peer.discovery.enabled = false \n" +
             "database.dir = testDB-1 \n" +
@@ -63,9 +44,8 @@ public class SanityLongRunTest {
             "peer.privateKey = d3a4a240b107ab443d46187306d0b947ce3d6b6ed95aead8c4941afcebde43d2\n" +
             "peer.p2p.version = 4 \n" +
             "peer.p2p.framing.maxSize = 1024 \n";
-
-    ECKey config2Key = new ECKey();
-    String config2 =
+    private final ECKey config2Key = new ECKey();
+    private final String config2 =
             "peer.discovery.enabled = false \n" +
             "database.dir = testDB-2 \n" +
             "database.reset = true \n" +
@@ -79,7 +59,6 @@ public class SanityLongRunTest {
             "] } \n" +
             "peer.p2p.version = 5 \n" +
             "peer.p2p.framing.maxSize = 1024 \n";
-
 
     @Test
     public void testTest() throws FileNotFoundException, InterruptedException {
@@ -180,5 +159,27 @@ public class SanityLongRunTest {
         ethereum2.close();
 
         System.out.println("Passed.");
+    }
+
+    @Configuration
+    @NoAutoscan
+    public static class SysPropConfig1 {
+        static SystemProperties props;
+
+        @Bean
+        public SystemProperties systemProperties() {
+            return props;
+        }
+    }
+
+    @Configuration
+    @NoAutoscan
+    public static class SysPropConfig2 {
+        static SystemProperties props;
+
+        @Bean
+        public SystemProperties systemProperties() {
+            return props;
+        }
     }
 }

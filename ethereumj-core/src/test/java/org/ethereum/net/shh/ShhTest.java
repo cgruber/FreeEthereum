@@ -3,7 +3,7 @@ package org.ethereum.net.shh;
 /**
  * @author by Konstantin Shabalin
  */
-public class ShhTest {
+class ShhTest {
 
 /*
     private byte[] payload = "Hello whisper!".getBytes();

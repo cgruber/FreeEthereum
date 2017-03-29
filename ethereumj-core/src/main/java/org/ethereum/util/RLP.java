@@ -625,13 +625,13 @@ public class RLP {
             int len = prefix - OFFSET_SHORT_LIST; // length of the encoded list
             int prevPos = pos;
             pos++;
-            return decodeList(data, pos, prevPos, len);
+            return decodeList(data, pos, len);
         } else if (prefix <= 0xFF) {  // [0xf8, 0xff]
             int lenlen = prefix - OFFSET_LONG_LIST; // length of length the encoded list
             int lenlist = byteArrayToInt(copyOfRange(data, pos + 1, pos + 1 + lenlen)); // length of encoded bytes
             pos = pos + lenlen + 1; // start at position of first element in list
             int prevPos = lenlist;
-            return decodeList(data, pos, prevPos, lenlist);
+            return decodeList(data, pos, lenlist);
         } else {
             throw new RuntimeException("Only byte values between 0x00 and 0xFF are supported, but got: " + prefix);
         }
@@ -641,7 +641,7 @@ public class RLP {
         return decodeLazyList(data, 0, data.length).getList(0);
     }
 
-    public static LList decodeLazyList(byte[] data, int pos, int length) {
+    private static LList decodeLazyList(byte[] data, int pos, int length) {
         if (data == null || data.length < 1) {
             return null;
         }
@@ -681,14 +681,14 @@ public class RLP {
         return ret;
     }
 
-    private static DecodeResult decodeList(byte[] data, int pos, int prevPos, int len) {
+    private static DecodeResult decodeList(byte[] data, int pos, int len) {
         List<Object> slice = new ArrayList<>();
         for (int i = 0; i < len; ) {
             // Get the next item in the data list and append it
             DecodeResult result = decode(data, pos);
             slice.add(result.getDecoded());
             // Increment pos by the amount bytes in the previous read
-            prevPos = result.getPos();
+            int prevPos = result.getPos();
             i += (prevPos - pos);
             pos = prevPos;
         }

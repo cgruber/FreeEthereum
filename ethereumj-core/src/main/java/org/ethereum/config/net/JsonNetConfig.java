@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class JsonNetConfig extends BaseNetConfig {
 
-    final BlockchainConfig initialBlockConfig = new FrontierConfig();
+    private final BlockchainConfig initialBlockConfig = new FrontierConfig();
 
     /**
      * We convert all string keys to lowercase before processing.

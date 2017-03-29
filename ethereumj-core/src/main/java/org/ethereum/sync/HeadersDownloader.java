@@ -26,25 +26,25 @@ import java.util.List;
 @Lazy
 public class HeadersDownloader extends BlockDownloader {
     private final static Logger logger = LoggerFactory.getLogger("sync");
-
-    @Autowired
-    SyncPool syncPool;
-
-    @Autowired
-    ChannelManager channelManager;
-
     @Autowired
     IndexedBlockStore blockStore;
-
+    @Autowired
+    private
+    SyncPool syncPool;
+    @Autowired
+    private
+    ChannelManager channelManager;
     @Autowired @Qualifier("headerSource")
+    private
     DataSourceArray<BlockHeader> headerStore;
 
     @Autowired
+    private
     DbFlushManager dbFlushManager;
 
-    byte[] genesisHash;
+    private byte[] genesisHash;
 
-    int headersLoaded  = 0;
+    private int headersLoaded = 0;
 
     @Autowired
     public HeadersDownloader(BlockHeaderValidator headerValidator) {

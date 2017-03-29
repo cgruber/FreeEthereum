@@ -41,10 +41,9 @@ public class SyncManager extends BlockDownloader {
 
     private final static AtomicLong blockQueueByteSize = new AtomicLong(0);
     private final static int BLOCK_BYTES_ADDON = 4;
-    ChannelManager channelManager;
     // Transaction.getSender() is quite heavy operation so we are prefetching this value on several threads
     // to unload the main block importing cycle
-    private ExecutorPipeline<BlockWrapper,BlockWrapper> exec1 = new ExecutorPipeline<>
+    private final ExecutorPipeline<BlockWrapper, BlockWrapper> exec1 = new ExecutorPipeline<>
             (4, 1000, true, new Functional.Function<BlockWrapper,BlockWrapper>() {
                 public BlockWrapper apply(BlockWrapper blockWrapper) {
                     for (Transaction tx : blockWrapper.getBlock().getTransactionsList()) {
@@ -60,7 +59,10 @@ public class SyncManager extends BlockDownloader {
     /**
      * Queue with validated blocks to be added to the blockchain
      */
-    private BlockingQueue<BlockWrapper> blockQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<BlockWrapper> blockQueue = new LinkedBlockingQueue<>();
+    private final AtomicLong importIdleTime = new AtomicLong();
+    private final ScheduledExecutorService logExecutor = Executors.newSingleThreadScheduledExecutor();
+    private ChannelManager channelManager;
     private ExecutorPipeline<BlockWrapper, Void> exec2 = exec1.add(1, 1, new Functional.Consumer<BlockWrapper>() {
         @Override
         public void accept(BlockWrapper blockWrapper) {
@@ -75,20 +77,14 @@ public class SyncManager extends BlockDownloader {
     @Autowired
     private FastSyncManager fastSyncManager;
     private SystemProperties config;
-
     private SyncPool pool;
-
     private SyncQueueImpl syncQueue;
-
     private Thread syncQueueThread;
-
     private long blockBytesLimit = 32 * 1024 * 1024;
     private long lastKnownBlockNumber = 0;
     private boolean syncDone = false;
-    private AtomicLong importIdleTime = new AtomicLong();
     private long importStart;
     private EthereumListener.SyncState syncDoneType = EthereumListener.SyncState.COMPLETE;
-    private ScheduledExecutorService logExecutor = Executors.newSingleThreadScheduledExecutor();
 
     public SyncManager() {
         super(null);

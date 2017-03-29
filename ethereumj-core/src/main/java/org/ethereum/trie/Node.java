@@ -52,7 +52,7 @@ public class Node {
         this(val, false);
     }
 
-    public Node(Value val, boolean dirty) {
+    private Node(Value val, boolean dirty) {
         this.value = val;
         this.dirty = dirty;
     }

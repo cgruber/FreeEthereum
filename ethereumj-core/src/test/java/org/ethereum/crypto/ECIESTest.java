@@ -30,7 +30,7 @@ import java.security.SecureRandom;
 import static org.junit.Assert.assertArrayEquals;
 
 public class ECIESTest {
-    public static final int KEY_SIZE = 128;
+    private static final int KEY_SIZE = 128;
     private static final String CIPHERTEXT1 = "042a851331790adacf6e64fcb19d0872fcdf1285a899a12cdc897da941816b0ea6485402aaf6c2e0a5d98ae3af1b05c68b307d1e0eb7a426a46f1617ba5b94f90b606eee3b5e9d2b527a9ee52cfa377bcd118b9390ed27ffe7d48e8155004375cae209012c3e057bb13a478a64a201d79ad4ae83";
     private static final X9ECParameters IES_CURVE_PARAM = SECNamedCurves.getByName("secp256r1");
     private static final BigInteger PRIVATE_KEY1 = new BigInteger("51134539186617376248226283012294527978458758538121566045626095875284492680246");
@@ -46,7 +46,7 @@ public class ECIESTest {
         curve = new ECDomainParameters(IES_CURVE_PARAM.getCurve(), IES_CURVE_PARAM.getG(), IES_CURVE_PARAM.getN(), IES_CURVE_PARAM.getH());
     }
 
-    public static byte[] decrypt(BigInteger prv, byte[] cipher) throws InvalidCipherTextException, IOException {
+    private static byte[] decrypt(BigInteger prv, byte[] cipher) throws InvalidCipherTextException, IOException {
         ByteArrayInputStream is = new ByteArrayInputStream(cipher);
         byte[] ephemBytes = new byte[2*((curve.getCurve().getFieldSize()+7)/8) + 1];
         is.read(ephemBytes);
@@ -62,7 +62,7 @@ public class ECIESTest {
         return message;
     }
 
-    public static byte[] encrypt(ECPoint toPub, byte[] plaintext) throws InvalidCipherTextException, IOException {
+    private static byte[] encrypt(ECPoint toPub, byte[] plaintext) throws InvalidCipherTextException, IOException {
 
         ECKeyPairGenerator eGen = new ECKeyPairGenerator();
         SecureRandom random = new SecureRandom();

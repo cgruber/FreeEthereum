@@ -51,6 +51,27 @@ import java.security.MessageDigest;
 
 public abstract class DigestEngine extends MessageDigest implements Digest {
 
+    private final int blockLen;
+    private final byte[] inputBuf;
+    private int digestLen;
+    private int inputLen;
+    private byte[] outputBuf;
+    private long blockCount;
+
+    /**
+     * Instantiate the engine.
+     */
+    DigestEngine(String alg) {
+        super(alg);
+        doInit();
+        digestLen = engineGetDigestLength();
+        blockLen = getInternalBlockLength();
+        inputBuf = new byte[blockLen];
+        outputBuf = new byte[digestLen];
+        inputLen = 0;
+        blockCount = 0;
+    }
+
 	/**
 	 * Reset the hash algorithm state.
 	 */
@@ -82,25 +103,6 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
 	 * {@link #engineGetDigestLength}
 	 */
 	protected abstract void doInit();
-
-	private int digestLen, blockLen, inputLen;
-	private byte[] inputBuf, outputBuf;
-	private long blockCount;
-
-	/**
-	 * Instantiate the engine.
-	 */
-	public DigestEngine(String alg)
-	{
-		super(alg);
-		doInit();
-		digestLen = engineGetDigestLength();
-		blockLen = getInternalBlockLength();
-		inputBuf = new byte[blockLen];
-		outputBuf = new byte[digestLen];
-		inputLen = 0;
-		blockCount = 0;
-	}
 
 	private void adjustDigestLen()
 	{
@@ -151,10 +153,9 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
 	}
 
 	/** @see org.ethereum.crypto.cryptohash.Digest */
-	public void update(byte input)
-	{
-		inputBuf[inputLen ++] = (byte)input;
-		if (inputLen == blockLen) {
+	public void update(byte input) {
+        inputBuf[inputLen++] = input;
+        if (inputLen == blockLen) {
 			processBlock(inputBuf);
 			blockCount ++;
 			inputLen = 0;
@@ -197,9 +198,8 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
 	 * suboptimal with regards to internal buffering needs.
 	 *
 	 * @return  the internal block length (in bytes)
-	 */
-	protected int getInternalBlockLength()
-	{
+     */
+    private int getInternalBlockLength() {
 		return getBlockLength();
 	}
 
@@ -208,9 +208,8 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
 	 * may at most be upheld.
 	 *
 	 * @return  the number of bytes still unprocessed after the flush
-	 */
-	protected final int flush()
-	{
+     */
+    final int flush() {
 		return inputLen;
 	}
 
@@ -225,9 +224,8 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
 	 * undefined and may be altered at will.
 	 *
 	 * @return  a block-sized internal buffer
-	 */
-	protected final byte[] getBlockBuffer()
-	{
+     */
+    final byte[] getBlockBuffer() {
 		return inputBuf;
 	}
 
@@ -253,9 +251,8 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
 	 *
 	 * @param dest   the copy
 	 * @return  the value {@code dest}
-	 */
-	protected Digest copyState(DigestEngine dest)
-	{
+     */
+    Digest copyState(DigestEngine dest) {
 		dest.inputLen = inputLen;
 		dest.blockCount = blockCount;
 		System.arraycopy(inputBuf, 0, dest.inputBuf, 0,

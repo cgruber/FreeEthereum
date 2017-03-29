@@ -14,6 +14,51 @@ import static org.junit.Assert.*;
 
 public class KademliaTest {
 
+    private static byte[] getNodeId() {
+        Random gen = new Random();
+        byte[] id = new byte[64];
+        gen.nextBytes(id);
+        return id;
+    }
+
+    private static Node getNode(byte[] id, int i) {
+        id[0] += (byte) i;
+        Node n = getNode();
+        n.setId(id);
+        return n;
+    }
+
+    private static Node getNode() {
+        return new Node(getNodeId(), "127.0.0.1", 30303);
+    }
+
+    private static NodeTable getTestNodeTable(int nodesQuantity) {
+        NodeTable testTable = new NodeTable(getNode());
+
+        for (int i = 0; i < nodesQuantity; i++) {
+            testTable.addNode(getNode());
+        }
+
+        return testTable;
+    }
+
+    private static void showBuckets(NodeTable t) {
+        for (NodeBucket b : t.getBuckets()) {
+            if (b.getNodesCount() > 0) {
+                System.out.println(String.format("Bucket %d nodes %d depth %d", b.getDepth(), b.getNodesCount(), b.getDepth()));
+            }
+        }
+    }
+
+    private static boolean containsNode(NodeTable t, Node n) {
+        for (NodeEntry e : t.getAllNodes()) {
+            if (e.getNode().toString().equals(n.toString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Ignore
     @Test
     public void test1() {
@@ -70,50 +115,5 @@ public class KademliaTest {
 
         assertEquals(t.getBucketsCount(), 1);
         assertEquals(t.getBuckets()[0].getNodesCount(), KademliaOptions.BUCKET_SIZE);
-    }
-
-    public static byte[] getNodeId() {
-        Random gen = new Random();
-        byte[] id = new byte[64];
-        gen.nextBytes(id);
-        return id;
-    }
-
-    public static Node getNode(byte[] id, int i) {
-        id[0] += (byte) i;
-        Node n = getNode();
-        n.setId(id);
-        return n;
-    }
-
-    public static Node getNode() {
-        return new Node(getNodeId(), "127.0.0.1", 30303);
-    }
-
-    public static NodeTable getTestNodeTable(int nodesQuantity) {
-        NodeTable testTable = new NodeTable(getNode());
-
-        for (int i = 0; i < nodesQuantity; i++) {
-            testTable.addNode(getNode());
-        }
-
-        return testTable;
-    }
-
-    public static void showBuckets(NodeTable t) {
-        for (NodeBucket b : t.getBuckets()) {
-            if (b.getNodesCount() > 0) {
-                System.out.println(String.format("Bucket %d nodes %d depth %d", b.getDepth(), b.getNodesCount(), b.getDepth()));
-            }
-        }
-    }
-
-    public static boolean containsNode(NodeTable t, Node n) {
-        for (NodeEntry e : t.getAllNodes()) {
-            if (e.getNode().toString().equals(n.toString())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

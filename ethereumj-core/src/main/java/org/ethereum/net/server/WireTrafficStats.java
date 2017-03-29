@@ -27,7 +27,7 @@ public class WireTrafficStats  implements Runnable  {
     private final static Logger logger = LoggerFactory.getLogger("net");
     public final TrafficStatHandler tcp = new TrafficStatHandler();
     public final TrafficStatHandler udp = new TrafficStatHandler();
-    private ScheduledExecutorService executor;
+    private final ScheduledExecutorService executor;
 
     public WireTrafficStats() {
         executor = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("WireTrafficStats-%d").build());
@@ -47,12 +47,12 @@ public class WireTrafficStats  implements Runnable  {
 
     @ChannelHandler.Sharable
     static class TrafficStatHandler extends ChannelDuplexHandler {
+        final AtomicLong outSize = new AtomicLong();
+        final AtomicLong inSize = new AtomicLong();
+        final AtomicLong outPackets = new AtomicLong();
+        final AtomicLong inPackets = new AtomicLong();
         long outSizeTot;
         long inSizeTot;
-        AtomicLong outSize = new AtomicLong();
-        AtomicLong inSize = new AtomicLong();
-        AtomicLong outPackets = new AtomicLong();
-        AtomicLong inPackets = new AtomicLong();
         long lastTime = System.currentTimeMillis();
 
         public String stats() {

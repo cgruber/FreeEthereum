@@ -11,6 +11,7 @@ import org.ethereum.util.RLP;
 import org.ethereum.util.RLPList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 
 /**
@@ -18,15 +19,7 @@ import java.math.BigInteger;
  */
 public class PeerSource {
     private static final Logger logger = LoggerFactory.getLogger("db");
-
-    // for debug purposes
-    public static PeerSource INST;
-
-    private Source<byte[], byte[]> src;
-
-    DataSourceArray<Pair<Node, Integer>> nodes;
-
-    public static final Serializer<Pair<Node, Integer>, byte[]> NODE_SERIALIZER = new Serializer<Pair<Node, Integer>, byte[]>(){
+    private static final Serializer<Pair<Node, Integer>, byte[]> NODE_SERIALIZER = new Serializer<Pair<Node, Integer>, byte[]>() {
 
         @Override
         public byte[] serialize(Pair<Node, Integer> value) {
@@ -51,6 +44,10 @@ public class PeerSource {
             return Pair.of(node, savedReputation == null ? 0 : (new BigInteger(1, savedReputation)).intValue());
         }
     };
+    // for debug purposes
+    private static PeerSource INST;
+    private final Source<byte[], byte[]> src;
+    private DataSourceArray<Pair<Node, Integer>> nodes;
 
 
     public PeerSource(Source<byte[], byte[]> src) {

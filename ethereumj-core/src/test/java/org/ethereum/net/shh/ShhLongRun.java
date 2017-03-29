@@ -39,6 +39,10 @@ import java.util.List;
 public class ShhLongRun extends Thread {
     private static URL remoteJsonRpc;
 
+    public static void main(String[] args) throws Exception {
+        new ShhLongRun().test();
+    }
+
     @Test
     public void test() throws Exception {
 //        remoteJsonRpc = new URL("http://whisper-1.ether.camp:8545");
@@ -57,13 +61,9 @@ public class ShhLongRun extends Thread {
         Thread.sleep(1000000000);
     }
 
-    public static void main(String[] args) throws Exception {
-        new ShhLongRun().test();
-    }
-
     @Configuration
     @NoAutoscan
-    public static class Config {
+    private static class Config {
 
         @Bean
         public TestComponent testBean() {
@@ -102,61 +102,6 @@ public class ShhLongRun extends Thread {
                     }
                 }
             });
-        }
-
-        static class MessageMatcher extends MessageWatcher {
-            List<Pair<Date, WhisperMessage>> awaitedMsgs = new ArrayList<>();
-
-            public MessageMatcher(String to, String from, Topic[] topics) {
-                super(to, from, topics);
-            }
-
-            @Override
-            protected synchronized void newMessage(WhisperMessage msg) {
-                System.out.println("=== Msg received: " + msg);
-                for (Pair<Date, WhisperMessage> awaitedMsg : awaitedMsgs) {
-                    if (Arrays.equals(msg.getPayload(), awaitedMsg.getRight().getPayload())) {
-                        if (!match(msg, awaitedMsg.getRight())) {
-                            throw new RuntimeException("Messages not matched: \n" + awaitedMsg + "\n" + msg);
-                        } else {
-                            awaitedMsgs.remove(awaitedMsg);
-                            break;
-                        }
-                    }
-                }
-                checkForMissingMessages();
-            }
-
-            private boolean equal(Object o1, Object o2) {
-                if (o1 == null) return o2 == null;
-                return o1.equals(o2);
-            }
-
-            protected boolean match(WhisperMessage m1, WhisperMessage m2) {
-                if (!Arrays.equals(m1.getPayload(), m2.getPayload())) return false;
-                if (!equal(m1.getFrom(), m2.getFrom())) return false;
-                if (!equal(m1.getTo(), m2.getTo())) return false;
-                if (m1.getTopics() != null) {
-                    if (m1.getTopics().length != m2.getTopics().length) return false;
-                    for (int i = 0; i < m1.getTopics().length; i++) {
-                        if (!m1.getTopics()[i].equals(m2.getTopics()[i])) return false;
-                    }
-                } else if (m2.getTopics() != null) return false;
-                return true;
-            }
-
-            public synchronized void waitForMessage(WhisperMessage msg) {
-                checkForMissingMessages();
-                awaitedMsgs.add(Pair.of(new Date(), msg));
-            }
-
-            private void checkForMissingMessages() {
-                for (Pair<Date, WhisperMessage> msg : awaitedMsgs) {
-                    if (System.currentTimeMillis() > msg.getLeft().getTime() + 10 * 1000) {
-                        throw new RuntimeException("Message was not delivered: " + msg);
-                    }
-                }
-            }
         }
 
         @Override
@@ -249,6 +194,61 @@ public class ShhLongRun extends Thread {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+
+        static class MessageMatcher extends MessageWatcher {
+            final List<Pair<Date, WhisperMessage>> awaitedMsgs = new ArrayList<>();
+
+            public MessageMatcher(String to, String from, Topic[] topics) {
+                super(to, from, topics);
+            }
+
+            @Override
+            protected synchronized void newMessage(WhisperMessage msg) {
+                System.out.println("=== Msg received: " + msg);
+                for (Pair<Date, WhisperMessage> awaitedMsg : awaitedMsgs) {
+                    if (Arrays.equals(msg.getPayload(), awaitedMsg.getRight().getPayload())) {
+                        if (!match(msg, awaitedMsg.getRight())) {
+                            throw new RuntimeException("Messages not matched: \n" + awaitedMsg + "\n" + msg);
+                        } else {
+                            awaitedMsgs.remove(awaitedMsg);
+                            break;
+                        }
+                    }
+                }
+                checkForMissingMessages();
+            }
+
+            private boolean equal(Object o1, Object o2) {
+                if (o1 == null) return o2 == null;
+                return o1.equals(o2);
+            }
+
+            boolean match(WhisperMessage m1, WhisperMessage m2) {
+                if (!Arrays.equals(m1.getPayload(), m2.getPayload())) return false;
+                if (!equal(m1.getFrom(), m2.getFrom())) return false;
+                if (!equal(m1.getTo(), m2.getTo())) return false;
+                if (m1.getTopics() != null) {
+                    if (m1.getTopics().length != m2.getTopics().length) return false;
+                    for (int i = 0; i < m1.getTopics().length; i++) {
+                        if (!m1.getTopics()[i].equals(m2.getTopics()[i])) return false;
+                    }
+                } else if (m2.getTopics() != null) return false;
+                return true;
+            }
+
+            public synchronized void waitForMessage(WhisperMessage msg) {
+                checkForMissingMessages();
+                awaitedMsgs.add(Pair.of(new Date(), msg));
+            }
+
+            private void checkForMissingMessages() {
+                for (Pair<Date, WhisperMessage> msg : awaitedMsgs) {
+                    if (System.currentTimeMillis() > msg.getLeft().getTime() + 10 * 1000) {
+                        throw new RuntimeException("Message was not delivered: " + msg);
+                    }
+                }
             }
         }
     }

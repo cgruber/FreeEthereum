@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiscoverTask implements Runnable {
+class DiscoverTask implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger("discover");
 
-    NodeManager nodeManager;
+    private final NodeManager nodeManager;
 
-    byte[] nodeId;
+    private final byte[] nodeId;
 
     public DiscoverTask(NodeManager nodeManager) {
         this.nodeManager = nodeManager;
@@ -26,7 +26,7 @@ public class DiscoverTask implements Runnable {
         discover(nodeId, 0, new ArrayList<>());
     }
 
-    public synchronized void discover(byte[] nodeId, int round, List<Node> prevTried) {
+    synchronized void discover(byte[] nodeId, int round, List<Node> prevTried) {
 
         try {
 //        if (!channel.isOpen() || round == KademliaOptions.MAX_STEPS) {

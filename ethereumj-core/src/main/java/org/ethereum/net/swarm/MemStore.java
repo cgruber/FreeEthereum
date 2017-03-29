@@ -12,13 +12,12 @@ import java.util.Map;
  * Created by Anton Nashatyrev on 18.06.2015.
  */
 public class MemStore implements ChunkStore {
-    public final Statter statCurSize = Statter.create("net.swarm.memstore.curSize");
     public final Statter statCurChunks = Statter.create("net.swarm.memstore.curChunkCnt");
-
-    long maxSizeBytes = 10 * 1000000;
-    long curSizeBytes = 0;
+    private final Statter statCurSize = Statter.create("net.swarm.memstore.curSize");
+    private long maxSizeBytes = 10 * 1000000;
+    private long curSizeBytes = 0;
     // TODO: SoftReference for Chunks?
-    public Map<Key, Chunk> store = Collections.synchronizedMap(new LRUMap<Key, Chunk>(10000) {
+    public final Map<Key, Chunk> store = Collections.synchronizedMap(new LRUMap<Key, Chunk>(10000) {
         @Override
         protected boolean removeLRU(LinkEntry<Key, Chunk> entry) {
             curSizeBytes -= entry.getValue().getData().length;

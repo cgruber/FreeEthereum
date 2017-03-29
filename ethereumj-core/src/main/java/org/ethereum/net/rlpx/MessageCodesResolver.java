@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ethereum.net.eth.EthVersion.*;
+import static org.ethereum.net.eth.EthVersion.fromCode;
 
 /**
  * @author Mikhail Kalinin
@@ -20,7 +20,7 @@ import static org.ethereum.net.eth.EthVersion.*;
  */
 public class MessageCodesResolver {
 
-    private Map<String, Integer> offsets = new HashMap<>();
+    private final Map<String, Integer> offsets = new HashMap<>();
 
     public MessageCodesResolver() {
     }
@@ -69,7 +69,7 @@ public class MessageCodesResolver {
         return withOffset(code, Capability.SHH);
     }
 
-    public byte withOffset(byte code, String cap) {
+    private byte withOffset(byte code, String cap) {
         byte offset = getOffset(cap);
         return (byte)(code + offset);
     }
@@ -100,7 +100,7 @@ public class MessageCodesResolver {
         return offset == null ? 0 : offset.byteValue();
     }
 
-    public void setBzzOffset(int offset) {
+    private void setBzzOffset(int offset) {
         setOffset(Capability.BZZ, offset);
     }
 

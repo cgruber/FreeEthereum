@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class ProgramStorageChangeListener extends ProgramListenerAdaptor {
 
-    private Map<DataWord, DataWord> diff = new HashMap<>();
+    private final Map<DataWord, DataWord> diff = new HashMap<>();
 
     @Override
     public void onStoragePut(DataWord key, DataWord value) {

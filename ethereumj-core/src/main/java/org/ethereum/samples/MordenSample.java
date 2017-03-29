@@ -21,11 +21,24 @@ public class MordenSample extends BasicSample {
     /**
      * Use that sender key to sign transactions
      */
-    protected final byte[] senderPrivateKey = HashUtil.sha3("cow".getBytes());
+    private final byte[] senderPrivateKey = HashUtil.sha3("cow".getBytes());
     // sender address is derived from the private key aacc23ff079d96a5502b31fefcda87a6b3fbdcfb
     protected final byte[] senderAddress = ECKey.fromPrivate(senderPrivateKey).getAddress();
 
-    protected abstract static class MordenSampleConfig {
+    public static void main(String[] args) throws Exception {
+        sLogger.info("Starting EthereumJ!");
+
+        class SampleConfig extends MordenSampleConfig {
+            @Bean
+            public MordenSample sampleBean() {
+                return new MordenSample();
+            }
+        }
+
+        Ethereum ethereum = EthereumFactory.createEthereum(SampleConfig.class);
+    }
+
+    abstract static class MordenSampleConfig {
         private final String config =
                 "peer.discovery = {" +
                 "    enabled = true \n" +
@@ -49,18 +62,5 @@ public class MordenSample extends BasicSample {
             props.overrideParams(ConfigFactory.parseString(config.replaceAll("'", "\"")));
             return props;
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        sLogger.info("Starting EthereumJ!");
-
-        class SampleConfig extends MordenSampleConfig {
-            @Bean
-            public MordenSample sampleBean() {
-                return new MordenSample();
-            }
-        }
-
-        Ethereum ethereum = EthereumFactory.createEthereum(SampleConfig.class);
     }
 }

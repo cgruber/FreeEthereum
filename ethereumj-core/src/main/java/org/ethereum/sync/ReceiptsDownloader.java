@@ -27,32 +27,30 @@ import java.util.concurrent.CountDownLatch;
  */
 @Component
 @Scope("prototype")
-public class ReceiptsDownloader {
+class ReceiptsDownloader {
     private final static Logger logger = LoggerFactory.getLogger("sync");
-
-    @Autowired
-    SyncPool syncPool;
-
-    @Autowired
-    IndexedBlockStore blockStore;
-
-    @Autowired
-    DbFlushManager dbFlushManager;
-
-    @Autowired
-    TransactionStore txStore;
-
-    @Autowired @Qualifier("headerSource")
-    DataSourceArray<BlockHeader> headerStore;
-
-    long fromBlock, toBlock;
-    Set<Long> completedBlocks = new HashSet<>();
-
+    private final long toBlock;
+    private final Set<Long> completedBlocks = new HashSet<>();
+    private final CountDownLatch stopLatch = new CountDownLatch(1);
     long t;
-    int cnt;
-
-    Thread retrieveThread;
-    private CountDownLatch stopLatch = new CountDownLatch(1);
+    @Autowired
+    private
+    SyncPool syncPool;
+    @Autowired
+    private
+    IndexedBlockStore blockStore;
+    @Autowired
+    private
+    DbFlushManager dbFlushManager;
+    @Autowired
+    private
+    TransactionStore txStore;
+    @Autowired @Qualifier("headerSource")
+    private
+    DataSourceArray<BlockHeader> headerStore;
+    private long fromBlock;
+    private int cnt;
+    private Thread retrieveThread;
 
     public ReceiptsDownloader(long fromBlock, long toBlock) {
         this.fromBlock = fromBlock;
@@ -173,7 +171,7 @@ public class ReceiptsDownloader {
      * Prevents this by leaving one peer without work
      * Fallbacks to any peer when low number of active peers available
      */
-    Channel getAnyPeer() {
+    private Channel getAnyPeer() {
         return syncPool.getActivePeersCount() > 2 ? syncPool.getNotLastIdle() : syncPool.getAnyIdle();
     }
 
@@ -181,7 +179,7 @@ public class ReceiptsDownloader {
         return cnt;
     }
 
-    public void stop() {
+    private void stop() {
         retrieveThread.interrupt();
         stopLatch.countDown();
     }
@@ -194,7 +192,7 @@ public class ReceiptsDownloader {
         }
     }
 
-    protected void finishDownload() {
+    private void finishDownload() {
         stop();
     }
 }

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.digests.RIPEMD160Digest;
 import org.spongycastle.util.encoders.Hex;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,12 +22,10 @@ import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 
 public class HashUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HashUtil.class);
-
     public static final byte[] EMPTY_DATA_HASH;
     public static final byte[] EMPTY_LIST_HASH;
     public static final byte[] EMPTY_TRIE_HASH;
-
+    private static final Logger LOG = LoggerFactory.getLogger(HashUtil.class);
     private static final Provider CRYPTO_PROVIDER;
 
     private static final String HASH_256_ALGORITHM_NAME;
@@ -191,7 +190,7 @@ public class HashUtil {
      *            -
      * @return -
      */
-    public static byte[] doubleDigest(byte[] input, int offset, int length) {
+    private static byte[] doubleDigest(byte[] input, int offset, int length) {
         synchronized (sha256digest) {
             sha256digest.reset();
             sha256digest.update(input, offset, length);

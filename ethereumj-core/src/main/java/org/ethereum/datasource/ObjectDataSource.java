@@ -8,9 +8,9 @@ package org.ethereum.datasource;
  * Created by Anton Nashatyrev on 06.12.2016.
  */
 public class ObjectDataSource<V> extends SourceChainBox<byte[], V, byte[], byte[]> {
-    ReadCache<byte[], V> cache;
-    SourceCodec<byte[], V, byte[], byte[]> codec;
-    Source<byte[], byte[]> byteSource;
+    private final SourceCodec<byte[], V, byte[], byte[]> codec;
+    private final Source<byte[], byte[]> byteSource;
+    private ReadCache<byte[], V> cache;
 
     /**
      * Creates new instance

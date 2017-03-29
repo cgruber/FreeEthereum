@@ -28,6 +28,7 @@ public class MineBlock {
 
     @InjectMocks
     @Resource
+    private
     BlockchainImpl blockchain = ImportLightTest.createBlockchain(GenesisLoader.loadGenesis(
             getClass().getResourceAsStream("/genesis/genesis-light.json")));
 

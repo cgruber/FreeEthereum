@@ -17,10 +17,10 @@ public abstract class Message {
     protected byte[] encoded;
     protected byte code;
 
-    public Message() {
+    protected Message() {
     }
 
-    public Message(byte[] encoded) {
+    protected Message(byte[] encoded) {
         this.encoded = encoded;
         parsed = false;
     }

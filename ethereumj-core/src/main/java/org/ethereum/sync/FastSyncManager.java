@@ -45,7 +45,7 @@ import static org.ethereum.util.CompactEncoder.hasTerminator;
 @Component
 public class FastSyncManager {
     public static final byte[] FASTSYNC_DB_KEY_SYNC_STAGE = HashUtil.sha3("Key in state DB indicating fastsync stage in progress".getBytes());
-    public static final byte[] FASTSYNC_DB_KEY_PIVOT = HashUtil.sha3("Key in state DB with encoded selected pivot block".getBytes());
+    private static final byte[] FASTSYNC_DB_KEY_PIVOT = HashUtil.sha3("Key in state DB with encoded selected pivot block".getBytes());
     private final static Logger logger = LoggerFactory.getLogger("sync");
     private final static long REQUEST_TIMEOUT = 5 * 1000;
     private final static int REQUEST_MAX_NODES = 384;
@@ -55,26 +55,32 @@ public class FastSyncManager {
     private final static int PIVOT_DISTANCE_FROM_HEAD = 1024;
     private final static int MSX_DB_QUEUE_SIZE = 20000;
     private static final Capability ETH63_CAPABILITY = new Capability(Capability.ETH, (byte) 63);
+    private final Deque<TrieNodeRequest> nodesQueue = new LinkedBlockingDeque<>();
+    private final ByteArrayMap<TrieNodeRequest> pendingNodes = new ByteArrayMap<>();
+    private final BlockingQueue<TrieNodeRequest> dbWriteQueue = new LinkedBlockingQueue<>();
     @Autowired
     @Qualifier("blockchainDB")
+    private
     DbSource<byte[]> blockchainDB;
     @Autowired
+    private
     DbFlushManager dbFlushManager;
     @Autowired
+    private
     FastSyncDownloader downloader;
     @Autowired
+    private
     CompositeEthereumListener listener;
     @Autowired
+    private
     ApplicationContext applicationContext;
-    int nodesInserted = 0;
-    int stateNodesCnt = 0;
-    int codeNodesCnt = 0;
-    int storageNodesCnt = 0;
-    Deque<TrieNodeRequest> nodesQueue = new LinkedBlockingDeque<>();
-    ByteArrayMap<TrieNodeRequest> pendingNodes = new ByteArrayMap<>();
-    Long requestId = 0L;
-    long last = 0;
-    long lastNodeCount = 0;
+    private int nodesInserted = 0;
+    private int stateNodesCnt = 0;
+    private int codeNodesCnt = 0;
+    private int storageNodesCnt = 0;
+    private Long requestId = 0L;
+    private long last = 0;
+    private long lastNodeCount = 0;
     @Autowired
     private SystemProperties config;
     @Autowired
@@ -88,7 +94,6 @@ public class FastSyncManager {
     @Autowired
     private StateSource stateSource;
     private boolean fastSyncInProgress = false;
-    private BlockingQueue<TrieNodeRequest> dbWriteQueue = new LinkedBlockingQueue<>();
     private Thread dbWriterThread;
     private Thread fastSyncThread;
     private int dbQueueSizeMonitor = -1;
@@ -202,7 +207,7 @@ public class FastSyncManager {
         if (request.requestSent.isEmpty()) pendingNodes.remove(hash);
     }
 
-    synchronized void processTimeouts() {
+    private synchronized void processTimeouts() {
         long cur = System.currentTimeMillis();
         for (TrieNodeRequest request : new ArrayList<>(pendingNodes.values())) {
             Iterator<Map.Entry<Long, Long>> reqIterator = request.requestSent.entrySet().iterator();
@@ -217,7 +222,7 @@ public class FastSyncManager {
         }
     }
 
-    synchronized void processResponse(TrieNodeRequest req) {
+    private synchronized void processResponse(TrieNodeRequest req) {
         dbWriteQueue.add(req);
         for (TrieNodeRequest childRequest : req.createChildRequests()) {
             if (nodesQueue.size() > NODE_QUEUE_BEST_SIZE) {
@@ -230,7 +235,7 @@ public class FastSyncManager {
         }
     }
 
-    boolean requestNextNodes(int cnt) {
+    private boolean requestNextNodes(int cnt) {
         final Channel idle = pool.getAnyIdle();
 
         if (idle != null) {
@@ -321,7 +326,7 @@ public class FastSyncManager {
         }
     }
 
-    void retrieveLoop() {
+    private void retrieveLoop() {
         try {
             while (!nodesQueue.isEmpty() || !pendingNodes.isEmpty()) {
                 try {
@@ -474,7 +479,7 @@ public class FastSyncManager {
         dbFlushManager.flush();
     }
 
-    public void main() {
+    private void main() {
 
         if (blockchain.getBestBlock().getNumber() == 0 || getSyncStage() == SECURE || getSyncStage() == COMPLETE) {
             // either no DB at all (clear sync or DB was deleted due to UNSECURE stage while initializing
@@ -732,8 +737,8 @@ public class FastSyncManager {
 
     private class TrieNodeRequest {
         final Map<Long, Long> requestSent = new HashMap<>();
-        TrieNodeType type;
-        byte[] nodeHash;
+        final TrieNodeType type;
+        final byte[] nodeHash;
         byte[] response;
 
         TrieNodeRequest(TrieNodeType type, byte[] nodeHash) {

@@ -17,7 +17,7 @@ import static org.spongycastle.util.encoders.Hex.decode;
  */
 public class AsyncWriteCacheTest {
 
-    volatile boolean flushing;
+    private volatile boolean flushing;
 
     @Test
     public void simpleTest1() {

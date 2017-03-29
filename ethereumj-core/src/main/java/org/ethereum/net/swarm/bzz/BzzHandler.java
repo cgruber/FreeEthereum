@@ -21,18 +21,17 @@ public class BzzHandler extends SimpleChannelInboundHandler<BzzMessage>
         implements Functional.Consumer<BzzMessage> {
 
     public final static byte VERSION = 0;
-    private MessageQueue msgQueue = null;
-
-    private boolean active = false;
-
     private final static Logger logger = LoggerFactory.getLogger("net");
-
-    BzzProtocol bzzProtocol;
+    private MessageQueue msgQueue = null;
+    private boolean active = false;
+    private BzzProtocol bzzProtocol;
 
     @Autowired
+    private
     EthereumListener ethereumListener;
 
     @Autowired
+    private
     NetStore netStore;
 
     public BzzHandler() {
@@ -88,7 +87,7 @@ public class BzzHandler extends SimpleChannelInboundHandler<BzzMessage>
         bzzProtocol.start();
     }
 
-    public boolean isActive() {
+    private boolean isActive() {
         return active;
     }
 

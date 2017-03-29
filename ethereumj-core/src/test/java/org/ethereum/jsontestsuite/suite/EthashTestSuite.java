@@ -4,7 +4,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.JavaType;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Mikhail Kalinin
@@ -12,7 +15,7 @@ import java.util.*;
  */
 public class EthashTestSuite {
 
-    List<EthashTestCase> testCases = new ArrayList<>();
+    private final List<EthashTestCase> testCases = new ArrayList<>();
 
     public EthashTestSuite(String json) throws IOException {
         ObjectMapper mapper = new ObjectMapper();

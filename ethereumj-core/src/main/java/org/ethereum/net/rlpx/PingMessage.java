@@ -6,24 +6,22 @@ import org.ethereum.util.RLP;
 import org.ethereum.util.RLPItem;
 import org.ethereum.util.RLPList;
 
-import static org.ethereum.util.ByteUtil.bytesToIp;
-import static org.ethereum.util.ByteUtil.longToBytes;
-import static org.ethereum.util.ByteUtil.stripLeadingZeroes;
+import static org.ethereum.util.ByteUtil.*;
 
 public class PingMessage extends Message {
 
-    String toHost;
-    int toPort;
-    String fromHost;
-    int fromPort;
-    long expires;
     int version;
+    private String toHost;
+    private int toPort;
+    private String fromHost;
+    private int fromPort;
+    private long expires;
 
     public static PingMessage create(Node fromNode, Node toNode, ECKey privKey) {
         return create(fromNode, toNode, privKey, 4);
     }
 
-    public static PingMessage create(Node fromNode, Node toNode, ECKey privKey, int version) {
+    private static PingMessage create(Node fromNode, Node toNode, ECKey privKey, int version) {
 
         long expiration = 90 * 60 + System.currentTimeMillis() / 1000;
 

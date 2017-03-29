@@ -13,14 +13,12 @@ import java.util.*;
  */
 public class SyncQueueReverseImpl implements SyncQueueIfc {
 
-    byte[] curHeaderHash;
+    private final byte[] curHeaderHash;
 //    List<BlockHeaderWrapper> headers = new ArrayList<>();
-    MinMaxMap<BlockHeaderWrapper> headers = new MinMaxMap<>();
-    long minValidated = -1;
-
-    ByteArrayMap<Block> blocks = new ByteArrayMap<>();
-
-    boolean headersOnly;
+private final MinMaxMap<BlockHeaderWrapper> headers = new MinMaxMap<>();
+    private final ByteArrayMap<Block> blocks = new ByteArrayMap<>();
+    private long minValidated = -1;
+    private boolean headersOnly;
 
     public SyncQueueReverseImpl(byte[] startHash) {
         this.curHeaderHash = startHash;

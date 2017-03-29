@@ -10,8 +10,8 @@ package org.ethereum.net.swarm;
  */
 public class LocalStore implements ChunkStore {
 
-    public ChunkStore dbStore;
-    ChunkStore memStore;
+    final ChunkStore memStore;
+    private final ChunkStore dbStore;
 
     public LocalStore(ChunkStore dbStore, ChunkStore memStore) {
         this.dbStore = dbStore;

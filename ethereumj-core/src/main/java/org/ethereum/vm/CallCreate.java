@@ -6,10 +6,10 @@ package org.ethereum.vm;
  */
 public class CallCreate {
 
-    final byte[] data;
-    final byte[] destination;
-    final byte[] gasLimit;
-    final byte[] value;
+    private final byte[] data;
+    private final byte[] destination;
+    private final byte[] gasLimit;
+    private final byte[] value;
 
 
     public CallCreate(byte[] data, byte[] destination, byte[] gasLimit, byte[] value) {

@@ -19,9 +19,9 @@ import java.util.regex.Pattern;
 
 public class Utils {
     private static final DataWord DIVISOR = new DataWord(64);
+    private static final BigInteger _1000_ = new BigInteger("1000");
+    private static final SecureRandom random = new SecureRandom();
     public static double JAVA_VERSION = getJavaVersion();
-    static BigInteger _1000_ = new BigInteger("1000");
-    private static SecureRandom random = new SecureRandom();
 
     /**
      * @param number should be in form '0x34fabd34....'
@@ -102,7 +102,7 @@ public class Utils {
         return null;
     }
 
-    public static boolean isValidAddress(byte[] addr) {
+    private static boolean isValidAddress(byte[] addr) {
         return addr != null && addr.length == 20;
     }
 
@@ -126,7 +126,7 @@ public class Utils {
         return random;
     }
 
-    static double getJavaVersion() {
+    private static double getJavaVersion() {
         String version = System.getProperty("java.version");
 
         // on android this property equals to 0

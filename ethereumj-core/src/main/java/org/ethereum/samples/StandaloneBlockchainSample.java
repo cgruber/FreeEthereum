@@ -12,7 +12,7 @@ import java.math.BigInteger;
  *
  * Created by Anton Nashatyrev on 04.04.2016.
  */
-public class StandaloneBlockchainSample {
+class StandaloneBlockchainSample {
     // Pretty simple (and probably the most expensive) Calculator
     private static final String contractSrc =
             "contract Calculator {" +

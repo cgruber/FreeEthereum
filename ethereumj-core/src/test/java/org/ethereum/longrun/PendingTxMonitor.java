@@ -32,35 +32,8 @@ import java.util.HashSet;
 @Ignore
 public class PendingTxMonitor extends BasicNode {
     private static final Logger testLogger = LoggerFactory.getLogger("TestLogger");
-
-    /**
-     * Spring configuration class for the Regular peer
-     */
-    private static class RegularConfig {
-
-        @Bean
-        public PendingTxMonitor node() {
-            return new PendingTxMonitor();
-        }
-
-        /**
-         * Instead of supplying properties via config file for the peer
-         * we are substituting the corresponding bean which returns required
-         * config for this instance.
-         */
-        @Bean
-        public SystemProperties systemProperties() {
-            SystemProperties props = new SystemProperties();
-            props.overrideParams(ConfigFactory.parseString(
-                    "peer.discovery.enabled = true\n" +
-                    "sync.enabled = true\n" +
-                    "sync.fast.enabled = true\n" +
-                    "database.dir = database-test-ptx\n" +
-                    "database.reset = false\n"
-            ));
-            return props;
-        }
-    }
+    private final ByteArrayMap<Triple<Long, TransactionReceipt, EthereumListener.PendingTransactionState>> localTxs = new ByteArrayMap<>();
+    private ByteArrayMap<Pair<Long, TransactionResultDTO>> remoteTxs;
 
     public PendingTxMonitor() {
         super("sampleNode");
@@ -122,9 +95,6 @@ public class PendingTxMonitor extends BasicNode {
         }
     }
 
-    ByteArrayMap<Triple<Long, TransactionReceipt, EthereumListener.PendingTransactionState>> localTxs = new ByteArrayMap<>();
-    ByteArrayMap<Pair<Long, TransactionResultDTO>> remoteTxs;
-
     private void checkUnmatched() {
         for (byte[] txHash : new HashSet<>(localTxs.keySet())) {
             Triple<Long, TransactionReceipt, EthereumListener.PendingTransactionState> tx = localTxs.get(txHash);
@@ -166,7 +136,7 @@ public class PendingTxMonitor extends BasicNode {
         checkUnmatched();
     }
 
-    public void newRemotePendingTx(TransactionResultDTO tx) {
+    private void newRemotePendingTx(TransactionResultDTO tx) {
         byte[] txHash = Hex.decode(tx.hash.substring(2));
         if (remoteTxs == null) return;
         System.out.println("Remote: " + Hex.toHexString(txHash));
@@ -185,5 +155,34 @@ public class PendingTxMonitor extends BasicNode {
         EthereumFactory.createEthereum(RegularConfig.class);
 
         Thread.sleep(100000000000L);
+    }
+
+    /**
+     * Spring configuration class for the Regular peer
+     */
+    private static class RegularConfig {
+
+        @Bean
+        public PendingTxMonitor node() {
+            return new PendingTxMonitor();
+        }
+
+        /**
+         * Instead of supplying properties via config file for the peer
+         * we are substituting the corresponding bean which returns required
+         * config for this instance.
+         */
+        @Bean
+        public SystemProperties systemProperties() {
+            SystemProperties props = new SystemProperties();
+            props.overrideParams(ConfigFactory.parseString(
+                    "peer.discovery.enabled = true\n" +
+                            "sync.enabled = true\n" +
+                            "sync.fast.enabled = true\n" +
+                            "database.dir = database-test-ptx\n" +
+                            "database.reset = false\n"
+            ));
+            return props;
+        }
     }
 }

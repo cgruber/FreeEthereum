@@ -50,21 +50,24 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
 
     public final static byte VERSION = 4;
 
-    public final static byte[] SUPPORTED_VERSIONS = {4, 5};
+    private final static byte[] SUPPORTED_VERSIONS = {4, 5};
 
     private final static Logger logger = LoggerFactory.getLogger("net");
 
-    private static ScheduledExecutorService pingTimer =
+    private static final ScheduledExecutorService pingTimer =
             Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
                 public Thread newThread(Runnable r) {
                     return new Thread(r, "P2pPingTimer");
                 }
             });
     @Autowired
+    private
     EthereumListener ethereumListener;
     @Autowired
+    private
     ConfigCapabilities configCapabilities;
     @Autowired
+    private
     SystemProperties config;
     private MessageQueue msgQueue;
     private boolean peerDiscoveryMode = false;
@@ -268,7 +271,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
         }, 2, config.getProperty("peer.p2p.pingInterval", 5L), TimeUnit.SECONDS);
     }
 
-    public void killTimers() {
+    private void killTimers() {
         pingTask.cancel(false);
         msgQueue.close();
     }
@@ -281,7 +284,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
         this.channel = channel;
     }
 
-    public List<Capability> getSupportedCapabilities(HelloMessage hello) {
+    private List<Capability> getSupportedCapabilities(HelloMessage hello) {
         List<Capability> configCaps = configCapabilities.getConfigCapabilities();
         List<Capability> supported = new ArrayList<>();
 

@@ -10,12 +10,12 @@ import org.ethereum.net.message.Message;
  *
  * @author Roman Mandeleil
  */
-public class MessageRoundtrip {
+class MessageRoundtrip {
 
     private final Message msg;
     long lastTimestamp = 0;
-    long retryTimes = 0;
-    boolean answered = false;
+    private long retryTimes = 0;
+    private boolean answered = false;
 
     public MessageRoundtrip(Message msg) {
         this.msg = msg;

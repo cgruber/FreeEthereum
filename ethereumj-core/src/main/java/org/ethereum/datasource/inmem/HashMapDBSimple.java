@@ -11,13 +11,13 @@ import java.util.Set;
  */
 public class HashMapDBSimple<V> implements DbSource<V> {
 
-    protected final Map<byte[], V> storage;
+    private final Map<byte[], V> storage;
 
     public HashMapDBSimple() {
         this(new ByteArrayMap<>());
     }
 
-    public HashMapDBSimple(ByteArrayMap<V> storage) {
+    private HashMapDBSimple(ByteArrayMap<V> storage) {
         this.storage = storage;
     }
 
@@ -77,7 +77,7 @@ public class HashMapDBSimple<V> implements DbSource<V> {
         }
     }
 
-    public Map<byte[], V> getStorage() {
+    private Map<byte[], V> getStorage() {
         return storage;
     }
 }
