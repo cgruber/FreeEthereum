@@ -122,15 +122,15 @@ dependencies {
 
     compile "org.ethereum:solcJ-all:0.4.8"                   // Solidity Compiler win/mac/linux binaries
 
-    compile "com.cedarsoftware:java-util:1.8.0" // for deep equals
-    compile "org.javassist:javassist:3.15.0-GA"
+    compile "com.cedarsoftware:java-util:1.26.0" // for deep equals
+    compile "org.javassist:javassist:3.22.0-CR1"
     compile "org.slf4j:slf4j-api:${slf4jVersion}"
-    compile "ch.qos.logback:logback-classic:1.1.7"
+    compile "ch.qos.logback:logback-classic:1.2.2"
     compile "org.codehaus.jackson:jackson-mapper-asl:1.9.13"
-    compile "com.google.code.findbugs:jsr305:3.0.0"
+    compile "com.google.code.findbugs:jsr305:3.0.1"
     compile "com.fasterxml.jackson.core:jackson-databind:2.9.0.pr2"
-    compile "org.apache.commons:commons-collections4:4.0"
-    compile "org.apache.commons:commons-lang3:3.4"
+    compile "org.apache.commons:commons-collections4:4.1"
+    compile "org.apache.commons:commons-lang3:3.5"
     compile "commons-codec:commons-codec:1.10"
     compile "org.springframework:spring-context:${springVersion}"
     compile "org.springframework:spring-tx:${springVersion}"
@@ -147,30 +147,23 @@ dependencies {
 
     testCompile "junit:junit:${junitVersion}"
     testCompile "org.springframework:spring-test:${springVersion}"
-    testCompile "org.mockito:mockito-core:2.+"
-    testCompile "com.github.briandilley.jsonrpc4j:jsonrpc4j:1.1"
+    testCompile "org.mockito:mockito-core:2.7.20"
+    testCompile "com.github.briandilley.jsonrpc4j:jsonrpc4j:1.5.0"
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
+//task sourcesJar(type: Jar, dependsOn: classes) {
+//    classifier = 'sources'
+//    from sourceSets.main.allSource
+//}
 
-task javadocJar(type: Jar) {
-    classifier = "javadoc"
-    from javadoc
-}
+//task javadocJar(type: Jar) {
+//    classifier = "javadoc"
+//    from javadoc
+//}
 
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
-
-//jacocoTestReport {
-//    reports {
-//        xml.enabled = true
-//        html.enabled = true
-//    }
+//artifacts {
+//    archives sourcesJar
+//    archives javadocJar
 //}
 
 def bintrayUsername = project.hasProperty('bintrayUser') ? project.bintrayUser : ''
@@ -178,122 +171,36 @@ def bintrayPassword = project.hasProperty('bintrayKey') ? project.bintrayKey : '
 def pullRequest = System.getenv('TRAVIS_PULL_REQUEST')
 def branchName = System.getenv('TRAVIS_BRANCH')
 
-artifactory {
-    contextUrl = 'http://oss.jfrog.org/artifactory'
-    publish {
-        repository {
-            repoKey = 'oss-snapshot-local'
-            username = bintrayUsername
-            password = bintrayPassword
-        }
-    }
-    resolve {
-        repository {
-            repoKey = 'libs-release'
-        }
-    }
-
-}
-
-//artifactoryPublish.onlyIf {
-//    (branchName != null) &&
-//            (!pullRequest || pullRequest == 'false') &&
-//            project.version.endsWith('-SNAPSHOT') &&
-//            (branchName.startsWith('master') ||
-//                    branchName.startsWith('develop') ||
-//                    branchName.startsWith('stage'))
-//}
-
-//bintray {
-//    user = bintrayUsername
-//    key = bintrayPassword
-//
-//    configurations = ['archives']
-//
-//    dryRun = false //Whether to run this as dry-run, without deploying
-//    publish = true //If version should be auto published after an upload
-//    pkg {
-//        userOrg = 'ethereum' //An optional organization name when the repo belongs to one of the user's orgs
-//        repo = 'maven'
-//        name = 'org.ethereum'
-//    }
-//}
-
-//bintrayUpload.onlyIf {
-//    // comment 'false' and uncomment the next line to publish next release
-//    (!pullRequest || pullRequest == 'false') && !project.version.endsWith('-SNAPSHOT')
-////     false
-//}
-
-//install {
-//    repositories.mavenInstaller {
-//        customizePom(pom, project)
-//    }
-//}
-
-tasks.processResources.doLast(){
-    println 'This will be printed after the build task even if something else calls the build task'
-
-    File versionfile = file(new File('build/resources/main/build-info.properties'))
-    versionfile.text = 'build.hash=' + gitCommitHash() + '\n' + 'build.time=' + buildTime() + '\n' + 'build.branch=' + gitCurBranch() + '\n'
-}
-
-task publish {
-
-    println "publishing if master || develop current branch: " + branchName
-    description = "Publishes snapshots to oss.jfrog.org and releases to Bintray/JCenter"
-    dependsOn artifactoryPublish, bintrayUpload
-}
-
-
-//def customizePom(pom, gradleProject) {
-//    pom.whenConfigured { generatedPom ->
-//        // eliminate test-scoped dependencies (no need in maven central poms)
-//        generatedPom.dependencies.removeAll { dep ->
-//            dep.scope == "test"
-//        }
-//
-//        // sort to make pom dependencies order consistent to ease comparison of older poms
-//        generatedPom.dependencies = generatedPom.dependencies.sort { dep ->
-//            "$dep.scope:$dep.groupId:$dep.artifactId"
-//        }
-//
-//        // add all items necessary for maven central publication
-//        generatedPom.project {
-//            name = "ethereumj"
-//            description = "Java implementation of the Ethereum protocol"
-//            url = "https://github.com/ethereum/ethereumj"
-//            organization {
-//                name = "Ethereum"
-//                url = "https://ethereum.org"
-//            }
-//            licenses {
-//                license {
-//                    name "The MIT License"
-//                    url "http://mit-license.org/"
-//                    distribution "repo"
-//                }
-//            }
-//            scm {
-//                url = "https://github.com/ethereum/ethereumj"
-//                connection = "scm:git:git://github.com/ethereum/ethereumj"
-//                developerConnection = "scm:git:git://github.com/ethereum/ethereumj"
-//            }
-//            developers {
-//                developer {
-//                    id = "rmandeleil"
-//                    name = "Roman Mandeleil"
-//                    email = "roman.mandeleil@gmail.com"
-//                }
-//            }
-//            issueManagement {
-//                system = "GitHub Issues"
-//                url = "https://github.com/ethereum/ethereumj/issues"
-//            }
+//artifactory {
+//    contextUrl = 'http://oss.jfrog.org/artifactory'
+//    publish {
+//        repository {
+//            repoKey = 'oss-snapshot-local'
+//            username = bintrayUsername
+//            password = bintrayPassword
 //        }
 //    }
+//    resolve {
+//        repository {
+//            repoKey = 'libs-release'
+//        }
+//    }
+//
 //}
 
+//tasks.processResources.doLast(){
+//    println 'This will be printed after the build task even if something else calls the build task'
+//
+//    File versionfile = file(new File('build/resources/main/build-info.properties'))
+//    versionfile.text = 'build.hash=' + gitCommitHash() + '\n' + 'build.time=' + buildTime() + '\n' + 'build.branch=' + gitCurBranch() + '\n'
+//}
+//
+//task publish {
+//
+//    println "publishing if master || develop current branch: " + branchName
+//    description = "Publishes snapshots to oss.jfrog.org and releases to Bintray/JCenter"
+//    dependsOn artifactoryPublish, bintrayUpload
+//}
 
  def gitCommitHash() {
     def process = "git rev-parse --short HEAD".execute()
