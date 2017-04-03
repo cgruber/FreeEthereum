@@ -1,10 +1,33 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.config;
 
 import java.math.BigInteger;
 
-/**
- * Created by Anton Nashatyrev on 15.11.2016.
- */
 public class ConstantsAdapter extends Constants {
     private final Constants delegate;
 
@@ -12,9 +35,13 @@ public class ConstantsAdapter extends Constants {
         this.delegate = delegate;
     }
 
+    public static BigInteger getSecP256K1N() {
+        return Constants.Companion.getSecP256K1N();
+    }
+
     @Override
-    public int getDURATION_LIMIT() {
-        return delegate.getDURATION_LIMIT();
+    public int getDurationLimit() {
+        return delegate.getDurationLimit();
     }
 
     @Override
@@ -23,58 +50,58 @@ public class ConstantsAdapter extends Constants {
     }
 
     @Override
-    public int getMAXIMUM_EXTRA_DATA_SIZE() {
-        return delegate.getMAXIMUM_EXTRA_DATA_SIZE();
+    public int getMaximumExtraDataSize() {
+        return delegate.getMaximumExtraDataSize();
     }
 
     @Override
-    public int getMIN_GAS_LIMIT() {
-        return delegate.getMIN_GAS_LIMIT();
+    public int getMinGasLimit() {
+        return delegate.getMinGasLimit();
     }
 
     @Override
-    public int getGAS_LIMIT_BOUND_DIVISOR() {
-        return delegate.getGAS_LIMIT_BOUND_DIVISOR();
+    public int getGasLimitBoundDivisor() {
+        return delegate.getGasLimitBoundDivisor();
     }
 
     @Override
-    public BigInteger getMINIMUM_DIFFICULTY() {
-        return delegate.getMINIMUM_DIFFICULTY();
+    public BigInteger getMinimumDifficulty() {
+        return delegate.getMinimumDifficulty();
     }
 
     @Override
-    public BigInteger getDIFFICULTY_BOUND_DIVISOR() {
-        return delegate.getDIFFICULTY_BOUND_DIVISOR();
+    public BigInteger getDifficultyBoundDivisor() {
+        return delegate.getDifficultyBoundDivisor();
     }
 
     @Override
-    public int getEXP_DIFFICULTY_PERIOD() {
-        return delegate.getEXP_DIFFICULTY_PERIOD();
+    public int getExpDifficultyPeriod() {
+        return delegate.getExpDifficultyPeriod();
     }
 
     @Override
-    public int getUNCLE_GENERATION_LIMIT() {
-        return delegate.getUNCLE_GENERATION_LIMIT();
+    public int getUncleGenerationLimit() {
+        return delegate.getUncleGenerationLimit();
     }
 
     @Override
-    public int getUNCLE_LIST_LIMIT() {
-        return delegate.getUNCLE_LIST_LIMIT();
+    public int getUncleListLimit() {
+        return delegate.getUncleListLimit();
     }
 
     @Override
-    public int getBEST_NUMBER_DIFF_LIMIT() {
-        return delegate.getBEST_NUMBER_DIFF_LIMIT();
+    public int getBestNumberDiffLimit() {
+        return delegate.getBestNumberDiffLimit();
     }
 
     @Override
-    public BigInteger getBLOCK_REWARD() {
-        return delegate.getBLOCK_REWARD();
+    public BigInteger getBlockReward() {
+        return delegate.getBlockReward();
     }
 
     @Override
-    public int getMAX_CONTRACT_SZIE() {
-        return delegate.getMAX_CONTRACT_SZIE();
+    public int getMaxContractSize() {
+        return delegate.getMaxContractSize();
     }
 
     @Override
@@ -85,9 +112,5 @@ public class ConstantsAdapter extends Constants {
     @Override
     public boolean hasDelegateCallOpcode() {
         return delegate.hasDelegateCallOpcode();
-    }
-
-    public static BigInteger getSECP256K1N() {
-        return Constants.getSECP256K1N();
     }
 }

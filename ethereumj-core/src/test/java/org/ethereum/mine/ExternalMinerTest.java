@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.mine;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -6,7 +32,6 @@ import org.ethereum.config.SystemProperties;
 import org.ethereum.config.blockchain.FrontierConfig;
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
-import org.ethereum.core.ImportResult;
 import org.ethereum.facade.EthereumImpl;
 import org.ethereum.listener.CompositeEthereumListener;
 import org.ethereum.util.ByteUtil;
@@ -16,8 +41,6 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import javax.annotation.Resource;
 import java.math.BigInteger;
@@ -50,7 +73,7 @@ public class ExternalMinerTest {
     public void setup() {
         SystemProperties.getDefault().setBlockchainConfig(new FrontierConfig(new FrontierConfig.FrontierConstants() {
             @Override
-            public BigInteger getMINIMUM_DIFFICULTY() {
+            public BigInteger getMinimumDifficulty() {
                 return BigInteger.ONE;
             }
         }));
@@ -58,12 +81,9 @@ public class ExternalMinerTest {
         // Initialize mocks created above
         MockitoAnnotations.initMocks(this);
 
-        when(ethereum.addNewMinedBlock(any(Block.class))).thenAnswer(new Answer<ImportResult>() {
-            @Override
-            public ImportResult answer(InvocationOnMock invocation) throws Throwable {
-                Block block = (Block) invocation.getArguments()[0];
-                return bc.getBlockchain().tryToConnect(block);
-            }
+        when(ethereum.addNewMinedBlock(any(Block.class))).thenAnswer(invocation -> {
+            Block block = (Block) invocation.getArguments()[0];
+            return bc.getBlockchain().tryToConnect(block);
         });
     }
 

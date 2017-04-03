@@ -24,46 +24,8 @@
  *
  */
 
-package org.ethereum.config.blockchain;
+package org.ethereum.core
 
-import org.ethereum.config.Constants;
-import org.ethereum.core.Transaction;
+import java.math.BigInteger
 
-import java.math.BigInteger;
-
-public class FrontierConfig extends OlympicConfig {
-
-    public FrontierConfig() {
-        this(new FrontierConstants());
-    }
-
-    public FrontierConfig(Constants constants) {
-        super(constants);
-    }
-
-    @Override
-    public boolean acceptTransactionSignature(Transaction tx) {
-        if (!super.acceptTransactionSignature(tx)) return false;
-        return tx.getSignature().validateComponents();
-    }
-
-    public static class FrontierConstants extends Constants {
-        private static final BigInteger BLOCK_REWARD = new BigInteger("5000000000000000000");
-
-        @Override
-        public int getDurationLimit() {
-            return 13;
-        }
-
-        @Override
-        public BigInteger getBlockReward() {
-            return BLOCK_REWARD;
-        }
-
-        @Override
-        public int getMinGasLimit() {
-            return 5000;
-        }
-    }
-
-}
+internal class PremineRaw(val addr: ByteArray, val value: BigInteger, val denomination: Denomination)
