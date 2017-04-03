@@ -30,10 +30,6 @@ import org.ethereum.core.BlockHeader
 
 /**
  * Checks if [BlockHeader.number] == [BlockHeader.number] + 1 of parent's block
-
- * @author Mikhail Kalinin
- * *
- * @since 02.09.2015
  */
 class ParentNumberRule : DependentBlockHeaderRule() {
 

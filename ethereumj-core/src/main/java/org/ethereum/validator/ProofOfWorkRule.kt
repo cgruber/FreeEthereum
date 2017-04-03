@@ -31,10 +31,6 @@ import org.ethereum.util.FastByteComparisons
 
 /**
  * Checks proof value against its boundary for the block header
-
- * @author Mikhail Kalinin
- * *
- * @since 02.09.2015
  */
 class ProofOfWorkRule : BlockHeaderRule() {
 
