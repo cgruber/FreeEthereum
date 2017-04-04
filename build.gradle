@@ -27,7 +27,6 @@
 wrapper.gradleVersion = '3.4.1'
 
 allprojects {
-//    apply plugin: 'eclipse'
     if (JavaVersion.current().isJava8Compatible()) {
         //Disable lint of javadoc until someone fixes all the html
         tasks.withType(Javadoc) {
@@ -58,7 +57,6 @@ subprojects {
     compileJava.options.encoding = 'UTF-8'
     javadoc.options.encoding = 'UTF-8'
     compileJava.options.compilerArgs << '-XDignore.symbol.file'
-
     compileTestJava.options.encoding = 'UTF-8'
 
     repositories {

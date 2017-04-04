@@ -29,37 +29,6 @@ FreeEthereum | EthereumJ
 MIT License | GPL v3 License
 Java 8 (porting to Kotlin) | Java 7 
 
-# Welcome to FreeEthereum
-
-[![Slack Status](http://harmony-slack-ether-camp.herokuapp.com/badge.svg)](http://ether.camp) 
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/ethereum/ethereumj?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/ethereum/ethereumj.svg?branch=master)](https://travis-ci.org/ethereum/ethereumj)
-[![Coverage Status](https://coveralls.io/repos/ethereum/ethereumj/badge.png?branch=master)](https://coveralls.io/r/ethereum/ethereumj?branch=master)
-
-
-# Running FreeEthereum
-
-##### Adding as a dependency to your Maven project: 
-
-```
-   <dependency>
-     <groupId>org.ethereum</groupId>
-     <artifactId>ethereumj-core</artifactId>
-     <version>1.4.1-RELEASE</version>
-   </dependency>
-```
-
-##### or your Gradle project: 
-
-```
-   repositories {
-       mavenCentral()
-   }
-   compile "org.ethereum:ethereumj-core:1.4.+"
-```
-
-As a starting point for your own project take a look at https://github.com/ether-camp/ethereumj.starter
-
 ##### Building an executable JAR
 ```
 git clone https://github.com/ethereum/ethereumj
@@ -71,6 +40,7 @@ java -jar ethereumj-core/build/libs/ethereumj-core-*-all.jar
 ```
 
 ##### Running from command line:
+
 ```
 > git clone https://github.com/ethereum/ethereumj
 > cd ethereumj
@@ -87,18 +57,6 @@ java -jar ethereumj-core/build/libs/ethereumj-core-*-all.jar
 ./gradlew run -PmainClass=org.ethereum.samples.TestNetSample
 ./gradlew run -PmainClass=org.ethereum.samples.TransactionBomb
 ```
-
-##### Importing project to IntelliJ IDEA: 
-```
-> git clone https://github.com/ethereum/ethereumj
-> cd ethereumj
-> ./gradlew build
-```
-  IDEA: 
-* File -> New -> Project from existing sources…
-* Select ethereumj/build.gradle
-* Dialog “Import Project from gradle”: press “OK”
-* After building run either `org.ethereum.Start`, one of `org.ethereum.samples.*` or create your own main. 
 
 # Configuring FreeEthereum
 
