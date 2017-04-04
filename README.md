@@ -27,7 +27,7 @@ The original EthereumJ Ethereum implemetation is now licensed under a commercial
 FreeEthereum | EthereumJ
 --- | --- 
 MIT License | GPL v3 License
-Java 8 | Java 7 
+Java 8 (porting to Kotlin) | Java 7 
 
 # Welcome to FreeEthereum
 
