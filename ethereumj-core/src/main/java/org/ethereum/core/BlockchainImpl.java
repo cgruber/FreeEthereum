@@ -284,9 +284,9 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
         } else {
             // pick up the receipt from the block on the main chain
             for (TransactionInfo info : infos) {
-                Block block = blockStore.getBlockByHash(info.blockHash);
+                Block block = blockStore.getBlockByHash(info.getBlockHash());
                 Block mainBlock = blockStore.getChainBlockByNumber(block.getNumber());
-                if (FastByteComparisons.equal(info.blockHash, mainBlock.getHash())) {
+                if (FastByteComparisons.equal(info.getBlockHash(), mainBlock.getHash())) {
                     txInfo = info;
                     break;
                 }
