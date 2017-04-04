@@ -1,11 +1,35 @@
-package org.ethereum.net.shh;
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
+package org.ethereum.net.shh
 
 /**
  * @author by Konstantin Shabalin
  */
-class ShhTest {
-
-/*
+internal class ShhTest/*
     private byte[] payload = "Hello whisper!".getBytes();
     private ECKey privKey = ECKey.fromPrivate(BigInteger.TEN);
     private byte[] pubKey = privKey.getPubKey();
@@ -16,8 +40,7 @@ class ShhTest {
             new Topic("topic 3")};
 
 
-    @Test */
-/* Tests whether a message can be wrapped without any identity or encryption. *//*
+    @Test *//* Tests whether a message can be wrapped without any identity or encryption. *//*
 
     public void test1() {
         WhisperMessage sent = new WhisperMessage(payload);
@@ -38,8 +61,7 @@ class ShhTest {
         assertTrue(recovered == null);
     }
 
-    @Test */
-/* Tests whether a message can be signed, and wrapped in plain-text. *//*
+    @Test *//* Tests whether a message can be signed, and wrapped in plain-text. *//*
 
     public void test2() {
         WhisperMessage sent = new WhisperMessage(payload);
@@ -56,8 +78,7 @@ class ShhTest {
         assertEquals(Hex.toHexString(pubKey), Hex.toHexString(recovered.getPubKey()));
     }
 
-    @Test */
-/* Tests whether a message can be encrypted and decrypted using an anonymous sender (i.e. no signature).*//*
+    @Test *//* Tests whether a message can be encrypted and decrypted using an anonymous sender (i.e. no signature).*//*
 
     public void test3() {
         WhisperMessage sent = new WhisperMessage(payload);
@@ -76,8 +97,7 @@ class ShhTest {
         assertTrue(recovered == null);
     }
 
-    @Test */
-/* Tests whether a message can be properly signed and encrypted. *//*
+    @Test *//* Tests whether a message can be properly signed and encrypted. *//*
 
     public void test4() {
         WhisperMessage sent = new WhisperMessage(payload);
@@ -127,4 +147,3 @@ class ShhTest {
         return e.getEncoded();
     }
 */
-}
