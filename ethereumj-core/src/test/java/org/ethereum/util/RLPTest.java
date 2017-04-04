@@ -1,35 +1,55 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.util;
 
-import org.ethereum.crypto.HashUtil;
-
 import com.cedarsoftware.util.DeepEquals;
-
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.net.client.Capability;
 import org.ethereum.net.p2p.HelloMessage;
 import org.ethereum.net.swarm.Util;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-
 import java.math.BigInteger;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
 import java.util.*;
 
 import static org.ethereum.util.ByteUtil.byteArrayToInt;
 import static org.ethereum.util.ByteUtil.wrap;
 import static org.ethereum.util.RLP.*;
+import static org.ethereum.util.RlpTestData.INSTANCE;
 import static org.junit.Assert.*;
-import static org.ethereum.util.RlpTestData.*;
 
 public class RLPTest {
 
@@ -811,22 +831,22 @@ public class RLPTest {
     @Test
     public void testRlpEncode() {
 
-        assertEquals(result01, Hex.toHexString(encode(test01)));
-        assertEquals(result02, Hex.toHexString(encode(test02)));
-        assertEquals(result03, Hex.toHexString(encode(test03)));
-        assertEquals(result04, Hex.toHexString(encode(test04)));
-        assertEquals(result05, Hex.toHexString(encode(test05)));
-        assertEquals(result06, Hex.toHexString(encode(test06)));
-        assertEquals(result07, Hex.toHexString(encode(test07)));
-        assertEquals(result08, Hex.toHexString(encode(test08)));
-        assertEquals(result09, Hex.toHexString(encode(test09)));
-        assertEquals(result10, Hex.toHexString(encode(test10)));
-        assertEquals(result11, Hex.toHexString(encode(test11)));
-        assertEquals(result12, Hex.toHexString(encode(test12)));
-        assertEquals(result13, Hex.toHexString(encode(test13)));
-        assertEquals(result14, Hex.toHexString(encode(test14)));
-        assertEquals(result15, Hex.toHexString(encode(test15)));
-        assertEquals(result16, Hex.toHexString(encode(test16)));
+        assertEquals(INSTANCE.getResult01(), Hex.toHexString(encode(INSTANCE.getTest01())));
+        assertEquals(INSTANCE.getResult02(), Hex.toHexString(encode(INSTANCE.getTest02())));
+        assertEquals(INSTANCE.getResult03(), Hex.toHexString(encode(INSTANCE.getTest03())));
+        assertEquals(INSTANCE.getResult04(), Hex.toHexString(encode(INSTANCE.getTest04())));
+        assertEquals(INSTANCE.getResult05(), Hex.toHexString(encode(INSTANCE.getTest05())));
+        assertEquals(INSTANCE.getResult06(), Hex.toHexString(encode(INSTANCE.getTest06())));
+        assertEquals(INSTANCE.getResult07(), Hex.toHexString(encode(INSTANCE.getTest07())));
+        assertEquals(INSTANCE.getResult08(), Hex.toHexString(encode(INSTANCE.getTest08())));
+        assertEquals(INSTANCE.getResult09(), Hex.toHexString(encode(INSTANCE.getTest09())));
+        assertEquals(INSTANCE.getResult10(), Hex.toHexString(encode(INSTANCE.getTest10())));
+        assertEquals(INSTANCE.getResult11(), Hex.toHexString(encode(INSTANCE.getTest11())));
+        assertEquals(INSTANCE.getResult12(), Hex.toHexString(encode(INSTANCE.getTest12())));
+        assertEquals(INSTANCE.getResult13(), Hex.toHexString(encode(INSTANCE.getTest13())));
+        assertEquals(INSTANCE.getResult14(), Hex.toHexString(encode(INSTANCE.getTest14())));
+        assertEquals(INSTANCE.getResult15(), Hex.toHexString(encode(INSTANCE.getTest15())));
+        assertEquals(INSTANCE.getResult16(), Hex.toHexString(encode(INSTANCE.getTest16())));
     }
 
     @Test
@@ -836,62 +856,62 @@ public class RLPTest {
         byte[] decodedData;
         Object[] decodedList;
 
-        emptyString = (String) decode(Hex.decode(result01), pos).getDecoded();
+        emptyString = (String) decode(Hex.decode(INSTANCE.getResult01()), pos).getDecoded();
         assertEquals("", emptyString);
 
-        emptyString = (String) decode(Hex.decode(result02), pos).getDecoded();
-        assertEquals(test02, emptyString);
+        emptyString = (String) decode(Hex.decode(INSTANCE.getResult02()), pos).getDecoded();
+        assertEquals(INSTANCE.getTest02(), emptyString);
 
-        decodedData = (byte[]) decode(Hex.decode(result03), pos).getDecoded();
-        assertEquals(test03, bytesToAscii(decodedData));
+        decodedData = (byte[]) decode(Hex.decode(INSTANCE.getResult03()), pos).getDecoded();
+        assertEquals(INSTANCE.getTest03(), bytesToAscii(decodedData));
 
-        decodedData = (byte[]) decode(Hex.decode(result04), pos).getDecoded();
-        assertEquals(test04, bytesToAscii(decodedData));
+        decodedData = (byte[]) decode(Hex.decode(INSTANCE.getResult04()), pos).getDecoded();
+        assertEquals(INSTANCE.getTest04(), bytesToAscii(decodedData));
 
-        decodedData = (byte[]) decode(Hex.decode(result05), pos).getDecoded();
-        assertEquals(test05, bytesToAscii(decodedData));
+        decodedData = (byte[]) decode(Hex.decode(INSTANCE.getResult05()), pos).getDecoded();
+        assertEquals(INSTANCE.getTest05(), bytesToAscii(decodedData));
 
-        decodedList = (Object[]) decode(Hex.decode(result06), pos).getDecoded();
-        assertEquals(test06[0], bytesToAscii((byte[]) decodedList[0]));
-        assertEquals(test06[1], bytesToAscii((byte[]) decodedList[1]));
+        decodedList = (Object[]) decode(Hex.decode(INSTANCE.getResult06()), pos).getDecoded();
+        assertEquals(INSTANCE.getTest06()[0], bytesToAscii((byte[]) decodedList[0]));
+        assertEquals(INSTANCE.getTest06()[1], bytesToAscii((byte[]) decodedList[1]));
 
-        decodedList = (Object[]) decode(Hex.decode(result07), pos).getDecoded();
-        assertEquals(test07[0], bytesToAscii((byte[]) decodedList[0]));
-        assertEquals(test07[1], bytesToAscii((byte[]) decodedList[1]));
-        assertEquals(test07[2], bytesToAscii((byte[]) decodedList[2]));
+        decodedList = (Object[]) decode(Hex.decode(INSTANCE.getResult07()), pos).getDecoded();
+        assertEquals(INSTANCE.getTest07()[0], bytesToAscii((byte[]) decodedList[0]));
+        assertEquals(INSTANCE.getTest07()[1], bytesToAscii((byte[]) decodedList[1]));
+        assertEquals(INSTANCE.getTest07()[2], bytesToAscii((byte[]) decodedList[2]));
 
         // 1
-        decodedData = (byte[]) decode(Hex.decode(result08), pos).getDecoded();
-        assertEquals(test08, byteArrayToInt(decodedData));
+        decodedData = (byte[]) decode(Hex.decode(INSTANCE.getResult08()), pos).getDecoded();
+        assertEquals(INSTANCE.getTest08(), byteArrayToInt(decodedData));
 
         // 10
-        decodedData = (byte[]) decode(Hex.decode(result09), pos).getDecoded();
-        assertEquals(test09, byteArrayToInt(decodedData));
+        decodedData = (byte[]) decode(Hex.decode(INSTANCE.getResult09()), pos).getDecoded();
+        assertEquals(INSTANCE.getTest09(), byteArrayToInt(decodedData));
 
         // 100
-        decodedData = (byte[]) decode(Hex.decode(result10), pos).getDecoded();
-        assertEquals(test10, byteArrayToInt(decodedData));
+        decodedData = (byte[]) decode(Hex.decode(INSTANCE.getResult10()), pos).getDecoded();
+        assertEquals(INSTANCE.getTest10(), byteArrayToInt(decodedData));
 
         // 1000
-        decodedData = (byte[]) decode(Hex.decode(result11), pos).getDecoded();
-        assertEquals(test11, byteArrayToInt(decodedData));
+        decodedData = (byte[]) decode(Hex.decode(INSTANCE.getResult11()), pos).getDecoded();
+        assertEquals(INSTANCE.getTest11(), byteArrayToInt(decodedData));
 
-        decodedData = (byte[]) decode(Hex.decode(result12), pos).getDecoded();
-        assertTrue(test12.compareTo(new BigInteger(1, decodedData)) == 0);
+        decodedData = (byte[]) decode(Hex.decode(INSTANCE.getResult12()), pos).getDecoded();
+        assertTrue(INSTANCE.getTest12().compareTo(new BigInteger(1, decodedData)) == 0);
 
-        decodedData = (byte[]) decode(Hex.decode(result13), pos).getDecoded();
-        assertTrue(test13.compareTo(new BigInteger(1, decodedData)) == 0);
-
-        // Need to test with different expected value, because decoding doesn't recognize types
-        Object testObject1 = decode(Hex.decode(result14), pos).getDecoded();
-        assertTrue(DeepEquals.deepEquals(expected14, testObject1));
-
-        Object testObject2 = decode(Hex.decode(result15), pos).getDecoded();
-        assertTrue(DeepEquals.deepEquals(test15, testObject2));
+        decodedData = (byte[]) decode(Hex.decode(INSTANCE.getResult13()), pos).getDecoded();
+        assertTrue(INSTANCE.getTest13().compareTo(new BigInteger(1, decodedData)) == 0);
 
         // Need to test with different expected value, because decoding doesn't recognize types
-        Object testObject3 = decode(Hex.decode(result16), pos).getDecoded();
-        assertTrue(DeepEquals.deepEquals(expected16, testObject3));
+        Object testObject1 = decode(Hex.decode(INSTANCE.getResult14()), pos).getDecoded();
+        assertTrue(DeepEquals.deepEquals(INSTANCE.getExpected14(), testObject1));
+
+        Object testObject2 = decode(Hex.decode(INSTANCE.getResult15()), pos).getDecoded();
+        assertTrue(DeepEquals.deepEquals(INSTANCE.getTest15(), testObject2));
+
+        // Need to test with different expected value, because decoding doesn't recognize types
+        Object testObject3 = decode(Hex.decode(INSTANCE.getResult16()), pos).getDecoded();
+        assertTrue(DeepEquals.deepEquals(INSTANCE.getExpected16(), testObject3));
     }
 
     @Test
