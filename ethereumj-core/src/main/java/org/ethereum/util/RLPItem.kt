@@ -24,36 +24,18 @@
  *
  */
 
-package org.ethereum.validator;
-
-import org.ethereum.config.Constants;
-import org.ethereum.config.SystemProperties;
-import org.ethereum.core.BlockHeader;
+package org.ethereum.util
 
 /**
- * Checks {@link BlockHeader#extraData} size against {@link Constants#getMaximumExtraDataSize}
- *
- * @author Mikhail Kalinin
- * @since 02.09.2015
+ * @author Roman Mandeleil
+ * *
+ * @since 21.04.14
  */
-public class ExtraDataRule extends BlockHeaderRule {
+class RLPItem(private val rlpData: ByteArray) : RLPElement {
 
-    private final int MAXIMUM_EXTRA_DATA_SIZE;
-
-    public ExtraDataRule(final SystemProperties config) {
-        MAXIMUM_EXTRA_DATA_SIZE = config.getBlockchainConfig().
-                getCommonConstants().getMaximumExtraDataSize();
-    }
-
-    @Override
-    public ValidationResult validate(final BlockHeader header) {
-        if (header.getExtraData() != null && header.getExtraData().length > MAXIMUM_EXTRA_DATA_SIZE) {
-            return fault(String.format(
-                    "#%d: header.getExtraData().length > MAXIMUM_EXTRA_DATA_SIZE",
-                    header.getNumber()
-            ));
-        }
-
-        return Success;
+    override fun getRLPData(): ByteArray? {
+        if (rlpData.isEmpty())
+            return null
+        return rlpData
     }
 }

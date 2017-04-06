@@ -24,26 +24,35 @@
  *
  */
 
-package org.ethereum.validator;
+package org.ethereum.validator
 
-import org.ethereum.core.BlockHeader;
-
-import java.math.BigInteger;
+import org.ethereum.config.Constants
+import org.ethereum.config.SystemProperties
+import org.ethereum.core.BlockHeader
 
 /**
- * Checks {@link BlockHeader#gasUsed} against {@link BlockHeader#gasLimit}
- *
+ * Checks [BlockHeader.extraData] size against [Constants.getMaximumExtraDataSize]
+
  * @author Mikhail Kalinin
+ * *
  * @since 02.09.2015
  */
-public class GasValueRule extends BlockHeaderRule {
+class ExtraDataRule(config: SystemProperties) : BlockHeaderRule() {
 
-    @Override
-    public ValidationResult validate(final BlockHeader header) {
-        if (new BigInteger(1, header.getGasLimit()).compareTo(BigInteger.valueOf(header.getGasUsed())) < 0) {
-            return fault("header.getGasLimit() < header.getGasUsed()");
+    private val MAXIMUM_EXTRA_DATA_SIZE: Int
+
+    init {
+        MAXIMUM_EXTRA_DATA_SIZE = config.blockchainConfig.commonConstants.maximumExtraDataSize
+    }
+
+    public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
+        if (header.extraData != null && header.extraData.size > MAXIMUM_EXTRA_DATA_SIZE) {
+            return fault(String.format(
+                    "#%d: header.getExtraData().length > MAXIMUM_EXTRA_DATA_SIZE",
+                    header.number
+            ))
         }
 
-        return Success;
+        return BlockHeaderRule.Success
     }
 }

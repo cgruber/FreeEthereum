@@ -24,23 +24,29 @@
  *
  */
 
-package org.ethereum.util;
+package org.ethereum.validator
+
+import org.ethereum.core.BlockHeader
+import org.ethereum.util.ByteUtil
+import org.ethereum.util.FastByteComparisons
+import org.spongycastle.util.encoders.Hex
 
 /**
- * @author Roman Mandeleil
- * @since 21.04.14
+ * Created by Stan Reshetnyk on 26.12.16.
  */
-public class RLPItem implements RLPElement {
+class ExtraDataPresenceRule(private val data: ByteArray, private val required: Boolean) : BlockHeaderRule() {
 
-    private final byte[] rlpData;
+    public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
+        val extraData = if (header.extraData != null) header.extraData else ByteUtil.EMPTY_BYTE_ARRAY
+        val extraDataMatches = FastByteComparisons.equal(extraData, data)
 
-    public RLPItem(final byte[] rlpData) {
-        this.rlpData = rlpData;
-    }
-
-    public byte[] getRLPData() {
-        if (rlpData.length == 0)
-            return null;
-        return rlpData;
+        if (required && !extraDataMatches) {
+            return fault("Block " + header.number + " is no-fork. Expected presence of: " +
+                    Hex.toHexString(data) + ", in extra data: " + Hex.toHexString(extraData))
+        } else if (!required && extraDataMatches) {
+            return fault("Block " + header.number + " is pro-fork. Expected no: " +
+                    Hex.toHexString(data) + ", in extra data: " + Hex.toHexString(extraData))
+        }
+        return BlockHeaderRule.Success
     }
 }

@@ -24,38 +24,26 @@
  *
  */
 
-package org.ethereum.validator;
+package org.ethereum.validator
 
-import org.ethereum.core.BlockHeader;
+import org.ethereum.core.BlockHeader
 
-import java.util.List;
+import java.math.BigInteger
 
 /**
- * Composite {@link BlockHeader} validator
- * aggregating list of simple validation rules depending on parent's block header
- *
+ * Checks [BlockHeader.gasUsed] against [BlockHeader.gasLimit]
+
  * @author Mikhail Kalinin
+ * *
  * @since 02.09.2015
  */
-public class ParentBlockHeaderValidator extends DependentBlockHeaderRule {
+class GasValueRule : BlockHeaderRule() {
 
-    private final List<DependentBlockHeaderRule> rules;
-
-    public ParentBlockHeaderValidator(final List<DependentBlockHeaderRule> rules) {
-        this.rules = rules;
-    }
-
-    @Override
-    public boolean validate(final BlockHeader header, final BlockHeader parent) {
-        errors.clear();
-
-        for (final DependentBlockHeaderRule rule : rules) {
-            if (!rule.validate(header, parent)) {
-                errors.addAll(rule.getErrors());
-                return false;
-            }
+    public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
+        if (BigInteger(1, header.gasLimit).compareTo(BigInteger.valueOf(header.gasUsed)) < 0) {
+            return fault("header.getGasLimit() < header.getGasUsed()")
         }
 
-        return true;
+        return BlockHeaderRule.Success
     }
 }

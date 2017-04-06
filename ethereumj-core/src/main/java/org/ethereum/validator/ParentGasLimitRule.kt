@@ -24,47 +24,45 @@
  *
  */
 
-package org.ethereum.validator;
+package org.ethereum.validator
 
-import org.ethereum.config.SystemProperties;
-import org.ethereum.core.BlockHeader;
+import org.ethereum.config.SystemProperties
+import org.ethereum.core.BlockHeader
 
-import java.math.BigInteger;
+import java.math.BigInteger
 
 /**
- * Checks if {@link BlockHeader#gasLimit} matches gas limit bounds. <br>
- *
+ * Checks if [BlockHeader.gasLimit] matches gas limit bounds. <br></br>
+
  * This check is NOT run in Frontier
- *
+
  * @author Mikhail Kalinin
+ * *
  * @since 02.09.2015
  */
-public class ParentGasLimitRule extends DependentBlockHeaderRule {
+class ParentGasLimitRule(config: SystemProperties) : DependentBlockHeaderRule() {
 
-    private final int GAS_LIMIT_BOUND_DIVISOR;
+    private val GAS_LIMIT_BOUND_DIVISOR: Int
 
-    public ParentGasLimitRule(final SystemProperties config) {
-        GAS_LIMIT_BOUND_DIVISOR = config.getBlockchainConfig().
-                getCommonConstants().getGasLimitBoundDivisor();
+    init {
+        GAS_LIMIT_BOUND_DIVISOR = config.blockchainConfig.commonConstants.gasLimitBoundDivisor
     }
 
-    @Override
-    public boolean validate(final BlockHeader header, final BlockHeader parent) {
+    override fun validate(header: BlockHeader, parent: BlockHeader): Boolean {
 
-        errors.clear();
-        final BigInteger headerGasLimit = new BigInteger(1, header.getGasLimit());
-        final BigInteger parentGasLimit = new BigInteger(1, parent.getGasLimit());
+        errors.clear()
+        val headerGasLimit = BigInteger(1, header.gasLimit)
+        val parentGasLimit = BigInteger(1, parent.gasLimit)
 
-        if (headerGasLimit.compareTo(parentGasLimit.multiply(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR - 1)).divide(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR))) < 0 ||
-            headerGasLimit.compareTo(parentGasLimit.multiply(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR + 1)).divide(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR))) > 0) {
+        if (headerGasLimit.compareTo(parentGasLimit.multiply(BigInteger.valueOf((GAS_LIMIT_BOUND_DIVISOR - 1).toLong())).divide(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR.toLong()))) < 0 || headerGasLimit.compareTo(parentGasLimit.multiply(BigInteger.valueOf((GAS_LIMIT_BOUND_DIVISOR + 1).toLong())).divide(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR.toLong()))) > 0) {
 
             errors.add(String.format(
                     "#%d: gas limit exceeds parentBlock.getGasLimit() (+-) GAS_LIMIT_BOUND_DIVISOR",
-                    header.getNumber()
-            ));
-            return false;
+                    header.number
+            ))
+            return false
         }
 
-        return true;
+        return true
     }
 }

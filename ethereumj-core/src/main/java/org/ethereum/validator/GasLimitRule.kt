@@ -24,38 +24,37 @@
  *
  */
 
-package org.ethereum.validator;
+package org.ethereum.validator
 
-import org.ethereum.config.Constants;
-import org.ethereum.config.SystemProperties;
-import org.ethereum.core.BlockHeader;
+import org.ethereum.config.Constants
+import org.ethereum.config.SystemProperties
+import org.ethereum.core.BlockHeader
 
-import java.math.BigInteger;
+import java.math.BigInteger
 
 /**
- * Checks {@link BlockHeader#gasLimit} against {@link Constants#getMinGasLimit}. <br>
- *
+ * Checks [BlockHeader.gasLimit] against [Constants.getMinGasLimit]. <br></br>
+
  * This check is NOT run in Frontier
- *
+
  * @author Mikhail Kalinin
+ * *
  * @since 02.09.2015
  */
-public class GasLimitRule extends BlockHeaderRule {
+class GasLimitRule(config: SystemProperties) : BlockHeaderRule() {
 
-    private final int MIN_GAS_LIMIT;
+    private val MIN_GAS_LIMIT: Int
 
-    public GasLimitRule(final SystemProperties config) {
-        MIN_GAS_LIMIT = config.getBlockchainConfig().
-                getCommonConstants().getMinGasLimit();
+    init {
+        MIN_GAS_LIMIT = config.blockchainConfig.commonConstants.minGasLimit
     }
 
-    @Override
-    public ValidationResult validate(final BlockHeader header) {
+    public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
 
-        if (new BigInteger(1, header.getGasLimit()).compareTo(BigInteger.valueOf(MIN_GAS_LIMIT)) < 0) {
-            return fault("header.getGasLimit() < MIN_GAS_LIMIT");
+        if (BigInteger(1, header.gasLimit).compareTo(BigInteger.valueOf(MIN_GAS_LIMIT.toLong())) < 0) {
+            return fault("header.getGasLimit() < MIN_GAS_LIMIT")
         }
 
-        return Success;
+        return BlockHeaderRule.Success
     }
 }
