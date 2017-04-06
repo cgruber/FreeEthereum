@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.tck;
 
 import org.ethereum.jsontestsuite.suite.JSONReader;
@@ -20,7 +46,7 @@ class RunTck {
     private static final Logger logger = LoggerFactory.getLogger("TCK-Test");
 
 
-    public static void main(String[] args) throws ParseException, IOException {
+    public static void main(final String[] args) throws ParseException, IOException {
 
         if (args.length > 0){
 
@@ -37,22 +63,22 @@ class RunTck {
         }
     }
 
-    private static void runContentTest(String content) throws ParseException, IOException {
+    private static void runContentTest(final String content) throws ParseException, IOException {
 
-        Map<String, Boolean> summary = new HashMap<>();
+        final Map<String, Boolean> summary = new HashMap<>();
 
-        JSONParser parser = new JSONParser();
-        JSONObject testSuiteObj = (JSONObject) parser.parse(content);
+        final JSONParser parser = new JSONParser();
+        final JSONObject testSuiteObj = (JSONObject) parser.parse(content);
 
-        StateTestSuite stateTestSuite = new StateTestSuite(testSuiteObj.toJSONString());
-        Map<String, StateTestCase> testCases = stateTestSuite.getTestCases();
+        final StateTestSuite stateTestSuite = new StateTestSuite(testSuiteObj.toJSONString());
+        final Map<String, StateTestCase> testCases = stateTestSuite.getTestCases();
 
-        for (String testName : testCases.keySet()) {
+        for (final String testName : testCases.keySet()) {
 
             logger.info(" Test case: {}", testName);
 
-            StateTestCase stateTestCase = testCases.get(testName);
-            List<String> result = StateTestRunner.run(stateTestCase);
+            final StateTestCase stateTestCase = testCases.get(testName);
+            final List<String> result = StateTestRunner.run(stateTestCase);
 
             if (!result.isEmpty())
                 summary.put(testName, false);
@@ -64,10 +90,10 @@ class RunTck {
         logger.info("=========");
 
         int fails = 0; int pass = 0;
-        for (String key : summary.keySet()){
+        for (final String key : summary.keySet()) {
 
             if (summary.get(key)) ++pass; else ++fails;
-            String sumTest = String.format("%-60s:^%s", key, (summary.get(key) ? "OK" : "FAIL")).
+            final String sumTest = String.format("%-60s:^%s", key, (summary.get(key) ? "OK" : "FAIL")).
                     replace(' ', '.').
                     replace("^", " ");
             logger.info(sumTest);
@@ -83,9 +109,9 @@ class RunTck {
     }
 
 
-    private static void runTest(String name) throws ParseException, IOException {
+    private static void runTest(final String name) throws ParseException, IOException {
 
-        String testCaseJson = JSONReader.getFromLocal(name);
+        final String testCaseJson = JSONReader.getFromLocal(name);
         runContentTest(testCaseJson);
     }
 }

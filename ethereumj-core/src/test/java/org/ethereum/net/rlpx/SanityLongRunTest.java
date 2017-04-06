@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import com.typesafe.config.ConfigFactory;
@@ -66,17 +92,17 @@ public class SanityLongRunTest {
         SysPropConfig2.props = new SystemProperties(ConfigFactory.parseString(config2));
 
 //        Ethereum ethereum1 = EthereumFactory.createEthereum(SysPropConfig1.props, SysPropConfig1.class);
-        Ethereum ethereum1 = null;
+        final Ethereum ethereum1 = null;
 
 //        Thread.sleep(1000000000);
 
-        Ethereum ethereum2 = EthereumFactory.createEthereum(SysPropConfig2.props, SysPropConfig2.class);
+        final Ethereum ethereum2 = EthereumFactory.createEthereum(SysPropConfig2.props, SysPropConfig2.class);
 
         final CountDownLatch semaphore = new CountDownLatch(1);
 
         ethereum2.addListener(new EthereumListenerAdapter() {
             @Override
-            public void onRecvMessage(Channel channel, Message message) {
+            public void onRecvMessage(final Channel channel, final Message message) {
                 if (message instanceof StatusMessage) {
                     System.out.println("=== Status received: " + message);
                     semaphore.countDown();
@@ -97,7 +123,7 @@ public class SanityLongRunTest {
             int blocksCnt = 0;
 
             @Override
-            public void onBlock(Block block, List<TransactionReceipt> receipts) {
+            public void onBlock(final Block block, final List<TransactionReceipt> receipts) {
                 blocksCnt++;
                 if (blocksCnt % 1000 == 0 || blocksCnt == 1) {
                     System.out.println("=== Blocks imported: " + blocksCnt);
@@ -118,22 +144,22 @@ public class SanityLongRunTest {
         }
 
         // SHH messages exchange
-        String identity1 = ethereum1.getWhisper().newIdentity();
-        String identity2 = ethereum2.getWhisper().newIdentity();
+        final String identity1 = ethereum1.getWhisper().newIdentity();
+        final String identity2 = ethereum2.getWhisper().newIdentity();
 
         final int[] counter1 = new int[1];
         final int[] counter2 = new int[1];
 
         ethereum1.getWhisper().watch(new MessageWatcher(identity1, null, null) {
             @Override
-            protected void newMessage(WhisperMessage msg) {
+            protected void newMessage(final WhisperMessage msg) {
                 System.out.println("=== You have a new message to 1: " + msg);
                 counter1[0]++;
             }
         });
         ethereum2.getWhisper().watch(new MessageWatcher(identity2, null, null) {
             @Override
-            protected void newMessage(WhisperMessage msg) {
+            protected void newMessage(final WhisperMessage msg) {
                 System.out.println("=== You have a new message to 2: " + msg);
                 counter2[0]++;
             }
@@ -141,7 +167,7 @@ public class SanityLongRunTest {
 
         System.out.println("=== Sending messages ... ");
         int cnt = 0;
-        long end = System.currentTimeMillis() + 60 * 60 * 1000;
+        final long end = System.currentTimeMillis() + 60 * 60 * 1000;
         while (semaphoreBlocks.getCount() > 0) {
             ethereum1.getWhisper().send(identity2, "Hello Eth2!".getBytes(), null);
             ethereum2.getWhisper().send(identity1, "Hello Eth1!".getBytes(), null);

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.core;
 
 import org.slf4j.Logger;
@@ -26,7 +52,7 @@ public class EventDispatchThread {
     private final ExecutorService executor = new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS, executorQueue, new ThreadFactory() {
         @Override
-        public Thread newThread(Runnable r) {
+        public Thread newThread(final Runnable r) {
             return new Thread(r, "EDT");
         }
     });
@@ -44,7 +70,7 @@ public class EventDispatchThread {
         if (eventDispatchThread == null) {
             eventDispatchThread = new EventDispatchThread() {
                 @Override
-                public void invokeLater(Runnable r) {
+                public void invokeLater(final Runnable r) {
                     r.run();
                 }
             };
@@ -52,8 +78,8 @@ public class EventDispatchThread {
         return eventDispatchThread;
     }
 
-    private static int getSizeWarnLevel(int size) {
-        int idx = Arrays.binarySearch(queueSizeWarnLevels, size);
+    private static int getSizeWarnLevel(final int size) {
+        final int idx = Arrays.binarySearch(queueSizeWarnLevels, size);
         return idx >= 0 ? idx : -(idx + 1) - 1;
     }
 
@@ -68,14 +94,14 @@ public class EventDispatchThread {
                     lastTask = r;
                     taskStart = System.nanoTime();
                     r.run();
-                    long t = (System.nanoTime() - taskStart) / 1_000_000;
+                    final long t = (System.nanoTime() - taskStart) / 1_000_000;
                     taskStart = 0;
                     if (t > 1000) {
                         logger.warn("EDT task executed in more than 1 sec: " + t + "ms, " +
                         "Executor queue size: " + executorQueue.size());
 
                     }
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     logger.error("EDT task exception", e);
                 }
             }
@@ -84,13 +110,13 @@ public class EventDispatchThread {
 
     // monitors EDT queue size and prints warning if exceeds thresholds
     private void logStatus() {
-        int curLevel = getSizeWarnLevel(executorQueue.size());
+        final int curLevel = getSizeWarnLevel(executorQueue.size());
         if (lastQueueSizeWarnLevel == curLevel) return;
 
         synchronized (this) {
             if (curLevel > lastQueueSizeWarnLevel) {
-                long t = taskStart == 0 ? 0 : (System.nanoTime() - taskStart) / 1_000_000;
-                String msg = "EDT size grown up to " + executorQueue.size() + " (last task executing for " + t + " ms: " + lastTask;
+                final long t = taskStart == 0 ? 0 : (System.nanoTime() - taskStart) / 1_000_000;
+                final String msg = "EDT size grown up to " + executorQueue.size() + " (last task executing for " + t + " ms: " + lastTask;
                 if (curLevel < 3) {
                     logger.info(msg);
                 } else {
@@ -107,7 +133,7 @@ public class EventDispatchThread {
         executor.shutdownNow();
         try {
             executor.awaitTermination(10L, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             logger.warn("shutdown: executor interrupted: {}", e.getMessage());
         }
     }

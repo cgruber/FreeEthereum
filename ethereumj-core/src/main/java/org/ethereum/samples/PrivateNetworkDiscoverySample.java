@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.samples;
 
 import com.google.common.base.Joiner;
@@ -39,7 +65,7 @@ public class PrivateNetworkDiscoverySample {
     /**
      *  Creating 3 instances with different config classes
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         BasicSample.sLogger.info("Starting main node to which others will connect to");
         EthereumFactory.createEthereum(Node0Config.class);
 
@@ -50,7 +76,7 @@ public class PrivateNetworkDiscoverySample {
         EthereumFactory.createEthereum(Node2Config.class);
     }
 
-    private static Config getConfig(int index, String discoveryNode) {
+    private static Config getConfig(final int index, final String discoveryNode) {
         return ConfigFactory.empty()
                 .withValue("peer.discovery.enabled", value(true))
                 .withValue("peer.discovery.external.ip", value("127.0.0.1"))
@@ -67,7 +93,7 @@ public class PrivateNetworkDiscoverySample {
                 .withValue("peer.discovery.ip.list", value(discoveryNode != null ? Collections.singletonList(discoveryNode) : Collections.emptyList()));
     }
 
-    private static ConfigValue value(Object value) {
+    private static ConfigValue value(final Object value) {
         return ConfigValueFactory.fromAnyRef(value);
     }
 
@@ -80,7 +106,7 @@ public class PrivateNetworkDiscoverySample {
 
         private final int nodeIndex;
 
-        public RegularConfig(int nodeIndex, String discoveryNode) {
+        public RegularConfig(final int nodeIndex, final String discoveryNode) {
             this.nodeIndex = nodeIndex;
             this.discoveryNode = discoveryNode;
         }
@@ -108,13 +134,13 @@ public class PrivateNetworkDiscoverySample {
                                         if (channelManager != null) {
                                             final Collection<Channel> activePeers = channelManager.getActivePeers();
                                             final ArrayList<String> ports = new ArrayList<>();
-                                            for (Channel channel: activePeers) {
+                                            for (final Channel channel : activePeers) {
                                                 ports.add(channel.getInetSocketAddress().getHostName() + ":" + channel.getInetSocketAddress().getPort());
                                             }
 
                                             final Collection<NodeEntry> nodes = nodeManager.getTable().getAllNodes();
                                             final ArrayList<String> nodesString = new ArrayList<>();
-                                            for (NodeEntry node: nodes) {
+                                            for (final NodeEntry node : nodes) {
                                                 nodesString.add(node.getNode().getHost() + ":" + node.getNode().getPort() + "@" + node.getNode().getHexId().substring(0, 6) );
                                             }
 
@@ -127,7 +153,7 @@ public class PrivateNetworkDiscoverySample {
                                         System.err.println("Logger is null for " + nodeIndex);
                                     }
                                 }
-                            } catch (Exception e) {
+                            } catch (final Exception e) {
                                 logger.error("Error checking peers count: ", e);
                             }
                         }

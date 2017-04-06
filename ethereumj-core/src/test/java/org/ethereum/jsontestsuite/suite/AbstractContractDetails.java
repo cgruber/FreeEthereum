@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.db.ByteArrayWrapper;
@@ -29,17 +55,17 @@ public abstract class AbstractContractDetails implements ContractDetails {
     }
 
     @Override
-    public void setCode(byte[] code) {
+    public void setCode(final byte[] code) {
         if (code == null) return;
         codes.put(new ByteArrayWrapper(sha3(code)), code);
         setDirty(true);
     }
 
     @Override
-    public byte[] getCode(byte[] codeHash) {
+    public byte[] getCode(final byte[] codeHash) {
         if (java.util.Arrays.equals(codeHash, EMPTY_DATA_HASH))
             return EMPTY_BYTE_ARRAY;
-        byte[] code = codes.get(new ByteArrayWrapper(codeHash));
+        final byte[] code = codes.get(new ByteArrayWrapper(codeHash));
         return code == null ? EMPTY_BYTE_ARRAY : code;
     }
 
@@ -47,11 +73,11 @@ public abstract class AbstractContractDetails implements ContractDetails {
         return codes;
     }
 
-    void setCodes(Map<ByteArrayWrapper, byte[]> codes) {
+    void setCodes(final Map<ByteArrayWrapper, byte[]> codes) {
         this.codes = new HashMap<>(codes);
     }
 
-    void appendCodes(Map<ByteArrayWrapper, byte[]> codes) {
+    void appendCodes(final Map<ByteArrayWrapper, byte[]> codes) {
         this.codes.putAll(codes);
     }
 
@@ -61,7 +87,7 @@ public abstract class AbstractContractDetails implements ContractDetails {
     }
 
     @Override
-    public void setDirty(boolean dirty) {
+    public void setDirty(final boolean dirty) {
         this.dirty = dirty;
     }
 
@@ -71,7 +97,7 @@ public abstract class AbstractContractDetails implements ContractDetails {
     }
 
     @Override
-    public void setDeleted(boolean deleted) {
+    public void setDeleted(final boolean deleted) {
         this.deleted = deleted;
     }
 

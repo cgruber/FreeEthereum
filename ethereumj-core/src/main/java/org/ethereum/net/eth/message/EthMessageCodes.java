@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.eth.message;
 
 import org.ethereum.net.eth.EthVersion;
@@ -5,7 +31,8 @@ import org.ethereum.net.eth.EthVersion;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ethereum.net.eth.EthVersion.*;
+import static org.ethereum.net.eth.EthVersion.V62;
+import static org.ethereum.net.eth.EthVersion.V63;
 
 /**
  * A list of commands for the Ethereum network protocol.
@@ -147,8 +174,6 @@ public enum EthMessageCodes {
      */
     RECEIPTS(0x10);
 
-    private int cmd;
-
     private static final Map<EthVersion, Map<Integer, EthMessageCodes>> intToTypeMap = new HashMap<>();
     private static final Map<EthVersion, EthMessageCodes[]> versionToValuesMap = new HashMap<>();
 
@@ -180,30 +205,32 @@ public enum EthMessageCodes {
                 RECEIPTS
         });
 
-        for (EthVersion v : EthVersion.values()) {
-            Map<Integer, EthMessageCodes> map = new HashMap<>();
+        for (final EthVersion v : EthVersion.values()) {
+            final Map<Integer, EthMessageCodes> map = new HashMap<>();
             intToTypeMap.put(v, map);
-            for (EthMessageCodes code : values(v)) {
+            for (final EthMessageCodes code : values(v)) {
                 map.put(code.cmd, code);
             }
         }
     }
 
-    private EthMessageCodes(int cmd) {
+    private int cmd;
+
+    EthMessageCodes(final int cmd) {
         this.cmd = cmd;
     }
 
-    public static EthMessageCodes[] values(EthVersion v) {
+    public static EthMessageCodes[] values(final EthVersion v) {
         return versionToValuesMap.get(v);
     }
 
-    public static EthMessageCodes fromByte(byte i, EthVersion v) {
-        Map<Integer, EthMessageCodes> map = intToTypeMap.get(v);
+    public static EthMessageCodes fromByte(final byte i, final EthVersion v) {
+        final Map<Integer, EthMessageCodes> map = intToTypeMap.get(v);
         return map.get((int) i);
     }
 
-    public static boolean inRange(byte code, EthVersion v) {
-        EthMessageCodes[] codes = values(v);
+    public static boolean inRange(final byte code, final EthVersion v) {
+        final EthMessageCodes[] codes = values(v);
         return code >= codes[0].asByte() && code <= codes[codes.length - 1].asByte();
     }
 

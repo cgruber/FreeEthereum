@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.swarm;
 
 import java.util.Collection;
@@ -19,24 +45,24 @@ abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
 
     final P rootNode;
 
-    public StringTrie(P rootNode) {
+    public StringTrie(final P rootNode) {
         this.rootNode = rootNode;
     }
 
-    public P get(String path) {
+    public P get(final String path) {
         return rootNode.getMostSuitableChild(path);
     }
 
-    public P add(String path) {
+    public P add(final String path) {
         return add(rootNode, path);
     }
 
-    public P add(P parent, String path) {
+    public P add(final P parent, final String path) {
         return parent.addChild(path);
     }
 
-    public P delete(String path) {
-        P p = get(path);
+    public P delete(final String path) {
+        final P p = get(path);
         if (path.equals(p.getAbsolutePath()) && p.isLeaf()) {
             p.delete();
             return p;
@@ -60,7 +86,7 @@ abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
             this(null, "");
         }
 
-        public TrieNode(N parent, String relPath) {
+        public TrieNode(final N parent, final String relPath) {
             this.parent = parent;
             this.path = relPath;
         }
@@ -83,8 +109,8 @@ abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
         /**
          *  Finds the descendant which has longest common path prefix with the passed path
          */
-        N getMostSuitableChild(String relPath) {
-            N n = loadChildren().get(getKey(relPath));
+        N getMostSuitableChild(final String relPath) {
+            final N n = loadChildren().get(getKey(relPath));
             if (n == null) return (N) this;
             if (relPath.startsWith(n.getRelativePath())) {
                 return n.getMostSuitableChild(relPath.substring(n.getRelativePath().length()));
@@ -97,7 +123,7 @@ abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
          * @return the direct child which has the key the same as the relPath key
          * null if no such child
          */
-        N getChild(String relPath) {
+        N getChild(final String relPath) {
             return loadChildren().get(getKey(relPath));
         }
 
@@ -106,14 +132,14 @@ abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
          * @param relPath the path relative to this node
          * @return added node wich path is [relPath] relative to this node
          */
-        N add(String relPath) {
+        N add(final String relPath) {
             return addChild(relPath);
         }
 
-        N addChild(String relPath) {
-            N child = getChild(relPath);
+        N addChild(final String relPath) {
+            final N child = getChild(relPath);
             if (child == null) {
-                N newNode = createNode((N) this, relPath);
+                final N newNode = createNode((N) this, relPath);
                 putChild(newNode);
                 return  newNode;
             } else {
@@ -123,11 +149,11 @@ abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
                 if (child.isLeaf() && relPath.equals(child.getRelativePath())) {
                     return child;
                 }
-                String commonPrefix = Util.getCommonPrefix(relPath, child.getRelativePath());
-                N newSubRoot = createNode((N) this, commonPrefix);
+                final String commonPrefix = Util.getCommonPrefix(relPath, child.getRelativePath());
+                final N newSubRoot = createNode((N) this, commonPrefix);
                 child.path = child.path.substring(commonPrefix.length());
                 child.parent = newSubRoot;
-                N newNode = createNode(newSubRoot, relPath.substring(commonPrefix.length()));
+                final N newNode = createNode(newSubRoot, relPath.substring(commonPrefix.length()));
 
                 newSubRoot.putChild(child);
                 newSubRoot.putChild(newNode);
@@ -147,11 +173,11 @@ abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
          */
         void delete() {
             if (!isLeaf()) throw new RuntimeException("Can't delete non-leaf entry: " + this);
-            N parent = getParent();
+            final N parent = getParent();
             parent.loadChildren().remove(getKey(getRelativePath()));
             if (parent.loadChildren().size() == 1 && parent.parent != null) {
-                Map<String, N> c = parent.loadChildren();
-                N singleChild = c.values().iterator().next();
+                final Map<String, N> c = parent.loadChildren();
+                final N singleChild = c.values().iterator().next();
                 singleChild.path = parent.path + singleChild.path;
                 singleChild.parent = parent.parent;
                 parent.parent.loadChildren().remove(getKey(parent.path));
@@ -161,7 +187,7 @@ abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
             }
         }
 
-        void putChild(N n) {
+        void putChild(final N n) {
             loadChildren().put(getKey(n.path), n);
         }
 
@@ -190,7 +216,7 @@ abstract class StringTrie<P extends StringTrie.TrieNode<P>> {
          * the max number of children in a single node is 128.
          * @return Key corresponding to this path
          */
-        String getKey(String path) {
+        String getKey(final String path) {
             return path.length() > 0 ? path.substring(0,1) : "";
         }
 

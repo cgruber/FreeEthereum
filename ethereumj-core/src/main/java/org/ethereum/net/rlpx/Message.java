@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
@@ -19,29 +45,29 @@ public abstract class Message {
     private byte[] type;
     private byte[] data;
 
-    public static Message decode(byte[] wire) {
+    public static Message decode(final byte[] wire) {
 
         if (wire.length < 98) throw new RuntimeException("Bad message");
 
-        byte[] mdc = new byte[32];
+        final byte[] mdc = new byte[32];
         System.arraycopy(wire, 0, mdc, 0, 32);
 
-        byte[] signature = new byte[65];
+        final byte[] signature = new byte[65];
         System.arraycopy(wire, 32, signature, 0, 65);
 
-        byte[] type = new byte[1];
+        final byte[] type = new byte[1];
         type[0] = wire[97];
 
-        byte[] data = new byte[wire.length - 98];
+        final byte[] data = new byte[wire.length - 98];
         System.arraycopy(wire, 98, data, 0, data.length);
 
-        byte[] mdcCheck = sha3(wire, 32, wire.length - 32);
+        final byte[] mdcCheck = sha3(wire, 32, wire.length - 32);
 
-        int check = FastByteComparisons.compareTo(mdc, 0, mdc.length, mdcCheck, 0, mdcCheck.length);
+        final int check = FastByteComparisons.compareTo(mdc, 0, mdc.length, mdcCheck, 0, mdcCheck.length);
 
         if (check != 0) throw new RuntimeException("MDC check failed");
 
-        Message msg;
+        final Message msg;
         if (type[0] == 1) msg = new PingMessage();
         else if (type[0] == 2) msg = new PongMessage();
         else if (type[0] == 3) msg = new FindNodeMessage();
@@ -60,26 +86,26 @@ public abstract class Message {
     }
 
 
-    Message encode(byte[] type, byte[] data, ECKey privKey) {
+    Message encode(final byte[] type, final byte[] data, final ECKey privKey) {
 
         /* [1] Calc keccak - prepare for sig */
-        byte[] payload = new byte[type.length + data.length];
+        final byte[] payload = new byte[type.length + data.length];
         payload[0] = type[0];
         System.arraycopy(data, 0, payload, 1, data.length);
-        byte[] forSig = sha3(payload);
+        final byte[] forSig = sha3(payload);
 
         /* [2] Crate signature*/
-        ECKey.ECDSASignature signature = privKey.sign(forSig);
+        final ECKey.ECDSASignature signature = privKey.sign(forSig);
 
         signature.v -= 27;
 
-        byte[] sigBytes =
+        final byte[] sigBytes =
                 merge(BigIntegers.asUnsignedByteArray(32, signature.r),
                         BigIntegers.asUnsignedByteArray(32, signature.s), new byte[]{signature.v});
 
         // [3] calculate MDC
-        byte[] forSha = merge(sigBytes, type, data);
-        byte[] mdc = sha3(forSha);
+        final byte[] forSha = merge(sigBytes, type, data);
+        final byte[] mdc = sha3(forSha);
 
         // wrap all the data in to the packet
         this.mdc = mdc;
@@ -94,8 +120,8 @@ public abstract class Message {
 
     public ECKey getKey() {
 
-        byte[] r = new byte[32];
-        byte[] s = new byte[32];
+        final byte[] r = new byte[32];
+        final byte[] s = new byte[32];
         byte v = signature[64];
 
         // todo: remove this when cpp conclude what they do here
@@ -105,13 +131,13 @@ public abstract class Message {
         System.arraycopy(signature, 0, r, 0, 32);
         System.arraycopy(signature, 32, s, 0, 32);
 
-        ECKey.ECDSASignature signature = ECKey.ECDSASignature.fromComponents(r, s, v);
-        byte[] msgHash = sha3(wire, 97, wire.length - 97);
+        final ECKey.ECDSASignature signature = ECKey.ECDSASignature.fromComponents(r, s, v);
+        final byte[] msgHash = sha3(wire, 97, wire.length - 97);
 
         ECKey outKey = null;
         try {
             outKey = ECKey.signatureToKey(msgHash, signature);
-        } catch (SignatureException e) {
+        } catch (final SignatureException e) {
             e.printStackTrace();
         }
 

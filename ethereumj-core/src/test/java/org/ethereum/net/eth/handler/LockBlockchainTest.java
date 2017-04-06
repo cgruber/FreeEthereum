@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.eth.handler;
 
 import org.ethereum.config.NoAutoscan;
@@ -49,12 +75,12 @@ public class LockBlockchainTest {
 
         final BlockStore blockStoreDummy = new BlockStoreDummy() {
             @Override
-            public synchronized Block getChainBlockByNumber(long blockNumber) {
+            public synchronized Block getChainBlockByNumber(final long blockNumber) {
                 return super.getChainBlockByNumber(blockNumber);
             }
 
             @Override
-            public synchronized List<BlockHeader> getListHeadersEndWith(byte[] hash, long qty) {
+            public synchronized List<BlockHeader> getListHeadersEndWith(final byte[] hash, final long qty) {
                 return super.getListHeadersEndWith(hash, qty);
             }
 
@@ -66,11 +92,11 @@ public class LockBlockchainTest {
 
         this.blockchain = new BlockchainImpl(SysPropConfig1.props) {
             @Override
-            public synchronized boolean isBlockExist(byte[] hash) {
+            public synchronized boolean isBlockExist(final byte[] hash) {
                 try {
                     this.blockStore = blockStoreDummy;
                     Thread.sleep(100000);
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     e.printStackTrace();
                 }
                 return true;
@@ -89,7 +115,7 @@ public class LockBlockchainTest {
             }
 
             @Override
-            protected void sendMessage(EthMessage message) {
+            protected void sendMessage(final EthMessage message) {
                 result.set(true);
                 System.out.println("Mocking message sending...");
             }
@@ -103,7 +129,7 @@ public class LockBlockchainTest {
 
     @Test
     public synchronized void testHeadersWithoutSkip() throws FileNotFoundException, InterruptedException {
-        ExecutorService executor1 = Executors.newSingleThreadExecutor();
+        final ExecutorService executor1 = Executors.newSingleThreadExecutor();
         executor1.submit(new Runnable() {
                              @Override
                              public void run() {
@@ -112,11 +138,11 @@ public class LockBlockchainTest {
                          }
         );
         this.wait(DELAY);
-        ExecutorService executor2 = Executors.newSingleThreadExecutor();
+        final ExecutorService executor2 = Executors.newSingleThreadExecutor();
         executor2.submit(new Runnable() {
                              @Override
                              public void run() {
-                                 GetBlockHeadersMessage msg = new GetBlockHeadersMessage(1L, new byte[0], 10, 0, false);
+                                 final GetBlockHeadersMessage msg = new GetBlockHeadersMessage(1L, new byte[0], 10, 0, false);
                                  SysPropConfig1.testHandler.processGetBlockHeaders(msg);
                              }
                          }
@@ -127,7 +153,7 @@ public class LockBlockchainTest {
 
     @Test
     public synchronized void testHeadersWithSkip() throws FileNotFoundException, InterruptedException {
-        ExecutorService executor1 = Executors.newSingleThreadExecutor();
+        final ExecutorService executor1 = Executors.newSingleThreadExecutor();
         executor1.submit(new Runnable() {
                              @Override
                              public void run() {
@@ -136,11 +162,11 @@ public class LockBlockchainTest {
                          }
         );
         this.wait(DELAY);
-        ExecutorService executor2 = Executors.newSingleThreadExecutor();
+        final ExecutorService executor2 = Executors.newSingleThreadExecutor();
         executor2.submit(new Runnable() {
                              @Override
                              public void run() {
-                                 GetBlockHeadersMessage msg = new GetBlockHeadersMessage(1L, new byte[0], 10, 5, false);
+                                 final GetBlockHeadersMessage msg = new GetBlockHeadersMessage(1L, new byte[0], 10, 5, false);
                                  SysPropConfig1.testHandler.processGetBlockHeaders(msg);
                              }
                          }
@@ -151,7 +177,7 @@ public class LockBlockchainTest {
 
     @Test
     public synchronized void testBodies() throws FileNotFoundException, InterruptedException {
-        ExecutorService executor1 = Executors.newSingleThreadExecutor();
+        final ExecutorService executor1 = Executors.newSingleThreadExecutor();
         executor1.submit(new Runnable() {
                              @Override
                              public void run() {
@@ -160,14 +186,14 @@ public class LockBlockchainTest {
                          }
         );
         this.wait(DELAY);
-        ExecutorService executor2 = Executors.newSingleThreadExecutor();
+        final ExecutorService executor2 = Executors.newSingleThreadExecutor();
         executor2.submit(new Runnable() {
                              @Override
                              public void run() {
-                                 List<byte[]> hashes = new ArrayList<>();
+                                 final List<byte[]> hashes = new ArrayList<>();
                                  hashes.add(new byte[] {1, 2, 3});
                                  hashes.add(new byte[] {4, 5, 6});
-                                 GetBlockBodiesMessage msg = new GetBlockBodiesMessage(hashes);
+                                 final GetBlockBodiesMessage msg = new GetBlockBodiesMessage(hashes);
                                  SysPropConfig1.testHandler.processGetBlockBodies(msg);
                              }
                          }
@@ -178,7 +204,7 @@ public class LockBlockchainTest {
 
     @Test
     public synchronized void testStatus() throws FileNotFoundException, InterruptedException {
-        ExecutorService executor1 = Executors.newSingleThreadExecutor();
+        final ExecutorService executor1 = Executors.newSingleThreadExecutor();
         executor1.submit(new Runnable() {
                              @Override
                              public void run() {
@@ -187,13 +213,13 @@ public class LockBlockchainTest {
                          }
         );
         this.wait(DELAY);
-        ExecutorService executor2 = Executors.newSingleThreadExecutor();
+        final ExecutorService executor2 = Executors.newSingleThreadExecutor();
         executor2.submit(new Runnable() {
                              @Override
                              public void run() {
                                  try {
                                      SysPropConfig1.testHandler.sendStatus();
-                                 } catch (Exception e) {
+                                 } catch (final Exception e) {
                                      e.printStackTrace();
                                  }
                              }

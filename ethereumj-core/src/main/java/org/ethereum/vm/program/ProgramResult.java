@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.vm.program;
 
 import org.ethereum.util.ByteArraySet;
@@ -37,16 +63,16 @@ public class ProgramResult {
     private List<CallCreate> callCreateList;
 
     public static ProgramResult empty() {
-        ProgramResult result = new ProgramResult();
+        final ProgramResult result = new ProgramResult();
         result.setHReturn(EMPTY_BYTE_ARRAY);
         return result;
     }
 
-    public void spendGas(long gas) {
+    public void spendGas(final long gas) {
         gasUsed += gas;
     }
 
-    public void refundGas(long gas) {
+    public void refundGas(final long gas) {
         gasUsed -= gas;
     }
 
@@ -54,7 +80,7 @@ public class ProgramResult {
         return hReturn;
     }
 
-    public void setHReturn(byte[] hReturn) {
+    public void setHReturn(final byte[] hReturn) {
         this.hReturn = hReturn;
 
     }
@@ -63,7 +89,7 @@ public class ProgramResult {
         return exception;
     }
 
-    public void setException(RuntimeException exception) {
+    public void setException(final RuntimeException exception) {
         this.exception = exception;
     }
 
@@ -78,17 +104,17 @@ public class ProgramResult {
         return deleteAccounts;
     }
 
-    public void addDeleteAccount(DataWord address) {
+    public void addDeleteAccount(final DataWord address) {
         getDeleteAccounts().add(address);
     }
 
-    private void addDeleteAccounts(Set<DataWord> accounts) {
+    private void addDeleteAccounts(final Set<DataWord> accounts) {
         if (!isEmpty(accounts)) {
             getDeleteAccounts().addAll(accounts);
         }
     }
 
-    public void addTouchAccount(byte[] addr) {
+    public void addTouchAccount(final byte[] addr) {
         touchedAccounts.add(addr);
     }
 
@@ -96,7 +122,7 @@ public class ProgramResult {
         return touchedAccounts;
     }
 
-    private void addTouchAccounts(Set<byte[]> accounts) {
+    private void addTouchAccounts(final Set<byte[]> accounts) {
         if (!isEmpty(accounts)) {
             getTouchedAccounts().addAll(accounts);
         }
@@ -109,11 +135,11 @@ public class ProgramResult {
         return logInfoList;
     }
 
-    public void addLogInfo(LogInfo logInfo) {
+    public void addLogInfo(final LogInfo logInfo) {
         getLogInfoList().add(logInfo);
     }
 
-    private void addLogInfos(List<LogInfo> logInfos) {
+    private void addLogInfos(final List<LogInfo> logInfos) {
         if (!isEmpty(logInfos)) {
             getLogInfoList().addAll(logInfos);
         }
@@ -126,7 +152,7 @@ public class ProgramResult {
         return callCreateList;
     }
 
-    public void addCallCreate(byte[] data, byte[] destination, byte[] gasLimit, byte[] value) {
+    public void addCallCreate(final byte[] data, final byte[] destination, final byte[] gasLimit, final byte[] value) {
         getCallCreateList().add(new CallCreate(data, destination, gasLimit, value));
     }
 
@@ -137,24 +163,24 @@ public class ProgramResult {
         return internalTransactions;
     }
 
-    public InternalTransaction addInternalTransaction(byte[] parentHash, int deep, byte[] nonce, DataWord gasPrice, DataWord gasLimit,
-                                                      byte[] senderAddress, byte[] receiveAddress, byte[] value, byte[] data, String note) {
-        InternalTransaction transaction = new InternalTransaction(parentHash, deep, size(internalTransactions), nonce, gasPrice, gasLimit, senderAddress, receiveAddress, value, data, note);
+    public InternalTransaction addInternalTransaction(final byte[] parentHash, final int deep, final byte[] nonce, final DataWord gasPrice, final DataWord gasLimit,
+                                                      final byte[] senderAddress, final byte[] receiveAddress, final byte[] value, final byte[] data, final String note) {
+        final InternalTransaction transaction = new InternalTransaction(parentHash, deep, size(internalTransactions), nonce, gasPrice, gasLimit, senderAddress, receiveAddress, value, data, note);
         getInternalTransactions().add(transaction);
         return transaction;
     }
 
-    private void addInternalTransactions(List<InternalTransaction> internalTransactions) {
+    private void addInternalTransactions(final List<InternalTransaction> internalTransactions) {
         getInternalTransactions().addAll(internalTransactions);
     }
 
     public void rejectInternalTransactions() {
-        for (InternalTransaction internalTx : getInternalTransactions()) {
+        for (final InternalTransaction internalTx : getInternalTransactions()) {
             internalTx.reject();
         }
     }
 
-    public void addFutureRefund(long gasValue) {
+    public void addFutureRefund(final long gasValue) {
         futureRefund += gasValue;
     }
 
@@ -166,7 +192,7 @@ public class ProgramResult {
         futureRefund = 0;
     }
 
-    public void merge(ProgramResult another) {
+    public void merge(final ProgramResult another) {
         addInternalTransactions(another.getInternalTransactions());
         if (another.getException() == null) {
             addDeleteAccounts(another.getDeleteAccounts());

@@ -59,10 +59,10 @@ public class Genesis extends Block {
     private static Block instance;
     private Map<ByteArrayWrapper, PremineAccount> premine = new HashMap<>();
 
-    public Genesis(byte[] parentHash, byte[] unclesHash, byte[] coinbase, byte[] logsBloom,
-                   byte[] difficulty, long number, long gasLimit,
-                   long gasUsed, long timestamp,
-                   byte[] extraData, byte[] mixHash, byte[] nonce){
+    public Genesis(final byte[] parentHash, final byte[] unclesHash, final byte[] coinbase, final byte[] logsBloom,
+                   final byte[] difficulty, final long number, final long gasLimit,
+                   final long gasUsed, final long timestamp,
+                   final byte[] extraData, final byte[] mixHash, final byte[] nonce) {
         super(parentHash, unclesHash, coinbase, logsBloom, difficulty,
                 number, ByteUtil.longToBytesNoLeadZeroes(gasLimit), gasUsed, timestamp, extraData,
                 mixHash, nonce, null, null);
@@ -72,12 +72,12 @@ public class Genesis extends Block {
         return SystemProperties.getDefault().getGenesis();
     }
 
-    public static Genesis getInstance(SystemProperties config) {
+    public static Genesis getInstance(final SystemProperties config) {
         return config.getGenesis();
     }
 
-    public static void populateRepository(Repository repository, Genesis genesis) {
-        for (ByteArrayWrapper key : genesis.getPremine().keySet()) {
+    public static void populateRepository(final Repository repository, final Genesis genesis) {
+        for (final ByteArrayWrapper key : genesis.getPremine().keySet()) {
             final Genesis.PremineAccount premineAccount = genesis.getPremine().get(key);
             final AccountState accountState = premineAccount.accountState;
 
@@ -94,11 +94,11 @@ public class Genesis extends Block {
         return premine;
     }
 
-    public void setPremine(Map<ByteArrayWrapper, PremineAccount> premine) {
+    public void setPremine(final Map<ByteArrayWrapper, PremineAccount> premine) {
         this.premine = premine;
     }
 
-    public void addPremine(ByteArrayWrapper address, AccountState accountState) {
+    public void addPremine(final ByteArrayWrapper address, final AccountState accountState) {
         premine.put(address, new PremineAccount(accountState));
     }
 
@@ -111,7 +111,7 @@ public class Genesis extends Block {
 
         public AccountState accountState;
 
-        public PremineAccount(AccountState accountState) {
+        public PremineAccount(final AccountState accountState) {
             this.accountState = accountState;
         }
 

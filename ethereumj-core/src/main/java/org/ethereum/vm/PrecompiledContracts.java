@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.vm;
 
 import org.ethereum.crypto.ECKey;
@@ -21,7 +47,7 @@ public class PrecompiledContracts {
     private static final DataWord identityAddr =    new DataWord("0000000000000000000000000000000000000000000000000000000000000004");
 
 
-    public static PrecompiledContract getContractForAddress(DataWord address) {
+    public static PrecompiledContract getContractForAddress(final DataWord address) {
 
         if (address == null) return identity;
         if (address.equals(ecRecoverAddr)) return ecRecover;
@@ -45,7 +71,7 @@ public class PrecompiledContracts {
         }
 
         @Override
-        public long getGasForData(byte[] data) {
+        public long getGasForData(final byte[] data) {
 
             // gas charge for the execution:
             // minimum 1 and additional 1 for each 32 bytes word (round  up)
@@ -54,7 +80,7 @@ public class PrecompiledContracts {
         }
 
         @Override
-        public byte[] execute(byte[] data) {
+        public byte[] execute(final byte[] data) {
             return data;
         }
     }
@@ -63,7 +89,7 @@ public class PrecompiledContracts {
 
 
         @Override
-        public long getGasForData(byte[] data) {
+        public long getGasForData(final byte[] data) {
 
             // gas charge for the execution:
             // minimum 50 and additional 50 for each 32 bytes word (round  up)
@@ -72,7 +98,7 @@ public class PrecompiledContracts {
         }
 
         @Override
-        public byte[] execute(byte[] data) {
+        public byte[] execute(final byte[] data) {
 
             if (data == null) return HashUtil.sha256(ByteUtil.EMPTY_BYTE_ARRAY);
             return HashUtil.sha256(data);
@@ -84,7 +110,7 @@ public class PrecompiledContracts {
 
 
         @Override
-        public long getGasForData(byte[] data) {
+        public long getGasForData(final byte[] data) {
 
             // TODO #POC9 Replace magic numbers with constants
             // gas charge for the execution:
@@ -94,7 +120,7 @@ public class PrecompiledContracts {
         }
 
         @Override
-        public byte[] execute(byte[] data) {
+        public byte[] execute(final byte[] data) {
 
             byte[] result = null;
             if (data == null) result = HashUtil.ripemd160(ByteUtil.EMPTY_BYTE_ARRAY);
@@ -107,7 +133,7 @@ public class PrecompiledContracts {
 
     public static class ECRecover extends PrecompiledContract {
 
-        private static boolean validateV(byte[] v) {
+        private static boolean validateV(final byte[] v) {
             for (int i = 0; i < v.length - 1; i++) {
                 if (v[i] != 0) return false;
             }
@@ -115,17 +141,17 @@ public class PrecompiledContracts {
         }
 
         @Override
-        public long getGasForData(byte[] data) {
+        public long getGasForData(final byte[] data) {
             return 3000;
         }
 
         @Override
-        public byte[] execute(byte[] data) {
+        public byte[] execute(final byte[] data) {
 
-            byte[] h = new byte[32];
-            byte[] v = new byte[32];
-            byte[] r = new byte[32];
-            byte[] s = new byte[32];
+            final byte[] h = new byte[32];
+            final byte[] v = new byte[32];
+            final byte[] r = new byte[32];
+            final byte[] s = new byte[32];
 
             DataWord out = null;
 
@@ -134,14 +160,14 @@ public class PrecompiledContracts {
                 System.arraycopy(data, 32, v, 0, 32);
                 System.arraycopy(data, 64, r, 0, 32);
 
-                int sLength = data.length < 128 ? data.length - 96 : 32;
+                final int sLength = data.length < 128 ? data.length - 96 : 32;
                 System.arraycopy(data, 96, s, 0, sLength);
 
-                ECKey.ECDSASignature signature = ECKey.ECDSASignature.fromComponents(r, s, v[31]);
+                final ECKey.ECDSASignature signature = ECKey.ECDSASignature.fromComponents(r, s, v[31]);
                 if (validateV(v) && signature.validateComponents()) {
                     out = new DataWord(ECKey.signatureToAddress(h, signature));
                 }
-            } catch (Throwable any) {
+            } catch (final Throwable any) {
             }
 
             if (out == null) {

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite;
 
 import org.apache.commons.codec.binary.Base64;
@@ -20,14 +46,14 @@ public class JSONReader {
 
     private static final Logger logger = LoggerFactory.getLogger("TCK-Test");
 
-    public static String loadJSON(String filename) {
+    public static String loadJSON(final String filename) {
         String json = "";
         if (!SystemProperties.getDefault().vmTestLoadLocal())
             json = getFromUrl("https://raw.githubusercontent.com/ethereum/tests/develop/" + filename);
         return json.isEmpty() ? getFromLocal(filename) : json;
     }
 
-    public static String loadJSONFromCommit(String filename, String shacommit) {
+    public static String loadJSONFromCommit(final String filename, final String shacommit) {
         String json = "";
         if (!SystemProperties.getDefault().vmTestLoadLocal())
             json = getFromUrl("https://raw.githubusercontent.com/ethereum/tests/" + shacommit + "/" + filename);
@@ -35,26 +61,26 @@ public class JSONReader {
         return json.isEmpty() ? getFromLocal(filename) : json;
     }
 
-    public static String getFromLocal(String filename) {
+    public static String getFromLocal(final String filename) {
         System.out.println("Loading local file: " + filename);
         try {
-            File vmTestFile = new File(filename);
+            final File vmTestFile = new File(filename);
             if (!vmTestFile.exists()){
                 System.out.println(" Error: no file: " +filename);
                 System.exit(1);
             }
             return new String(Files.readAllBytes(vmTestFile.toPath()));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
         return "";
     }
 
-    public static String getFromUrl(String urlToRead) {
-        URL url;
-        HttpURLConnection conn;
-        BufferedReader rd;
-        StringBuilder result = new StringBuilder();
+    public static String getFromUrl(final String urlToRead) {
+        final URL url;
+        final HttpURLConnection conn;
+        final BufferedReader rd;
+        final StringBuilder result = new StringBuilder();
         String line;
         try {
             url = new URL(urlToRead);
@@ -62,7 +88,7 @@ public class JSONReader {
             conn.setRequestMethod("GET");
             conn.setDoOutput(true);
             conn.connect();
-            InputStream in = conn.getInputStream();
+            final InputStream in = conn.getInputStream();
             rd = new BufferedReader(new InputStreamReader(in), 819200);
 
             logger.info("Loading remote file: " + urlToRead);
@@ -70,60 +96,64 @@ public class JSONReader {
                 result.append(line);
             }
             rd.close();
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             e.printStackTrace();
         }
         return result.toString();
     }
 
-    public static String getTestBlobForTreeSha(String shacommit, String testcase){
+    public static String getTestBlobForTreeSha(final String shacommit, final String testcase) {
 
-        String result = getFromUrl("https://api.github.com/repos/ethereum/tests/git/trees/" + shacommit);
+        final String result = getFromUrl("https://api.github.com/repos/ethereum/tests/git/trees/" + shacommit);
 
-        JSONParser parser = new JSONParser();
+        final JSONParser parser = new JSONParser();
         JSONObject testSuiteObj = null;
 
-        List<String> fileNames = new ArrayList<>();
+        final List<String> fileNames = new ArrayList<>();
         try {
             testSuiteObj = (JSONObject) parser.parse(result);
-            JSONArray tree = (JSONArray)testSuiteObj.get("tree");
+            final JSONArray tree = (JSONArray) testSuiteObj.get("tree");
 
-            for (Object oEntry : tree) {
-                JSONObject entry = (JSONObject) oEntry;
-                String testName = (String) entry.get("path");
+            for (final Object oEntry : tree) {
+                final JSONObject entry = (JSONObject) oEntry;
+                final String testName = (String) entry.get("path");
                 if ( testName.equals(testcase) ) {
-                    String blobresult = getFromUrl( (String) entry.get("url") );
+                    final String blobresult = getFromUrl((String) entry.get("url"));
 
                     testSuiteObj = (JSONObject) parser.parse(blobresult);
-                    String blob  = (String) testSuiteObj.get("content");
-                    byte[] valueDecoded= Base64.decodeBase64(blob.getBytes() );
+                    final String blob = (String) testSuiteObj.get("content");
+                    final byte[] valueDecoded = Base64.decodeBase64(blob.getBytes());
                     //System.out.println("Decoded value is " + new String(valueDecoded));
                     return new String(valueDecoded);
                 }
             }
-        } catch (ParseException e) {e.printStackTrace();}
+        } catch (final ParseException e) {
+            e.printStackTrace();
+        }
 
         return "";
     }
 
-    public static List<String> getFileNamesForTreeSha(String sha){
+    public static List<String> getFileNamesForTreeSha(final String sha) {
 
-        String result = getFromUrl("https://api.github.com/repos/ethereum/tests/git/trees/" + sha + "?recursive=1");
+        final String result = getFromUrl("https://api.github.com/repos/ethereum/tests/git/trees/" + sha + "?recursive=1");
 
-        JSONParser parser = new JSONParser();
+        final JSONParser parser = new JSONParser();
         JSONObject testSuiteObj = null;
 
-        List<String> fileNames = new ArrayList<>();
+        final List<String> fileNames = new ArrayList<>();
         try {
             testSuiteObj = (JSONObject) parser.parse(result);
-            JSONArray tree = (JSONArray)testSuiteObj.get("tree");
+            final JSONArray tree = (JSONArray) testSuiteObj.get("tree");
 
-            for (Object oEntry : tree) {
-                JSONObject entry = (JSONObject) oEntry;
-                String testName = (String) entry.get("path");
+            for (final Object oEntry : tree) {
+                final JSONObject entry = (JSONObject) oEntry;
+                final String testName = (String) entry.get("path");
                 fileNames.add(testName);
             }
-        } catch (ParseException e) {e.printStackTrace();}
+        } catch (final ParseException e) {
+            e.printStackTrace();
+        }
 
         return fileNames;
     }

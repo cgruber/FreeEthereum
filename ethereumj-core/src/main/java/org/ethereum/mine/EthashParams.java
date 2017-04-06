@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.mine;
 
 /**
@@ -26,7 +52,7 @@ public class EthashParams {
     //  hash length in bytes
     private final int HASH_BYTES = 64;
 
-    private static boolean isPrime(long num) {
+    private static boolean isPrime(final long num) {
         if (num == 2) return true;
         if (num % 2 == 0) return false;
         for (int i = 3; i * i < num; i += 2)
@@ -40,7 +66,7 @@ public class EthashParams {
      * prime below the linearly growing threshold in order to reduce the risk of accidental
      * regularities leading to cyclic behavior.
      */
-    public long getCacheSize(long blockNumber) {
+    public long getCacheSize(final long blockNumber) {
         long sz = CACHE_BYTES_INIT + CACHE_BYTES_GROWTH * (blockNumber / EPOCH_LENGTH);
         sz -= HASH_BYTES;
         while (!isPrime(sz / HASH_BYTES)) {
@@ -49,7 +75,7 @@ public class EthashParams {
         return sz;
     }
 
-    public long getFullSize(long blockNumber) {
+    public long getFullSize(final long blockNumber) {
         long sz = DATASET_BYTES_INIT + DATASET_BYTES_GROWTH * (blockNumber / EPOCH_LENGTH);
         sz -= MIX_BYTES;
         while (!isPrime(sz / MIX_BYTES)) {
@@ -59,7 +85,7 @@ public class EthashParams {
     }
 
     public int getWORD_BYTES() {
-        int WORD_BYTES = 4;
+        final int WORD_BYTES = 4;
         return WORD_BYTES;
     }
 
@@ -80,7 +106,7 @@ public class EthashParams {
     }
 
     public long getCACHE_MULTIPLIER() {
-        long CACHE_MULTIPLIER = 1024;
+        final long CACHE_MULTIPLIER = 1024;
         return CACHE_MULTIPLIER;
     }
 
@@ -97,17 +123,17 @@ public class EthashParams {
     }
 
     public long getDATASET_PARENTS() {
-        long DATASET_PARENTS = 256;
+        final long DATASET_PARENTS = 256;
         return DATASET_PARENTS;
     }
 
     public long getCACHE_ROUNDS() {
-        long CACHE_ROUNDS = 3;
+        final long CACHE_ROUNDS = 3;
         return CACHE_ROUNDS;
     }
 
     public long getACCESSES() {
-        long ACCESSES = 64;
+        final long ACCESSES = 64;
         return ACCESSES;
     }
 }

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite;
 
 
@@ -26,7 +52,7 @@ public class RLPTestCase {
         return in;
     }
 
-    public void setIn(Object in) {
+    public void setIn(final Object in) {
         this.in = in;
     }
 
@@ -34,7 +60,7 @@ public class RLPTestCase {
         return out;
     }
 
-    public void setOut(String out) {
+    public void setOut(final String out) {
         this.out = out;
     }
 
@@ -47,30 +73,30 @@ public class RLPTestCase {
     }
 
     public void doEncode() {
-        byte[] in = buildRLP(this.in);
-        String expected = this.out.toLowerCase();
-        String computed = Hex.toHexString(in);
+        final byte[] in = buildRLP(this.in);
+        final String expected = this.out.toLowerCase();
+        final String computed = Hex.toHexString(in);
         this.computed.add(computed);
         this.expected.add(expected);
     }
 
     public void doDecode() {
-        String out = this.out.toLowerCase();
-        RLPList list = RLP.decode2(Hex.decode(out));
+        final String out = this.out.toLowerCase();
+        final RLPList list = RLP.decode2(Hex.decode(out));
         checkRLPAgainstJson(list.get(0), in);
     }
 
-    private byte[] buildRLP(Object in) {
+    private byte[] buildRLP(final Object in) {
         if (in instanceof ArrayList) {
-            List<byte[]> elementList = new Vector<>();
-            for (Object o : ((ArrayList) in).toArray()) {
+            final List<byte[]> elementList = new Vector<>();
+            for (final Object o : ((ArrayList) in).toArray()) {
                 elementList.add(buildRLP(o));
             }
-            byte[][] elements = elementList.toArray(new byte[elementList.size()][]);
+            final byte[][] elements = elementList.toArray(new byte[elementList.size()][]);
             return RLP.encodeList(elements);
         } else {
             if (in instanceof String) {
-                String s = in.toString();
+                final String s = in.toString();
                 if (s.contains("#")) {
                     return RLP.encode(new BigInteger(s.substring(1)));
                 }
@@ -81,28 +107,28 @@ public class RLPTestCase {
         }
     }
 
-    private void checkRLPAgainstJson(RLPElement element, Object in) {
+    private void checkRLPAgainstJson(final RLPElement element, final Object in) {
         if (in instanceof List) {
-            Object[] array = ((List) in).toArray();
-            RLPList list = (RLPList) element;
+            final Object[] array = ((List) in).toArray();
+            final RLPList list = (RLPList) element;
             for (int i = 0; i < array.length; i++) {
                 checkRLPAgainstJson(list.get(i), array[i]);
             }
         } else if (in instanceof Number) {
-            int computed = ByteUtil.byteArrayToInt(element.getRLPData());
+            final int computed = ByteUtil.byteArrayToInt(element.getRLPData());
             this.computed.add(Integer.toString(computed));
             this.expected.add(in.toString());
         } else if (in instanceof String) {
             String s = in.toString();
             if (s.contains("#")) {
                 s = s.substring(1);
-                BigInteger expected = new BigInteger(s);
-                byte[] payload = element.getRLPData();
-                BigInteger computed = new BigInteger(1, payload);
+                final BigInteger expected = new BigInteger(s);
+                final byte[] payload = element.getRLPData();
+                final BigInteger computed = new BigInteger(1, payload);
                 this.computed.add(computed.toString());
                 this.expected.add(expected.toString());
             } else {
-                String expected = new String(element.getRLPData() != null ? element.getRLPData() :
+                final String expected = new String(element.getRLPData() != null ? element.getRLPData() :
                         new byte[0], StandardCharsets.UTF_8);
                 this.expected.add(expected);
                 this.computed.add(s);

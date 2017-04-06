@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.sync;
 
 import org.ethereum.config.SystemProperties;
@@ -78,7 +104,7 @@ public class SyncPool {
                             fillUp();
                             prepareActive();
                             cleanupActive();
-                        } catch (Throwable t) {
+                        } catch (final Throwable t) {
                             logger.error("Unhandled exception", t);
                         }
                     }
@@ -90,7 +116,7 @@ public class SyncPool {
                 try {
                     logActivePeers();
                     logger.info("\n");
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     t.printStackTrace();
                     logger.error("Exception in log worker", t);
                 }
@@ -98,7 +124,7 @@ public class SyncPool {
         }, 30, 30, TimeUnit.SECONDS);
     }
 
-    public void setNodesSelector(Functional.Predicate<NodeHandler> nodesSelector) {
+    public void setNodesSelector(final Functional.Predicate<NodeHandler> nodesSelector) {
         this.nodesSelector = nodesSelector;
     }
 
@@ -106,16 +132,16 @@ public class SyncPool {
         try {
             poolLoopExecutor.shutdownNow();
             logExecutor.shutdownNow();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.warn("Problems shutting down executor", e);
         }
     }
 
     @Nullable
     public synchronized Channel getAnyIdle() {
-        ArrayList<Channel> channels = new ArrayList<>(activePeers);
+        final ArrayList<Channel> channels = new ArrayList<>(activePeers);
         Collections.shuffle(channels);
-        for (Channel peer : channels) {
+        for (final Channel peer : channels) {
             if (peer.isIdle())
                 return peer;
         }
@@ -125,7 +151,7 @@ public class SyncPool {
 
     @Nullable
     public synchronized Channel getBestIdle() {
-        for (Channel peer : activePeers) {
+        for (final Channel peer : activePeers) {
             if (peer.isIdle())
                 return peer;
         }
@@ -134,10 +160,10 @@ public class SyncPool {
 
     @Nullable
     public synchronized Channel getNotLastIdle() {
-        ArrayList<Channel> channels = new ArrayList<>(activePeers);
+        final ArrayList<Channel> channels = new ArrayList<>(activePeers);
         Collections.shuffle(channels);
         Channel candidate = null;
-        for (Channel peer : channels) {
+        for (final Channel peer : channels) {
             if (peer.isIdle()) {
                 if (candidate == null) {
                     candidate = peer;
@@ -151,8 +177,8 @@ public class SyncPool {
     }
 
     public synchronized List<Channel> getAllIdle() {
-        List<Channel> ret = new ArrayList<>();
-        for (Channel peer : activePeers) {
+        final List<Channel> ret = new ArrayList<>();
+        for (final Channel peer : activePeers) {
             if (peer.isIdle())
                 ret.add(peer);
         }
@@ -168,19 +194,19 @@ public class SyncPool {
     }
 
     @Nullable
-    public synchronized Channel getByNodeId(byte[] nodeId) {
+    public synchronized Channel getByNodeId(final byte[] nodeId) {
         return channelManager.getActivePeer(nodeId);
     }
 
-    public synchronized void onDisconnect(Channel peer) {
+    public synchronized void onDisconnect(final Channel peer) {
         if (activePeers.remove(peer)) {
             logger.info("Peer {}: disconnected", peer.getPeerIdShort());
         }
     }
 
     private synchronized Set<String> nodesInUse() {
-        Set<String> ids = new HashSet<>();
-        for (Channel peer : channelManager.getActivePeers()) {
+        final Set<String> ids = new HashSet<>();
+        for (final Channel peer : channelManager.getActivePeers()) {
             ids.add(peer.getPeerId());
         }
         return ids;
@@ -188,17 +214,17 @@ public class SyncPool {
 
     private synchronized void logActivePeers() {
         if (logger.isInfoEnabled()) {
-            StringBuilder sb = new StringBuilder("Peer stats:\n");
+            final StringBuilder sb = new StringBuilder("Peer stats:\n");
             sb.append("Active peers\n");
             sb.append("============\n");
-            Set<Node> activeSet = new HashSet<>();
-            for (Channel peer : new ArrayList<>(activePeers)) {
+            final Set<Node> activeSet = new HashSet<>();
+            for (final Channel peer : new ArrayList<>(activePeers)) {
                 sb.append(peer.logSyncStats()).append('\n');
                 activeSet.add(peer.getNode());
             }
             sb.append("Other connected peers\n");
             sb.append("============\n");
-            for (Channel peer : new ArrayList<>(channelManager.getActivePeers())) {
+            for (final Channel peer : new ArrayList<>(channelManager.getActivePeers())) {
                 if (!activeSet.contains(peer.getNode())) {
                     sb.append(peer.logSyncStats()).append('\n');
                 }
@@ -208,7 +234,7 @@ public class SyncPool {
     }
 
     private void fillUp() {
-        int lackSize = config.maxActivePeers() - channelManager.getActivePeers().size();
+        final int lackSize = config.maxActivePeers() - channelManager.getActivePeers().size();
         if(lackSize <= 0) return;
 
         final Set<String> nodesInUse = nodesInUse();
@@ -224,18 +250,18 @@ public class SyncPool {
             logDiscoveredNodes(newNodes);
         }
 
-        for(NodeHandler n : newNodes) {
+        for (final NodeHandler n : newNodes) {
             channelManager.connect(n.getNode());
         }
     }
 
     private synchronized void prepareActive() {
-        List<Channel> managerActive = new ArrayList<>(channelManager.getActivePeers());
+        final List<Channel> managerActive = new ArrayList<>(channelManager.getActivePeers());
 
         // Filtering out with nodeSelector because server-connected nodes were not tested
-        NodeSelector nodeSelector = new NodeSelector(BigInteger.ZERO);
-        List<Channel> active = new ArrayList<>();
-        for (Channel channel : managerActive) {
+        final NodeSelector nodeSelector = new NodeSelector(BigInteger.ZERO);
+        final List<Channel> active = new ArrayList<>();
+        for (final Channel channel : managerActive) {
             if (nodeSelector.test(nodeManager.getNodeHandler(channel.getNode()))) {
                 active.add(channel);
             }
@@ -246,12 +272,12 @@ public class SyncPool {
         // filtering by 20% from top difficulty
         active.sort(new Comparator<Channel>() {
             @Override
-            public int compare(Channel c1, Channel c2) {
+            public int compare(final Channel c1, final Channel c2) {
                 return c2.getTotalDifficulty().compareTo(c1.getTotalDifficulty());
             }
         });
 
-        BigInteger highestDifficulty = active.get(0).getTotalDifficulty();
+        final BigInteger highestDifficulty = active.get(0).getTotalDifficulty();
         int thresholdIdx = min(config.syncPeerCount(), active.size()) - 1;
 
         for (int i = thresholdIdx; i >= 0; i--) {
@@ -261,17 +287,17 @@ public class SyncPool {
             }
         }
 
-        List<Channel> filtered = active.subList(0, thresholdIdx + 1);
+        final List<Channel> filtered = active.subList(0, thresholdIdx + 1);
 
         // sorting by latency in asc order
         filtered.sort(new Comparator<Channel>() {
             @Override
-            public int compare(Channel c1, Channel c2) {
+            public int compare(final Channel c1, final Channel c2) {
                 return Double.valueOf(c1.getPeerStats().getAvgLatency()).compareTo(c2.getPeerStats().getAvgLatency());
             }
         });
 
-        for (Channel channel : filtered) {
+        for (final Channel channel : filtered) {
             if (!activePeers.contains(channel)) {
                 ethereumListener.onPeerAddedToSyncPool(channel);
             }
@@ -282,9 +308,9 @@ public class SyncPool {
     }
 
     private synchronized void cleanupActive() {
-        Iterator<Channel> iterator = activePeers.iterator();
+        final Iterator<Channel> iterator = activePeers.iterator();
         while (iterator.hasNext()) {
-            Channel next = iterator.next();
+            final Channel next = iterator.next();
             if (next.isDisconnected()) {
                 logger.info("Removing peer " + next + " from active due to disconnect.");
                 iterator.remove();
@@ -292,9 +318,9 @@ public class SyncPool {
         }
     }
 
-    private void logDiscoveredNodes(List<NodeHandler> nodes) {
-        StringBuilder sb = new StringBuilder();
-        for(NodeHandler n : nodes) {
+    private void logDiscoveredNodes(final List<NodeHandler> nodes) {
+        final StringBuilder sb = new StringBuilder();
+        for (final NodeHandler n : nodes) {
             sb.append(Utils.getNodeIdShort(Hex.toHexString(n.getNode().getId())));
             sb.append(", ");
         }
@@ -308,7 +334,7 @@ public class SyncPool {
     }
 
     private void updateLowerUsefulDifficulty() {
-        BigInteger td = blockchain.getTotalDifficulty();
+        final BigInteger td = blockchain.getTotalDifficulty();
         if (td.compareTo(lowerUsefulDifficulty) > 0) {
             lowerUsefulDifficulty = td;
         }
@@ -331,17 +357,17 @@ public class SyncPool {
         final BigInteger lowerDifficulty;
         Set<String> nodesInUse;
 
-        public NodeSelector(BigInteger lowerDifficulty) {
+        public NodeSelector(final BigInteger lowerDifficulty) {
             this.lowerDifficulty = lowerDifficulty;
         }
 
-        public NodeSelector(BigInteger lowerDifficulty, Set<String> nodesInUse) {
+        public NodeSelector(final BigInteger lowerDifficulty, final Set<String> nodesInUse) {
             this.lowerDifficulty = lowerDifficulty;
             this.nodesInUse = nodesInUse;
         }
 
         @Override
-        public boolean test(NodeHandler handler) {
+        public boolean test(final NodeHandler handler) {
             if (nodesInUse != null && nodesInUse.contains(handler.getNode().getHexId())) {
                 return false;
             }

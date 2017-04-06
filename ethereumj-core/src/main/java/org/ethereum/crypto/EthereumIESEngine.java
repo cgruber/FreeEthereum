@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.crypto;
 
 import org.spongycastle.crypto.*;
@@ -49,9 +75,9 @@ class EthereumIESEngine
      * @param cipher the actual cipher
      */
     public EthereumIESEngine(
-            BasicAgreement agree,
-            DerivationFunction kdf,
-            Mac mac, Digest hash, BufferedBlockCipher cipher)
+            final BasicAgreement agree,
+            final DerivationFunction kdf,
+            final Mac mac, final Digest hash, final BufferedBlockCipher cipher)
     {
         this.agree = agree;
         this.kdf = kdf;
@@ -62,7 +88,7 @@ class EthereumIESEngine
     }
 
 
-    public void setHashMacKey(boolean hashK2) {
+    public void setHashMacKey(final boolean hashK2) {
         this.hashK2 = hashK2;
     }
 
@@ -75,10 +101,10 @@ class EthereumIESEngine
      * @param params        encoding and derivation parameters, may be wrapped to include an IV for an underlying block cipher.
      */
     public void init(
-        boolean forEncryption,
-        CipherParameters privParam,
-        CipherParameters pubParam,
-        CipherParameters params)
+            final boolean forEncryption,
+            final CipherParameters privParam,
+            final CipherParameters pubParam,
+            final CipherParameters params)
     {
         this.forEncryption = forEncryption;
         this.privParam = privParam;
@@ -96,7 +122,7 @@ class EthereumIESEngine
      * @param params         encoding and derivation parameters, may be wrapped to include an IV for an underlying block cipher.
      * @param ephemeralKeyPairGenerator             the ephemeral key pair generator to use.
      */
-    public void init(AsymmetricKeyParameter publicKey, CipherParameters params, EphemeralKeyPairGenerator ephemeralKeyPairGenerator)
+    public void init(final AsymmetricKeyParameter publicKey, final CipherParameters params, final EphemeralKeyPairGenerator ephemeralKeyPairGenerator)
     {
         this.forEncryption = true;
         this.pubParam = publicKey;
@@ -112,7 +138,7 @@ class EthereumIESEngine
      * @param params          encoding and derivation parameters, may be wrapped to include an IV for an underlying block cipher.
      * @param publicKeyParser the parser for reading the ephemeral public key.
      */
-    public void init(AsymmetricKeyParameter privateKey, CipherParameters params, KeyParser publicKeyParser)
+    public void init(final AsymmetricKeyParameter privateKey, final CipherParameters params, final KeyParser publicKeyParser)
     {
         this.forEncryption = false;
         this.privParam = privateKey;
@@ -121,7 +147,7 @@ class EthereumIESEngine
         extractParams(params);
     }
 
-    private void extractParams(CipherParameters params)
+    private void extractParams(final CipherParameters params)
     {
         if (params instanceof ParametersWithIV)
         {
@@ -146,10 +172,10 @@ class EthereumIESEngine
     }
 
     private byte[] encryptBlock(
-        byte[] in,
-        int inOff,
-        int inLen,
-        byte[] macData)
+            final byte[] in,
+            final int inOff,
+            final int inLen,
+            final byte[] macData)
         throws InvalidCipherTextException
     {
         byte[] C = null, K = null, K1 = null, K2 = null;
@@ -211,12 +237,12 @@ class EthereumIESEngine
 
 
         // Convert the length of the encoding vector into a byte array.
-        byte[] P2 = param.getEncodingV();
+        final byte[] P2 = param.getEncodingV();
 
         // Apply the MAC.
-        byte[] T = new byte[mac.getMacSize()];
+        final byte[] T = new byte[mac.getMacSize()];
 
-        byte[] K2a;
+        final byte[] K2a;
         if (hashK2) {
             K2a = new byte[hash.getDigestSize()];
             hash.reset();
@@ -233,7 +259,7 @@ class EthereumIESEngine
             mac.update(P2, 0, P2.length);
         }
         if (V.length != 0 && P2 != null) {
-            byte[] L2 = new byte[4];
+            final byte[] L2 = new byte[4];
             Pack.intToBigEndian(P2.length * 8, L2, 0);
             mac.update(L2, 0, L2.length);
         }
@@ -245,7 +271,7 @@ class EthereumIESEngine
         mac.doFinal(T, 0);
 
         // Output the triple (V,C,T).
-        byte[] Output = new byte[V.length + len + T.length];
+        final byte[] Output = new byte[V.length + len + T.length];
         System.arraycopy(V, 0, Output, 0, V.length);
         System.arraycopy(C, 0, Output, V.length, len);
         System.arraycopy(T, 0, Output, V.length + len, T.length);
@@ -253,10 +279,10 @@ class EthereumIESEngine
     }
 
     private byte[] decryptBlock(
-        byte[] in_enc,
-        int inOff,
-        int inLen,
-        byte[] macData)
+            final byte[] in_enc,
+            final int inOff,
+            final int inLen,
+            final byte[] macData)
         throws InvalidCipherTextException
     {
         byte[] M = null, K = null, K1 = null, K2 = null;
@@ -325,14 +351,14 @@ class EthereumIESEngine
 
 
         // Convert the length of the encoding vector into a byte array.
-        byte[] P2 = param.getEncodingV();
+        final byte[] P2 = param.getEncodingV();
 
         // Verify the MAC.
-        int end = inOff + inLen;
-        byte[] T1 = Arrays.copyOfRange(in_enc, end - mac.getMacSize(), end);
+        final int end = inOff + inLen;
+        final byte[] T1 = Arrays.copyOfRange(in_enc, end - mac.getMacSize(), end);
 
-        byte[] T2 = new byte[T1.length];
-        byte[] K2a;
+        final byte[] T2 = new byte[T1.length];
+        final byte[] K2a;
         if (hashK2) {
             K2a = new byte[hash.getDigestSize()];
             hash.reset();
@@ -351,7 +377,7 @@ class EthereumIESEngine
         }
 
         if (V.length != 0 && P2 != null) {
-            byte[] L2 = new byte[4];
+            final byte[] L2 = new byte[4];
             Pack.intToBigEndian(P2.length * 8, L2, 0);
             mac.update(L2, 0, L2.length);
         }
@@ -372,22 +398,22 @@ class EthereumIESEngine
         return Arrays.copyOfRange(M, 0, len);
     }
 
-    public byte[] processBlock(byte[] in, int inOff, int inLen) throws InvalidCipherTextException {
+    public byte[] processBlock(final byte[] in, final int inOff, final int inLen) throws InvalidCipherTextException {
         return processBlock(in, inOff, inLen, null);
     }
 
     public byte[] processBlock(
-        byte[] in,
-        int inOff,
-        int inLen,
-        byte[] macData)
+            final byte[] in,
+            final int inOff,
+            final int inLen,
+            final byte[] macData)
         throws InvalidCipherTextException
     {
         if (forEncryption)
         {
             if (keyPairGenerator != null)
             {
-                EphemeralKeyPair ephKeyPair = keyPairGenerator.generate();
+                final EphemeralKeyPair ephKeyPair = keyPairGenerator.generate();
 
                 this.privParam = ephKeyPair.getKeyPair().getPrivate();
                 this.V = ephKeyPair.getEncodedPublicKey();
@@ -397,29 +423,28 @@ class EthereumIESEngine
         {
             if (keyParser != null)
             {
-                ByteArrayInputStream bIn = new ByteArrayInputStream(in, inOff, inLen);
+                final ByteArrayInputStream bIn = new ByteArrayInputStream(in, inOff, inLen);
 
                 try
                 {
                     this.pubParam = keyParser.readKey(bIn);
-                }
-                catch (IOException e)
+                } catch (final IOException e)
                 {
                     throw new InvalidCipherTextException("unable to recover ephemeral public key: " + e.getMessage(), e);
                 }
 
-                int encLength = (inLen - bIn.available());
+                final int encLength = (inLen - bIn.available());
                 this.V = Arrays.copyOfRange(in, inOff, inOff + encLength);
             }
         }
 
         // Compute the common value and convert to byte array.
         agree.init(privParam);
-        BigInteger z = agree.calculateAgreement(pubParam);
-        byte[] Z = BigIntegers.asUnsignedByteArray(agree.getFieldSize(), z);
+        final BigInteger z = agree.calculateAgreement(pubParam);
+        final byte[] Z = BigIntegers.asUnsignedByteArray(agree.getFieldSize(), z);
 
         // Create input to KDF.
-        byte[] VZ;
+        final byte[] VZ;
 //        if (V.length != 0)
 //        {
 //            VZ = new byte[V.length + Z.length];
@@ -432,7 +457,7 @@ class EthereumIESEngine
         }
 
         // Initialise the KDF.
-        DerivationParameters kdfParam;
+        final DerivationParameters kdfParam;
         if (kdf instanceof MGF1BytesGeneratorExt) {
             kdfParam = new MGFParameters(VZ);
         } else {

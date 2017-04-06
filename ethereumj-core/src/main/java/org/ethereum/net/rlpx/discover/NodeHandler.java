@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx.discover;
 
 import org.ethereum.net.rlpx.*;
@@ -32,7 +58,7 @@ public class NodeHandler {
     private int pingTrials = 3;
     private NodeHandler replaceCandidate;
 
-    public NodeHandler(Node node, NodeManager nodeManager) {
+    public NodeHandler(final Node node, final NodeManager nodeManager) {
         this.node = node;
         this.nodeManager = nodeManager;
         changeState(State.Discovered);
@@ -41,8 +67,8 @@ public class NodeHandler {
     // gradually reducing log level for dumping discover messages
     // they are not so informative when everything is already up and running
     // but could be interesting when discovery just starts
-    private void logMessage(Message msg, boolean inbound) {
-        String s = String.format("%s[%s (%s)] %s", inbound ? " ===>  " : "<===  ", msg.getClass().getSimpleName(),
+    private void logMessage(final Message msg, final boolean inbound) {
+        final String s = String.format("%s[%s (%s)] %s", inbound ? " ===>  " : "<===  ", msg.getClass().getSimpleName(),
                 msg.getPacket().length, this);
         if (msgInCount > 1024) {
             logger.trace(s);
@@ -91,25 +117,25 @@ public class NodeHandler {
         return nodeStatistics;
     }
 
-    private void challengeWith(NodeHandler replaceCandidate) {
+    private void challengeWith(final NodeHandler replaceCandidate) {
         this.replaceCandidate = replaceCandidate;
         changeState(State.EvictCandidate);
     }
 
     // Manages state transfers
     private void changeState(State newState) {
-        State oldState = state;
+        final State oldState = state;
         if (newState == State.Discovered) {
             // will wait for Pong to assume this alive
             sendPing();
         }
         if (!node.isDiscoveryNode()) {
             if (newState == State.Alive) {
-                Node evictCandidate = nodeManager.table.addNode(this.node);
+                final Node evictCandidate = nodeManager.table.addNode(this.node);
                 if (evictCandidate == null) {
                     newState = State.Active;
                 } else {
-                    NodeHandler evictHandler = nodeManager.getNodeHandler(evictCandidate);
+                    final NodeHandler evictHandler = nodeManager.getNodeHandler(evictCandidate);
                     if (evictHandler.state != State.EvictCandidate) {
                         evictHandler.challengeWith(this);
                     }
@@ -149,12 +175,12 @@ public class NodeHandler {
         stateChanged(oldState, newState);
     }
 
-    private void stateChanged(State oldState, State newState) {
+    private void stateChanged(final State oldState, final State newState) {
         logger.trace("State change " + oldState + " -> " + newState + ": " + this);
         nodeManager.stateChanged(this, oldState, newState);
     }
 
-    void handlePing(PingMessage msg) {
+    void handlePing(final PingMessage msg) {
         logMessage(msg, true);
 //        logMessage(" ===> [PING] " + this);
         getNodeStatistics().discoverInPing.add();
@@ -163,7 +189,7 @@ public class NodeHandler {
         }
     }
 
-    void handlePong(PongMessage msg) {
+    void handlePong(final PongMessage msg) {
         logMessage(msg, true);
 //        logMessage(" ===> [PONG] " + this);
         if (waitForPong) {
@@ -175,22 +201,22 @@ public class NodeHandler {
         }
     }
 
-    void handleNeighbours(NeighborsMessage msg) {
+    void handleNeighbours(final NeighborsMessage msg) {
         logMessage(msg, true);
 //        logMessage(" ===> [NEIGHBOURS] " + this + ", Count: " + msg.getNodes().size());
         getNodeStatistics().discoverInNeighbours.add();
-        for (Node n : msg.getNodes()) {
+        for (final Node n : msg.getNodes()) {
             nodeManager.getNodeHandler(n);
         }
     }
 
-    void handleFindNode(FindNodeMessage msg) {
+    void handleFindNode(final FindNodeMessage msg) {
         logMessage(msg, true);
 //        logMessage(" ===> [FIND_NODE] " + this);
         getNodeStatistics().discoverInFind.add();
-        List<Node> closest = nodeManager.table.getClosestNodes(msg.getTarget());
+        final List<Node> closest = nodeManager.table.getClosestNodes(msg.getTarget());
 
-        Node publicHomeNode = nodeManager.getPublicHomeNode();
+        final Node publicHomeNode = nodeManager.getPublicHomeNode();
         if (publicHomeNode != null) {
             if (closest.size() == KademliaOptions.BUCKET_SIZE) closest.remove(closest.size() - 1);
             closest.add(publicHomeNode);
@@ -220,7 +246,7 @@ public class NodeHandler {
         }
 //        logMessage("<===  [PING] " + this);
 
-        Message ping = PingMessage.create(nodeManager.table.getNode(), getNode(), nodeManager.key);
+        final Message ping = PingMessage.create(nodeManager.table.getNode(), getNode(), nodeManager.key);
         logMessage(ping, false);
         waitForPong = true;
         pingSent = Util.curTime();
@@ -235,38 +261,38 @@ public class NodeHandler {
                         waitForPong = false;
                         handleTimedOut();
                     }
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     logger.error("Unhandled exception", t);
                 }
             }
         }, PingTimeout, TimeUnit.MILLISECONDS);
     }
 
-    private void sendPong(byte[] mdc) {
+    private void sendPong(final byte[] mdc) {
 //        logMessage("<===  [PONG] " + this);
-        Message pong = PongMessage.create(mdc, node, nodeManager.key);
+        final Message pong = PongMessage.create(mdc, node, nodeManager.key);
         logMessage(pong, false);
         sendMessage(pong);
         getNodeStatistics().discoverOutPong.add();
     }
 
-    private void sendNeighbours(List<Node> neighbours) {
+    private void sendNeighbours(final List<Node> neighbours) {
 //        logMessage("<===  [NEIGHBOURS] " + this);
-        NeighborsMessage neighbors = NeighborsMessage.create(neighbours, nodeManager.key);
+        final NeighborsMessage neighbors = NeighborsMessage.create(neighbours, nodeManager.key);
         logMessage(neighbors, false);
         sendMessage(neighbors);
         getNodeStatistics().discoverOutNeighbours.add();
     }
 
-    void sendFindNode(byte[] target) {
+    void sendFindNode(final byte[] target) {
 //        logMessage("<===  [FIND_NODE] " + this);
-        Message findNode = FindNodeMessage.create(target, nodeManager.key);
+        final Message findNode = FindNodeMessage.create(target, nodeManager.key);
         logMessage(findNode, false);
         sendMessage(findNode);
         getNodeStatistics().discoverOutFind.add();
     }
 
-    private void sendMessage(Message msg) {
+    private void sendMessage(final Message msg) {
         nodeManager.sendOutbound(new DiscoveryEvent(msg, getInetSocketAddress()));
     }
 

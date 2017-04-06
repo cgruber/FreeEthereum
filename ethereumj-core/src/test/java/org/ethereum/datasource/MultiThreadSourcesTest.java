@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.datasource;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -37,62 +63,62 @@ public class MultiThreadSourcesTest {
     private volatile int maxWriteConcurrency = 0;
     private volatile int maxReadWriteConcurrency = 0;
 
-    private static byte[] key(int key) {
+    private static byte[] key(final int key) {
         return sha3(intToBytes(key));
     }
 
-    private byte[] intToKey(int i) {
+    private byte[] intToKey(final int i) {
         return sha3(longToBytes(i));
     }
 
-    private byte[] intToValue(int i) {
+    private byte[] intToValue(final int i) {
         return (new DataWord(i)).getData();
     }
 
-    private String str(Object obj) {
+    private String str(final Object obj) {
         if (obj == null) return null;
         return Hex.toHexString((byte[]) obj);
     }
 
     @Test
     public void testWriteCache() throws InterruptedException {
-        Source<byte[], byte[]> src = new HashMapDB<>();
+        final Source<byte[], byte[]> src = new HashMapDB<>();
         final WriteCache writeCache = new WriteCache.BytesKey<>(src, WriteCache.CacheType.SIMPLE);
 
-        TestExecutor testExecutor = new TestExecutor(writeCache);
+        final TestExecutor testExecutor = new TestExecutor(writeCache);
         testExecutor.run(5);
     }
 
     @Test
     public void testReadCache() throws InterruptedException {
-        Source<byte[], byte[]> src = new HashMapDB<>();
+        final Source<byte[], byte[]> src = new HashMapDB<>();
         final ReadCache readCache = new ReadCache.BytesKey<>(src);
 
-        TestExecutor testExecutor = new TestExecutor(readCache);
+        final TestExecutor testExecutor = new TestExecutor(readCache);
         testExecutor.run(5);
     }
 
     @Test
     public void testReadWriteCache() throws InterruptedException {
-        Source<byte[], byte[]> src = new HashMapDB<>();
+        final Source<byte[], byte[]> src = new HashMapDB<>();
         final ReadWriteCache readWriteCache = new ReadWriteCache.BytesKey<>(src, WriteCache.CacheType.SIMPLE);
 
-        TestExecutor testExecutor = new TestExecutor(readWriteCache);
+        final TestExecutor testExecutor = new TestExecutor(readWriteCache);
         testExecutor.run(5);
     }
 
     @Test
     public void testAsyncWriteCache() throws InterruptedException, TimeoutException, ExecutionException {
-        Source<byte[], byte[]> src = new HashMapDB<>();
+        final Source<byte[], byte[]> src = new HashMapDB<>();
 
-        AsyncWriteCache<byte[], byte[]> cache = new AsyncWriteCache<byte[], byte[]>(src) {
+        final AsyncWriteCache<byte[], byte[]> cache = new AsyncWriteCache<byte[], byte[]>(src) {
             @Override
-            protected WriteCache<byte[], byte[]> createCache(Source<byte[], byte[]> source) {
+            protected WriteCache<byte[], byte[]> createCache(final Source<byte[], byte[]> source) {
                 return new WriteCache.BytesKey<byte[]>(source, WriteCache.CacheType.SIMPLE) {
                     @Override
                     public boolean flush() {
 //                        System.out.println("Flushing started");
-                        boolean ret = super.flush();
+                        final boolean ret = super.flush();
 //                        System.out.println("Flushing complete");
                         return ret;
                     }
@@ -101,29 +127,29 @@ public class MultiThreadSourcesTest {
         };
 
 //        TestExecutor testExecutor = new TestExecutor(cache);
-        TestExecutor1 testExecutor = new TestExecutor1(cache);
+        final TestExecutor1 testExecutor = new TestExecutor1(cache);
         testExecutor.start(5);
     }
 
     @Test
     public void testStateSource() throws Exception {
-        HashMapDB<byte[]> src = new HashMapDB<>();
+        final HashMapDB<byte[]> src = new HashMapDB<>();
 //        LevelDbDataSource ldb = new LevelDbDataSource("test");
 //        ldb.init();
-        StateSource stateSource = new StateSource(src, false);
+        final StateSource stateSource = new StateSource(src, false);
         stateSource.getReadCache().withMaxCapacity(10);
 
-        TestExecutor1 testExecutor = new TestExecutor1(stateSource);
+        final TestExecutor1 testExecutor = new TestExecutor1(stateSource);
         testExecutor.start(10);
     }
 
     @Test
     public void testStateSourceConcurrency() throws Exception {
-        HashMapDB<byte[]> src = new HashMapDB<byte[]>() {
+        final HashMapDB<byte[]> src = new HashMapDB<byte[]>() {
             final AtomicInteger concurrentReads = new AtomicInteger(0);
             final AtomicInteger concurrentWrites = new AtomicInteger(0);
 
-            void checkConcurrency(boolean write) {
+            void checkConcurrency(final boolean write) {
                 maxConcurrency = max(concurrentReads.get() + concurrentWrites.get(), maxConcurrency);
                 if (write) {
                     maxWriteConcurrency = max(concurrentWrites.get(), maxWriteConcurrency);
@@ -133,30 +159,30 @@ public class MultiThreadSourcesTest {
             }
 
             @Override
-            public void put(byte[] key, byte[] val) {
-                int i1 = concurrentWrites.incrementAndGet();
+            public void put(final byte[] key, final byte[] val) {
+                final int i1 = concurrentWrites.incrementAndGet();
                 checkConcurrency(true);
                 super.put(key, val);
-                int i2 = concurrentWrites.getAndDecrement();
+                final int i2 = concurrentWrites.getAndDecrement();
             }
 
             @Override
-            public byte[] get(byte[] key) {
+            public byte[] get(final byte[] key) {
 //                Utils.sleep(60_000);
-                int i1 = concurrentReads.incrementAndGet();
+                final int i1 = concurrentReads.incrementAndGet();
                 checkConcurrency(false);
                 Utils.sleep(1);
-                byte[] ret = super.get(key);
-                int i2 = concurrentReads.getAndDecrement();
+                final byte[] ret = super.get(key);
+                final int i2 = concurrentReads.getAndDecrement();
                 return ret;
             }
 
             @Override
-            public void delete(byte[] key) {
-                int i1 = concurrentWrites.incrementAndGet();
+            public void delete(final byte[] key) {
+                final int i1 = concurrentWrites.incrementAndGet();
                 checkConcurrency(true);
                 super.delete(key);
-                int i2 = concurrentWrites.getAndDecrement();
+                final int i2 = concurrentWrites.getAndDecrement();
             }
         };
         final StateSource stateSource = new StateSource(src, false);
@@ -167,7 +193,7 @@ public class MultiThreadSourcesTest {
         stateSource.get(key(2));
 
 
-        TestExecutor1 testExecutor = new TestExecutor1(stateSource);
+        final TestExecutor1 testExecutor = new TestExecutor1(stateSource);
 //        testExecutor.writerThreads = 0;
         testExecutor.start(3);
 
@@ -177,11 +203,11 @@ public class MultiThreadSourcesTest {
 
     @Test
     public void testCountingWriteCache() throws InterruptedException {
-        Source<byte[], byte[]> parentSrc = new HashMapDB<>();
-        Source<byte[], byte[]> src = new CountingBytesSource(parentSrc);
+        final Source<byte[], byte[]> parentSrc = new HashMapDB<>();
+        final Source<byte[], byte[]> src = new CountingBytesSource(parentSrc);
         final WriteCache writeCache = new WriteCache.BytesKey<>(src, WriteCache.CacheType.COUNTING);
 
-        TestExecutor testExecutor = new TestExecutor(writeCache, true);
+        final TestExecutor testExecutor = new TestExecutor(writeCache, true);
         testExecutor.run(10);
     }
 
@@ -200,7 +226,7 @@ public class MultiThreadSourcesTest {
             public void run() {
                 try {
                     while(running) {
-                        int curMax = putCnt.get() - 1;
+                        final int curMax = putCnt.get() - 1;
                         if (checkCnt.get() >= curMax) {
                             sleep(10);
                             continue;
@@ -208,7 +234,7 @@ public class MultiThreadSourcesTest {
                         assertEquals(str(intToValue(curMax)), str(cache.get(intToKey(curMax))));
                         checkCnt.set(curMax);
                     }
-                } catch (Throwable e) {
+                } catch (final Throwable e) {
                     e.printStackTrace();
                     failSema.countDown();
                 }
@@ -219,8 +245,8 @@ public class MultiThreadSourcesTest {
             public void run() {
                 try {
                     while(running) {
-                        int toDelete = delCnt.get();
-                        int curMax = putCnt.get() - 1;
+                        final int toDelete = delCnt.get();
+                        final int curMax = putCnt.get() - 1;
 
                         if (toDelete > checkCnt.get() || toDelete >= curMax) {
                             sleep(10);
@@ -240,33 +266,33 @@ public class MultiThreadSourcesTest {
                         assertNull(cache.get(intToKey(toDelete)));
                         delCnt.getAndIncrement();
                     }
-                } catch (Throwable e) {
+                } catch (final Throwable e) {
                     e.printStackTrace();
                     failSema.countDown();
                 }
             }
         });
 
-        public TestExecutor(Source cache) {
+        public TestExecutor(final Source cache) {
             this.cache = cache;
         }
 
-        public TestExecutor(Source cache, boolean isCounting) {
+        public TestExecutor(final Source cache, final boolean isCounting) {
             this.cache = cache;
             this.isCounting = isCounting;
         }
 
-        public void setNoDelete(boolean noDelete) {
+        public void setNoDelete(final boolean noDelete) {
             this.noDelete = noDelete;
         }
 
-        public void run(long timeout) {
+        public void run(final long timeout) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         while(running) {
-                            int curCnt = putCnt.get();
+                            final int curCnt = putCnt.get();
                             cache.put(intToKey(curCnt), intToValue(curCnt));
                             if (isCounting) {
                                 for (int i = 0; i < (curCnt % 5); ++i) {
@@ -281,7 +307,7 @@ public class MultiThreadSourcesTest {
                                 }
                             }
                         }
-                    } catch (Throwable e) {
+                    } catch (final Throwable e) {
                         e.printStackTrace();
                         failSema.countDown();
                     }
@@ -296,7 +322,7 @@ public class MultiThreadSourcesTest {
                             sleep(10);
                             cache.flush();
                         }
-                    } catch (Throwable e) {
+                    } catch (final Throwable e) {
                         e.printStackTrace();
                         failSema.countDown();
                     }
@@ -305,7 +331,7 @@ public class MultiThreadSourcesTest {
 
             try {
                 failSema.await(timeout, TimeUnit.SECONDS);
-            } catch (InterruptedException ex) {
+            } catch (final InterruptedException ex) {
                 running = false;
                 throw new RuntimeException("Thrown interrupted exception", ex);
             }
@@ -334,12 +360,12 @@ public class MultiThreadSourcesTest {
         private final Source<byte[], byte[]> cache;
         boolean stopped;
 
-        public TestExecutor1(Source<byte[], byte[]> cache) {
+        public TestExecutor1(final Source<byte[], byte[]> cache) {
             this.cache = cache;
         }
 
-        public void start(long time) throws InterruptedException, TimeoutException, ExecutionException {
-            List<Callable<Object>> all = new ArrayList<>();
+        public void start(final long time) throws InterruptedException, TimeoutException, ExecutionException {
+            final List<Callable<Object>> all = new ArrayList<>();
 
             for (int i = 0; i < writerThreads; i++) {
                 all.add(Executors.callable(new Writer()));
@@ -354,17 +380,17 @@ public class MultiThreadSourcesTest {
                 all.add(Executors.callable(new Flusher()));
             }
 
-            ExecutorService executor = Executors.newFixedThreadPool(all.size());
-            ListeningExecutorService listeningExecutorService = MoreExecutors.listeningDecorator(executor);
-            AnyFuture<Object> anyFuture = new AnyFuture<>();
-            for (Callable<Object> callable : all) {
-                ListenableFuture<Object> future = listeningExecutorService.submit(callable);
+            final ExecutorService executor = Executors.newFixedThreadPool(all.size());
+            final ListeningExecutorService listeningExecutorService = MoreExecutors.listeningDecorator(executor);
+            final AnyFuture<Object> anyFuture = new AnyFuture<>();
+            for (final Callable<Object> callable : all) {
+                final ListenableFuture<Object> future = listeningExecutorService.submit(callable);
                 anyFuture.add(future);
             }
 
             try {
                 anyFuture.get(time, TimeUnit.SECONDS);
-            } catch (TimeoutException e) {
+            } catch (final TimeoutException e) {
                 System.out.println("Passed.");
             }
 
@@ -373,9 +399,9 @@ public class MultiThreadSourcesTest {
 
         class Writer implements Runnable {
             public void run() {
-                Random rnd = new Random(0);
+                final Random rnd = new Random(0);
                 while (!stopped) {
-                    byte[] key = key(rnd.nextInt(maxKey));
+                    final byte[] key = key(rnd.nextInt(maxKey));
                     try (ALock l = wLock.lock()) {
                         map.put(key, key);
                         cache.put(key, key);
@@ -387,12 +413,12 @@ public class MultiThreadSourcesTest {
 
         class Reader implements Runnable {
             public void run() {
-                Random rnd = new Random(0);
+                final Random rnd = new Random(0);
                 while (!stopped) {
-                    byte[] key = key(rnd.nextInt(maxKey));
+                    final byte[] key = key(rnd.nextInt(maxKey));
                     try (ALock l = rLock.lock()) {
-                        byte[] expected = map.get(key);
-                        byte[] actual = cache.get(key);
+                        final byte[] expected = map.get(key);
+                        final byte[] actual = cache.get(key);
                         Assert.assertArrayEquals(expected, actual);
                     }
                 }
@@ -401,9 +427,9 @@ public class MultiThreadSourcesTest {
 
         class Deleter implements Runnable {
             public void run() {
-                Random rnd = new Random(0);
+                final Random rnd = new Random(0);
                 while (!stopped) {
-                    byte[] key = key(rnd.nextInt(maxKey));
+                    final byte[] key = key(rnd.nextInt(maxKey));
                     try (ALock l = wLock.lock()) {
                         map.remove(key);
                         cache.delete(key);
@@ -414,7 +440,7 @@ public class MultiThreadSourcesTest {
 
         class Flusher implements Runnable {
             public void run() {
-                Random rnd = new Random(0);
+                final Random rnd = new Random(0);
                 while (!stopped) {
                     Utils.sleep(rnd.nextInt(50));
                     cache.flush();

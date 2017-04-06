@@ -113,38 +113,39 @@ public class SystemProperties {
         this(ConfigFactory.empty());
     }
 
-    private SystemProperties(File configFile) {
+    private SystemProperties(final File configFile) {
         this(ConfigFactory.parseFile(configFile));
     }
 
-    private SystemProperties(String configResource) {
+    private SystemProperties(final String configResource) {
         this(ConfigFactory.parseResources(configResource));
     }
-    public SystemProperties(Config apiConfig) {
+
+    public SystemProperties(final Config apiConfig) {
         this(apiConfig, SystemProperties.class.getClassLoader());
     }
 
-    private SystemProperties(Config apiConfig, ClassLoader classLoader) {
+    private SystemProperties(final Config apiConfig, final ClassLoader classLoader) {
         try {
             this.classLoader = classLoader;
 
-            Config javaSystemProperties = ConfigFactory.load("no-such-resource-only-system-props");
-            Config referenceConfig = ConfigFactory.parseResources("ethereumj.conf");
+            final Config javaSystemProperties = ConfigFactory.load("no-such-resource-only-system-props");
+            final Config referenceConfig = ConfigFactory.parseResources("ethereumj.conf");
             logger.info("Config (" + (referenceConfig.entrySet().size() > 0 ? " yes " : " no  ") + "): default properties from resource 'ethereumj.conf'");
-            String res = System.getProperty("ethereumj.conf.res");
-            Config cmdLineConfigRes = res != null ? ConfigFactory.parseResources(res) : ConfigFactory.empty();
+            final String res = System.getProperty("ethereumj.conf.res");
+            final Config cmdLineConfigRes = res != null ? ConfigFactory.parseResources(res) : ConfigFactory.empty();
             logger.info("Config (" + (cmdLineConfigRes.entrySet().size() > 0 ? " yes " : " no  ") + "): user properties from -Dethereumj.conf.res resource '" + res + "'");
-            Config userConfig = ConfigFactory.parseResources("user.conf");
+            final Config userConfig = ConfigFactory.parseResources("user.conf");
             logger.info("Config (" + (userConfig.entrySet().size() > 0 ? " yes " : " no  ") + "): user properties from resource 'user.conf'");
-            File userDirFile = new File(System.getProperty("user.dir"), "/config/ethereumj.conf");
-            Config userDirConfig = ConfigFactory.parseFile(userDirFile);
+            final File userDirFile = new File(System.getProperty("user.dir"), "/config/ethereumj.conf");
+            final Config userDirConfig = ConfigFactory.parseFile(userDirFile);
             logger.info("Config (" + (userDirConfig.entrySet().size() > 0 ? " yes " : " no  ") + "): user properties from file '" + userDirFile + "'");
-            Config testConfig = ConfigFactory.parseResources("test-ethereumj.conf");
+            final Config testConfig = ConfigFactory.parseResources("test-ethereumj.conf");
             logger.info("Config (" + (testConfig.entrySet().size() > 0 ? " yes " : " no  ") + "): test properties from resource 'test-ethereumj.conf'");
-            Config testUserConfig = ConfigFactory.parseResources("test-user.conf");
+            final Config testUserConfig = ConfigFactory.parseResources("test-user.conf");
             logger.info("Config (" + (testUserConfig.entrySet().size() > 0 ? " yes " : " no  ") + "): test properties from resource 'test-user.conf'");
-            String file = System.getProperty("ethereumj.conf.file");
-            Config cmdLineConfigFile = file != null ? ConfigFactory.parseFile(new File(file)) : ConfigFactory.empty();
+            final String file = System.getProperty("ethereumj.conf.file");
+            final Config cmdLineConfigFile = file != null ? ConfigFactory.parseFile(new File(file)) : ConfigFactory.empty();
             logger.info("Config (" + (cmdLineConfigFile.entrySet().size() > 0 ? " yes " : " no  ") + "): user properties from -Dethereumj.conf.file file '" + file + "'");
             logger.info("Config (" + (apiConfig.entrySet().size() > 0 ? " yes " : " no  ") + "): config passed via constructor");
             config = apiConfig
@@ -163,8 +164,8 @@ public class SystemProperties {
                     .resolve();     // substitute variables in config if any
             validateConfig();
 
-            Properties props = new Properties();
-            InputStream is = getClass().getResourceAsStream("/version.properties");
+            final Properties props = new Properties();
+            final InputStream is = getClass().getResourceAsStream("/version.properties");
             props.load(is);
             this.projectVersion = props.getProperty("versionNumber");
             this.projectVersion = this.projectVersion.replaceAll("'", "");
@@ -174,7 +175,7 @@ public class SystemProperties {
             this.projectVersionModifier = "master".equals(BuildInfo.buildBranch) ? "RELEASE" : "SNAPSHOT";
 
             this.databaseVersion = Integer.valueOf(props.getProperty("databaseVersion"));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.error("Can't read config.", e);
             throw new RuntimeException(e);
         }
@@ -213,7 +214,7 @@ public class SystemProperties {
      * refers only to the config passed as a Spring bean.
      * If this property is set to true {@link #getDefault()} returns null
      */
-    public static void setUseOnlySpringConfig(boolean useOnlySpringConfig) {
+    public static void setUseOnlySpringConfig(final boolean useOnlySpringConfig) {
         SystemProperties.useOnlySpringConfig = useOnlySpringConfig;
     }
 
@@ -228,7 +229,7 @@ public class SystemProperties {
      *
      * @param overrideOptions - atop config
      */
-    public void overrideParams(Config overrideOptions) {
+    public void overrideParams(final Config overrideOptions) {
         config = overrideOptions.withFallback(config);
         validateConfig();
     }
@@ -240,9 +241,9 @@ public class SystemProperties {
      *
      * @param keyValuePairs [name] [value] [name] [value] ...
      */
-    public void overrideParams(String ... keyValuePairs) {
+    public void overrideParams(final String... keyValuePairs) {
         if (keyValuePairs.length % 2 != 0) throw new RuntimeException("Odd argument number");
-        Map<String, String> map = new HashMap<>();
+        final Map<String, String> map = new HashMap<>();
         for (int i = 0; i < keyValuePairs.length; i += 2) {
             map.put(keyValuePairs[i], keyValuePairs[i + 1]);
         }
@@ -256,33 +257,33 @@ public class SystemProperties {
      *
      * @param cliOptions -  command line options to take presidency
      */
-    public void overrideParams(Map<String, ? extends Object> cliOptions) {
-        Config cliConf = ConfigFactory.parseMap(cliOptions);
+    public void overrideParams(final Map<String, ? extends Object> cliOptions) {
+        final Config cliConf = ConfigFactory.parseMap(cliOptions);
         overrideParams(cliConf);
     }
 
     private void validateConfig() {
-        for (Method method : getClass().getMethods()) {
+        for (final Method method : getClass().getMethods()) {
             try {
                 if (method.isAnnotationPresent(ValidateMe.class)) {
                     method.invoke(this);
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 throw new RuntimeException("Error validating config method: " + method, e);
             }
         }
     }
 
-    public <T> T getProperty(String propName, T defaultValue) {
+    public <T> T getProperty(final String propName, final T defaultValue) {
         if (!config.hasPath(propName)) return defaultValue;
-        String string = config.getString(propName);
+        final String string = config.getString(propName);
         if (string.trim().isEmpty()) return defaultValue;
         return (T) config.getAnyRef(propName);
     }
 
     public BlockchainNetConfig getBlockchainConfig() {
         if (blockchainConfig == null) {
-            GenesisJson genesisJson = getGenesisJson();
+            final GenesisJson genesisJson = getGenesisJson();
             if (genesisJson.getConfig() != null && genesisJson.getConfig().isCustomConfig()) {
                 blockchainConfig = new JsonNetConfig(genesisJson.getConfig());
             } else {
@@ -310,13 +311,13 @@ public class SystemProperties {
                             throw new RuntimeException("Unknown value for 'blockchain.config.name': '" + config.getString("blockchain.config.name") + "'");
                     }
                 } else {
-                    String className = config.getString("blockchain.config.class");
+                    final String className = config.getString("blockchain.config.class");
                     try {
-                        Class<? extends BlockchainNetConfig> aClass = (Class<? extends BlockchainNetConfig>) classLoader.loadClass(className);
+                        final Class<? extends BlockchainNetConfig> aClass = (Class<? extends BlockchainNetConfig>) classLoader.loadClass(className);
                         blockchainConfig = aClass.newInstance();
-                    } catch (ClassNotFoundException e) {
+                    } catch (final ClassNotFoundException e) {
                         throw new RuntimeException("The class specified via blockchain.config.class '" + className + "' not found", e);
-                    } catch (ClassCastException e) {
+                    } catch (final ClassCastException e) {
                         throw new RuntimeException("The class specified via blockchain.config.class '" + className + "' is not instance of org.ethereum.config.BlockchainForkConfig", e);
                     } catch (InstantiationException | IllegalAccessException e) {
                         throw new RuntimeException("The class specified via blockchain.config.class '" + className + "' couldn't be instantiated (check for default constructor and its accessibility)", e);
@@ -325,8 +326,8 @@ public class SystemProperties {
             }
 
             if (genesisJson.getConfig() != null && genesisJson.getConfig().headerValidators != null) {
-                for (GenesisConfig.HashValidator validator : genesisJson.getConfig().headerValidators) {
-                    BlockHeaderValidator headerValidator = new BlockHeaderValidator(new BlockCustomHashRule(ByteUtil.hexStringToBytes(validator.hash)));
+                for (final GenesisConfig.HashValidator validator : genesisJson.getConfig().headerValidators) {
+                    final BlockHeaderValidator headerValidator = new BlockHeaderValidator(new BlockCustomHashRule(ByteUtil.hexStringToBytes(validator.hash)));
                     blockchainConfig.getConfigForBlock(validator.number).headerValidators().add(
                             Pair.of(validator.number, headerValidator));
                 }
@@ -335,7 +336,7 @@ public class SystemProperties {
         return blockchainConfig;
     }
 
-    public void setBlockchainConfig(BlockchainNetConfig config) {
+    public void setBlockchainConfig(final BlockchainNetConfig config) {
         blockchainConfig = config;
     }
 
@@ -344,7 +345,7 @@ public class SystemProperties {
         return discoveryEnabled == null ? config.getBoolean("peer.discovery.enabled") : discoveryEnabled;
     }
 
-    public void setDiscoveryEnabled(Boolean discoveryEnabled) {
+    public void setDiscoveryEnabled(final Boolean discoveryEnabled) {
         this.discoveryEnabled = discoveryEnabled;
     }
 
@@ -398,7 +399,7 @@ public class SystemProperties {
         return databaseReset == null ? config.getBoolean("database.reset") : databaseReset;
     }
 
-    public void setDatabaseReset(Boolean reset) {
+    public void setDatabaseReset(final Boolean reset) {
         databaseReset = reset;
     }
 
@@ -417,17 +418,17 @@ public class SystemProperties {
         if (!config.hasPath("peer.active")) {
             return Collections.emptyList();
         }
-        List<Node> ret = new ArrayList<>();
-        List<? extends ConfigObject> list = config.getObjectList("peer.active");
-        for (ConfigObject configObject : list) {
-            Node n;
+        final List<Node> ret = new ArrayList<>();
+        final List<? extends ConfigObject> list = config.getObjectList("peer.active");
+        for (final ConfigObject configObject : list) {
+            final Node n;
             if (configObject.get("url") != null) {
-                String url = configObject.toConfig().getString("url");
+                final String url = configObject.toConfig().getString("url");
                 n = new Node(url.startsWith("enode://") ? url : "enode://" + url);
             } else if (configObject.get("ip") != null) {
-                String ip = configObject.toConfig().getString("ip");
-                int port = configObject.toConfig().getInt("port");
-                byte[] nodeId;
+                final String ip = configObject.toConfig().getString("ip");
+                final int port = configObject.toConfig().getInt("port");
+                final byte[] nodeId;
                 if (configObject.toConfig().hasPath("nodeId")) {
                     nodeId = Hex.decode(configObject.toConfig().getString("nodeId").trim());
                     if (nodeId.length != 64) {
@@ -435,7 +436,7 @@ public class SystemProperties {
                     }
                 } else {
                     if (configObject.toConfig().hasPath("nodeName")) {
-                        String nodeName = configObject.toConfig().getString("nodeName").trim();
+                        final String nodeName = configObject.toConfig().getString("nodeName").trim();
                         // FIXME should be keccak-512 here ?
                         nodeId = ECKey.fromPrivate(sha3(nodeName.getBytes())).getNodeId();
                     } else {
@@ -453,10 +454,10 @@ public class SystemProperties {
 
     @ValidateMe
     public NodeFilter peerTrusted() {
-        List<? extends ConfigObject> list = config.getObjectList("peer.trusted");
-        NodeFilter ret = new NodeFilter();
+        final List<? extends ConfigObject> list = config.getObjectList("peer.trusted");
+        final NodeFilter ret = new NodeFilter();
 
-        for (ConfigObject configObject : list) {
+        for (final ConfigObject configObject : list) {
             byte[] nodeId = null;
             String ipMask = null;
             if (configObject.get("nodeId") != null) {
@@ -524,7 +525,7 @@ public class SystemProperties {
         return config.hasPath("ethash.dir") ? config.getString("ethash.dir") : databaseDir();
     }
 
-    public void setDataBaseDir(String dataBaseDir) {
+    public void setDataBaseDir(final String dataBaseDir) {
         this.databaseDir = dataBaseDir;
     }
 
@@ -621,7 +622,7 @@ public class SystemProperties {
 
     private String privateKey() {
         if (config.hasPath("peer.privateKey")) {
-            String key = config.getString("peer.privateKey");
+            final String key = config.getString("peer.privateKey");
             if (key.length() != 64) {
                 throw new RuntimeException("The peer.privateKey needs to be Hex encoded and 32 byte length");
             }
@@ -634,14 +635,14 @@ public class SystemProperties {
     private String getGeneratedNodePrivateKey() {
         if (generatedNodePrivateKey == null) {
             try {
-                File file = new File(databaseDir(), "nodeId.properties");
-                Properties props = new Properties();
+                final File file = new File(databaseDir(), "nodeId.properties");
+                final Properties props = new Properties();
                 if (file.canRead()) {
                     try (Reader r = new FileReader(file)) {
                         props.load(r);
                     }
                 } else {
-                    ECKey key = new ECKey();
+                    final ECKey key = new ECKey();
                     props.setProperty("nodeIdPrivateKey", Hex.toHexString(key.getPrivKeyBytes()));
                     props.setProperty("nodeId", Hex.toHexString(key.getNodeId()));
                     file.getParentFile().mkdirs();
@@ -652,7 +653,7 @@ public class SystemProperties {
                     logger.info("Generated nodeID and its private key stored in " + file);
                 }
                 generatedNodePrivateKey = props.getProperty("nodeIdPrivateKey");
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -698,10 +699,10 @@ public class SystemProperties {
             if (bindIp == null) {
                 logger.info("Bind address wasn't set, Punching to identify it...");
                 try {
-                    Socket s = new Socket("www.google.com", 80);
+                    final Socket s = new Socket("www.google.com", 80);
                     bindIp = s.getLocalAddress().getHostAddress();
                     logger.info("UDP local bound to: {}", bindIp);
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     logger.warn("Can't get bind IP. Fall back to 0.0.0.0: " + e);
                     bindIp = "0.0.0.0";
                 }
@@ -720,7 +721,7 @@ public class SystemProperties {
             if (externalIp == null) {
                 logger.info("External IP wasn't set, using checkip.amazonaws.com to identify it...");
                 try {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(
+                    final BufferedReader in = new BufferedReader(new InputStreamReader(
                             new URL("http://checkip.amazonaws.com").openStream()));
                     externalIp = in.readLine();
                     if (externalIp == null || externalIp.trim().isEmpty()) {
@@ -728,11 +729,11 @@ public class SystemProperties {
                     }
                     try {
                         InetAddress.getByName(externalIp);
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         throw new IOException("Invalid address: '" + externalIp + "'");
                     }
                     logger.info("External address identified: {}", externalIp);
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     externalIp = bindIp();
                     logger.warn("Can't get external IP. Fall back to peer.bind.ip: " + externalIp + " :" + e);
                 }
@@ -754,7 +755,7 @@ public class SystemProperties {
         return this.syncEnabled == null ? config.getBoolean("sync.enabled") : syncEnabled;
     }
 
-    public void setSyncEnabled(Boolean syncEnabled) {
+    public void setSyncEnabled(final Boolean syncEnabled) {
         this.syncEnabled = syncEnabled;
     }
 
@@ -766,7 +767,7 @@ public class SystemProperties {
     @ValidateMe
     public byte[] getFastSyncPivotBlockHash() {
         if (!config.hasPath("sync.fast.pivotBlockHash")) return null;
-        byte[] ret = Hex.decode(config.getString("sync.fast.pivotBlockHash"));
+        final byte[] ret = Hex.decode(config.getString("sync.fast.pivotBlockHash"));
         if (ret.length != 32) throw new RuntimeException("Invalid block hash length: " + Hex.toHexString(ret));
         return ret;
     }
@@ -784,7 +785,7 @@ public class SystemProperties {
         return config.getInt("transaction.outdated.threshold");
     }
 
-    public void setGenesisInfo(String genesisInfo){
+    public void setGenesisInfo(final String genesisInfo) {
         this.genesisInfo = genesisInfo;
     }
 
@@ -795,15 +796,15 @@ public class SystemProperties {
 
     @ValidateMe
     public byte[] getMinerCoinbase() {
-        String sc = config.getString("mine.coinbase");
-        byte[] c = ByteUtil.hexStringToBytes(sc);
+        final String sc = config.getString("mine.coinbase");
+        final byte[] c = ByteUtil.hexStringToBytes(sc);
         if (c.length != 20) throw new RuntimeException("mine.coinbase has invalid value: '" + sc + "'");
         return c;
     }
 
     @ValidateMe
     public byte[] getMineExtraData() {
-        byte[] bytes;
+        final byte[] bytes;
         if (config.hasPath("mine.extraDataHex")) {
             bytes = Hex.decode(config.getString("mine.extraDataHex"));
         } else {
@@ -865,7 +866,7 @@ public class SystemProperties {
     /**
      * Method used in StandaloneBlockchain.
      */
-    public Genesis useGenesis(InputStream inputStream) {
+    public Genesis useGenesis(final InputStream inputStream) {
         genesisJson = GenesisLoader.loadGenesisJson(inputStream);
         genesis = GenesisLoader.parseGenesis(getBlockchainConfig(), getGenesisJson());
         return genesis;

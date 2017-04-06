@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.swarm.bzz;
 
 import org.ethereum.net.rlpx.Node;
@@ -29,24 +55,24 @@ public class PeerAddress {
     private PeerAddress() {
     }
 
-    public PeerAddress(Node discoverNode) {
+    public PeerAddress(final Node discoverNode) {
         try {
             port = discoverNode.getPort();
             id = discoverNode.getId();
             ip = InetAddress.getByName(discoverNode.getHost()).getAddress();
-        } catch (UnknownHostException e) {
+        } catch (final UnknownHostException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public PeerAddress(byte[] ip, int port, byte[] id) {
+    public PeerAddress(final byte[] ip, final int port, final byte[] id) {
         this.ip = ip;
         this.port = port;
         this.id = id;
     }
 
-    static PeerAddress parse(RLPList l) {
-        PeerAddress ret = new PeerAddress();
+    static PeerAddress parse(final RLPList l) {
+        final PeerAddress ret = new PeerAddress();
         ret.ip = l.get(0).getRLPData();
         ret.port = ByteUtil.byteArrayToInt(l.get(1).getRLPData());
         ret.id = l.get(2).getRLPData();
@@ -56,7 +82,7 @@ public class PeerAddress {
     public Node toNode() {
         try {
             return new Node(id, InetAddress.getByAddress(ip).getHostAddress(), port);
-        } catch (UnknownHostException e) {
+        } catch (final UnknownHostException e) {
             throw new RuntimeException(e);
         }
     }
@@ -90,11 +116,11 @@ public class PeerAddress {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        PeerAddress that = (PeerAddress) o;
+        final PeerAddress that = (PeerAddress) o;
 
         if (port != that.port) return false;
         return Arrays.equals(ip, that.ip);

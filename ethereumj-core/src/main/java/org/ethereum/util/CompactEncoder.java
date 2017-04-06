@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.util;
 
 import java.io.ByteArrayOutputStream;
@@ -81,23 +107,23 @@ public class CompactEncoder {
             terminator = 1;
             nibbles = copyOf(nibbles, nibbles.length - 1);
         }
-        int oddlen = nibbles.length % 2;
-        int flag = 2 * terminator + oddlen;
+        final int oddlen = nibbles.length % 2;
+        final int flag = 2 * terminator + oddlen;
         if (oddlen != 0) {
-            byte[] flags = new byte[]{(byte) flag};
+            final byte[] flags = new byte[]{(byte) flag};
             nibbles = concatenate(flags, nibbles);
         } else {
-            byte[] flags = new byte[]{(byte) flag, 0};
+            final byte[] flags = new byte[]{(byte) flag, 0};
             nibbles = concatenate(flags, nibbles);
         }
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         for (int i = 0; i < nibbles.length; i += 2) {
             buffer.write(16 * nibbles[i] + nibbles[i + 1]);
         }
         return buffer.toByteArray();
     }
 
-    public static boolean hasTerminator(byte[] packedKey) {
+    public static boolean hasTerminator(final byte[] packedKey) {
         return ((packedKey[0] >> 4) & 2) != 0;
     }
 
@@ -107,7 +133,7 @@ public class CompactEncoder {
      * @param str of binary data
      * @return array of nibbles in byte-format
      */
-    public static byte[] unpackToNibbles(byte[] str) {
+    public static byte[] unpackToNibbles(final byte[] str) {
         byte[] base = binToNibbles(str);
         base = copyOf(base, base.length - 1);
         if (base[0] >= 2) {
@@ -127,13 +153,13 @@ public class CompactEncoder {
      * @param str byte[]
      * @return array with each individual nibble adding a terminator at the end
      */
-    public static byte[] binToNibbles(byte[] str) {
+    public static byte[] binToNibbles(final byte[] str) {
 
-        byte[] hexEncoded = encode(str);
-        byte[] hexEncodedTerminated = Arrays.copyOf(hexEncoded, hexEncoded.length + 1);
+        final byte[] hexEncoded = encode(str);
+        final byte[] hexEncodedTerminated = Arrays.copyOf(hexEncoded, hexEncoded.length + 1);
 
         for (int i = 0; i < hexEncoded.length; ++i){
-            byte b = hexEncodedTerminated[i];
+            final byte b = hexEncodedTerminated[i];
             hexEncodedTerminated[i] = hexMap.get((char) b);
         }
 
@@ -142,12 +168,12 @@ public class CompactEncoder {
     }
 
 
-    public static byte[] binToNibblesNoTerminator(byte[] str) {
+    public static byte[] binToNibblesNoTerminator(final byte[] str) {
 
-        byte[] hexEncoded = encode(str);
+        final byte[] hexEncoded = encode(str);
 
         for (int i = 0; i < hexEncoded.length; ++i){
-            byte b = hexEncoded[i];
+            final byte b = hexEncoded[i];
             hexEncoded[i] = hexMap.get((char) b);
         }
 

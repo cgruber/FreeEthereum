@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.db;
 
 import com.google.common.primitives.UnsignedBytes;
@@ -22,7 +48,7 @@ public class ByteArrayWrapperTest {
     @BeforeClass
     public static void loadByteArrays() {
 
-        String block = "f9072df8d3a077ef4fdaf389dca53236bcf7f72698e154eab2828f86fbc4fc6c"
+        final String block = "f9072df8d3a077ef4fdaf389dca53236bcf7f72698e154eab2828f86fbc4fc6c"
                 + "d9225d285c89a01dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0"
                 + "a142fd40d493479476f5eabe4b342ee56b8ceba6ab2a770c3e2198e7a0faa0ca"
                 + "43105f667dceb168eb4e0cdc98ef28a9da5c381edef70d843207601719a06785"
@@ -81,10 +107,10 @@ public class ByteArrayWrapperTest {
                 + "31ebf9281580a23b659c08a051f947cb2315d0259f55848c630caa10cd91d6e4"
                 + "4ff8bad7758c65b25e2191308227d2c0";
 
-        byte[] test1 = Hex.decode(block);
-        byte[] test2 = Hex.decode(block);
-        byte[] test3 = Hex.decode("4ff8bad7758c65b25e2191308227d2c0");
-        byte[] test4 = Hex.decode("");
+        final byte[] test1 = Hex.decode(block);
+        final byte[] test2 = Hex.decode(block);
+        final byte[] test3 = Hex.decode("4ff8bad7758c65b25e2191308227d2c0");
+        final byte[] test4 = Hex.decode("");
 
         wrapper1 = new ByteArrayWrapper(test1);
         wrapper2 = new ByteArrayWrapper(test2);
@@ -111,13 +137,13 @@ public class ByteArrayWrapperTest {
 
     @Test
     public void testEqualsPerformance() {
-        boolean testEnabled = false;
+        final boolean testEnabled = false;
 
         if (testEnabled) {
             final int ITERATIONS = 10000000;
-            long start1 = System.currentTimeMillis();
+            final long start1 = System.currentTimeMillis();
             for (int i = 0; i < ITERATIONS; i++) {
-                Comparator<byte[]> comparator = UnsignedBytes
+                final Comparator<byte[]> comparator = UnsignedBytes
                         .lexicographicalComparator();
 
                 comparator.compare(wrapper1.getData(),
@@ -125,13 +151,13 @@ public class ByteArrayWrapperTest {
             }
             System.out.println(System.currentTimeMillis() - start1 + "ms");
 
-            long start2 = System.currentTimeMillis();
+            final long start2 = System.currentTimeMillis();
             for (int i = 0; i < ITERATIONS; i++) {
                 Arrays.equals(wrapper1.getData(), wrapper2.getData());
             }
             System.out.println(System.currentTimeMillis() - start2 + "ms");
 
-            long start3 = System.currentTimeMillis();
+            final long start3 = System.currentTimeMillis();
             for (int i = 0; i < ITERATIONS; i++) {
                 FastByteComparisons.compareTo(wrapper1.getData(), 0, wrapper1.getData().length, wrapper2.getData(), 0, wrapper1.getData().length);
             }

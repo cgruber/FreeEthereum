@@ -40,13 +40,13 @@ public class ExtraDataRule extends BlockHeaderRule {
 
     private final int MAXIMUM_EXTRA_DATA_SIZE;
 
-    public ExtraDataRule(SystemProperties config) {
+    public ExtraDataRule(final SystemProperties config) {
         MAXIMUM_EXTRA_DATA_SIZE = config.getBlockchainConfig().
                 getCommonConstants().getMaximumExtraDataSize();
     }
 
     @Override
-    public ValidationResult validate(BlockHeader header) {
+    public ValidationResult validate(final BlockHeader header) {
         if (header.getExtraData() != null && header.getExtraData().length > MAXIMUM_EXTRA_DATA_SIZE) {
             return fault(String.format(
                     "#%d: header.getExtraData().length > MAXIMUM_EXTRA_DATA_SIZE",

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.sync;
 
 import org.ethereum.core.BlockHeader;
@@ -47,25 +73,26 @@ public class HeadersDownloader extends BlockDownloader {
     private int headersLoaded = 0;
 
     @Autowired
-    public HeadersDownloader(BlockHeaderValidator headerValidator) {
+    public HeadersDownloader(final BlockHeaderValidator headerValidator) {
         super(headerValidator);
         setHeaderQueueLimit(200000);
         setBlockBodiesDownload(false);
         logger.info("HeaderDownloader created.");
     }
 
-    public void init(byte[] startFromBlockHash) {
+    public void init(final byte[] startFromBlockHash) {
         logger.info("HeaderDownloader init: startHash = " + Hex.toHexString(startFromBlockHash));
-        SyncQueueReverseImpl syncQueue = new SyncQueueReverseImpl(startFromBlockHash, true);
+        final SyncQueueReverseImpl syncQueue = new SyncQueueReverseImpl(startFromBlockHash, true);
         super.init(syncQueue, syncPool);
         syncPool.init(channelManager);
     }
 
     @Override
-    protected synchronized void pushBlocks(List<BlockWrapper> blockWrappers) {}
+    protected synchronized void pushBlocks(final List<BlockWrapper> blockWrappers) {
+    }
 
     @Override
-    protected void pushHeaders(List<BlockHeaderWrapper> headers) {
+    protected void pushHeaders(final List<BlockHeaderWrapper> headers) {
         if (headers.get(headers.size() - 1).getNumber() == 0) {
             genesisHash = headers.get(headers.size() - 1).getHash();
         }
@@ -73,7 +100,7 @@ public class HeadersDownloader extends BlockDownloader {
             genesisHash = headers.get(headers.size() - 1).getHeader().getParentHash();
         }
         logger.info(headers.size() + " headers loaded: " + headers.get(0).getNumber() + " - " + headers.get(headers.size() - 1).getNumber());
-        for (BlockHeaderWrapper header : headers) {
+        for (final BlockHeaderWrapper header : headers) {
             headerStore.set((int) header.getNumber(), header.getHeader());
             headersLoaded++;
         }

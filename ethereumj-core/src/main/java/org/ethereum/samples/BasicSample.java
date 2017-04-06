@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.samples;
 
 import ch.qos.logback.classic.Level;
@@ -63,32 +89,32 @@ public class BasicSample implements Runnable {
      */
     private final EthereumListener listener = new EthereumListenerAdapter() {
         @Override
-        public void onSyncDone(SyncState state) {
+        public void onSyncDone(final SyncState state) {
             synced = true;
         }
 
         @Override
-        public void onNodeDiscovered(Node node) {
+        public void onNodeDiscovered(final Node node) {
             if (nodesDiscovered.size() < 1000) {
                 nodesDiscovered.add(node);
             }
         }
 
         @Override
-        public void onEthStatusUpdated(Channel channel, StatusMessage statusMessage) {
+        public void onEthStatusUpdated(final Channel channel, final StatusMessage statusMessage) {
             ethNodes.put(channel.getNode(), statusMessage);
         }
 
         @Override
-        public void onPeerAddedToSyncPool(Channel peer) {
+        public void onPeerAddedToSyncPool(final Channel peer) {
             syncPeers.add(peer.getNode());
         }
 
         @Override
-        public void onBlock(Block block, List<TransactionReceipt> receipts) {
+        public void onBlock(final Block block, final List<TransactionReceipt> receipts) {
             bestBlock = block;
             txCount += receipts.size();
-            for (TransactionReceipt receipt : receipts) {
+            for (final TransactionReceipt receipt : receipts) {
                 gasSpent += ByteUtil.byteArrayToLong(receipt.getGasUsed());
             }
             if (syncComplete) {
@@ -97,27 +123,27 @@ public class BasicSample implements Runnable {
         }
 
         @Override
-        public void onRecvMessage(Channel channel, Message message) {
+        public void onRecvMessage(final Channel channel, final Message message) {
         }
 
         @Override
-        public void onSendMessage(Channel channel, Message message) {
+        public void onSendMessage(final Channel channel, final Message message) {
         }
 
         @Override
-        public void onPeerDisconnect(String host, long port) {
+        public void onPeerDisconnect(final String host, final long port) {
         }
 
         @Override
-        public void onPendingTransactionsReceived(List<Transaction> transactions) {
+        public void onPendingTransactionsReceived(final List<Transaction> transactions) {
         }
 
         @Override
-        public void onPendingStateChanged(PendingState pendingState) {
+        public void onPendingStateChanged(final PendingState pendingState) {
         }
 
         @Override
-        public void onHandShakePeer(Channel channel, HelloMessage helloMessage) {
+        public void onHandShakePeer(final Channel channel, final HelloMessage helloMessage) {
         }
 
         @Override
@@ -125,11 +151,11 @@ public class BasicSample implements Runnable {
         }
 
         @Override
-        public void onVMTraceCreated(String transactionHash, String trace) {
+        public void onVMTraceCreated(final String transactionHash, final String trace) {
         }
 
         @Override
-        public void onTransactionExecuted(TransactionExecutionSummary summary) {
+        public void onTransactionExecuted(final TransactionExecutionSummary summary) {
         }
     };
 
@@ -141,11 +167,11 @@ public class BasicSample implements Runnable {
      * logger name can be passed if more than one EthereumJ instance is created
      * in a single JVM to distinguish logging output from different instances
      */
-    public BasicSample(String loggerName) {
+    public BasicSample(final String loggerName) {
         this.loggerName = loggerName;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         sLogger.info("Starting EthereumJ!");
 
         // Based on Config class the BasicSample would be created by Spring
@@ -162,7 +188,7 @@ public class BasicSample implements Runnable {
             CUSTOM_FILTER = new CustomFilter();
             final LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-            Appender ca = loggerContext.getLogger("ROOT").getAppender("STDOUT");
+            final Appender ca = loggerContext.getLogger("ROOT").getAppender("STDOUT");
             ca.clearAllFilters();
             ca.addFilter(CUSTOM_FILTER);
         }
@@ -215,7 +241,7 @@ public class BasicSample implements Runnable {
 
             onSyncDone();
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.error("Error occurred in Sample: ", e);
         }
     }
@@ -233,7 +259,7 @@ public class BasicSample implements Runnable {
     void waitForDiscovery() throws Exception {
         logger.info("Waiting for nodes discovery...");
 
-        int bootNodes = config.peerDiscoveryIPList().size();
+        final int bootNodes = config.peerDiscoveryIPList().size();
         int cnt = 0;
         while(true) {
             Thread.sleep(cnt < 30 ? 300 : 5000);
@@ -307,7 +333,7 @@ public class BasicSample implements Runnable {
      * Waits until blocks import started
      */
     private void waitForFirstBlock() throws Exception {
-        Block currentBest = ethereum.getBlockchain().getBestBlock();
+        final Block currentBest = ethereum.getBlockchain().getBestBlock();
         logger.info("Current BEST block: " + currentBest.getShortDescr());
         logger.info("Waiting for blocks start importing (may take a while)...");
         int cnt = 0;
@@ -361,12 +387,12 @@ public class BasicSample implements Runnable {
     private static class CustomFilter extends Filter<ILoggingEvent> {
         private final Set<String> visibleLoggers = new HashSet<>();
         @Override
-        public synchronized FilterReply decide(ILoggingEvent event) {
+        public synchronized FilterReply decide(final ILoggingEvent event) {
             return visibleLoggers.contains(event.getLoggerName()) && event.getLevel().isGreaterOrEqual(Level.INFO) ||
                     event.getLevel().isGreaterOrEqual(Level.ERROR) ? FilterReply.NEUTRAL : FilterReply.DENY;
         }
 
-        public synchronized void addVisibleLogger(String name) {
+        public synchronized void addVisibleLogger(final String name) {
             visibleLoggers.add(name);
         }
     }

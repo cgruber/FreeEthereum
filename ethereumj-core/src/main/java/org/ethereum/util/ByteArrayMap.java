@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.util;
 
 import org.ethereum.db.ByteArrayWrapper;
@@ -14,7 +40,7 @@ public class ByteArrayMap<V> implements Map<byte[], V> {
         this(new HashMap<>());
     }
 
-    public ByteArrayMap(Map<ByteArrayWrapper, V> delegate) {
+    public ByteArrayMap(final Map<ByteArrayWrapper, V> delegate) {
         this.delegate = delegate;
     }
 
@@ -29,33 +55,33 @@ public class ByteArrayMap<V> implements Map<byte[], V> {
     }
 
     @Override
-    public boolean containsKey(Object key) {
+    public boolean containsKey(final Object key) {
         return delegate.containsKey(new ByteArrayWrapper((byte[]) key));
     }
 
     @Override
-    public boolean containsValue(Object value) {
+    public boolean containsValue(final Object value) {
         return delegate.containsValue(value);
     }
 
     @Override
-    public V get(Object key) {
+    public V get(final Object key) {
         return delegate.get(new ByteArrayWrapper((byte[]) key));
     }
 
     @Override
-    public V put(byte[] key, V value) {
+    public V put(final byte[] key, final V value) {
         return delegate.put(new ByteArrayWrapper(key), value);
     }
 
     @Override
-    public V remove(Object key) {
+    public V remove(final Object key) {
         return delegate.remove(new ByteArrayWrapper((byte[]) key));
     }
 
     @Override
-    public void putAll(Map<? extends byte[], ? extends V> m) {
-        for (Entry<? extends byte[], ? extends V> entry : m.entrySet()) {
+    public void putAll(final Map<? extends byte[], ? extends V> m) {
+        for (final Entry<? extends byte[], ? extends V> entry : m.entrySet()) {
             delegate.put(new ByteArrayWrapper(entry.getKey()), entry.getValue());
         }
     }
@@ -81,7 +107,7 @@ public class ByteArrayMap<V> implements Map<byte[], V> {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         return delegate.equals(o);
     }
 
@@ -98,7 +124,7 @@ public class ByteArrayMap<V> implements Map<byte[], V> {
     private class MapEntrySet implements Set<Map.Entry<byte[], V>> {
         private final Set<Map.Entry<ByteArrayWrapper, V>> delegate;
 
-        private MapEntrySet(Set<Entry<ByteArrayWrapper, V>> delegate) {
+        private MapEntrySet(final Set<Entry<ByteArrayWrapper, V>> delegate) {
             this.delegate = delegate;
         }
 
@@ -113,7 +139,7 @@ public class ByteArrayMap<V> implements Map<byte[], V> {
         }
 
         @Override
-        public boolean contains(Object o) {
+        public boolean contains(final Object o) {
             throw new RuntimeException("Not implemented");
         }
 
@@ -129,7 +155,7 @@ public class ByteArrayMap<V> implements Map<byte[], V> {
 
                 @Override
                 public Entry<byte[], V> next() {
-                    Entry<ByteArrayWrapper, V> next = it.next();
+                    final Entry<ByteArrayWrapper, V> next = it.next();
                     return new AbstractMap.SimpleImmutableEntry(next.getKey().getData(), next.getValue());
                 }
 
@@ -146,37 +172,37 @@ public class ByteArrayMap<V> implements Map<byte[], V> {
         }
 
         @Override
-        public <T> T[] toArray(T[] a) {
+        public <T> T[] toArray(final T[] a) {
             throw new RuntimeException("Not implemented");
         }
 
         @Override
-        public boolean add(Entry<byte[], V> vEntry) {
+        public boolean add(final Entry<byte[], V> vEntry) {
             throw new RuntimeException("Not implemented");
         }
 
         @Override
-        public boolean remove(Object o) {
+        public boolean remove(final Object o) {
             throw new RuntimeException("Not implemented");
         }
 
         @Override
-        public boolean containsAll(Collection<?> c) {
+        public boolean containsAll(final Collection<?> c) {
             throw new RuntimeException("Not implemented");
         }
 
         @Override
-        public boolean addAll(Collection<? extends Entry<byte[], V>> c) {
+        public boolean addAll(final Collection<? extends Entry<byte[], V>> c) {
             throw new RuntimeException("Not implemented");
         }
 
         @Override
-        public boolean retainAll(Collection<?> c) {
+        public boolean retainAll(final Collection<?> c) {
             throw new RuntimeException("Not implemented");
         }
 
         @Override
-        public boolean removeAll(Collection<?> c) {
+        public boolean removeAll(final Collection<?> c) {
             throw new RuntimeException("Not implemented");
         }
 

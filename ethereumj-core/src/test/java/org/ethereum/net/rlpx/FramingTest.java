@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import org.ethereum.config.NoAutoscan;
@@ -24,45 +50,6 @@ import java.util.concurrent.TimeUnit;
 @Ignore
 public class FramingTest {
 
-    @Configuration
-    @NoAutoscan
-    public static class SysPropConfig1 {
-        static SystemProperties props;
-
-        @Bean
-        public SystemProperties systemProperties() {
-            return props;
-        }
-
-        @Bean
-        @Scope("prototype")
-        public MessageCodec messageCodec() {
-            MessageCodec codec = new MessageCodec();
-            codec.setMaxFramePayloadSize(16);
-            System.out.println("SysPropConfig1.messageCodec");
-            return codec;
-        }
-    }
-    @Configuration
-    @NoAutoscan
-    public static class SysPropConfig2 {
-        static SystemProperties props;
-
-        @Bean
-        @Scope("prototype")
-        public MessageCodec messageCodec() {
-            MessageCodec codec = new MessageCodec();
-            codec.setMaxFramePayloadSize(16);
-            System.out.println("SysPropConfig2.messageCodec");
-            return codec;
-        }
-        @Bean
-        public SystemProperties systemProperties() {
-            return props;
-        }
-    }
-
-
     @Test
     public void testTest() throws FileNotFoundException, InterruptedException {
         SysPropConfig1.props = new SystemProperties();
@@ -76,14 +63,14 @@ public class FramingTest {
                 "peer.privateKey", "d3a4a240b107ab443d46187306d0b947ce3d6b6ed95aead8c4941afcebde43d2",
                 "database.dir", "testDB-2");
 
-        Ethereum ethereum1 = EthereumFactory.createEthereum(SysPropConfig1.props, SysPropConfig1.class);
-        Ethereum ethereum2 = EthereumFactory.createEthereum(SysPropConfig2.props, SysPropConfig2.class);
+        final Ethereum ethereum1 = EthereumFactory.createEthereum(SysPropConfig1.props, SysPropConfig1.class);
+        final Ethereum ethereum2 = EthereumFactory.createEthereum(SysPropConfig2.props, SysPropConfig2.class);
 
         final CountDownLatch semaphore = new CountDownLatch(2);
 
         ethereum1.addListener(new EthereumListenerAdapter() {
             @Override
-            public void onRecvMessage(Channel channel, Message message) {
+            public void onRecvMessage(final Channel channel, final Message message) {
                 if (message instanceof StatusMessage) {
                     System.out.println("1: -> " + message);
                     semaphore.countDown();
@@ -92,7 +79,7 @@ public class FramingTest {
         });
         ethereum2.addListener(new EthereumListenerAdapter() {
             @Override
-            public void onRecvMessage(Channel channel, Message message) {
+            public void onRecvMessage(final Channel channel, final Message message) {
                 if (message instanceof StatusMessage) {
                     System.out.println("2: -> " + message);
                     semaphore.countDown();
@@ -114,5 +101,45 @@ public class FramingTest {
         }
 
         System.out.println("Passed.");
+    }
+
+    @Configuration
+    @NoAutoscan
+    public static class SysPropConfig1 {
+        static SystemProperties props;
+
+        @Bean
+        public SystemProperties systemProperties() {
+            return props;
+        }
+
+        @Bean
+        @Scope("prototype")
+        public MessageCodec messageCodec() {
+            final MessageCodec codec = new MessageCodec();
+            codec.setMaxFramePayloadSize(16);
+            System.out.println("SysPropConfig1.messageCodec");
+            return codec;
+        }
+    }
+
+    @Configuration
+    @NoAutoscan
+    public static class SysPropConfig2 {
+        static SystemProperties props;
+
+        @Bean
+        @Scope("prototype")
+        public MessageCodec messageCodec() {
+            final MessageCodec codec = new MessageCodec();
+            codec.setMaxFramePayloadSize(16);
+            System.out.println("SysPropConfig2.messageCodec");
+            return codec;
+        }
+
+        @Bean
+        public SystemProperties systemProperties() {
+            return props;
+        }
     }
 }

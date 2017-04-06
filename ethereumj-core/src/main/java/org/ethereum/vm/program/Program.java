@@ -108,19 +108,19 @@ public class Program {
     private ByteArraySet touchedAccounts = new ByteArraySet();
     private ProgramPrecompile programPrecompile;
 
-    public Program(byte[] ops, ProgramInvoke programInvoke) {
+    public Program(final byte[] ops, final ProgramInvoke programInvoke) {
         this(ops, programInvoke, null);
     }
 
-    private Program(byte[] ops, ProgramInvoke programInvoke, Transaction transaction) {
+    private Program(final byte[] ops, final ProgramInvoke programInvoke, final Transaction transaction) {
         this(ops, programInvoke, transaction, SystemProperties.getDefault());
     }
 
-    public Program(byte[] ops, ProgramInvoke programInvoke, Transaction transaction, SystemProperties config) {
+    public Program(final byte[] ops, final ProgramInvoke programInvoke, final Transaction transaction, final SystemProperties config) {
         this(null, ops, programInvoke, transaction, config);
     }
 
-    public Program(byte[] codeHash, byte[] ops, ProgramInvoke programInvoke, Transaction transaction, SystemProperties config) {
+    public Program(final byte[] codeHash, final byte[] ops, final ProgramInvoke programInvoke, final Transaction transaction, final SystemProperties config) {
         this.config = config;
         this.invoke = programInvoke;
         this.transaction = transaction;
@@ -136,8 +136,8 @@ public class Program {
         this.blockchainConfig = config.getBlockchainConfig().getConfigForBlock(programInvoke.getNumber().longValue());
     }
 
-    private static String formatBinData(byte[] binData, int startPC) {
-        StringBuilder ret = new StringBuilder();
+    private static String formatBinData(final byte[] binData, final int startPC) {
+        final StringBuilder ret = new StringBuilder();
         for (int i = 0; i < binData.length; i += 16) {
             ret.append(Utils.align("" + Integer.toHexString(startPC + (i)) + ":", ' ', 8, false));
             ret.append(Hex.toHexString(binData, i, min(16, binData.length - i))).append('\n');
@@ -145,16 +145,16 @@ public class Program {
         return ret.toString();
     }
 
-    public static String stringifyMultiline(byte[] code) {
+    public static String stringifyMultiline(final byte[] code) {
         int index = 0;
-        StringBuilder sb = new StringBuilder();
-        BitSet mask = buildReachableBytecodesMask(code);
+        final StringBuilder sb = new StringBuilder();
+        final BitSet mask = buildReachableBytecodesMask(code);
         ByteArrayOutputStream binData = new ByteArrayOutputStream();
         int binDataStartPC = -1;
 
         while (index < code.length) {
             final byte opCode = code[index];
-            OpCode op = OpCode.code(opCode);
+            final OpCode op = OpCode.code(opCode);
 
             if (!mask.get(index)) {
                 if (binDataStartPC == -1) {
@@ -183,9 +183,9 @@ public class Program {
             if (op.name().startsWith("PUSH")) {
                 sb.append(' ').append(op.name()).append(' ');
 
-                int nPush = op.val() - OpCode.PUSH1.val() + 1;
-                byte[] data = Arrays.copyOfRange(code, index + 1, index + nPush + 1);
-                BigInteger bi = new BigInteger(1, data);
+                final int nPush = op.val() - OpCode.PUSH1.val() + 1;
+                final byte[] data = Arrays.copyOfRange(code, index + 1, index + nPush + 1);
+                final BigInteger bi = new BigInteger(1, data);
                 sb.append("0x").append(bi.toString(16));
                 if (bi.bitLength() <= 32) {
                     sb.append(" (").append(new BigInteger(1, data).toString()).append(") ");
@@ -202,10 +202,10 @@ public class Program {
         return sb.toString();
     }
 
-    private static BitSet buildReachableBytecodesMask(byte[] code) {
-        NavigableSet<Integer> gotos = new TreeSet<>();
-        ByteCodeIterator it = new ByteCodeIterator(code);
-        BitSet ret = new BitSet(code.length);
+    private static BitSet buildReachableBytecodesMask(final byte[] code) {
+        final NavigableSet<Integer> gotos = new TreeSet<>();
+        final ByteCodeIterator it = new ByteCodeIterator(code);
+        final BitSet ret = new BitSet(code.length);
         int lastPush = 0;
         int lastPushPC = 0;
         do {
@@ -221,7 +221,7 @@ public class Program {
                     ret.set(0, code.length);
                     return ret;
                 }
-                int jumpPC = lastPush;
+                final int jumpPC = lastPush;
                 if (!ret.get(jumpPC)) {
                     // code was not explored yet
                     gotos.add(jumpPC);
@@ -236,15 +236,15 @@ public class Program {
         return ret;
     }
 
-    public static String stringify(byte[] code) {
+    public static String stringify(final byte[] code) {
         int index = 0;
-        StringBuilder sb = new StringBuilder();
-        BitSet mask = buildReachableBytecodesMask(code);
-        String binData = "";
+        final StringBuilder sb = new StringBuilder();
+        final BitSet mask = buildReachableBytecodesMask(code);
+        final String binData = "";
 
         while (index < code.length) {
             final byte opCode = code[index];
-            OpCode op = OpCode.code(opCode);
+            final OpCode op = OpCode.code(opCode);
 
             if (op == null) {
                 sb.append(" <UNKNOWN>: ").append(0xFF & opCode).append(" ");
@@ -255,9 +255,9 @@ public class Program {
             if (op.name().startsWith("PUSH")) {
                 sb.append(' ').append(op.name()).append(' ');
 
-                int nPush = op.val() - OpCode.PUSH1.val() + 1;
-                byte[] data = Arrays.copyOfRange(code, index + 1, index + nPush + 1);
-                BigInteger bi = new BigInteger(1, data);
+                final int nPush = op.val() - OpCode.PUSH1.val() + 1;
+                final byte[] data = Arrays.copyOfRange(code, index + 1, index + nPush + 1);
+                final BigInteger bi = new BigInteger(1, data);
                 sb.append("0x").append(bi.toString(16)).append(" ");
 
                 index += nPush + 1;
@@ -286,7 +286,7 @@ public class Program {
         return programPrecompile;
     }
 
-    public Program withCommonConfig(CommonConfig commonConfig) {
+    public Program withCommonConfig(final CommonConfig commonConfig) {
         this.commonConfig = commonConfig;
         return this;
     }
@@ -295,12 +295,12 @@ public class Program {
         return invoke.getCallDeep();
     }
 
-    private InternalTransaction addInternalTx(byte[] nonce, DataWord gasLimit, byte[] senderAddress, byte[] receiveAddress,
-                                              BigInteger value, byte[] data, String note) {
+    private InternalTransaction addInternalTx(final byte[] nonce, final DataWord gasLimit, final byte[] senderAddress, final byte[] receiveAddress,
+                                              final BigInteger value, final byte[] data, final String note) {
 
         InternalTransaction result = null;
         if (transaction != null) {
-            byte[] senderNonce = isEmpty(nonce) ? getStorage().getNonce(senderAddress).toByteArray() : nonce;
+            final byte[] senderNonce = isEmpty(nonce) ? getStorage().getNonce(senderAddress).toByteArray() : nonce;
 
             result = getResult().addInternalTransaction(transaction.getHash(), getCallDeep(), senderNonce,
                     getGasPrice(), gasLimit, senderAddress, receiveAddress, value.toByteArray(), data, note);
@@ -309,7 +309,7 @@ public class Program {
         return result;
     }
 
-    private <T extends ProgramListenerAware> T setupProgramListener(T programListenerAware) {
+    private <T extends ProgramListenerAware> T setupProgramListener(final T programListenerAware) {
         if (programListener.isEmpty()) {
             programListener.addListener(traceListener);
             programListener.addListener(storageDiffListener);
@@ -324,7 +324,7 @@ public class Program {
         return storageDiffListener.getDiff();
     }
 
-    public byte getOp(int pc) {
+    public byte getOp(final int pc) {
         return (getLength(ops) <= pc) ? 0 : ops[pc];
     }
 
@@ -335,7 +335,7 @@ public class Program {
     /**
      * Last Op can only be set publicly (no getLastOp method), is used for logging.
      */
-    public void setLastOp(byte op) {
+    public void setLastOp(final byte op) {
         this.lastOp = op;
     }
 
@@ -349,11 +349,11 @@ public class Program {
     /**
      * Should be set only after the OP is fully executed.
      */
-    public void setPreviouslyExecutedOp(byte op) {
+    public void setPreviouslyExecutedOp(final byte op) {
         this.previouslyExecutedOp = op;
     }
 
-    public void stackPush(byte[] data) {
+    public void stackPush(final byte[] data) {
         stackPush(new DataWord(data));
     }
 
@@ -362,11 +362,11 @@ public class Program {
     }
 
     private void stackPushOne() {
-        DataWord stackWord = new DataWord(1);
+        final DataWord stackWord = new DataWord(1);
         stackPush(stackWord);
     }
 
-    public void stackPush(DataWord stackWord) {
+    public void stackPush(final DataWord stackWord) {
         verifyStackOverflow(0, 1); //Sanity Check
         stack.push(stackWord);
     }
@@ -379,16 +379,16 @@ public class Program {
         return pc;
     }
 
-    public void setPC(int pc) {
+    public void setPC(final DataWord pc) {
+        this.setPC(pc.intValue());
+    }
+
+    public void setPC(final int pc) {
         this.pc = pc;
 
         if (this.pc >= ops.length) {
             stop();
         }
-    }
-
-    public void setPC(DataWord pc) {
-        this.setPC(pc.intValue());
     }
 
     public boolean isStopped() {
@@ -399,7 +399,7 @@ public class Program {
         stopped = true;
     }
 
-    public void setHReturn(byte[] buff) {
+    public void setHReturn(final byte[] buff) {
         getResult().setHReturn(buff);
     }
 
@@ -407,12 +407,12 @@ public class Program {
         setPC(pc + 1);
     }
 
-    public byte[] sweep(int n) {
+    public byte[] sweep(final int n) {
 
         if (pc + n > ops.length)
             stop();
 
-        byte[] data = Arrays.copyOfRange(ops, pc, pc + n);
+        final byte[] data = Arrays.copyOfRange(ops, pc, pc + n);
         pc += n;
         if (pc >= ops.length) stop();
 
@@ -430,13 +430,13 @@ public class Program {
      * @throws StackTooSmallException If the stack is
      *                                smaller than <code>stackSize</code>
      */
-    public void verifyStackSize(int stackSize) {
+    public void verifyStackSize(final int stackSize) {
         if (stack.size() < stackSize) {
             throw Program.Exception.tooSmallStack(stackSize, stack.size());
         }
     }
 
-    public void verifyStackOverflow(int argsReqs, int returnReqs) {
+    public void verifyStackOverflow(final int argsReqs, final int returnReqs) {
         if ((stack.size() - argsReqs + returnReqs) > MAX_STACKSIZE) {
             throw new StackTooLargeException("Expected: overflow " + MAX_STACKSIZE + " elements stack limit");
         }
@@ -446,19 +446,19 @@ public class Program {
         return memory.size();
     }
 
-    public void memorySave(DataWord addrB, DataWord value) {
+    public void memorySave(final DataWord addrB, final DataWord value) {
         memory.write(addrB.intValue(), value.getData(), value.getData().length, false);
     }
 
-    private void memorySaveLimited(int addr, byte[] data, int dataSize) {
+    private void memorySaveLimited(final int addr, final byte[] data, final int dataSize) {
         memory.write(addr, data, dataSize, true);
     }
 
-    public void memorySave(int addr, byte[] value) {
+    public void memorySave(final int addr, final byte[] value) {
         memory.write(addr, value, value.length, false);
     }
 
-    public void memoryExpand(DataWord outDataOffs, DataWord outDataSize) {
+    public void memoryExpand(final DataWord outDataOffs, final DataWord outDataSize) {
         if (!outDataSize.isZero()) {
             memory.extend(outDataOffs.intValue(), outDataSize.intValue());
         }
@@ -471,19 +471,19 @@ public class Program {
      * @param allocSize size of memory needed to write
      * @param value     the data to write to memory
      */
-    public void memorySave(int addr, int allocSize, byte[] value) {
+    public void memorySave(final int addr, final int allocSize, final byte[] value) {
         memory.extendAndWrite(addr, allocSize, value);
     }
 
-    public DataWord memoryLoad(DataWord addr) {
+    public DataWord memoryLoad(final DataWord addr) {
         return memory.readWord(addr.intValue());
     }
 
-    public DataWord memoryLoad(int address) {
+    public DataWord memoryLoad(final int address) {
         return memory.readWord(address);
     }
 
-    public byte[] memoryChunk(int offset, int size) {
+    public byte[] memoryChunk(final int offset, final int size) {
         return memory.read(offset, size);
     }
 
@@ -494,15 +494,15 @@ public class Program {
      * @param offset the memory address offset
      * @param size   the number of bytes to allocate
      */
-    public void allocateMemory(int offset, int size) {
+    public void allocateMemory(final int offset, final int size) {
         memory.extend(offset, size);
     }
 
-    public void suicide(DataWord obtainerAddress) {
+    public void suicide(final DataWord obtainerAddress) {
 
-        byte[] owner = getOwnerAddress().getLast20Bytes();
-        byte[] obtainer = obtainerAddress.getLast20Bytes();
-        BigInteger balance = getStorage().getBalance(owner);
+        final byte[] owner = getOwnerAddress().getLast20Bytes();
+        final byte[] obtainer = obtainerAddress.getLast20Bytes();
+        final BigInteger balance = getStorage().getBalance(owner);
 
         if (logger.isInfoEnabled())
             logger.info("Transfer to: [{}] heritage: [{}]",
@@ -526,34 +526,34 @@ public class Program {
     }
 
     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    public void createContract(DataWord value, DataWord memStart, DataWord memSize) {
+    public void createContract(final DataWord value, final DataWord memStart, final DataWord memSize) {
 
         if (getCallDeep() == MAX_DEPTH) {
             stackPushZero();
             return;
         }
 
-        byte[] senderAddress = this.getOwnerAddress().getLast20Bytes();
-        BigInteger endowment = value.value();
+        final byte[] senderAddress = this.getOwnerAddress().getLast20Bytes();
+        final BigInteger endowment = value.value();
         if (isNotCovers(getStorage().getBalance(senderAddress), endowment)) {
             stackPushZero();
             return;
         }
 
         // [1] FETCH THE CODE FROM THE MEMORY
-        byte[] programCode = memoryChunk(memStart.intValue(), memSize.intValue());
+        final byte[] programCode = memoryChunk(memStart.intValue(), memSize.intValue());
 
         if (logger.isInfoEnabled())
             logger.info("creating a new contract inside contract run: [{}]", Hex.toHexString(senderAddress));
 
         //  actual gas subtract
-        DataWord gasLimit = config.getBlockchainConfig().getConfigForBlock(getNumber().longValue()).
+        final DataWord gasLimit = config.getBlockchainConfig().getConfigForBlock(getNumber().longValue()).
                 getCreateGas(getGas());
         spendGas(gasLimit.longValue(), "internal call");
 
         // [2] CREATE THE CONTRACT ADDRESS
-        byte[] nonce = getStorage().getNonce(senderAddress).toByteArray();
-        byte[] newAddress = HashUtil.calcNewAddr(getOwnerAddress().getLast20Bytes(), nonce);
+        final byte[] nonce = getStorage().getNonce(senderAddress).toByteArray();
+        final byte[] newAddress = HashUtil.calcNewAddr(getOwnerAddress().getLast20Bytes(), nonce);
 
         if (byTestingSuite()) {
             // This keeps track of the contracts created for a test
@@ -568,10 +568,10 @@ public class Program {
             getStorage().increaseNonce(senderAddress);
         }
 
-        Repository track = getStorage().startTracking();
+        final Repository track = getStorage().startTracking();
 
         //In case of hashing collisions, check for any balance before createAccount()
-        BigInteger oldBalance = track.getBalance(newAddress);
+        final BigInteger oldBalance = track.getBalance(newAddress);
         track.createAccount(newAddress);
         if (blockchainConfig.eip161()) {
             track.increaseNonce(newAddress);
@@ -587,16 +587,16 @@ public class Program {
 
 
         // [5] COOK THE INVOKE AND EXECUTE
-        InternalTransaction internalTx = addInternalTx(nonce, getGasLimit(), senderAddress, null, endowment, programCode, "create");
-        ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(
+        final InternalTransaction internalTx = addInternalTx(nonce, getGasLimit(), senderAddress, null, endowment, programCode, "create");
+        final ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(
                 this, new DataWord(newAddress), getOwnerAddress(), value, gasLimit,
                 newBalance, null, track, this.invoke.getBlockStore(), byTestingSuite());
 
         ProgramResult result = ProgramResult.empty();
         if (isNotEmpty(programCode)) {
 
-            VM vm = new VM(config);
-            Program program = new Program(programCode, programInvoke, internalTx, config).withCommonConfig(commonConfig);
+            final VM vm = new VM(config);
+            final Program program = new Program(programCode, programInvoke, internalTx, config).withCommonConfig(commonConfig);
             vm.play(program);
             result = program.getResult();
 
@@ -604,10 +604,10 @@ public class Program {
         }
 
         // 4. CREATE THE CONTRACT OUT OF RETURN
-        byte[] code = result.getHReturn();
+        final byte[] code = result.getHReturn();
 
-        long storageCost = getLength(code) * getBlockchainConfig().getGasCost().getCREATE_DATA();
-        long afterSpend = programInvoke.getGas().longValue() - storageCost - result.getGasUsed();
+        final long storageCost = getLength(code) * getBlockchainConfig().getGasCost().getCREATE_DATA();
+        final long afterSpend = programInvoke.getGas().longValue() - storageCost - result.getGasUsed();
         if (afterSpend < 0) {
             if (!config.getBlockchainConfig().getConfigForBlock(getNumber().longValue()).getConstants().createEmptyContractOnOOG()) {
                 result.setException(Program.Exception.notEnoughSpendingGas("No gas to return just created contract",
@@ -643,7 +643,7 @@ public class Program {
         stackPush(new DataWord(newAddress));
 
         // 5. REFUND THE REMAIN GAS
-        long refundGas = gasLimit.longValue() - result.getGasUsed();
+        final long refundGas = gasLimit.longValue() - result.getGasUsed();
         if (refundGas > 0) {
             refundGas(refundGas, "remain gas from the internal call");
             if (logger.isInfoEnabled()) {
@@ -662,7 +662,7 @@ public class Program {
      *
      * @param msg is the message call object
      */
-    public void callToAddress(MessageCall msg) {
+    public void callToAddress(final MessageCall msg) {
 
         if (getCallDeep() == MAX_DEPTH) {
             stackPushZero();
@@ -670,22 +670,22 @@ public class Program {
             return;
         }
 
-        byte[] data = memoryChunk(msg.getInDataOffs().intValue(), msg.getInDataSize().intValue());
+        final byte[] data = memoryChunk(msg.getInDataOffs().intValue(), msg.getInDataSize().intValue());
 
         // FETCH THE SAVED STORAGE
-        byte[] codeAddress = msg.getCodeAddress().getLast20Bytes();
-        byte[] senderAddress = getOwnerAddress().getLast20Bytes();
-        byte[] contextAddress = msg.getType().isStateless() ? senderAddress : codeAddress;
+        final byte[] codeAddress = msg.getCodeAddress().getLast20Bytes();
+        final byte[] senderAddress = getOwnerAddress().getLast20Bytes();
+        final byte[] contextAddress = msg.getType().isStateless() ? senderAddress : codeAddress;
 
         if (logger.isInfoEnabled())
             logger.info(msg.getType().name() + " for existing contract: address: [{}], outDataOffs: [{}], outDataSize: [{}]  ",
                     Hex.toHexString(contextAddress), msg.getOutDataOffs().longValue(), msg.getOutDataSize().longValue());
 
-        Repository track = getStorage().startTracking();
+        final Repository track = getStorage().startTracking();
 
         // 2.1 PERFORM THE VALUE (endowment) PART
-        BigInteger endowment = msg.getEndowment().value();
-        BigInteger senderBalance = track.getBalance(senderAddress);
+        final BigInteger endowment = msg.getEndowment().value();
+        final BigInteger senderBalance = track.getBalance(senderAddress);
         if (isNotCovers(senderBalance, endowment)) {
             stackPushZero();
             refundGas(msg.getGas().longValue(), "refund gas from message call");
@@ -694,7 +694,7 @@ public class Program {
 
 
         // FETCH THE CODE
-        byte[] programCode = getStorage().isExist(codeAddress) ? getStorage().getCode(codeAddress) : EMPTY_BYTE_ARRAY;
+        final byte[] programCode = getStorage().isExist(codeAddress) ? getStorage().getCode(codeAddress) : EMPTY_BYTE_ARRAY;
 
 
         BigInteger contextBalance = ZERO;
@@ -709,18 +709,18 @@ public class Program {
         }
 
         // CREATE CALL INTERNAL TRANSACTION
-        InternalTransaction internalTx = addInternalTx(null, getGasLimit(), senderAddress, contextAddress, endowment, data, "call");
+        final InternalTransaction internalTx = addInternalTx(null, getGasLimit(), senderAddress, contextAddress, endowment, data, "call");
 
         ProgramResult result = null;
         if (isNotEmpty(programCode)) {
-            ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(
+            final ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(
                     this, new DataWord(contextAddress),
                     msg.getType() == MsgType.DELEGATECALL ? getCallerAddress() : getOwnerAddress(),
                     msg.getType() == MsgType.DELEGATECALL ? getCallValue() : msg.getEndowment(),
                     msg.getGas(), contextBalance, data, track, this.invoke.getBlockStore(), byTestingSuite());
 
-            VM vm = new VM(config);
-            Program program = new Program(getStorage().getCodeHash(codeAddress), programCode, programInvoke, internalTx, config).withCommonConfig(commonConfig);
+            final VM vm = new VM(config);
+            final Program program = new Program(getStorage().getCodeHash(codeAddress), programCode, programInvoke, internalTx, config).withCommonConfig(commonConfig);
             vm.play(program);
             result = program.getResult();
 
@@ -747,9 +747,9 @@ public class Program {
 
         // 3. APPLY RESULTS: result.getHReturn() into out_memory allocated
         if (result != null) {
-            byte[] buffer = result.getHReturn();
-            int offset = msg.getOutDataOffs().intValue();
-            int size = msg.getOutDataSize().intValue();
+            final byte[] buffer = result.getHReturn();
+            final int offset = msg.getOutDataOffs().intValue();
+            final int size = msg.getOutDataSize().intValue();
 
             memorySaveLimited(offset, buffer, size);
         }
@@ -760,7 +760,7 @@ public class Program {
 
         // 5. REFUND THE REMAIN GAS
         if (result != null) {
-            BigInteger refundGas = msg.getGas().value().subtract(toBI(result.getGasUsed()));
+            final BigInteger refundGas = msg.getGas().value().subtract(toBI(result.getGasUsed()));
             if (isPositive(refundGas)) {
                 refundGas(refundGas.longValue(), "remaining gas from the internal call");
                 if (logger.isInfoEnabled())
@@ -773,7 +773,7 @@ public class Program {
         }
     }
 
-    public void spendGas(long gasValue, String cause) {
+    public void spendGas(final long gasValue, final String cause) {
         if (logger.isDebugEnabled()) {
             logger.debug("[{}] Spent for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
         }
@@ -788,12 +788,12 @@ public class Program {
         spendGas(getGas().longValue(), "Spending all remaining");
     }
 
-    private void refundGas(long gasValue, String cause) {
+    private void refundGas(final long gasValue, final String cause) {
         logger.info("[{}] Refund for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
         getResult().refundGas(gasValue);
     }
 
-    public void futureRefundGas(long gasValue) {
+    public void futureRefundGas(final long gasValue) {
         logger.info("Future refund added: [{}]", gasValue);
         getResult().addFutureRefund(gasValue);
     }
@@ -802,13 +802,13 @@ public class Program {
         getResult().resetFutureRefund();
     }
 
-    public void storageSave(DataWord word1, DataWord word2) {
+    public void storageSave(final DataWord word1, final DataWord word2) {
         storageSave(word1.getData(), word2.getData());
     }
 
-    private void storageSave(byte[] key, byte[] val) {
-        DataWord keyWord = new DataWord(key);
-        DataWord valWord = new DataWord(val);
+    private void storageSave(final byte[] key, final byte[] val) {
+        final DataWord keyWord = new DataWord(key);
+        final DataWord valWord = new DataWord(val);
         getStorage().addStorageRow(getOwnerAddress().getLast20Bytes(), keyWord, valWord);
     }
 
@@ -816,8 +816,8 @@ public class Program {
         return ops;
     }
 
-    public byte[] getCodeAt(DataWord address) {
-        byte[] code = invoke.getRepository().getCode(address.getLast20Bytes());
+    public byte[] getCodeAt(final DataWord address) {
+        final byte[] code = invoke.getRepository().getCode(address.getLast20Bytes());
         return nullToEmpty(code);
     }
 
@@ -825,14 +825,14 @@ public class Program {
         return invoke.getOwnerAddress().clone();
     }
 
-    public DataWord getBlockHash(int index) {
+    public DataWord getBlockHash(final int index) {
         return index < this.getNumber().longValue() && index >= Math.max(256, this.getNumber().intValue()) - 256 ?
                 new DataWord(this.invoke.getBlockStore().getBlockHashByNumber(index, getPrevHash().getData())).clone() :
                 DataWord.ZERO.clone();
     }
 
-    public DataWord getBalance(DataWord address) {
-        BigInteger balance = getStorage().getBalance(address.getLast20Bytes());
+    public DataWord getBalance(final DataWord address) {
+        final BigInteger balance = getStorage().getBalance(address.getLast20Bytes());
         return new DataWord(balance.toByteArray());
     }
 
@@ -864,16 +864,16 @@ public class Program {
         return invoke.getDataSize().clone();
     }
 
-    public DataWord getDataValue(DataWord index) {
+    public DataWord getDataValue(final DataWord index) {
         return invoke.getDataValue(index);
     }
 
-    public byte[] getDataCopy(DataWord offset, DataWord length) {
+    public byte[] getDataCopy(final DataWord offset, final DataWord length) {
         return invoke.getDataCopy(offset, length);
     }
 
-    public DataWord storageLoad(DataWord key) {
-        DataWord ret = getStorage().getStorageValue(getOwnerAddress().getLast20Bytes(), key.clone());
+    public DataWord storageLoad(final DataWord key) {
+        final DataWord ret = getStorage().getStorageValue(getOwnerAddress().getLast20Bytes(), key.clone());
         return ret == null ? null : ret.clone();
     }
 
@@ -909,7 +909,7 @@ public class Program {
         return result;
     }
 
-    public void setRuntimeFailure(RuntimeException e) {
+    public void setRuntimeFailure(final RuntimeException e) {
         getResult().setException(e);
     }
 
@@ -921,7 +921,7 @@ public class Program {
 
         if (logger.isTraceEnabled() || listener != null) {
 
-            StringBuilder stackData = new StringBuilder();
+            final StringBuilder stackData = new StringBuilder();
             for (int i = 0; i < stack.size(); ++i) {
                 stackData.append(" ").append(stack.get(i));
                 if (i < stack.size() - 1) stackData.append("\n");
@@ -929,21 +929,21 @@ public class Program {
 
             if (stackData.length() > 0) stackData.insert(0, "\n");
 
-            ContractDetails contractDetails = getStorage().
+            final ContractDetails contractDetails = getStorage().
                     getContractDetails(getOwnerAddress().getLast20Bytes());
-            StringBuilder storageData = new StringBuilder();
+            final StringBuilder storageData = new StringBuilder();
             if (contractDetails != null) {
-                List<DataWord> storageKeys = new ArrayList<>(contractDetails.getStorage().keySet());
+                final List<DataWord> storageKeys = new ArrayList<>(contractDetails.getStorage().keySet());
                 Collections.sort(storageKeys);
-                for (DataWord key : storageKeys) {
+                for (final DataWord key : storageKeys) {
                     storageData.append(" ").append(key).append(" -> ").
                             append(contractDetails.getStorage().get(key)).append("\n");
                 }
                 if (storageData.length() > 0) storageData.insert(0, "\n");
             }
 
-            StringBuilder memoryData = new StringBuilder();
-            StringBuilder oneLine = new StringBuilder();
+            final StringBuilder memoryData = new StringBuilder();
+            final StringBuilder oneLine = new StringBuilder();
             if (memory.size() > 320)
                 memoryData.append("... Memory Folded.... ")
                         .append("(")
@@ -952,11 +952,11 @@ public class Program {
             else
                 for (int i = 0; i < memory.size(); ++i) {
 
-                    byte value = memory.readByte(i);
+                    final byte value = memory.readByte(i);
                     oneLine.append(ByteUtil.oneByteToHexString(value)).append(" ");
 
                     if ((i + 1) % 16 == 0) {
-                        String tmp = format("[%4s]-[%4s]", Integer.toString(i - 15, 16),
+                        final String tmp = format("[%4s]-[%4s]", Integer.toString(i - 15, 16),
                                 Integer.toString(i, 16)).replace(" ", "0");
                         memoryData.append("").append(tmp).append(" ");
                         memoryData.append(oneLine);
@@ -966,7 +966,7 @@ public class Program {
                 }
             if (memoryData.length() > 0) memoryData.insert(0, "\n");
 
-            StringBuilder opsString = new StringBuilder();
+            final StringBuilder opsString = new StringBuilder();
             for (int i = 0; i < ops.length; ++i) {
 
                 String tmpString = Integer.toString(ops[i] & 0xFF, 16);
@@ -990,7 +990,7 @@ public class Program {
                     invoke.getGas().longValue(),
                     getGas().longValue());
 
-            StringBuilder globalOutput = new StringBuilder("\n");
+            final StringBuilder globalOutput = new StringBuilder("\n");
             if (stackData.length() > 0) stackData.append("\n");
 
             if (pc != 0)
@@ -1007,7 +1007,7 @@ public class Program {
 
             // sophisticated assumption that msg.data != codedata
             // means we are calling the contract not creating it
-            byte[] txData = invoke.getDataCopy(DataWord.ZERO, getDataSize());
+            final byte[] txData = invoke.getDataCopy(DataWord.ZERO, getDataSize());
             if (!Arrays.equals(txData, ops))
                 globalOutput.append("\n  msg.data: ").append(Hex.toHexString(txData));
             globalOutput.append("\n\n  Spent Gas: ").append(getResult().getGasUsed());
@@ -1027,22 +1027,22 @@ public class Program {
         return trace;
     }
 
-    public void addListener(ProgramOutListener listener) {
+    public void addListener(final ProgramOutListener listener) {
         this.listener = listener;
     }
 
-    public int verifyJumpDest(DataWord nextPC) {
+    public int verifyJumpDest(final DataWord nextPC) {
         if (nextPC.bytesOccupied() > 4) {
             throw Program.Exception.badJumpDestination(-1);
         }
-        int ret = nextPC.intValue();
+        final int ret = nextPC.intValue();
         if (!getProgramPrecompile().hasJumpDest(ret)) {
             throw Program.Exception.badJumpDestination(ret);
         }
         return ret;
     }
 
-    public void callToPrecompiledAddress(MessageCall msg, PrecompiledContract contract) {
+    public void callToPrecompiledAddress(final MessageCall msg, final PrecompiledContract contract) {
 
         if (getCallDeep() == MAX_DEPTH) {
             stackPushZero();
@@ -1050,22 +1050,22 @@ public class Program {
             return;
         }
 
-        Repository track = getStorage().startTracking();
+        final Repository track = getStorage().startTracking();
 
-        byte[] senderAddress = this.getOwnerAddress().getLast20Bytes();
-        byte[] codeAddress = msg.getCodeAddress().getLast20Bytes();
-        byte[] contextAddress = msg.getType().isStateless() ? senderAddress : codeAddress;
+        final byte[] senderAddress = this.getOwnerAddress().getLast20Bytes();
+        final byte[] codeAddress = msg.getCodeAddress().getLast20Bytes();
+        final byte[] contextAddress = msg.getType().isStateless() ? senderAddress : codeAddress;
 
 
-        BigInteger endowment = msg.getEndowment().value();
-        BigInteger senderBalance = track.getBalance(senderAddress);
+        final BigInteger endowment = msg.getEndowment().value();
+        final BigInteger senderBalance = track.getBalance(senderAddress);
         if (senderBalance.compareTo(endowment) < 0) {
             stackPushZero();
             this.refundGas(msg.getGas().longValue(), "refund gas from message call");
             return;
         }
 
-        byte[] data = this.memoryChunk(msg.getInDataOffs().intValue(),
+        final byte[] data = this.memoryChunk(msg.getInDataOffs().intValue(),
                 msg.getInDataSize().intValue());
 
         // Charge for endowment - is not reversible by rollback
@@ -1083,7 +1083,7 @@ public class Program {
         }
 
 
-        long requiredGas = contract.getGasForData(data);
+        final long requiredGas = contract.getGasForData(data);
         if (requiredGas > msg.getGas().longValue()) {
 
             this.refundGas(0, "call pre-compiled"); //matches cpp logic
@@ -1092,7 +1092,7 @@ public class Program {
         } else {
 
             this.refundGas(msg.getGas().longValue() - requiredGas, "call pre-compiled");
-            byte[] out = contract.execute(data);
+            final byte[] out = contract.execute(data);
 
             this.memorySave(msg.getOutDataOffs().intValue(), out);
             this.stackPushOne();
@@ -1114,7 +1114,7 @@ public class Program {
     /**
      * used mostly for testing reasons
      */
-    public void initMem(byte[] data) {
+    public void initMem(final byte[] data) {
         this.memory.write(0, data, data.length, false);
     }
 
@@ -1126,7 +1126,7 @@ public class Program {
         final byte[] code;
         int pc;
 
-        public ByteCodeIterator(byte[] code) {
+        public ByteCodeIterator(final byte[] code) {
             this.code = code;
         }
 
@@ -1134,7 +1134,7 @@ public class Program {
             return pc;
         }
 
-        public void setPC(int pc) {
+        public void setPC(final int pc) {
             this.pc = pc;
         }
 
@@ -1148,8 +1148,8 @@ public class Program {
 
         public byte[] getCurOpcodeArg() {
             if (isPush()) {
-                int nPush = getCurOpcode().val() - OpCode.PUSH1.val() + 1;
-                byte[] data = Arrays.copyOfRange(code, pc + 1, pc + nPush + 1);
+                final int nPush = getCurOpcode().val() - OpCode.PUSH1.val() + 1;
+                final byte[] data = Arrays.copyOfRange(code, pc + 1, pc + nPush + 1);
                 return data;
             } else {
                 return new byte[0];
@@ -1169,7 +1169,7 @@ public class Program {
      */
     @SuppressWarnings("serial")
     public static class BytecodeExecutionException extends RuntimeException {
-        public BytecodeExecutionException(String message) {
+        public BytecodeExecutionException(final String message) {
             super(message);
         }
     }
@@ -1177,7 +1177,7 @@ public class Program {
     @SuppressWarnings("serial")
     public static class OutOfGasException extends BytecodeExecutionException {
 
-        public OutOfGasException(String message, Object... args) {
+        public OutOfGasException(final String message, final Object... args) {
             super(format(message, args));
         }
     }
@@ -1185,7 +1185,7 @@ public class Program {
     @SuppressWarnings("serial")
     public static class IllegalOperationException extends BytecodeExecutionException {
 
-        public IllegalOperationException(String message, Object... args) {
+        public IllegalOperationException(final String message, final Object... args) {
             super(format(message, args));
         }
     }
@@ -1193,7 +1193,7 @@ public class Program {
     @SuppressWarnings("serial")
     public static class BadJumpDestinationException extends BytecodeExecutionException {
 
-        public BadJumpDestinationException(String message, Object... args) {
+        public BadJumpDestinationException(final String message, final Object... args) {
             super(format(message, args));
         }
     }
@@ -1201,50 +1201,50 @@ public class Program {
     @SuppressWarnings("serial")
     public static class StackTooSmallException extends BytecodeExecutionException {
 
-        public StackTooSmallException(String message, Object... args) {
+        public StackTooSmallException(final String message, final Object... args) {
             super(format(message, args));
         }
     }
 
     public static class Exception {
 
-        public static OutOfGasException notEnoughOpGas(OpCode op, long opGas, long programGas) {
+        public static OutOfGasException notEnoughOpGas(final OpCode op, final long opGas, final long programGas) {
             return new OutOfGasException("Not enough gas for '%s' operation executing: opGas[%d], programGas[%d];", op, opGas, programGas);
         }
 
-        public static OutOfGasException notEnoughOpGas(OpCode op, DataWord opGas, DataWord programGas) {
+        public static OutOfGasException notEnoughOpGas(final OpCode op, final DataWord opGas, final DataWord programGas) {
             return notEnoughOpGas(op, opGas.longValue(), programGas.longValue());
         }
 
-        public static OutOfGasException notEnoughOpGas(OpCode op, BigInteger opGas, BigInteger programGas) {
+        public static OutOfGasException notEnoughOpGas(final OpCode op, final BigInteger opGas, final BigInteger programGas) {
             return notEnoughOpGas(op, opGas.longValue(), programGas.longValue());
         }
 
-        public static OutOfGasException notEnoughSpendingGas(String cause, long gasValue, Program program) {
+        public static OutOfGasException notEnoughSpendingGas(final String cause, final long gasValue, final Program program) {
             return new OutOfGasException("Not enough gas for '%s' cause spending: invokeGas[%d], gas[%d], usedGas[%d];",
                     cause, program.invoke.getGas().longValue(), gasValue, program.getResult().getGasUsed());
         }
 
-        public static OutOfGasException gasOverflow(BigInteger actualGas, BigInteger gasLimit) {
+        public static OutOfGasException gasOverflow(final BigInteger actualGas, final BigInteger gasLimit) {
             return new OutOfGasException("Gas value overflow: actualGas[%d], gasLimit[%d];", actualGas.longValue(), gasLimit.longValue());
         }
 
-        public static IllegalOperationException invalidOpCode(byte... opCode) {
+        public static IllegalOperationException invalidOpCode(final byte... opCode) {
             return new IllegalOperationException("Invalid operation code: opCode[%s];", Hex.toHexString(opCode, 0, 1));
         }
 
-        public static BadJumpDestinationException badJumpDestination(int pc) {
+        public static BadJumpDestinationException badJumpDestination(final int pc) {
             return new BadJumpDestinationException("Operation with pc isn't 'JUMPDEST': PC[%d];", pc);
         }
 
-        public static StackTooSmallException tooSmallStack(int expectedSize, int actualSize) {
+        public static StackTooSmallException tooSmallStack(final int expectedSize, final int actualSize) {
             return new StackTooSmallException("Expected stack size %d but actual %d;", expectedSize, actualSize);
         }
     }
 
     @SuppressWarnings("serial")
     public class StackTooLargeException extends BytecodeExecutionException {
-        public StackTooLargeException(String message) {
+        public StackTooLargeException(final String message) {
             super(message);
         }
     }

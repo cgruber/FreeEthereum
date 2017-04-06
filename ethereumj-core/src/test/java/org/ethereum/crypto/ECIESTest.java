@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.crypto;
 
 import org.ethereum.ConcatKDFBytesGenerator;
@@ -37,7 +63,7 @@ public class ECIESTest {
     static Logger log = LoggerFactory.getLogger("test");
     private static ECDomainParameters curve;
 
-    private static ECPoint pub(BigInteger d) {
+    private static ECPoint pub(final BigInteger d) {
         return curve.getG().multiply(d);
     }
 
@@ -46,58 +72,58 @@ public class ECIESTest {
         curve = new ECDomainParameters(IES_CURVE_PARAM.getCurve(), IES_CURVE_PARAM.getG(), IES_CURVE_PARAM.getN(), IES_CURVE_PARAM.getH());
     }
 
-    private static byte[] decrypt(BigInteger prv, byte[] cipher) throws InvalidCipherTextException, IOException {
-        ByteArrayInputStream is = new ByteArrayInputStream(cipher);
-        byte[] ephemBytes = new byte[2*((curve.getCurve().getFieldSize()+7)/8) + 1];
+    private static byte[] decrypt(final BigInteger prv, final byte[] cipher) throws InvalidCipherTextException, IOException {
+        final ByteArrayInputStream is = new ByteArrayInputStream(cipher);
+        final byte[] ephemBytes = new byte[2 * ((curve.getCurve().getFieldSize() + 7) / 8) + 1];
         is.read(ephemBytes);
-        ECPoint ephem = curve.getCurve().decodePoint(ephemBytes);
-        byte[] IV = new byte[KEY_SIZE /8];
+        final ECPoint ephem = curve.getCurve().decodePoint(ephemBytes);
+        final byte[] IV = new byte[KEY_SIZE / 8];
         is.read(IV);
-        byte[] cipherBody = new byte[is.available()];
+        final byte[] cipherBody = new byte[is.available()];
         is.read(cipherBody);
 
-        EthereumIESEngine iesEngine = makeIESEngine(false, ephem, prv, IV);
+        final EthereumIESEngine iesEngine = makeIESEngine(false, ephem, prv, IV);
 
-        byte[] message = iesEngine.processBlock(cipherBody, 0, cipherBody.length);
+        final byte[] message = iesEngine.processBlock(cipherBody, 0, cipherBody.length);
         return message;
     }
 
-    private static byte[] encrypt(ECPoint toPub, byte[] plaintext) throws InvalidCipherTextException, IOException {
+    private static byte[] encrypt(final ECPoint toPub, final byte[] plaintext) throws InvalidCipherTextException, IOException {
 
-        ECKeyPairGenerator eGen = new ECKeyPairGenerator();
-        SecureRandom random = new SecureRandom();
-        KeyGenerationParameters gParam = new ECKeyGenerationParameters(curve, random);
+        final ECKeyPairGenerator eGen = new ECKeyPairGenerator();
+        final SecureRandom random = new SecureRandom();
+        final KeyGenerationParameters gParam = new ECKeyGenerationParameters(curve, random);
 
         eGen.init(gParam);
 
-        byte[] IV = new byte[KEY_SIZE/8];
+        final byte[] IV = new byte[KEY_SIZE / 8];
         new SecureRandom().nextBytes(IV);
 
-        AsymmetricCipherKeyPair ephemPair = eGen.generateKeyPair();
-        BigInteger prv = ((ECPrivateKeyParameters)ephemPair.getPrivate()).getD();
-        ECPoint pub = ((ECPublicKeyParameters)ephemPair.getPublic()).getQ();
-        EthereumIESEngine iesEngine = makeIESEngine(true, toPub, prv, IV);
+        final AsymmetricCipherKeyPair ephemPair = eGen.generateKeyPair();
+        final BigInteger prv = ((ECPrivateKeyParameters) ephemPair.getPrivate()).getD();
+        final ECPoint pub = ((ECPublicKeyParameters) ephemPair.getPublic()).getQ();
+        final EthereumIESEngine iesEngine = makeIESEngine(true, toPub, prv, IV);
 
 
-        ECKeyGenerationParameters keygenParams = new ECKeyGenerationParameters(curve, random);
-        ECKeyPairGenerator generator = new ECKeyPairGenerator();
+        final ECKeyGenerationParameters keygenParams = new ECKeyGenerationParameters(curve, random);
+        final ECKeyPairGenerator generator = new ECKeyPairGenerator();
         generator.init(keygenParams);
 
-        ECKeyPairGenerator gen = new ECKeyPairGenerator();
+        final ECKeyPairGenerator gen = new ECKeyPairGenerator();
         gen.init(new ECKeyGenerationParameters(ECKey.CURVE, random));
 
-        byte[] cipher = iesEngine.processBlock(plaintext, 0, plaintext.length);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        final byte[] cipher = iesEngine.processBlock(plaintext, 0, plaintext.length);
+        final ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(pub.getEncoded(false));
         bos.write(IV);
         bos.write(cipher);
         return bos.toByteArray();
     }
 
-    private static EthereumIESEngine makeIESEngine(boolean isEncrypt, ECPoint pub, BigInteger prv, byte[] IV) {
-        AESFastEngine aesFastEngine = new AESFastEngine();
+    private static EthereumIESEngine makeIESEngine(final boolean isEncrypt, final ECPoint pub, final BigInteger prv, final byte[] IV) {
+        final AESFastEngine aesFastEngine = new AESFastEngine();
 
-        EthereumIESEngine iesEngine = new EthereumIESEngine(
+        final EthereumIESEngine iesEngine = new EthereumIESEngine(
                 new ECDHBasicAgreement(),
                 new ConcatKDFBytesGenerator(new SHA256Digest()),
                 new HMac(new SHA256Digest()),
@@ -105,11 +131,11 @@ public class ECIESTest {
                 new BufferedBlockCipher(new SICBlockCipher(aesFastEngine)));
 
 
-        byte[]         d = new byte[] {};
-        byte[]         e = new byte[] {};
+        final byte[] d = new byte[]{};
+        final byte[] e = new byte[]{};
 
-        IESParameters p = new IESWithCipherParameters(d, e, KEY_SIZE, KEY_SIZE);
-        ParametersWithIV parametersWithIV = new ParametersWithIV(p, IV);
+        final IESParameters p = new IESWithCipherParameters(d, e, KEY_SIZE, KEY_SIZE);
+        final ParametersWithIV parametersWithIV = new ParametersWithIV(p, IV);
 
         iesEngine.init(isEncrypt, new ECPrivateKeyParameters(prv, curve), new ECPublicKeyParameters(pub, curve), parametersWithIV);
         return iesEngine;
@@ -117,27 +143,27 @@ public class ECIESTest {
 
     @Test
     public void testKDF() {
-        ConcatKDFBytesGenerator kdf = new ConcatKDFBytesGenerator(new SHA256Digest());
+        final ConcatKDFBytesGenerator kdf = new ConcatKDFBytesGenerator(new SHA256Digest());
         kdf.init(new KDFParameters("Hello".getBytes(), new byte[0]));
-        byte[] bytes = new byte[2];
+        final byte[] bytes = new byte[2];
         kdf.generateBytes(bytes, 0, bytes.length);
         assertArrayEquals(new byte[]{-66, -89}, bytes);
     }
 
     @Test
     public void testDecryptTestVector() throws IOException, InvalidCipherTextException {
-        ECPoint pub1 = pub(PRIVATE_KEY1);
-        byte[] ciphertext = Hex.decode(CIPHERTEXT1);
-        byte[] plaintext = decrypt(PRIVATE_KEY1, ciphertext);
+        final ECPoint pub1 = pub(PRIVATE_KEY1);
+        final byte[] ciphertext = Hex.decode(CIPHERTEXT1);
+        final byte[] plaintext = decrypt(PRIVATE_KEY1, ciphertext);
         assertArrayEquals(new byte[]{1, 1, 1}, plaintext);
     }
 
     @Test
     public void testRoundTrip() throws InvalidCipherTextException, IOException {
-        ECPoint pub1 = pub(PRIVATE_KEY1);
-        byte[] plaintext = "Hello world".getBytes();
-        byte[] ciphertext = encrypt(pub1, plaintext);
-        byte[] plaintext1 = decrypt(PRIVATE_KEY1, ciphertext);
+        final ECPoint pub1 = pub(PRIVATE_KEY1);
+        final byte[] plaintext = "Hello world".getBytes();
+        final byte[] ciphertext = encrypt(pub1, plaintext);
+        final byte[] plaintext1 = decrypt(PRIVATE_KEY1, ciphertext);
         assertArrayEquals(plaintext, plaintext1);
     }
 

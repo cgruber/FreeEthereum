@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx.discover;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -57,8 +83,8 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
     private boolean inited = false;
 
     @Autowired
-    public NodeManager(SystemProperties config, EthereumListener ethereumListener,
-                       ApplicationContext ctx, PeerConnectionTester peerConnectionManager) {
+    public NodeManager(final SystemProperties config, final EthereumListener ethereumListener,
+                       final ApplicationContext ctx, final PeerConnectionTester peerConnectionManager) {
         this.config = config;
         this.ethereumListener = ethereumListener;
         this.peerConnectionManager = peerConnectionManager;
@@ -79,7 +105,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
         }, 1 * 1000, 60 * 1000);
 
         this.pongTimer = Executors.newSingleThreadScheduledExecutor();
-        for (Node node : config.peerActive()) {
+        for (final Node node : config.peerActive()) {
             getNodeHandler(node).getNodeStatistics().setPredefined(true);
         }
     }
@@ -88,7 +114,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
         return pongTimer;
     }
 
-    void setBootNodes(List<Node> bootNodes) {
+    void setBootNodes(final List<Node> bootNodes) {
         this.bootNodes = bootNodes;
     }
 
@@ -118,7 +144,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
                 }, DB_COMMIT_RATE, DB_COMMIT_RATE);
             }
 
-            for (Node node : bootNodes) {
+            for (final Node node : bootNodes) {
                 getNodeHandler(node);
             }
         }
@@ -126,42 +152,42 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
 
     private void dbRead() {
         logger.info("Reading Node statistics from DB: " + peerSource.getNodes().size() + " nodes.");
-        for (Pair<Node, Integer> nodeElement : peerSource.getNodes()) {
+        for (final Pair<Node, Integer> nodeElement : peerSource.getNodes()) {
             getNodeHandler(nodeElement.getLeft()).getNodeStatistics().setPersistedReputation(nodeElement.getRight());
         }
     }
 
     private void dbWrite() {
-        List<Pair<Node, Integer>> batch = new ArrayList<>();
+        final List<Pair<Node, Integer>> batch = new ArrayList<>();
         synchronized (this) {
-            for (NodeHandler handler : nodeHandlerMap.values()) {
+            for (final NodeHandler handler : nodeHandlerMap.values()) {
                 batch.add(Pair.of(handler.getNode(), handler.getNodeStatistics().getPersistedReputation()));
             }
         }
         peerSource.clear();
-        for (Pair<Node, Integer> nodeElement : batch) {
+        for (final Pair<Node, Integer> nodeElement : batch) {
             peerSource.getNodes().add(nodeElement);
         }
         peerSource.getNodes().flush();
         logger.info("Write Node statistics to DB: " + peerSource.getNodes().size() + " nodes.");
     }
 
-    public void setMessageSender(Functional.Consumer<DiscoveryEvent> messageSender) {
+    public void setMessageSender(final Functional.Consumer<DiscoveryEvent> messageSender) {
         this.messageSender = messageSender;
     }
 
-    private String getKey(Node n) {
+    private String getKey(final Node n) {
         return getKey(new InetSocketAddress(n.getHost(), n.getPort()));
     }
 
-    private String getKey(InetSocketAddress address) {
-        InetAddress addr = address.getAddress();
+    private String getKey(final InetSocketAddress address) {
+        final InetAddress addr = address.getAddress();
         // addr == null if the hostname can't be resolved
         return (addr == null ? address.getHostString() : addr.getHostAddress()) + ":" + address.getPort();
     }
 
-    public synchronized NodeHandler getNodeHandler(Node n) {
-        String key = getKey(n);
+    public synchronized NodeHandler getNodeHandler(final Node n) {
+        final String key = getKey(n);
         NodeHandler ret = nodeHandlerMap.get(key);
         if (ret == null) {
             trimTable();
@@ -187,16 +213,16 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
     private void trimTable() {
         if (nodeHandlerMap.size() > NODES_TRIM_THRESHOLD) {
 
-            List<NodeHandler> sorted = new ArrayList<>(nodeHandlerMap.values());
+            final List<NodeHandler> sorted = new ArrayList<>(nodeHandlerMap.values());
             // reverse sort by reputation
             sorted.sort(new Comparator<NodeHandler>() {
                 @Override
-                public int compare(NodeHandler o1, NodeHandler o2) {
+                public int compare(final NodeHandler o1, final NodeHandler o2) {
                     return o1.getNodeStatistics().getReputation() - o2.getNodeStatistics().getReputation();
                 }
             });
 
-            for (NodeHandler handler : sorted) {
+            for (final NodeHandler handler : sorted) {
                 nodeHandlerMap.remove(getKey(handler.getNode()));
                 if (nodeHandlerMap.size() <= MAX_NODES) break;
             }
@@ -204,7 +230,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
     }
 
 
-    private boolean hasNodeHandler(Node n) {
+    private boolean hasNodeHandler(final Node n) {
         return nodeHandlerMap.containsKey(getKey(n));
     }
 
@@ -212,30 +238,30 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
         return table;
     }
 
-    public NodeStatistics getNodeStatistics(Node n) {
+    public NodeStatistics getNodeStatistics(final Node n) {
         return getNodeHandler(n).getNodeStatistics();
     }
 
     @Override
-    public void accept(DiscoveryEvent discoveryEvent) {
+    public void accept(final DiscoveryEvent discoveryEvent) {
         handleInbound(discoveryEvent);
     }
 
-    public void handleInbound(DiscoveryEvent discoveryEvent) {
-        Message m = discoveryEvent.getMessage();
-        InetSocketAddress sender = discoveryEvent.getAddress();
+    public void handleInbound(final DiscoveryEvent discoveryEvent) {
+        final Message m = discoveryEvent.getMessage();
+        final InetSocketAddress sender = discoveryEvent.getAddress();
 
-        Node n = new Node(m.getNodeId(), sender.getHostString(), sender.getPort());
+        final Node n = new Node(m.getNodeId(), sender.getHostString(), sender.getPort());
 
         if (inboundOnlyFromKnownNodes && !hasNodeHandler(n)) {
             logger.debug("=/=> (" + sender + "): inbound packet from unknown peer rejected due to config option.");
             return;
         }
-        NodeHandler nodeHandler = getNodeHandler(n);
+        final NodeHandler nodeHandler = getNodeHandler(n);
 
         logger.trace("===> ({}) {} [{}] {}", sender, m.getClass().getSimpleName(), nodeHandler, m);
 
-        byte type = m.getType()[0];
+        final byte type = m.getType()[0];
         switch (type) {
             case 1:
                 nodeHandler.handlePing((PingMessage) m);
@@ -252,7 +278,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
         }
     }
 
-    public void sendOutbound(DiscoveryEvent discoveryEvent) {
+    public void sendOutbound(final DiscoveryEvent discoveryEvent) {
         if (discoveryEnabled && messageSender != null) {
             logger.trace(" <===({}) {} [{}] {}", discoveryEvent.getAddress(),
                     discoveryEvent.getMessage().getClass().getSimpleName(), this, discoveryEvent.getMessage());
@@ -260,15 +286,15 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
         }
     }
 
-    public void stateChanged(NodeHandler nodeHandler, NodeHandler.State oldState, NodeHandler.State newState) {
+    public void stateChanged(final NodeHandler nodeHandler, final NodeHandler.State oldState, final NodeHandler.State newState) {
         if (discoveryEnabled && peerConnectionManager != null) {  // peerConnectionManager can be null if component not inited yet
             peerConnectionManager.nodeStatusChanged(nodeHandler);
         }
     }
 
-    public synchronized List<NodeHandler> getNodes(int minReputation) {
-        List<NodeHandler> ret = new ArrayList<>();
-        for (NodeHandler nodeHandler : nodeHandlerMap.values()) {
+    public synchronized List<NodeHandler> getNodes(final int minReputation) {
+        final List<NodeHandler> ret = new ArrayList<>();
+        for (final NodeHandler nodeHandler : nodeHandlerMap.values()) {
             if (nodeHandler.getNodeStatistics().getReputation() >= minReputation) {
                 ret.add(nodeHandler);
             }
@@ -286,11 +312,11 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
      * @return list of nodes matching criteria
      */
     public List<NodeHandler> getNodes(
-            Functional.Predicate<NodeHandler> predicate,
-            int limit    ) {
-        ArrayList<NodeHandler> filtered = new ArrayList<>();
+            final Functional.Predicate<NodeHandler> predicate,
+            final int limit) {
+        final ArrayList<NodeHandler> filtered = new ArrayList<>();
         synchronized (this) {
-            for (NodeHandler handler : nodeHandlerMap.values()) {
+            for (final NodeHandler handler : nodeHandlerMap.values()) {
                 if (predicate.test(handler)) {
                     filtered.add(handler);
                 }
@@ -298,7 +324,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
         }
         filtered.sort(new Comparator<NodeHandler>() {
             @Override
-            public int compare(NodeHandler o1, NodeHandler o2) {
+            public int compare(final NodeHandler o1, final NodeHandler o2) {
                 return o2.getNodeStatistics().getEthTotalDifficulty().compareTo(
                         o1.getNodeStatistics().getEthTotalDifficulty());
             }
@@ -307,10 +333,10 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
     }
 
     private synchronized void processListeners() {
-        for (ListenerHandler handler : listeners.values()) {
+        for (final ListenerHandler handler : listeners.values()) {
             try {
                 handler.checkAll();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 logger.error("Exception processing listener: " + handler, e);
             }
         }
@@ -320,25 +346,25 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
      * Add a listener which is notified when the node statistics starts or stops meeting
      * the criteria specified by [filter] param.
      */
-    public synchronized void addDiscoverListener(DiscoverListener listener, Functional.Predicate<NodeStatistics> filter) {
+    public synchronized void addDiscoverListener(final DiscoverListener listener, final Functional.Predicate<NodeStatistics> filter) {
         listeners.put(listener, new ListenerHandler(listener, filter));
     }
 
-    public synchronized void removeDiscoverListener(DiscoverListener listener) {
+    public synchronized void removeDiscoverListener(final DiscoverListener listener) {
         listeners.remove(listener);
     }
 
     private synchronized String dumpAllStatistics() {
-        List<NodeHandler> l = new ArrayList<>(nodeHandlerMap.values());
+        final List<NodeHandler> l = new ArrayList<>(nodeHandlerMap.values());
         l.sort(new Comparator<NodeHandler>() {
-            public int compare(NodeHandler o1, NodeHandler o2) {
+            public int compare(final NodeHandler o1, final NodeHandler o2) {
                 return -(o1.getNodeStatistics().getReputation() - o2.getNodeStatistics().getReputation());
             }
         });
 
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         int zeroReputCount = 0;
-        for (NodeHandler nodeHandler : l) {
+        for (final NodeHandler nodeHandler : l) {
             if (nodeHandler.getNodeStatistics().getReputation() > 0) {
                 sb.append(nodeHandler).append("\t").append(nodeHandler.getNodeStatistics()).append("\n");
             } else {
@@ -366,24 +392,24 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
             if (PERSIST) {
                 try {
                     dbWrite();
-                } catch (Throwable e) {     // IllegalAccessError is expected
+                } catch (final Throwable e) {     // IllegalAccessError is expected
                     // NOTE: logback stops context right after shutdown initiated. It is problematic to see log output
                     // System out could help
                     logger.warn("Problem during NodeManager persist in close: " + e.getMessage());
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.warn("Problems canceling nodeManagerTasksTimer", e);
         }
         try {
             logger.info("Cancelling pongTimer");
             pongTimer.shutdownNow();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.warn("Problems cancelling pongTimer", e);
         }
         try {
             logStatsTimer.cancel();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.warn("Problems canceling logStatsTimer", e);
         }
     }
@@ -393,15 +419,15 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
         final DiscoverListener listener;
         final Functional.Predicate<NodeStatistics> filter;
 
-        ListenerHandler(DiscoverListener listener, Functional.Predicate<NodeStatistics> filter) {
+        ListenerHandler(final DiscoverListener listener, final Functional.Predicate<NodeStatistics> filter) {
             this.listener = listener;
             this.filter = filter;
         }
 
         void checkAll() {
-            for (NodeHandler handler : nodeHandlerMap.values()) {
-                boolean has = discoveredNodes.containsKey(handler);
-                boolean test = filter.test(handler.getNodeStatistics());
+            for (final NodeHandler handler : nodeHandlerMap.values()) {
+                final boolean has = discoveredNodes.containsKey(handler);
+                final boolean test = filter.test(handler.getNodeStatistics());
                 if (!has && test) {
                     listener.nodeAppeared(handler);
                     discoveredNodes.put(handler, null);

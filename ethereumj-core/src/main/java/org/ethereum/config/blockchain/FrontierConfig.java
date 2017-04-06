@@ -37,12 +37,12 @@ public class FrontierConfig extends OlympicConfig {
         this(new FrontierConstants());
     }
 
-    public FrontierConfig(Constants constants) {
+    public FrontierConfig(final Constants constants) {
         super(constants);
     }
 
     @Override
-    public boolean acceptTransactionSignature(Transaction tx) {
+    public boolean acceptTransactionSignature(final Transaction tx) {
         if (!super.acceptTransactionSignature(tx)) return false;
         return tx.getSignature().validateComponents();
     }

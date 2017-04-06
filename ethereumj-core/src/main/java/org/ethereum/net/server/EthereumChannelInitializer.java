@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.server;
 
 import io.netty.channel.*;
@@ -26,12 +52,12 @@ public class EthereumChannelInitializer extends ChannelInitializer<NioSocketChan
     ChannelManager channelManager;
     private boolean peerDiscoveryMode = false;
 
-    public EthereumChannelInitializer(String remoteId) {
+    public EthereumChannelInitializer(final String remoteId) {
         this.remoteId = remoteId;
     }
 
     @Override
-    public void initChannel(NioSocketChannel ch) throws Exception {
+    public void initChannel(final NioSocketChannel ch) throws Exception {
         try {
             if (!peerDiscoveryMode) {
                 logger.debug("Open {} connection, channel: {}", isInbound() ? "inbound" : "outbound", ch.toString());
@@ -59,14 +85,14 @@ public class EthereumChannelInitializer extends ChannelInitializer<NioSocketChan
             // be aware of channel closing
             ch.closeFuture().addListener(new ChannelFutureListener() {
                 @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
+                public void operationComplete(final ChannelFuture future) throws Exception {
                     if (!peerDiscoveryMode) {
                         channelManager.notifyDisconnect(channel);
                     }
                 }
             });
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.error("Unexpected error: ", e);
         }
     }
@@ -75,7 +101,7 @@ public class EthereumChannelInitializer extends ChannelInitializer<NioSocketChan
         return remoteId == null || remoteId.isEmpty();
     }
 
-    public void setPeerDiscoveryMode(boolean peerDiscoveryMode) {
+    public void setPeerDiscoveryMode(final boolean peerDiscoveryMode) {
         this.peerDiscoveryMode = peerDiscoveryMode;
     }
 }

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.client;
 
 import io.netty.bootstrap.Bootstrap;
@@ -44,22 +70,22 @@ public class PeerClient {
         workerGroup = new NioEventLoopGroup(0, new ThreadFactory() {
             final AtomicInteger cnt = new AtomicInteger(0);
             @Override
-            public Thread newThread(Runnable r) {
+            public Thread newThread(final Runnable r) {
                 return new Thread(r, "EthJClientWorker-" + cnt.getAndIncrement());
             }
         });
     }
 
-    public void connect(String host, int port, String remoteId) {
+    public void connect(final String host, final int port, final String remoteId) {
         connect(host, port, remoteId, false);
     }
 
     /**
      *  Connects to the node and returns only upon connection close
      */
-    public void connect(String host, int port, String remoteId, boolean discoveryMode) {
+    public void connect(final String host, final int port, final String remoteId, final boolean discoveryMode) {
         try {
-            ChannelFuture f = connectAsync(host, port, remoteId, discoveryMode);
+            final ChannelFuture f = connectAsync(host, port, remoteId, discoveryMode);
 
             f.sync();
 
@@ -68,7 +94,7 @@ public class PeerClient {
 
             logger.debug("Connection is closed");
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             if (discoveryMode) {
                 logger.trace("Exception:", e);
             } else {
@@ -82,13 +108,13 @@ public class PeerClient {
         }
     }
 
-    public ChannelFuture connectAsync(String host, int port, String remoteId, boolean discoveryMode) {
+    public ChannelFuture connectAsync(final String host, final int port, final String remoteId, final boolean discoveryMode) {
         ethereumListener.trace("Connecting to: " + host + ":" + port);
 
-        EthereumChannelInitializer ethereumChannelInitializer = ctx.getBean(EthereumChannelInitializer.class, remoteId);
+        final EthereumChannelInitializer ethereumChannelInitializer = ctx.getBean(EthereumChannelInitializer.class, remoteId);
         ethereumChannelInitializer.setPeerDiscoveryMode(discoveryMode);
 
-        Bootstrap b = new Bootstrap();
+        final Bootstrap b = new Bootstrap();
         b.group(workerGroup);
         b.channel(NioSocketChannel.class);
 

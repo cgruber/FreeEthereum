@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -27,7 +53,7 @@ public class DifficultyTestCase {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -35,7 +61,7 @@ public class DifficultyTestCase {
         return parentTimestamp;
     }
 
-    public void setParentTimestamp(String parentTimestamp) {
+    public void setParentTimestamp(final String parentTimestamp) {
         this.parentTimestamp = parentTimestamp;
     }
 
@@ -43,7 +69,7 @@ public class DifficultyTestCase {
         return parentDifficulty;
     }
 
-    public void setParentDifficulty(String parentDifficulty) {
+    public void setParentDifficulty(final String parentDifficulty) {
         this.parentDifficulty = parentDifficulty;
     }
 
@@ -51,7 +77,7 @@ public class DifficultyTestCase {
         return currentTimestamp;
     }
 
-    public void setCurrentTimestamp(String currentTimestamp) {
+    public void setCurrentTimestamp(final String currentTimestamp) {
         this.currentTimestamp = currentTimestamp;
     }
 
@@ -59,7 +85,7 @@ public class DifficultyTestCase {
         return currentBlockNumber;
     }
 
-    public void setCurrentBlockNumber(String currentBlockNumber) {
+    public void setCurrentBlockNumber(final String currentBlockNumber) {
         this.currentBlockNumber = currentBlockNumber;
     }
 
@@ -67,7 +93,7 @@ public class DifficultyTestCase {
         return currentDifficulty;
     }
 
-    public void setCurrentDifficulty(String currentDifficulty) {
+    public void setCurrentDifficulty(final String currentDifficulty) {
         this.currentDifficulty = currentDifficulty;
     }
 

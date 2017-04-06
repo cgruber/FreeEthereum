@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.core;
 
 import org.ethereum.config.SystemProperties;
@@ -40,25 +66,25 @@ public class AccountState {
     private final byte[] codeHash;
     private byte[] rlpEncoded;
 
-    public AccountState(SystemProperties config) {
+    public AccountState(final SystemProperties config) {
         this(config.getBlockchainConfig().getCommonConstants().getInitialNonce(), BigInteger.ZERO);
     }
 
-    public AccountState(BigInteger nonce, BigInteger balance) {
+    public AccountState(final BigInteger nonce, final BigInteger balance) {
         this(nonce, balance, EMPTY_TRIE_HASH, EMPTY_DATA_HASH);
     }
 
-    private AccountState(BigInteger nonce, BigInteger balance, byte[] stateRoot, byte[] codeHash) {
+    private AccountState(final BigInteger nonce, final BigInteger balance, final byte[] stateRoot, final byte[] codeHash) {
         this.nonce = nonce;
         this.balance = balance;
         this.stateRoot = stateRoot == EMPTY_TRIE_HASH || equal(stateRoot, EMPTY_TRIE_HASH) ? EMPTY_TRIE_HASH : stateRoot;
         this.codeHash = codeHash == EMPTY_DATA_HASH || equal(codeHash, EMPTY_DATA_HASH) ? EMPTY_DATA_HASH : codeHash;
     }
 
-    public AccountState(byte[] rlpData) {
+    public AccountState(final byte[] rlpData) {
         this.rlpEncoded = rlpData;
 
-        RLPList items = (RLPList) RLP.decode2(rlpEncoded).get(0);
+        final RLPList items = (RLPList) RLP.decode2(rlpEncoded).get(0);
         this.nonce = items.get(0).getRLPData() == null ? BigInteger.ZERO
                 : new BigInteger(1, items.get(0).getRLPData());
         this.balance = items.get(1).getRLPData() == null ? BigInteger.ZERO
@@ -71,7 +97,7 @@ public class AccountState {
         return nonce;
     }
 
-    public AccountState withNonce(BigInteger nonce) {
+    public AccountState withNonce(final BigInteger nonce) {
         return new AccountState(nonce, balance, stateRoot, codeHash);
     }
 
@@ -79,7 +105,7 @@ public class AccountState {
         return stateRoot;
     }
 
-    public AccountState withStateRoot(byte[] stateRoot) {
+    public AccountState withStateRoot(final byte[] stateRoot) {
         return new AccountState(nonce, balance, stateRoot, codeHash);
     }
 
@@ -91,7 +117,7 @@ public class AccountState {
         return codeHash;
     }
 
-    public AccountState withCodeHash(byte[] codeHash) {
+    public AccountState withCodeHash(final byte[] codeHash) {
         return new AccountState(nonce, balance, stateRoot, codeHash);
     }
 
@@ -99,16 +125,16 @@ public class AccountState {
         return balance;
     }
 
-    public AccountState withBalanceIncrement(BigInteger value) {
+    public AccountState withBalanceIncrement(final BigInteger value) {
         return new AccountState(nonce, balance.add(value), stateRoot, codeHash);
     }
 
     public byte[] getEncoded() {
         if (rlpEncoded == null) {
-            byte[] nonce = RLP.encodeBigInteger(this.nonce);
-            byte[] balance = RLP.encodeBigInteger(this.balance);
-            byte[] stateRoot = RLP.encodeElement(this.stateRoot);
-            byte[] codeHash = RLP.encodeElement(this.codeHash);
+            final byte[] nonce = RLP.encodeBigInteger(this.nonce);
+            final byte[] balance = RLP.encodeBigInteger(this.balance);
+            final byte[] stateRoot = RLP.encodeElement(this.stateRoot);
+            final byte[] codeHash = RLP.encodeElement(this.codeHash);
             this.rlpEncoded = RLP.encodeList(nonce, balance, stateRoot, codeHash);
         }
         return rlpEncoded;
@@ -122,7 +148,7 @@ public class AccountState {
 
 
     public String toString() {
-        String ret = "  Nonce: " + this.getNonce().toString() + "\n" +
+        final String ret = "  Nonce: " + this.getNonce().toString() + "\n" +
                 "  Balance: " + getBalance() + "\n" +
                 "  State Root: " + Hex.toHexString(this.getStateRoot()) + "\n" +
                 "  Code Hash: " + Hex.toHexString(this.getCodeHash());

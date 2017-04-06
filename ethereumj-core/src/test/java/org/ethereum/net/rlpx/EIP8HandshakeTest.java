@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
@@ -40,7 +66,7 @@ public class EIP8HandshakeTest {
     @Test
     public void test1() throws InvalidCipherTextException {
 
-        byte[] authMessageData = decode(
+        final byte[] authMessageData = decode(
                 "01b304ab7578555167be8154d5cc456f567d5ba302662433674222360f08d5f1534499d3678b513b" +
                 "0fca474f3a514b18e75683032eb63fccb16c156dc6eb2c0b1593f0d84ac74f6e475f1b8d56116b84" +
                 "9634a8c458705bf83a626ea0384d4d7341aae591fae42ce6bd5c850bfe0b999a694a49bbbaf3ef6c" +
@@ -55,16 +81,16 @@ public class EIP8HandshakeTest {
 
         // encode (on A side)
 
-        AuthInitiateMessageV4 msg1 = handshakerA.createAuthInitiateV4(keyA);
+        final AuthInitiateMessageV4 msg1 = handshakerA.createAuthInitiateV4(keyA);
         msg1.signature = signatureA;
         msg1.nonce = nonceA;
         msg1.version = 4;
 
-        byte[] encrypted  = handshakerA.encryptAuthInitiateV4(msg1);
+        final byte[] encrypted = handshakerA.encryptAuthInitiateV4(msg1);
 
         // decode (on B side)
 
-        AuthInitiateMessageV4 msg2 = handshakerB.decryptAuthInitiateV4(encrypted, keyB);
+        final AuthInitiateMessageV4 msg2 = handshakerB.decryptAuthInitiateV4(encrypted, keyB);
 
         assertEquals(4, msg2.version);
         assertArrayEquals(nonceA, msg2.nonce);
@@ -72,7 +98,7 @@ public class EIP8HandshakeTest {
         assertEquals(signatureA.s, msg2.signature.s);
         assertEquals(signatureA.v, msg2.signature.v);
 
-        AuthInitiateMessageV4 msg3 = handshakerB.decryptAuthInitiateV4(authMessageData, keyB);
+        final AuthInitiateMessageV4 msg3 = handshakerB.decryptAuthInitiateV4(authMessageData, keyB);
 
         assertEquals(4, msg3.version);
         assertArrayEquals(nonceA, msg3.nonce);
@@ -85,7 +111,7 @@ public class EIP8HandshakeTest {
     @Test
     public void test2() throws InvalidCipherTextException {
 
-        byte[] authMessageData = decode(
+        final byte[] authMessageData = decode(
                 "01b8044c6c312173685d1edd268aa95e1d495474c6959bcdd10067ba4c9013df9e40ff45f5bfd6f7" +
                 "2471f93a91b493f8e00abc4b80f682973de715d77ba3a005a242eb859f9a211d93a347fa64b597bf" +
                 "280a6b88e26299cf263b01b8dfdb712278464fd1c25840b995e84d367d743f66c0e54a586725b7bb" +
@@ -99,7 +125,7 @@ public class EIP8HandshakeTest {
                 "f0fce91676fd64c7773bac6a003f481fddd0bae0a1f31aa27504e2a533af4cef3b623f4791b2cca6" +
                 "d490");
 
-        AuthInitiateMessageV4 msg2 = handshakerB.decryptAuthInitiateV4(authMessageData, keyB);
+        final AuthInitiateMessageV4 msg2 = handshakerB.decryptAuthInitiateV4(authMessageData, keyB);
 
         assertEquals(56, msg2.version);
         assertArrayEquals(nonceA, msg2.nonce);
@@ -110,7 +136,7 @@ public class EIP8HandshakeTest {
     @Test
     public void test3() throws InvalidCipherTextException {
 
-        byte[] authInitiateData = decode(
+        final byte[] authInitiateData = decode(
                 "01b304ab7578555167be8154d5cc456f567d5ba302662433674222360f08d5f1534499d3678b513b" +
                 "0fca474f3a514b18e75683032eb63fccb16c156dc6eb2c0b1593f0d84ac74f6e475f1b8d56116b84" +
                 "9634a8c458705bf83a626ea0384d4d7341aae591fae42ce6bd5c850bfe0b999a694a49bbbaf3ef6c" +
@@ -123,7 +149,7 @@ public class EIP8HandshakeTest {
                 "2aa067241aaa433f0bb053c7b31a838504b148f570c0ad62837129e547678c5190341e4f1693956c" +
                 "3bf7678318e2d5b5340c9e488eefea198576344afbdf66db5f51204a6961a63ce072c8926c");
 
-        byte[] authResponseData = decode(
+        final byte[] authResponseData = decode(
                 "01ea0451958701280a56482929d3b0757da8f7fbe5286784beead59d95089c217c9b917788989470" +
                 "b0e330cc6e4fb383c0340ed85fab836ec9fb8a49672712aeabbdfd1e837c1ff4cace34311cd7f4de" +
                 "05d59279e3524ab26ef753a0095637ac88f2b499b9914b5f64e143eae548a1066e14cd2f4bd7f814" +
@@ -140,14 +166,14 @@ public class EIP8HandshakeTest {
 
         // agree (on B side)
 
-        AuthInitiateMessageV4 initiate = handshakerB.decryptAuthInitiateV4(authInitiateData, keyB);
-        AuthResponseMessageV4 response = handshakerB.makeAuthInitiateV4(initiate, keyB);
+        final AuthInitiateMessageV4 initiate = handshakerB.decryptAuthInitiateV4(authInitiateData, keyB);
+        final AuthResponseMessageV4 response = handshakerB.makeAuthInitiateV4(initiate, keyB);
         assertArrayEquals(keyA.getPubKey(), handshakerB.getRemotePublicKey().getEncoded(false));
         handshakerB.agreeSecret(authInitiateData, authResponseData);
 
         assertArrayEquals(decode("80e8632c05fed6fc2a13b0f8d31a3cf645366239170ea067065aba8e28bac487"), handshakerB.getSecrets().aes);
         assertArrayEquals(decode("2ea74ec5dae199227dff1af715362700e989d889d7a493cb0639691efb8e5f98"), handshakerB.getSecrets().mac);
-        byte[] fooHash = new byte[32];
+        final byte[] fooHash = new byte[32];
         handshakerB.getSecrets().ingressMac.update("foo".getBytes(), 0, "foo".getBytes().length);
         handshakerB.getSecrets().ingressMac.doFinal(fooHash, 0);
         assertArrayEquals(decode("0c7ec6340062cc46f5e9f1e3cf86f8c8c403c5a0964f5df0ebd34a75ddc86db5"), fooHash);
@@ -155,14 +181,14 @@ public class EIP8HandshakeTest {
         // decode (on A side)
 
         response.ephemeralPublicKey = ephemeralKeyB.getPubKeyPoint();
-        byte[] encrypted = handshakerB.encryptAuthResponseV4(response);
+        final byte[] encrypted = handshakerB.encryptAuthResponseV4(response);
 
-        AuthResponseMessageV4 msg2 = handshakerA.decryptAuthResponseV4(encrypted, keyA);
+        final AuthResponseMessageV4 msg2 = handshakerA.decryptAuthResponseV4(encrypted, keyA);
         assertEquals(4, msg2.version);
         assertArrayEquals(nonceB, msg2.nonce);
         assertArrayEquals(ephemeralKeyB.getPubKey(), msg2.ephemeralPublicKey.getEncoded(false));
 
-        AuthResponseMessageV4 msg3 = handshakerA.decryptAuthResponseV4(authResponseData, keyA);
+        final AuthResponseMessageV4 msg3 = handshakerA.decryptAuthResponseV4(authResponseData, keyA);
         assertEquals(4, msg3.version);
         assertArrayEquals(nonceB, msg3.nonce);
         assertArrayEquals(ephemeralKeyB.getPubKey(), msg3.ephemeralPublicKey.getEncoded(false));
@@ -172,7 +198,7 @@ public class EIP8HandshakeTest {
     @Test
     public void test4() throws InvalidCipherTextException {
 
-        byte[] authMessageData = decode(
+        final byte[] authMessageData = decode(
                 "01f004076e58aae772bb101ab1a8e64e01ee96e64857ce82b1113817c6cdd52c09d26f7b90981cd7" +
                 "ae835aeac72e1573b8a0225dd56d157a010846d888dac7464baf53f2ad4e3d584531fa203658fab0" +
                 "3a06c9fd5e35737e417bc28c1cbf5e5dfc666de7090f69c3b29754725f84f75382891c561040ea1d" +
@@ -189,7 +215,7 @@ public class EIP8HandshakeTest {
 
         // decode (on A side)
 
-        AuthResponseMessageV4 msg2 = handshakerA.decryptAuthResponseV4(authMessageData, keyA);
+        final AuthResponseMessageV4 msg2 = handshakerA.decryptAuthResponseV4(authMessageData, keyA);
 
         assertEquals(57, msg2.version);
         assertArrayEquals(nonceB, msg2.nonce);

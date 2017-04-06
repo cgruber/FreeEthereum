@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.vm.program;
 
 import org.ethereum.vm.DataWord;
@@ -23,15 +49,15 @@ public class Memory implements ProgramListenerAware {
     private ProgramListener programListener;
 
     @Override
-    public void setProgramListener(ProgramListener traceListener) {
+    public void setProgramListener(final ProgramListener traceListener) {
         this.programListener = traceListener;
     }
 
-    public byte[] read(int address, int size) {
+    public byte[] read(final int address, final int size) {
         if (size <= 0) return EMPTY_BYTE_ARRAY;
 
         extend(address, size);
-        byte[] data = new byte[size];
+        final byte[] data = new byte[size];
 
         int chunkIndex = address / CHUNK_SIZE;
         int chunkOffset = address % CHUNK_SIZE;
@@ -40,7 +66,7 @@ public class Memory implements ProgramListenerAware {
         int start = 0;
 
         while (toGrab > 0) {
-            int copied = grabMax(chunkIndex, chunkOffset, toGrab, data, start);
+            final int copied = grabMax(chunkIndex, chunkOffset, toGrab, data, start);
 
             // read next chunk from the start
             ++chunkIndex;
@@ -54,7 +80,7 @@ public class Memory implements ProgramListenerAware {
         return data;
     }
 
-    public void write(int address, byte[] data, int dataSize, boolean limited) {
+    public void write(final int address, final byte[] data, int dataSize, final boolean limited) {
 
         if (data.length < dataSize)
             dataSize = data.length;
@@ -73,7 +99,7 @@ public class Memory implements ProgramListenerAware {
 
         int start = 0;
         while (toCapture > 0) {
-            int captured = captureMax(chunkIndex, chunkOffset, toCapture, data, start);
+            final int captured = captureMax(chunkIndex, chunkOffset, toCapture, data, start);
 
             // capture next chunk
             ++chunkIndex;
@@ -88,12 +114,12 @@ public class Memory implements ProgramListenerAware {
     }
 
 
-    public void extendAndWrite(int address, int allocSize, byte[] data) {
+    public void extendAndWrite(final int address, final int allocSize, final byte[] data) {
         extend(address, allocSize);
         write(address, data, data.length, false);
     }
 
-    public void extend(int address, int size) {
+    public void extend(final int address, final int size) {
         if (size <= 0) return;
 
         final int newSize = address + size;
@@ -112,17 +138,17 @@ public class Memory implements ProgramListenerAware {
         }
     }
 
-    public DataWord readWord(int address) {
+    public DataWord readWord(final int address) {
         return new DataWord(read(address, 32));
     }
 
     // just access expecting all data valid
-    public byte readByte(int address) {
+    public byte readByte(final int address) {
 
-        int chunkIndex = address / CHUNK_SIZE;
-        int chunkOffset = address % CHUNK_SIZE;
+        final int chunkIndex = address / CHUNK_SIZE;
+        final int chunkOffset = address % CHUNK_SIZE;
 
-        byte[] chunk = chunks.get(chunkIndex);
+        final byte[] chunk = chunks.get(chunkIndex);
 
         return chunk[chunkOffset];
     }
@@ -130,21 +156,21 @@ public class Memory implements ProgramListenerAware {
     @Override
     public String toString() {
 
-        StringBuilder memoryData = new StringBuilder();
-        StringBuilder firstLine = new StringBuilder();
-        StringBuilder secondLine = new StringBuilder();
+        final StringBuilder memoryData = new StringBuilder();
+        final StringBuilder firstLine = new StringBuilder();
+        final StringBuilder secondLine = new StringBuilder();
 
         for (int i = 0; i < softSize; ++i) {
 
-            byte value = readByte(i);
+            final byte value = readByte(i);
 
             // Check if value is ASCII
-            String character = ((byte) 0x20 <= value && value <= (byte) 0x7e) ? new String(new byte[]{value}) : "?";
+            final String character = ((byte) 0x20 <= value && value <= (byte) 0x7e) ? new String(new byte[]{value}) : "?";
             firstLine.append(character).append("");
             secondLine.append(oneByteToHexString(value)).append(" ");
 
             if ((i + 1) % 8 == 0) {
-                String tmp = format("%4s", Integer.toString(i - 7, 16)).replace(" ", "0");
+                final String tmp = format("%4s", Integer.toString(i - 7, 16)).replace(" ", "0");
                 memoryData.append("").append(tmp).append(" ");
                 memoryData.append(firstLine).append(" ");
                 memoryData.append(secondLine);
@@ -169,26 +195,26 @@ public class Memory implements ProgramListenerAware {
         return new LinkedList<>(chunks);
     }
 
-    private int captureMax(int chunkIndex, int chunkOffset, int size, byte[] src, int srcPos) {
+    private int captureMax(final int chunkIndex, final int chunkOffset, final int size, final byte[] src, final int srcPos) {
 
-        byte[] chunk = chunks.get(chunkIndex);
-        int toCapture = min(size, chunk.length - chunkOffset);
+        final byte[] chunk = chunks.get(chunkIndex);
+        final int toCapture = min(size, chunk.length - chunkOffset);
 
         System.arraycopy(src, srcPos, chunk, chunkOffset, toCapture);
         return toCapture;
     }
 
-    private int grabMax(int chunkIndex, int chunkOffset, int size, byte[] dest, int destPos) {
+    private int grabMax(final int chunkIndex, final int chunkOffset, final int size, final byte[] dest, final int destPos) {
 
-        byte[] chunk = chunks.get(chunkIndex);
-        int toGrab = min(size, chunk.length - chunkOffset);
+        final byte[] chunk = chunks.get(chunkIndex);
+        final int toGrab = min(size, chunk.length - chunkOffset);
 
         System.arraycopy(chunk, chunkOffset, dest, destPos, toGrab);
 
         return toGrab;
     }
 
-    private void addChunks(int num) {
+    private void addChunks(final int num) {
         for (int i = 0; i < num; ++i) {
             chunks.add(new byte[CHUNK_SIZE]);
         }

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.manager;
 
 import org.ethereum.config.SystemProperties;
@@ -86,7 +112,7 @@ public class WorldManager {
         syncManager.init(channelManager, pool);
     }
 
-    public void addListener(EthereumListener listener) {
+    public void addListener(final EthereumListener listener) {
         logger.info("Ethereum listener added");
         ((CompositeEthereumListener) this.listener).addListener(listener);
     }
@@ -140,7 +166,7 @@ public class WorldManager {
         if (blockStore.getBestBlock() == null) {
             logger.info("DB is empty - adding Genesis");
 
-            Genesis genesis = Genesis.getInstance(config);
+            final Genesis genesis = Genesis.getInstance(config);
             Genesis.populateRepository(repository, genesis);
 
 //            repository.commitBlock(genesis.getHeader());
@@ -171,7 +197,7 @@ public class WorldManager {
                 }
                 bestBlock = blockStore.getChainBlockByNumber(config.databaseResetBlock());
 
-                Repository snapshot = repository.getSnapshotTo(bestBlock.getStateRoot());
+                final Repository snapshot = repository.getSnapshotTo(bestBlock.getStateRoot());
                 if (false) { // TODO: some way to tell if the snapshot hasn't been pruned
                     logger.error("*** Could not reset database to block [{}] with stateRoot [{}], since state information is " +
                             "unavailable.  It might have been pruned from the database.");
@@ -181,7 +207,7 @@ public class WorldManager {
 
             blockchain.setBestBlock(bestBlock);
 
-            BigInteger totalDifficulty = blockStore.getTotalDifficultyForHash(bestBlock.getHash());
+            final BigInteger totalDifficulty = blockStore.getTotalDifficultyForHash(bestBlock.getHash());
             blockchain.setTotalDifficulty(totalDifficulty);
 
             logger.info("*** Loaded up to block [{}] totalDifficulty [{}] with stateRoot [{}]",
@@ -193,7 +219,7 @@ public class WorldManager {
         if (config.rootHashStart() != null) {
 
             // update world state by dummy hash
-            byte[] rootHash = Hex.decode(config.rootHashStart());
+            final byte[] rootHash = Hex.decode(config.rootHashStart());
             logger.info("Loading root hash from property file: [{}]", config.rootHashStart());
             this.repository.syncToRoot(rootHash);
 

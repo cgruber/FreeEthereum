@@ -41,17 +41,17 @@ public class BestNumberRule extends DependentBlockHeaderRule {
 
     private final int BEST_NUMBER_DIFF_LIMIT;
 
-    public BestNumberRule(SystemProperties config) {
+    public BestNumberRule(final SystemProperties config) {
         BEST_NUMBER_DIFF_LIMIT = config.getBlockchainConfig().
                 getCommonConstants().getBestNumberDiffLimit();
     }
 
     @Override
-    public boolean validate(BlockHeader header, BlockHeader bestHeader) {
+    public boolean validate(final BlockHeader header, final BlockHeader bestHeader) {
 
         errors.clear();
 
-        long diff = header.getNumber() - bestHeader.getNumber();
+        final long diff = header.getNumber() - bestHeader.getNumber();
 
         if (diff > -1 * BEST_NUMBER_DIFF_LIMIT) {
             errors.add(String.format(

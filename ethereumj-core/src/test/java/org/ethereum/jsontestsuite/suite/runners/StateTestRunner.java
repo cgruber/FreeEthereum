@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite.runners;
 
 import org.ethereum.core.*;
@@ -29,18 +55,19 @@ public class StateTestRunner {
     private Transaction transaction;
     private BlockchainImpl blockchain;
     private Env env;
-    public StateTestRunner(StateTestCase stateTestCase) {
+
+    public StateTestRunner(final StateTestCase stateTestCase) {
         this.stateTestCase = stateTestCase;
     }
 
-    public static List<String> run(StateTestCase stateTestCase2) {
+    public static List<String> run(final StateTestCase stateTestCase2) {
         return new StateTestRunner(stateTestCase2).runImpl();
     }
 
-    protected ProgramResult executeTransaction(Transaction tx) {
-        Repository track = repository.startTracking();
+    protected ProgramResult executeTransaction(final Transaction tx) {
+        final Repository track = repository.startTracking();
 
-        TransactionExecutor executor =
+        final TransactionExecutor executor =
                 new TransactionExecutor(transaction, env.getCurrentCoinbase(), track, new BlockStoreDummy(),
                         invokeFactory, blockchain.getBestBlock());
 
@@ -49,7 +76,7 @@ public class StateTestRunner {
             executor.execute();
             executor.go();
             executor.finalization();
-        } catch (StackOverflowError soe){
+        } catch (final StackOverflowError soe) {
             logger.error(" !!! StackOverflowError: update your java run command with -Xss2M !!!");
             System.exit(-1);
         }
@@ -78,28 +105,28 @@ public class StateTestRunner {
         blockchain.setBestBlock(block);
         blockchain.setProgramInvokeFactory(invokeFactory);
 
-        ProgramResult programResult = executeTransaction(transaction);
+        final ProgramResult programResult = executeTransaction(transaction);
 
         repository.commit();
 
-        List<LogInfo> origLogs = programResult.getLogInfoList();
-        List<LogInfo> postLogs = LogBuilder.build(stateTestCase.getLogs());
+        final List<LogInfo> origLogs = programResult.getLogInfoList();
+        final List<LogInfo> postLogs = LogBuilder.build(stateTestCase.getLogs());
 
-        List<String> logsResult = LogsValidator.valid(origLogs, postLogs);
+        final List<String> logsResult = LogsValidator.valid(origLogs, postLogs);
 
-        Repository postRepository = RepositoryBuilder.build(stateTestCase.getPost());
-        List<String> repoResults = RepositoryValidator.valid(repository, postRepository);
+        final Repository postRepository = RepositoryBuilder.build(stateTestCase.getPost());
+        final List<String> repoResults = RepositoryValidator.valid(repository, postRepository);
 
         logger.info("--------- POST Validation---------");
-        List<String> outputResults =
+        final List<String> outputResults =
                 OutputValidator.valid(Hex.toHexString(programResult.getHReturn()), stateTestCase.getOut());
 
-        List<String> results = new ArrayList<>();
+        final List<String> results = new ArrayList<>();
         results.addAll(repoResults);
         results.addAll(logsResult);
         results.addAll(outputResults);
 
-        for (String result : results) {
+        for (final String result : results) {
             logger.error(result);
         }
 

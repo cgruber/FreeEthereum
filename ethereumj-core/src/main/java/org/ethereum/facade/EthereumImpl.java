@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.facade;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -88,7 +114,7 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
 
     @Autowired
     public EthereumImpl(final SystemProperties config, final CompositeEthereumListener compositeEthereumListener) {
-        CompositeEthereumListener compositeEthereumListener1 = compositeEthereumListener;
+        final CompositeEthereumListener compositeEthereumListener1 = compositeEthereumListener;
         this.config = config;
         System.out.println();
         compositeEthereumListener1.addListener(gasPriceTracker);
@@ -106,7 +132,7 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
     }
 
     @Override
-    public void connect(InetAddress addr, int port, String remoteId) {
+    public void connect(final InetAddress addr, final int port, final String remoteId) {
         connect(addr.getHostName(), port, remoteId);
     }
 
@@ -117,7 +143,7 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
     }
 
     @Override
-    public void connect(Node node) {
+    public void connect(final Node node) {
         connect(node.getHost(), node.getPort(), Hex.toHexString(node.getId()));
     }
 
@@ -126,8 +152,8 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
         return (org.ethereum.facade.Blockchain) worldManager.getBlockchain();
     }
 
-    public ImportResult addNewMinedBlock(Block block) {
-        ImportResult importResult = worldManager.getBlockchain().tryToConnect(block);
+    public ImportResult addNewMinedBlock(final Block block) {
+        final ImportResult importResult = worldManager.getBlockchain().tryToConnect(block);
         if (importResult == ImportResult.IMPORTED_BEST) {
             channelManager.sendNewBlock(block);
         }
@@ -140,7 +166,7 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
     }
 
     @Override
-    public void addListener(EthereumListener listener) {
+    public void addListener(final EthereumListener listener) {
         worldManager.addListener(listener);
     }
 
@@ -166,16 +192,16 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
     }
 
     @Override
-    public Transaction createTransaction(BigInteger nonce,
-                                         BigInteger gasPrice,
-                                         BigInteger gas,
-                                         byte[] receiveAddress,
-                                         BigInteger value, byte[] data) {
+    public Transaction createTransaction(final BigInteger nonce,
+                                         final BigInteger gasPrice,
+                                         final BigInteger gas,
+                                         final byte[] receiveAddress,
+                                         final BigInteger value, final byte[] data) {
 
-        byte[] nonceBytes = ByteUtil.bigIntegerToBytes(nonce);
-        byte[] gasPriceBytes = ByteUtil.bigIntegerToBytes(gasPrice);
-        byte[] gasBytes = ByteUtil.bigIntegerToBytes(gas);
-        byte[] valueBytes = ByteUtil.bigIntegerToBytes(value);
+        final byte[] nonceBytes = ByteUtil.bigIntegerToBytes(nonce);
+        final byte[] gasPriceBytes = ByteUtil.bigIntegerToBytes(gasPrice);
+        final byte[] gasBytes = ByteUtil.bigIntegerToBytes(gas);
+        final byte[] valueBytes = ByteUtil.bigIntegerToBytes(value);
 
         return new Transaction(nonceBytes, gasPriceBytes, gasBytes,
                 receiveAddress, valueBytes, data, getChainIdForNextBlock());
@@ -183,9 +209,9 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
 
 
     @Override
-    public Future<Transaction> submitTransaction(Transaction transaction) {
+    public Future<Transaction> submitTransaction(final Transaction transaction) {
 
-        TransactionTask transactionTask = new TransactionTask(transaction, channelManager);
+        final TransactionTask transactionTask = new TransactionTask(transaction, channelManager);
 
         final Future<List<Transaction>> listFuture =
                 TransactionExecutor.instance.submitTransaction(transactionTask);
@@ -194,31 +220,31 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
 
         return new FutureAdapter<Transaction, List<Transaction>>(listFuture) {
             @Override
-            protected Transaction adapt(List<Transaction> adapteeResult) throws ExecutionException {
+            protected Transaction adapt(final List<Transaction> adapteeResult) throws ExecutionException {
                 return adapteeResult.get(0);
             }
         };
     }
 
     @Override
-    public TransactionReceipt callConstant(Transaction tx, Block block) {
+    public TransactionReceipt callConstant(final Transaction tx, final Block block) {
         if (tx.getSignature() == null) {
             tx.sign(ECKey.fromPrivate(new byte[32]));
         }
         return callConstantImpl(tx, block).getReceipt();
     }
 
-    public BlockSummary replayBlock(Block block) {
-        List<TransactionReceipt> receipts = new ArrayList<>();
-        List<TransactionExecutionSummary> summaries = new ArrayList<>();
+    public BlockSummary replayBlock(final Block block) {
+        final List<TransactionReceipt> receipts = new ArrayList<>();
+        final List<TransactionExecutionSummary> summaries = new ArrayList<>();
 
-        Repository repository = ((Repository) worldManager.getRepository())
+        final Repository repository = ((Repository) worldManager.getRepository())
                 .getSnapshotTo(block.getStateRoot())
                 .startTracking();
 
         try {
-            for (Transaction tx : block.getTransactionsList()) {
-                org.ethereum.core.TransactionExecutor executor = new org.ethereum.core.TransactionExecutor(
+            for (final Transaction tx : block.getTransactionsList()) {
+                final org.ethereum.core.TransactionExecutor executor = new org.ethereum.core.TransactionExecutor(
                         tx, block.getCoinbase(), repository, worldManager.getBlockStore(),
                         programInvokeFactory, block, worldManager.getListener(), 0)
                         .withCommonConfig(commonConfig);
@@ -228,8 +254,8 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
                 executor.execute();
                 executor.go();
 
-                TransactionExecutionSummary summary = executor.finalization();
-                TransactionReceipt receipt = executor.getReceipt();
+                final TransactionExecutionSummary summary = executor.finalization();
+                final TransactionReceipt receipt = executor.getReceipt();
                 // TODO: change to repository.getRoot() after RepositoryTrack implementation
                 receipt.setPostTxState(ArrayUtils.EMPTY_BYTE_ARRAY);
                 receipts.add(receipt);
@@ -242,14 +268,14 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
         return new BlockSummary(block, new HashMap<>(), receipts, summaries);
     }
 
-    private org.ethereum.core.TransactionExecutor callConstantImpl(Transaction tx, Block block) {
+    private org.ethereum.core.TransactionExecutor callConstantImpl(final Transaction tx, final Block block) {
 
-        Repository repository = ((Repository) worldManager.getRepository())
+        final Repository repository = ((Repository) worldManager.getRepository())
                 .getSnapshotTo(block.getStateRoot())
                 .startTracking();
 
         try {
-            org.ethereum.core.TransactionExecutor executor = new org.ethereum.core.TransactionExecutor
+            final org.ethereum.core.TransactionExecutor executor = new org.ethereum.core.TransactionExecutor
                     (tx, block.getCoinbase(), repository, worldManager.getBlockStore(),
                             programInvokeFactory, block, new EthereumListenerAdapter(), 0)
                     .withCommonConfig(commonConfig)
@@ -267,18 +293,18 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
     }
 
     @Override
-    public ProgramResult callConstantFunction(String receiveAddress,
-                                              CallTransaction.Function function, Object... funcArgs) {
+    public ProgramResult callConstantFunction(final String receiveAddress,
+                                              final CallTransaction.Function function, final Object... funcArgs) {
         return callConstantFunction(receiveAddress, ECKey.fromPrivate(new byte[32]), function, funcArgs);
     }
 
     @Override
-    public ProgramResult callConstantFunction(String receiveAddress, ECKey senderPrivateKey,
-                                              CallTransaction.Function function, Object... funcArgs) {
-        Transaction tx = CallTransaction.createCallTransaction(0, 0, 100000000000000L,
+    public ProgramResult callConstantFunction(final String receiveAddress, final ECKey senderPrivateKey,
+                                              final CallTransaction.Function function, final Object... funcArgs) {
+        final Transaction tx = CallTransaction.createCallTransaction(0, 0, 100000000000000L,
                 receiveAddress, 0, function, funcArgs);
         tx.sign(senderPrivateKey);
-        Block bestBlock = worldManager.getBlockchain().getBestBlock();
+        final Block bestBlock = worldManager.getBlockchain().getBestBlock();
 
         return callConstantImpl(tx, bestBlock).getResult();
     }
@@ -299,10 +325,10 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
     }
 
     @Override
-    public org.ethereum.facade.Repository getSnapshotTo(byte[] root) {
+    public org.ethereum.facade.Repository getSnapshotTo(final byte[] root) {
 
-        Repository repository = (Repository) worldManager.getRepository();
-        org.ethereum.facade.Repository snapshot = repository.getSnapshotTo(root);
+        final Repository repository = (Repository) worldManager.getRepository();
+        final org.ethereum.facade.Repository snapshot = repository.getSnapshotTo(root);
 
         return snapshot;
     }
@@ -345,13 +371,13 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
 
     @Override
     public Integer getChainIdForNextBlock() {
-        BlockchainConfig nextBlockConfig = config.getBlockchainConfig().getConfigForBlock(getBlockchain()
+        final BlockchainConfig nextBlockConfig = config.getBlockchainConfig().getConfigForBlock(getBlockchain()
                 .getBestBlock().getNumber() + 1);
         return nextBlockConfig.getChainId();
     }
 
     @Override
-    public void exitOn(long number) {
+    public void exitOn(final long number) {
         worldManager.getBlockchain().setExitOn(number);
     }
 
@@ -377,7 +403,7 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
      * Shutting down all app beans
      */
     @Override
-    public void stop(Runnable callback) {
+    public void stop(final Runnable callback) {
         logger.info("Shutting down Ethereum instance...");
         worldManager.close();
         callback.run();

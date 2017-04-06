@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.vm.DataWord;
@@ -13,23 +39,23 @@ import java.util.List;
 public class Logs {
     private final List<LogInfo> logs = new ArrayList<>();
 
-    public Logs(JSONArray jLogs) {
+    public Logs(final JSONArray jLogs) {
 
-        for (Object jLog1 : jLogs) {
+        for (final Object jLog1 : jLogs) {
 
-            JSONObject jLog = (JSONObject) jLog1;
-            byte[] address = Hex.decode((String) jLog.get("address"));
-            byte[] data = Hex.decode(((String) jLog.get("data")).substring(2));
+            final JSONObject jLog = (JSONObject) jLog1;
+            final byte[] address = Hex.decode((String) jLog.get("address"));
+            final byte[] data = Hex.decode(((String) jLog.get("data")).substring(2));
 
-            List<DataWord> topics = new ArrayList<>();
+            final List<DataWord> topics = new ArrayList<>();
 
-            JSONArray jTopics = (JSONArray) jLog.get("topics");
-            for (Object t : jTopics.toArray()) {
-                byte[] topic = Hex.decode(((String) t));
+            final JSONArray jTopics = (JSONArray) jLog.get("topics");
+            for (final Object t : jTopics.toArray()) {
+                final byte[] topic = Hex.decode(((String) t));
                 topics.add(new DataWord(topic));
             }
 
-            LogInfo li = new LogInfo(address, topics, data);
+            final LogInfo li = new LogInfo(address, topics, data);
             logs.add(li);
         }
     }
@@ -40,56 +66,56 @@ public class Logs {
     }
 
 
-    public List<String> compareToReal(List<LogInfo> logs) {
+    public List<String> compareToReal(final List<LogInfo> logs) {
 
-        List<String> results = new ArrayList<>();
+        final List<String> results = new ArrayList<>();
 
         int i = 0;
-        for (LogInfo postLog : this.logs) {
+        for (final LogInfo postLog : this.logs) {
 
-            LogInfo realLog = logs.get(i);
+            final LogInfo realLog = logs.get(i);
 
-            String postAddress = Hex.toHexString(postLog.getAddress());
-            String realAddress = Hex.toHexString(realLog.getAddress());
+            final String postAddress = Hex.toHexString(postLog.getAddress());
+            final String realAddress = Hex.toHexString(realLog.getAddress());
 
             if (!postAddress.equals(realAddress)) {
 
-                String formattedString = String.format("Log: %s: has unexpected address, expected address: %s found address: %s",
+                final String formattedString = String.format("Log: %s: has unexpected address, expected address: %s found address: %s",
                         i, postAddress, realAddress);
                 results.add(formattedString);
             }
 
-            String postData = Hex.toHexString(postLog.getData());
-            String realData = Hex.toHexString(realLog.getData());
+            final String postData = Hex.toHexString(postLog.getData());
+            final String realData = Hex.toHexString(realLog.getData());
 
             if (!postData.equals(realData)) {
 
-                String formattedString = String.format("Log: %s: has unexpected data, expected data: %s found data: %s",
+                final String formattedString = String.format("Log: %s: has unexpected data, expected data: %s found data: %s",
                         i, postData, realData);
                 results.add(formattedString);
             }
 
-            String postBloom = Hex.toHexString(postLog.getBloom().getData());
-            String realBloom = Hex.toHexString(realLog.getBloom().getData());
+            final String postBloom = Hex.toHexString(postLog.getBloom().getData());
+            final String realBloom = Hex.toHexString(realLog.getBloom().getData());
 
             if (!postData.equals(realData)) {
 
-                String formattedString = String.format("Log: %s: has unexpected bloom, expected bloom: %s found bloom: %s",
+                final String formattedString = String.format("Log: %s: has unexpected bloom, expected bloom: %s found bloom: %s",
                         i, postBloom, realBloom);
                 results.add(formattedString);
             }
 
-            List<DataWord> postTopics = postLog.getTopics();
-            List<DataWord> realTopics = realLog.getTopics();
+            final List<DataWord> postTopics = postLog.getTopics();
+            final List<DataWord> realTopics = realLog.getTopics();
 
             int j = 0;
-            for (DataWord postTopic : postTopics) {
+            for (final DataWord postTopic : postTopics) {
 
-                DataWord realTopic = realTopics.get(j);
+                final DataWord realTopic = realTopics.get(j);
 
                 if (!postTopic.equals(realTopic)) {
 
-                    String formattedString = String.format("Log: %s: has unexpected topic: %s, expected topic: %s found topic: %s",
+                    final String formattedString = String.format("Log: %s: has unexpected topic: %s, expected topic: %s found topic: %s",
                             i, j, postTopic, realTopic);
                     results.add(formattedString);
                 }

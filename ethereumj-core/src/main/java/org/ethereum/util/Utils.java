@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.util;
 
 import org.ethereum.datasource.DbSource;
@@ -29,13 +55,13 @@ public class Utils {
      */
     public static BigInteger unifiedNumericToBigInteger(String number) {
 
-        boolean match = Pattern.matches("0[xX][0-9a-fA-F]+", number);
+        final boolean match = Pattern.matches("0[xX][0-9a-fA-F]+", number);
         if (!match)
             return (new BigInteger(number));
         else{
             number = number.substring(2);
             number = number.length() % 2 != 0 ? "0".concat(number) : number;
-            byte[] numberBytes = Hex.decode(number);
+            final byte[] numberBytes = Hex.decode(number);
             return (new BigInteger(1, numberBytes));
         }
     }
@@ -47,33 +73,33 @@ public class Utils {
      * @param timestamp seconds since start of Unix-time
      * @return String formatted as - yyyy.MM.dd HH:mm:ss
      */
-    public static String longToDateTime(long timestamp) {
-        Date date = new Date(timestamp * 1000);
-        DateFormat formatter = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+    public static String longToDateTime(final long timestamp) {
+        final Date date = new Date(timestamp * 1000);
+        final DateFormat formatter = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
         return formatter.format(date);
     }
 
-    public static String longToTimePeriod(long msec) {
+    public static String longToTimePeriod(final long msec) {
         if (msec < 1000) return msec + "ms";
         if (msec < 3000) return String.format("%.2f", msec / 1000d);
         if (msec < 60 * 1000) return (msec / 1000) + "s";
-        long sec = msec / 1000;
+        final long sec = msec / 1000;
         if (sec < 5 * 60) return (sec / 60) +  "m" + (sec % 60) + "s";
-        long min = sec / 60;
+        final long min = sec / 60;
         if (min < 60) return min + "m";
-        long hour = min / 60;
+        final long hour = min / 60;
         if (min < 24 * 60) return hour + "h" + (min % 60) + "m";
-        long day = hour / 24;
+        final long day = hour / 24;
         return day + "d" + (day % 24) + "h";
     }
 
-    public static ImageIcon getImageIcon(String resource) {
-        URL imageURL = ClassLoader.getSystemResource(resource);
-        ImageIcon image = new ImageIcon(imageURL);
+    public static ImageIcon getImageIcon(final String resource) {
+        final URL imageURL = ClassLoader.getSystemResource(resource);
+        final ImageIcon image = new ImageIcon(imageURL);
         return image;
     }
 
-    public static String getValueShortString(BigInteger number) {
+    public static String getValueShortString(final BigInteger number) {
         BigInteger result = number;
         int pow = 0;
         while (result.compareTo(_1000_) == 1 || result.compareTo(_1000_) == 0) {
@@ -89,11 +115,11 @@ public class Utils {
      * @param hex - a hex string of the address, e.g., 6c386a4b26f73c802f34673f7248bb118f97424a
      * @return - decode and validated address byte[]
      */
-    public static byte[] addressStringToBytes(String hex) {
+    public static byte[] addressStringToBytes(final String hex) {
         final byte[] addr;
         try {
             addr = Hex.decode(hex);
-        } catch (DecoderException addressIsNotValid) {
+        } catch (final DecoderException addressIsNotValid) {
             return null;
         }
 
@@ -102,7 +128,7 @@ public class Utils {
         return null;
     }
 
-    private static boolean isValidAddress(byte[] addr) {
+    private static boolean isValidAddress(final byte[] addr) {
         return addr != null && addr.length == 20;
     }
 
@@ -110,13 +136,13 @@ public class Utils {
      * @param addr length should be 20
      * @return short string represent 1f21c...
      */
-    public static String getAddressShortString(byte[] addr) {
+    public static String getAddressShortString(final byte[] addr) {
 
         if (!isValidAddress(addr)) throw new Error("not an address");
 
-        String addrShort = Hex.toHexString(addr, 0, 3);
+        final String addrShort = Hex.toHexString(addr, 0, 3);
 
-        String sb = addrShort +
+        final String sb = addrShort +
                 "...";
 
         return sb;
@@ -127,7 +153,7 @@ public class Utils {
     }
 
     private static double getJavaVersion() {
-        String version = System.getProperty("java.version");
+        final String version = System.getProperty("java.version");
 
         // on android this property equals to 0
         if (version.equals("0")) return 0;
@@ -139,74 +165,75 @@ public class Utils {
         return Double.parseDouble(version.substring(0, pos - 1));
     }
 
-    public static String getHashListShort(List<byte[]> blockHashes) {
+    public static String getHashListShort(final List<byte[]> blockHashes) {
         if (blockHashes.isEmpty()) return "[]";
 
-        StringBuilder sb = new StringBuilder();
-        String firstHash = Hex.toHexString(blockHashes.get(0));
-        String lastHash = Hex.toHexString(blockHashes.get(blockHashes.size() - 1));
+        final StringBuilder sb = new StringBuilder();
+        final String firstHash = Hex.toHexString(blockHashes.get(0));
+        final String lastHash = Hex.toHexString(blockHashes.get(blockHashes.size() - 1));
         return sb.append(" ").append(firstHash).append("...").append(lastHash).toString();
     }
 
-    public static String getNodeIdShort(String nodeId) {
+    public static String getNodeIdShort(final String nodeId) {
         return nodeId == null ? "<null>" : nodeId.substring(0, 8);
     }
 
-    public static long toUnixTime(long javaTime) {
+    public static long toUnixTime(final long javaTime) {
         return javaTime / 1000;
     }
 
-    public static long fromUnixTime(long unixTime) {
+    public static long fromUnixTime(final long unixTime) {
         return unixTime * 1000;
     }
 
     @SafeVarargs
-    public static <T> T[] mergeArrays(T[] ... arr) {
+    public static <T> T[] mergeArrays(final T[]... arr) {
         int size = 0;
-        for (T[] ts : arr) {
+        for (final T[] ts : arr) {
             size += ts.length;
         }
-        T[] ret = (T[]) Array.newInstance(arr[0].getClass().getComponentType(), size);
+        final T[] ret = (T[]) Array.newInstance(arr[0].getClass().getComponentType(), size);
         int off = 0;
-        for (T[] ts : arr) {
+        for (final T[] ts : arr) {
             System.arraycopy(ts, 0, ret, off, ts.length);
             off += ts.length;
         }
         return ret;
     }
 
-    public static String align(String s, char fillChar, int targetLen, boolean alignRight) {
+    public static String align(final String s, final char fillChar, final int targetLen, final boolean alignRight) {
         if (targetLen <= s.length()) return s;
-        String alignString = repeat("" + fillChar, targetLen - s.length());
+        final String alignString = repeat("" + fillChar, targetLen - s.length());
         return alignRight ? alignString + s : s + alignString;
 
     }
-    public static String repeat(String s, int n) {
+
+    public static String repeat(final String s, final int n) {
         if (s.length() == 1) {
-            byte[] bb = new byte[n];
+            final byte[] bb = new byte[n];
             Arrays.fill(bb, s.getBytes()[0]);
             return new String(bb);
         } else {
-            StringBuilder ret = new StringBuilder();
+            final StringBuilder ret = new StringBuilder();
             for (int i = 0; i < n; i++) ret.append(s);
             return ret.toString();
         }
     }
 
-    public static List<ByteArrayWrapper> dumpKeys(DbSource<byte[]> ds) {
+    public static List<ByteArrayWrapper> dumpKeys(final DbSource<byte[]> ds) {
 
-        ArrayList<ByteArrayWrapper> keys = new ArrayList<>();
+        final ArrayList<ByteArrayWrapper> keys = new ArrayList<>();
 
-        for (byte[] key : ds.keys()) {
+        for (final byte[] key : ds.keys()) {
             keys.add(ByteUtil.wrap(key));
         }
         Collections.sort(keys);
         return keys;
     }
 
-    public static DataWord allButOne64th(DataWord dw) {
-        DataWord ret = dw.clone();
-        DataWord d = dw.clone();
+    public static DataWord allButOne64th(final DataWord dw) {
+        final DataWord ret = dw.clone();
+        final DataWord d = dw.clone();
         d.div(DIVISOR);
         ret.sub(d);
         return ret;
@@ -215,7 +242,7 @@ public class Utils {
     /**
      * Show std err messages in red and throw RuntimeException to stop execution.
      */
-    public static void showErrorAndExit(String message, String... messages) {
+    public static void showErrorAndExit(final String message, final String... messages) {
         LoggerFactory.getLogger("general").error(message);
         final String ANSI_RED = "\u001B[31m";
         final String ANSI_RESET = "\u001B[0m";
@@ -223,7 +250,7 @@ public class Utils {
         System.err.println(ANSI_RED);
         System.err.println("");
         System.err.println("        " + message);
-        for (String msg : messages) {
+        for (final String msg : messages) {
             System.err.println("        " + msg);
         }
         System.err.println("");
@@ -232,17 +259,17 @@ public class Utils {
         throw new RuntimeException(message);
     }
 
-    public static String sizeToStr(long size) {
+    public static String sizeToStr(final long size) {
         if (size < 2 * (1L << 10)) return size + "b";
         if (size < 2 * (1L << 20)) return String.format("%dKb", size / (1L << 10));
         if (size < 2 * (1L << 30)) return String.format("%dMb", size / (1L << 20));
         return String.format("%dGb", size / (1L << 30));
     }
 
-    public static void sleep(long ms) {
+    public static void sleep(final long ms) {
         try {
             Thread.sleep(ms);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.eth.handler;
 
 import org.ethereum.core.BlockIdentifier;
@@ -25,11 +51,11 @@ public class ProcessNewBlockHashesTest {
 
     @Test
     public void testSingleHashHandling() {
-        List<BlockIdentifier> blockIdentifiers = new ArrayList<>();
-        byte[] blockHash = new byte[] {2, 3, 4};
-        long blockNumber = 123;
+        final List<BlockIdentifier> blockIdentifiers = new ArrayList<>();
+        final byte[] blockHash = new byte[]{2, 3, 4};
+        final long blockNumber = 123;
         blockIdentifiers.add(new BlockIdentifier(blockHash, blockNumber));
-        NewBlockHashesMessage msg = new NewBlockHashesMessage(blockIdentifiers);
+        final NewBlockHashesMessage msg = new NewBlockHashesMessage(blockIdentifiers);
 
         ethHandler.setGetNewBlockHeadersParams(blockHash, 1, 0, false);
         ethHandler.processNewBlockHashes(msg);
@@ -38,17 +64,17 @@ public class ProcessNewBlockHashesTest {
 
     @Test
     public void testSeveralHashesHandling() {
-        List<BlockIdentifier> blockIdentifiers = new ArrayList<>();
-        byte[] blockHash1 = new byte[] {2, 3, 4};
-        long blockNumber1 = 123;
-        byte[] blockHash2 = new byte[] {5, 3, 4};
-        long blockNumber2 = 124;
-        byte[] blockHash3 = new byte[] {2, 6, 4};
-        long blockNumber3 = 125;
+        final List<BlockIdentifier> blockIdentifiers = new ArrayList<>();
+        final byte[] blockHash1 = new byte[]{2, 3, 4};
+        final long blockNumber1 = 123;
+        final byte[] blockHash2 = new byte[]{5, 3, 4};
+        final long blockNumber2 = 124;
+        final byte[] blockHash3 = new byte[]{2, 6, 4};
+        final long blockNumber3 = 125;
         blockIdentifiers.add(new BlockIdentifier(blockHash1, blockNumber1));
         blockIdentifiers.add(new BlockIdentifier(blockHash2, blockNumber2));
         blockIdentifiers.add(new BlockIdentifier(blockHash3, blockNumber3));
-        NewBlockHashesMessage msg = new NewBlockHashesMessage(blockIdentifiers);
+        final NewBlockHashesMessage msg = new NewBlockHashesMessage(blockIdentifiers);
 
         ethHandler.setGetNewBlockHeadersParams(blockHash1, 3, 0, false);
         ethHandler.processNewBlockHashes(msg);
@@ -57,17 +83,17 @@ public class ProcessNewBlockHashesTest {
 
     @Test
     public void testSeveralHashesMixedOrderHandling() {
-        List<BlockIdentifier> blockIdentifiers = new ArrayList<>();
-        byte[] blockHash1 = new byte[] {5, 3, 4};
-        long blockNumber1 = 124;
-        byte[] blockHash2 = new byte[] {2, 3, 4};
-        long blockNumber2 = 123;
-        byte[] blockHash3 = new byte[] {2, 6, 4};
-        long blockNumber3 = 125;
+        final List<BlockIdentifier> blockIdentifiers = new ArrayList<>();
+        final byte[] blockHash1 = new byte[]{5, 3, 4};
+        final long blockNumber1 = 124;
+        final byte[] blockHash2 = new byte[]{2, 3, 4};
+        final long blockNumber2 = 123;
+        final byte[] blockHash3 = new byte[]{2, 6, 4};
+        final long blockNumber3 = 125;
         blockIdentifiers.add(new BlockIdentifier(blockHash1, blockNumber1));
         blockIdentifiers.add(new BlockIdentifier(blockHash2, blockNumber2));
         blockIdentifiers.add(new BlockIdentifier(blockHash3, blockNumber3));
-        NewBlockHashesMessage msg = new NewBlockHashesMessage(blockIdentifiers);
+        final NewBlockHashesMessage msg = new NewBlockHashesMessage(blockIdentifiers);
 
         ethHandler.setGetNewBlockHeadersParams(blockHash2, 3, 0, false);
         ethHandler.processNewBlockHashes(msg);
@@ -88,7 +114,7 @@ public class ProcessNewBlockHashesTest {
             this.channel = new Channel();
         }
 
-        void setGetNewBlockHeadersParams(byte[] blockHash, int maxBlocksAsk, int skip, boolean reverse) {
+        void setGetNewBlockHeadersParams(final byte[] blockHash, final int maxBlocksAsk, final int skip, final boolean reverse) {
             this.blockHash = blockHash;
             this.maxBlockAsk = maxBlocksAsk;
             this.skip = skip;
@@ -97,7 +123,7 @@ public class ProcessNewBlockHashesTest {
         }
 
         @Override
-        protected synchronized void sendGetNewBlockHeaders(byte[] blockHash, int maxBlocksAsk, int skip, boolean reverse) {
+        protected synchronized void sendGetNewBlockHeaders(final byte[] blockHash, final int maxBlocksAsk, final int skip, final boolean reverse) {
             this.wasCalled = true;
             logger.error("Request for sending new headers: hash {}, max {}, skip {}, reverse {}",
                     Hex.toHexString(blockHash), maxBlocksAsk, skip, reverse);

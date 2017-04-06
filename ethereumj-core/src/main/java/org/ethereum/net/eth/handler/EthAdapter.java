@@ -99,30 +99,30 @@ public class EthAdapter implements Eth {
     }
 
     @Override
-    public void sendTransaction(List<Transaction> tx) {
+    public void sendTransaction(final List<Transaction> tx) {
     }
 
     @Override
-    public ListenableFuture<List<BlockHeader>> sendGetBlockHeaders(long blockNumber, int maxBlocksAsk, boolean reverse) {
+    public ListenableFuture<List<BlockHeader>> sendGetBlockHeaders(final long blockNumber, final int maxBlocksAsk, final boolean reverse) {
         return null;
     }
 
     @Override
-    public ListenableFuture<List<BlockHeader>> sendGetBlockHeaders(byte[] blockHash, int maxBlocksAsk, int skip, boolean reverse) {
+    public ListenableFuture<List<BlockHeader>> sendGetBlockHeaders(final byte[] blockHash, final int maxBlocksAsk, final int skip, final boolean reverse) {
         return null;
     }
 
     @Override
-    public ListenableFuture<List<Block>> sendGetBlockBodies(List<BlockHeaderWrapper> headers) {
+    public ListenableFuture<List<Block>> sendGetBlockBodies(final List<BlockHeaderWrapper> headers) {
         return null;
     }
 
     @Override
-    public void sendNewBlock(Block newBlock) {
+    public void sendNewBlock(final Block newBlock) {
     }
 
     @Override
-    public void sendNewBlockHashes(Block block) {
+    public void sendNewBlockHashes(final Block block) {
 
     }
 
@@ -132,7 +132,7 @@ public class EthAdapter implements Eth {
     }
 
     @Override
-    public void onSyncDone(boolean done) {
+    public void onSyncDone(final boolean done) {
     }
 
     @Override
@@ -144,7 +144,7 @@ public class EthAdapter implements Eth {
     }
 
     @Override
-    public void fetchBodies(List<BlockHeaderWrapper> headers) {
+    public void fetchBodies(final List<BlockHeaderWrapper> headers) {
     }
 
     @Override

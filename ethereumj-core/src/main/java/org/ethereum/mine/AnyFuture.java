@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.mine;
 
 import com.google.common.util.concurrent.AbstractFuture;
@@ -28,17 +54,17 @@ public class AnyFuture<V> extends AbstractFuture<V> {
         futures.add(f);
     }
 
-    private synchronized void futureCompleted(ListenableFuture<V> f) {
+    private synchronized void futureCompleted(final ListenableFuture<V> f) {
         if (isCancelled() || isDone()) return;
         if (f.isCancelled()) return;
 
         try {
             cancelOthers(f);
-            
-            V v = f.get();
+
+            final V v = f.get();
             postProcess(v);
             set(v);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             setException(e);
         }
     }
@@ -47,15 +73,15 @@ public class AnyFuture<V> extends AbstractFuture<V> {
      * Subclasses my override to perform some task on the calculated
      * value before returning it via Future
      */
-    void postProcess(V v) {
+    void postProcess(final V v) {
     }
 
-    private void cancelOthers(ListenableFuture besidesThis) {
-        for (ListenableFuture future : futures) {
+    private void cancelOthers(final ListenableFuture besidesThis) {
+        for (final ListenableFuture future : futures) {
             if (future != besidesThis) {
                 try {
                     future.cancel(true);
-                } catch (Exception e) {
+                } catch (final Exception e) {
                 }
             }
         }

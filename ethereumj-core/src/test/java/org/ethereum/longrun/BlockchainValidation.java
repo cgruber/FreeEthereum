@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.longrun;
 
 import org.ethereum.config.CommonConfig;
@@ -29,20 +55,20 @@ class BlockchainValidation {
     private static final Logger testLogger = LoggerFactory.getLogger("TestLogger");
 
     private static Integer getReferencedTrieNodes(final Source<byte[], byte[]> stateDS, final boolean includeAccounts,
-                                                  byte[] ... roots) {
+                                                  final byte[]... roots) {
         final AtomicInteger ret = new AtomicInteger(0);
-        for (byte[] root : roots) {
-            SecureTrie trie = new SecureTrie(stateDS, root);
+        for (final byte[] root : roots) {
+            final SecureTrie trie = new SecureTrie(stateDS, root);
             trie.scanTree(new TrieImpl.ScanAction() {
                 @Override
-                public void doOnNode(byte[] hash, TrieImpl.Node node) {
+                public void doOnNode(final byte[] hash, final TrieImpl.Node node) {
                     ret.incrementAndGet();
                 }
 
                 @Override
-                public void doOnValue(byte[] nodeHash, TrieImpl.Node node, byte[] key, byte[] value) {
+                public void doOnValue(final byte[] nodeHash, final TrieImpl.Node node, final byte[] key, final byte[] value) {
                     if (includeAccounts) {
-                        AccountState accountState = new AccountState(value);
+                        final AccountState accountState = new AccountState(value);
                         if (!FastByteComparisons.equal(accountState.getCodeHash(), HashUtil.EMPTY_DATA_HASH)) {
                             ret.incrementAndGet();
                         }
@@ -56,11 +82,11 @@ class BlockchainValidation {
         return ret.get();
     }
 
-    public static void checkNodes(Ethereum ethereum, CommonConfig commonConfig, AtomicInteger fatalErrors) {
+    public static void checkNodes(final Ethereum ethereum, final CommonConfig commonConfig, final AtomicInteger fatalErrors) {
         try {
-            Source<byte[], byte[]> stateDS = commonConfig.stateSource();
-            byte[] stateRoot = ethereum.getBlockchain().getBestBlock().getHeader().getStateRoot();
-            Integer rootsSize = getReferencedTrieNodes(stateDS, true, stateRoot);
+            final Source<byte[], byte[]> stateDS = commonConfig.stateSource();
+            final byte[] stateRoot = ethereum.getBlockchain().getBestBlock().getHeader().getStateRoot();
+            final Integer rootsSize = getReferencedTrieNodes(stateDS, true, stateRoot);
             testLogger.info("Node validation successful");
             testLogger.info("Non-unique node size: {}", rootsSize);
         } catch (Exception | AssertionError ex) {
@@ -69,14 +95,14 @@ class BlockchainValidation {
         }
     }
 
-    private static void checkHeaders(Ethereum ethereum, AtomicInteger fatalErrors) {
+    private static void checkHeaders(final Ethereum ethereum, final AtomicInteger fatalErrors) {
         int blockNumber = (int) ethereum.getBlockchain().getBestBlock().getHeader().getNumber();
         byte[] lastParentHash = null;
         testLogger.info("Checking headers from best block: {}", blockNumber);
 
         try {
             while (blockNumber >= 0) {
-                Block currentBlock = ethereum.getBlockchain().getBlockByNumber(blockNumber);
+                final Block currentBlock = ethereum.getBlockchain().getBlockByNumber(blockNumber);
                 if (lastParentHash != null) {
                     assert FastByteComparisons.equal(currentBlock.getHash(), lastParentHash);
                 }
@@ -92,15 +118,15 @@ class BlockchainValidation {
         }
     }
 
-    public static void checkFastHeaders(Ethereum ethereum, CommonConfig commonConfig, AtomicInteger fatalErrors) {
-        DataSourceArray<BlockHeader> headerStore = commonConfig.headerSource();
+    public static void checkFastHeaders(final Ethereum ethereum, final CommonConfig commonConfig, final AtomicInteger fatalErrors) {
+        final DataSourceArray<BlockHeader> headerStore = commonConfig.headerSource();
         int blockNumber = headerStore.size() - 1;
         byte[] lastParentHash = null;
 
         try {
             testLogger.info("Checking fast headers from best block: {}", blockNumber);
             while (blockNumber > 0) {
-                BlockHeader header = headerStore.get(blockNumber);
+                final BlockHeader header = headerStore.get(blockNumber);
                 if (lastParentHash != null) {
                     assert FastByteComparisons.equal(header.getHash(), lastParentHash);
                 }
@@ -109,7 +135,7 @@ class BlockchainValidation {
                 blockNumber--;
             }
 
-            Block genesis = ethereum.getBlockchain().getBlockByNumber(0);
+            final Block genesis = ethereum.getBlockchain().getBlockByNumber(0);
             assert FastByteComparisons.equal(genesis.getHash(), lastParentHash);
 
             testLogger.info("Checking fast headers successful, ended on block: {}", blockNumber + 1);
@@ -119,12 +145,12 @@ class BlockchainValidation {
         }
     }
 
-    private static void checkBlocks(Ethereum ethereum, AtomicInteger fatalErrors) {
+    private static void checkBlocks(final Ethereum ethereum, final AtomicInteger fatalErrors) {
         Block currentBlock = ethereum.getBlockchain().getBestBlock();
         int blockNumber = (int) currentBlock.getHeader().getNumber();
 
         try {
-            BlockStore blockStore = ethereum.getBlockchain().getBlockStore();
+            final BlockStore blockStore = ethereum.getBlockchain().getBlockStore();
             testLogger.info("Checking blocks from best block: {}", blockNumber);
             BigInteger curTotalDiff = blockStore.getTotalDifficultyForHash(currentBlock.getHash());
 
@@ -158,23 +184,23 @@ class BlockchainValidation {
         }
     }
 
-    private static void checkTransactions(Ethereum ethereum, AtomicInteger fatalErrors) {
+    private static void checkTransactions(final Ethereum ethereum, final AtomicInteger fatalErrors) {
         int blockNumber = (int) ethereum.getBlockchain().getBestBlock().getHeader().getNumber();
         testLogger.info("Checking block transactions from best block: {}", blockNumber);
 
         try {
             while (blockNumber > 0) {
-                Block currentBlock = ethereum.getBlockchain().getBlockByNumber(blockNumber);
+                final Block currentBlock = ethereum.getBlockchain().getBlockByNumber(blockNumber);
 
-                List<TransactionReceipt> receipts = new ArrayList<>();
-                for (Transaction tx : currentBlock.getTransactionsList()) {
-                    TransactionInfo txInfo = ((BlockchainImpl) ethereum.getBlockchain()).getTransactionInfo(tx.getHash());
+                final List<TransactionReceipt> receipts = new ArrayList<>();
+                for (final Transaction tx : currentBlock.getTransactionsList()) {
+                    final TransactionInfo txInfo = ((BlockchainImpl) ethereum.getBlockchain()).getTransactionInfo(tx.getHash());
                     assert txInfo != null;
                     receipts.add(txInfo.getReceipt());
                 }
 
-                Bloom logBloom = new Bloom();
-                for (TransactionReceipt receipt : receipts) {
+                final Bloom logBloom = new Bloom();
+                for (final TransactionReceipt receipt : receipts) {
                     logBloom.or(receipt.getBloomFilter());
                 }
                 assert FastByteComparisons.equal(currentBlock.getLogBloom(), logBloom.getData());
@@ -190,7 +216,7 @@ class BlockchainValidation {
         }
     }
 
-    public static void fullCheck(Ethereum ethereum, CommonConfig commonConfig, AtomicInteger fatalErrors) {
+    public static void fullCheck(final Ethereum ethereum, final CommonConfig commonConfig, final AtomicInteger fatalErrors) {
 
         // nodes
         testLogger.info("Validating nodes: Start");

@@ -1,46 +1,30 @@
 /*
- *      Copyright (C) 2016 DataStax Inc.
+ * The MIT License (MIT)
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
  */
-//Parts of this file are copyrighted by Vedant Kumar <vsk@berkeley.edu>
-//https://github.com/aweisberg/quotient-filter/commit/54539e6e287c7f68139733c65ecc4873e2872d54
-/*
- * qf.c
- *
- * Copyright (c) 2014 Vedant Kumar <vsk@berkeley.edu>
- */
-/*
-        Copyright (c) 2014 Vedant Kumar <vsk@berkeley.edu>
 
-        Permission is hereby granted, free of charge, to any person obtaining a
-        copy of this software and associated documentation files (the
-        "Software"), to deal in the Software without restriction, including
-        without limitation the rights to use, copy, modify, merge, publish,
-        distribute, sublicense, and/or sell copies of the Software, and to
-        permit persons to whom the Software is furnished to do so, subject to
-        the following conditions:
 
-        The above copyright notice and this permission notice shall be included
-        in all copies or substantial portions of the Software.  THE SOFTWARE IS
-        PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-        INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-        FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-        FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-        DEALINGS IN THE SOFTWARE.
-*/
 package org.ethereum.datasource;
 
 import com.google.common.base.Preconditions;
@@ -77,7 +61,7 @@ private byte QUOTIENT_BITS;
     private QuotientFilter() {
     }
 
-    private QuotientFilter(int quotientBits, int remainderBits) {
+    private QuotientFilter(final int quotientBits, final int remainderBits) {
         Preconditions.checkArgument(quotientBits > 0);
         Preconditions.checkArgument(remainderBits > 0);
         Preconditions.checkArgument(quotientBits + remainderBits <= 64);
@@ -94,8 +78,8 @@ private byte QUOTIENT_BITS;
         entries = 0;
     }
 
-    public static QuotientFilter deserialize(byte[] bytes) {
-        QuotientFilter ret = new QuotientFilter();
+    public static QuotientFilter deserialize(final byte[] bytes) {
+        final QuotientFilter ret = new QuotientFilter();
         ret.QUOTIENT_BITS = bytes[0];
         ret.REMAINDER_BITS = bytes[1];
         ret.ELEMENT_BITS = bytes[2];
@@ -113,17 +97,17 @@ private byte QUOTIENT_BITS;
         return ret;
     }
 
-    private static long LOW_MASK(long n) {
+    private static long LOW_MASK(final long n) {
         return (1L << n) - 1L;
     }
 
-    private static int TABLE_SIZE(int quotientBits, int remainderBits) {
-        long bits = (1 << quotientBits) * (remainderBits + 3);
-        long longs = bits / 64;
+    private static int TABLE_SIZE(final int quotientBits, final int remainderBits) {
+        final long bits = (1 << quotientBits) * (remainderBits + 3);
+        final long longs = bits / 64;
         return Ints.checkedCast((bits % 64) > 0 ? (longs + 1) : longs);
     }
 
-    private static int bitsForNumElementsWithLoadFactor(long numElements) {
+    private static int bitsForNumElementsWithLoadFactor(final long numElements) {
         if (numElements == 0) {
             return 1;
         }
@@ -140,7 +124,7 @@ private byte QUOTIENT_BITS;
         return candidateBits;
     }
 
-    public static QuotientFilter create(long largestNumberOfElements, long startingElements) {
+    public static QuotientFilter create(final long largestNumberOfElements, final long startingElements) {
         Preconditions.checkArgument(largestNumberOfElements >= startingElements);
         Preconditions.checkArgument(startingElements > 0);
         Preconditions.checkArgument(largestNumberOfElements > 0);
@@ -150,7 +134,7 @@ private byte QUOTIENT_BITS;
          * is the maximum number of elements the filter can store before it runs out of fingerprint bits
          * and can no longer be resized.
          */
-        int quotientBits = bitsForNumElementsWithLoadFactor(startingElements);
+        final int quotientBits = bitsForNumElementsWithLoadFactor(startingElements);
         int remainderBits = bitsForNumElementsWithLoadFactor(largestNumberOfElements);
 
         //I am pretty sure that even when completely full you want a non-zero number of remainder bits
@@ -162,60 +146,60 @@ private byte QUOTIENT_BITS;
         return new QuotientFilter(quotientBits, remainderBits);
     }
 
-    private static boolean isElementOccupied(long elt) {
+    private static boolean isElementOccupied(final long elt) {
         return (elt & 1) != 0;
     }
 
-    private static long setElementOccupied(long elt) {
+    private static long setElementOccupied(final long elt) {
         return elt | 1;
     }
 
-    private static long clearElementOccupied(long elt) {
+    private static long clearElementOccupied(final long elt) {
         return elt & ~1;
     }
 
-    private static boolean isElementContinuation(long elt) {
+    private static boolean isElementContinuation(final long elt) {
         return (elt & 2) != 0;
     }
 
-    private static long setElementContinuation(long elt) {
+    private static long setElementContinuation(final long elt) {
         return elt | 2;
     }
 
-    private static long clearElementContinuation(long elt) {
+    private static long clearElementContinuation(final long elt) {
         return elt & ~2;
     }
 
-    private static boolean isElementShifted(long elt) {
+    private static boolean isElementShifted(final long elt) {
         return (elt & 4) != 0;
     }
 
-    private static long setElementShifted(long elt) {
+    private static long setElementShifted(final long elt) {
         return elt | 4;
     }
 
-    private static long clearElementShifted(long elt) {
+    private static long clearElementShifted(final long elt) {
         return elt & ~4;
     }
 
-    private static long getElementRemainder(long elt) {
+    private static long getElementRemainder(final long elt) {
         return elt >>> 3;
     }
 
-    private static boolean isElementEmpty(long elt) {
+    private static boolean isElementEmpty(final long elt) {
         return (elt & 7) == 0;
     }
 
-    private static boolean isElementClusterStart(long elt) {
+    private static boolean isElementClusterStart(final long elt) {
         return isElementOccupied(elt) & !isElementContinuation(elt) & !isElementShifted(elt);
     }
 
-    private static boolean isElementRunStart(long elt) {
+    private static boolean isElementRunStart(final long elt) {
         return !isElementContinuation(elt) & (isElementOccupied(elt) | isElementShifted(elt));
     }
 
     public synchronized byte[] serialize() {
-        byte[] ret = new byte[1 + 1 + 1 + 8 + 8 + 8 + 8 + 8 + 1 + 8 + table.length * 8];
+        final byte[] ret = new byte[1 + 1 + 1 + 8 + 8 + 8 + 8 + 8 + 1 + 8 + table.length * 8];
         ret[0] = QUOTIENT_BITS;
         ret[1] = REMAINDER_BITS;
         ret[2] = ELEMENT_BITS;
@@ -232,33 +216,33 @@ private byte QUOTIENT_BITS;
         return ret;
     }
 
-    public QuotientFilter withMaxDuplicates(int maxDuplicates) {
+    public QuotientFilter withMaxDuplicates(final int maxDuplicates) {
         MAX_DUPLICATES = maxDuplicates;
         return this;
     }
 
     /* Return QF[idx] in the lower bits. */
-    private long getElement(long idx) {
+    private long getElement(final long idx) {
         long elt = 0;
-        long bitpos = ELEMENT_BITS * idx;
+        final long bitpos = ELEMENT_BITS * idx;
         int tabpos = Ints.checkedCast(bitpos / 64);
-        long slotpos = bitpos % 64;
-        long spillbits = (slotpos + ELEMENT_BITS) - 64;
+        final long slotpos = bitpos % 64;
+        final long spillbits = (slotpos + ELEMENT_BITS) - 64;
         elt = (table[tabpos] >>> slotpos) & ELEMENT_MASK;
         if (spillbits > 0) {
             ++tabpos;
-            long x = table[tabpos] & LOW_MASK(spillbits);
+            final long x = table[tabpos] & LOW_MASK(spillbits);
             elt |= x << (ELEMENT_BITS - spillbits);
         }
         return elt;
     }
 
     /* Store the lower bits of elt into QF[idx]. */
-    private void setElement(long idx, long elt) {
-        long bitpos = ELEMENT_BITS * idx;
+    private void setElement(final long idx, long elt) {
+        final long bitpos = ELEMENT_BITS * idx;
         int tabpos = Ints.checkedCast(bitpos / 64);
-        long slotpos = bitpos % 64;
-        long spillbits = (slotpos + ELEMENT_BITS) - 64;
+        final long slotpos = bitpos % 64;
+        final long spillbits = (slotpos + ELEMENT_BITS) - 64;
         elt &= ELEMENT_MASK;
         table[tabpos] &= ~(ELEMENT_MASK << slotpos);
         table[tabpos] |= elt << slotpos;
@@ -269,24 +253,24 @@ private byte QUOTIENT_BITS;
         }
     }
 
-    private long incrementIndex(long idx) {
+    private long incrementIndex(final long idx) {
         return (idx + 1) & INDEX_MASK;
     }
 
-    private long decrementIndex(long idx) {
+    private long decrementIndex(final long idx) {
         return (idx - 1) & INDEX_MASK;
     }
 
-    private long hashToQuotient(long hash) {
+    private long hashToQuotient(final long hash) {
         return (hash >>> REMAINDER_BITS) & INDEX_MASK;
     }
 
-    private long hashToRemainder(long hash) {
+    private long hashToRemainder(final long hash) {
         return hash & REMAINDER_MASK;
     }
 
     /* Find the start index of the run for fq (given that the run exists). */
-    private long findRunIndex(long fq) {
+    private long findRunIndex(final long fq) {
         /* Find the start of the cluster. */
         long b = fq;
         while (isElementShifted(getElement(b))) {
@@ -310,7 +294,7 @@ private byte QUOTIENT_BITS;
     }
 
     /* Insert elt into QF[s], shifting over elements as necessary. */
-    private void insertInto(long s, long elt) {
+    private void insertInto(long s, final long elt) {
         long prev;
         long curr = elt;
         boolean empty;
@@ -346,7 +330,7 @@ private byte QUOTIENT_BITS;
 //        insert(hashFactory.hash64().hash(data, offset, length, 0));
 //    }
 
-    private long hash(byte[] bytes) {
+    private long hash(final byte[] bytes) {
         return (bytes[0] & 0xFFL) << 56 |
                 (bytes[1] & 0xFFL) << 48 |
                 (bytes[2] & 0xFFL) << 40 |
@@ -357,11 +341,11 @@ private byte QUOTIENT_BITS;
                 (bytes[7] & 0xFFL);
     }
 
-    public synchronized void insert(byte[] hash) {
+    public synchronized void insert(final byte[] hash) {
         insert(hash(hash));
     }
 
-    public synchronized void insert(long hash) {
+    public synchronized void insert(final long hash) {
         if (maybeContainsXTimes(hash, MAX_DUPLICATES)) return;
         if (entries >= MAX_INSERTIONS | overflowed) {
             //Can't safely process an after overflow
@@ -380,9 +364,9 @@ private byte QUOTIENT_BITS;
             }
         }
 
-        long fq = hashToQuotient(hash);
-        long fr = hashToRemainder(hash);
-        long T_fq = getElement(fq);
+        final long fq = hashToQuotient(hash);
+        final long fr = hashToRemainder(hash);
+        final long T_fq = getElement(fq);
         long entry = (fr << 3) & ~7;
 
         /* Special-case filling canonical slots to simplify insert_into(). */
@@ -396,13 +380,13 @@ private byte QUOTIENT_BITS;
             setElement(fq, setElementOccupied(T_fq));
         }
 
-        long start = findRunIndex(fq);
+        final long start = findRunIndex(fq);
         long s = start;
 
         if (isElementOccupied(T_fq)) {
             /* Move the cursor to the insert position in the fq run. */
             do {
-                long rem = getElementRemainder(getElement(s));
+                final long rem = getElementRemainder(getElement(s));
                 if (rem >= fr) {
                     break;
                 }
@@ -412,7 +396,7 @@ private byte QUOTIENT_BITS;
 
             if (s == start) {
                 /* The old start-of-run becomes a continuation. */
-                long old_head = getElement(start);
+                final long old_head = getElement(start);
                 setElement(start, setElementContinuation(old_head));
             } else {
                 /* The new element becomes a continuation. */
@@ -430,7 +414,7 @@ private byte QUOTIENT_BITS;
     }
 
     private void selfResizeDouble() {
-        QuotientFilter qf = resize(MAX_INSERTIONS * 2);
+        final QuotientFilter qf = resize(MAX_INSERTIONS * 2);
         QUOTIENT_BITS = qf.QUOTIENT_BITS;
         REMAINDER_BITS = qf.REMAINDER_BITS;
         ELEMENT_BITS = qf.ELEMENT_BITS;
@@ -445,20 +429,20 @@ private byte QUOTIENT_BITS;
         }
     }
 
-    public boolean maybeContains(byte[] hash) {
+    public boolean maybeContains(final byte[] hash) {
         return maybeContains(hash(hash));
     }
 
-    public synchronized boolean maybeContains(long hash) {
+    public synchronized boolean maybeContains(final long hash) {
         if (overflowed) {
             //Can't check for existence after overflow occurred
             //and things are missing
             throw new OverflowedError();
         }
 
-        long fq = hashToQuotient(hash);
-        long fr = hashToRemainder(hash);
-        long T_fq = getElement(fq);
+        final long fq = hashToQuotient(hash);
+        final long fr = hashToRemainder(hash);
+        final long T_fq = getElement(fq);
 
         /* If this quotient has no run, give up. */
         if (!isElementOccupied(T_fq)) {
@@ -468,7 +452,7 @@ private byte QUOTIENT_BITS;
         /* Scan the sorted run for the target remainder. */
         long s = findRunIndex(fq);
         do {
-            long rem = getElementRemainder(getElement(s));
+            final long rem = getElementRemainder(getElement(s));
             if (rem == fr) {
                 return true;
             } else if (rem > fr) {
@@ -480,16 +464,16 @@ private byte QUOTIENT_BITS;
         return false;
     }
 
-    private synchronized boolean maybeContainsXTimes(long hash, int num) {
+    private synchronized boolean maybeContainsXTimes(final long hash, final int num) {
         if (overflowed) {
             //Can't check for existence after overflow occurred
             //and things are missing
             throw new OverflowedError();
         }
 
-        long fq = hashToQuotient(hash);
-        long fr = hashToRemainder(hash);
-        long T_fq = getElement(fq);
+        final long fq = hashToQuotient(hash);
+        final long fr = hashToRemainder(hash);
+        final long T_fq = getElement(fq);
 
         /* If this quotient has no run, give up. */
         if (!isElementOccupied(T_fq)) {
@@ -500,7 +484,7 @@ private byte QUOTIENT_BITS;
         long s = findRunIndex(fq);
         int counter = 0;
         do {
-            long rem = getElementRemainder(getElement(s));
+            final long rem = getElementRemainder(getElement(s));
             if (rem == fr) {
                 counter++;
             } else if (rem > fr) {
@@ -517,14 +501,14 @@ private byte QUOTIENT_BITS;
         long next;
         long curr = getElement(s);
         long sp = incrementIndex(s);
-        long orig = s;
+        final long orig = s;
 
         /*
          * FIXME(vsk): This loop looks ugly. Rewrite.
          */
         while (true) {
             next = getElement(sp);
-            boolean curr_occupied = isElementOccupied(curr);
+            final boolean curr_occupied = isElementOccupied(curr);
 
             if (isElementEmpty(next) | isElementClusterStart(next) | sp == orig) {
                 setElement(s, 0);
@@ -553,11 +537,11 @@ private byte QUOTIENT_BITS;
         }
     }
 
-    public void remove(byte[] hash) {
+    public void remove(final byte[] hash) {
         remove(hash(hash));
     }
 
-    public synchronized void remove(long hash) {
+    public synchronized void remove(final long hash) {
         if (maybeContainsXTimes(hash, MAX_DUPLICATES)) return;
         //Can't safely process a remove after overflow
         //Only a buggy program would attempt it
@@ -565,8 +549,8 @@ private byte QUOTIENT_BITS;
             throw new OverflowedError();
         }
 
-        long fq = hashToQuotient(hash);
-        long fr = hashToRemainder(hash);
+        final long fq = hashToQuotient(hash);
+        final long fr = hashToRemainder(hash);
         long T_fq = getElement(fq);
 
         if (!isElementOccupied(T_fq) | entries == 0) {
@@ -575,7 +559,7 @@ private byte QUOTIENT_BITS;
             throw new NoSuchElementError();
         }
 
-        long start = findRunIndex(fq);
+        final long start = findRunIndex(fq);
         long s = start;
         long rem;
 
@@ -595,12 +579,12 @@ private byte QUOTIENT_BITS;
             throw new NoSuchElementError();
         }
 
-        long kill = (s == fq) ? T_fq : getElement(s);
-        boolean replace_run_start = isElementRunStart(kill);
+        final long kill = (s == fq) ? T_fq : getElement(s);
+        final boolean replace_run_start = isElementRunStart(kill);
 
         /* If we're deleting the last entry in a run, clear `is_occupied'. */
         if (isElementRunStart(kill)) {
-            long next = getElement(incrementIndex(s));
+            final long next = getElement(incrementIndex(s));
             if (!isElementContinuation(next)) {
                 T_fq = clearElementOccupied(T_fq);
                 setElement(fq, T_fq);
@@ -610,7 +594,7 @@ private byte QUOTIENT_BITS;
         deleteEntry(s, fq);
 
         if (replace_run_start) {
-            long next = getElement(s);
+            final long next = getElement(s);
             long updated_next = next;
             if (isElementContinuation(next)) {
                 /* The new start-of-run is no longer a continuation. */
@@ -664,20 +648,20 @@ private byte QUOTIENT_BITS;
      * Resizes the filter return a filter with the same contents and space for the minimum specified number
      * of entries. This may allocate a new filter or return the existing filter.
      */
-    private QuotientFilter resize(long minimumEntries) {
+    private QuotientFilter resize(final long minimumEntries) {
         if (minimumEntries <= MAX_INSERTIONS) {
             return this;
         }
 
-        int newQuotientBits = bitsForNumElementsWithLoadFactor(minimumEntries);
-        int newRemainderBits = QUOTIENT_BITS + REMAINDER_BITS - newQuotientBits;
+        final int newQuotientBits = bitsForNumElementsWithLoadFactor(minimumEntries);
+        final int newRemainderBits = QUOTIENT_BITS + REMAINDER_BITS - newQuotientBits;
 
         if (newRemainderBits < 1) {
             throw new IllegalArgumentException("Not enough fingerprint bits to resize");
         }
 
-        QuotientFilter qf = new QuotientFilter(newQuotientBits, newRemainderBits);
-        QFIterator i = new QFIterator();
+        final QuotientFilter qf = new QuotientFilter(newQuotientBits, newRemainderBits);
+        final QFIterator i = new QFIterator();
         while (i.hasNext()) {
             qf.insert(i.nextPrimitive());
         }
@@ -781,7 +765,7 @@ private byte QUOTIENT_BITS;
 
         public long nextPrimitive() {
             while (hasNext()) {
-                long elt = getElement(index);
+                final long elt = getElement(index);
 
                 /* Keep track of the current run. */
                 if (isElementClusterStart(elt)) {
@@ -800,9 +784,9 @@ private byte QUOTIENT_BITS;
                 index = incrementIndex(index);
 
                 if (!isElementEmpty(elt)) {
-                    long quot = quotient;
-                    long rem = getElementRemainder(elt);
-                    long hash = (quot << REMAINDER_BITS) | rem;
+                    final long quot = quotient;
+                    final long rem = getElementRemainder(elt);
+                    final long hash = (quot << REMAINDER_BITS) | rem;
                     ++visited;
                     return hash;
                 }

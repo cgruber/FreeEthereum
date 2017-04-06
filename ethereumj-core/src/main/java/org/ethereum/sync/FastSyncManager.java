@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.sync;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -103,15 +129,15 @@ public class FastSyncManager {
     private ReceiptsDownloader receiptsDownloader;
     private long forceSyncRemains;
 
-    private static List<byte[]> getChildHashes(List<Object> siblings) {
-        List<byte[]> ret = new ArrayList<>();
+    private static List<byte[]> getChildHashes(final List<Object> siblings) {
+        final List<byte[]> ret = new ArrayList<>();
         if (siblings.size() == 2) {
-            Value val = new Value(siblings.get(1));
+            final Value val = new Value(siblings.get(1));
             if (val.isHashCode() && !hasTerminator((byte[]) siblings.get(0)))
                 ret.add(val.asBytes());
         } else {
             for (int j = 0; j < 16; ++j) {
-                Value val = new Value(siblings.get(j));
+                final Value val = new Value(siblings.get(j));
                 if (val.isHashCode())
                     ret.add(val.asBytes());
             }
@@ -119,12 +145,12 @@ public class FastSyncManager {
         return ret;
     }
 
-    private void waitDbQueueSizeBelow(int size) {
+    private void waitDbQueueSizeBelow(final int size) {
         synchronized (this) {
             try {
                 dbQueueSizeMonitor = size;
                 while (dbWriteQueue.size() > size) wait();
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
             } finally {
                 dbQueueSizeMonitor = -1;
@@ -143,7 +169,7 @@ public class FastSyncManager {
                                 FastSyncManager.this.notifyAll();
                             }
                         }
-                        TrieNodeRequest request = dbWriteQueue.take();
+                        final TrieNodeRequest request = dbWriteQueue.take();
                         nodesInserted++;
                         stateSource.getNoJournalSource().put(request.nodeHash, request.response);
                         if (nodesInserted % 1000 == 0) {
@@ -151,8 +177,8 @@ public class FastSyncManager {
                             logger.debug("FastSyncDBWriter: commit: dbWriteQueue.size = " + dbWriteQueue.size());
                         }
                     }
-                } catch (InterruptedException e) {
-                } catch (Exception e) {
+                } catch (final InterruptedException e) {
+                } catch (final Exception e) {
                     logger.error("Fatal FastSync error while writing data", e);
                 }
             }
@@ -164,7 +190,7 @@ public class FastSyncManager {
             public void run() {
                 try {
                     main();
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     logger.error("Fatal FastSync loop error", e);
                 }
             }
@@ -180,7 +206,7 @@ public class FastSyncManager {
                     (FORCE_SYNC_TIMEOUT - forceSyncRemains) / 1000, FORCE_SYNC_TIMEOUT / 1000);
         }
 
-        EthereumListener.SyncState syncStage = getSyncStage();
+        final EthereumListener.SyncState syncStage = getSyncStage();
         switch (syncStage) {
             case UNSECURE:
                 return new SyncStatus(SyncStatus.SyncStage.StateNodes, nodesInserted,
@@ -202,17 +228,17 @@ public class FastSyncManager {
         return new SyncStatus(SyncStatus.SyncStage.Complete, 0, 0);
     }
 
-    private synchronized void purgePending(byte[] hash) {
-        TrieNodeRequest request = pendingNodes.get(hash);
+    private synchronized void purgePending(final byte[] hash) {
+        final TrieNodeRequest request = pendingNodes.get(hash);
         if (request.requestSent.isEmpty()) pendingNodes.remove(hash);
     }
 
     private synchronized void processTimeouts() {
-        long cur = System.currentTimeMillis();
-        for (TrieNodeRequest request : new ArrayList<>(pendingNodes.values())) {
-            Iterator<Map.Entry<Long, Long>> reqIterator = request.requestSent.entrySet().iterator();
+        final long cur = System.currentTimeMillis();
+        for (final TrieNodeRequest request : new ArrayList<>(pendingNodes.values())) {
+            final Iterator<Map.Entry<Long, Long>> reqIterator = request.requestSent.entrySet().iterator();
             while (reqIterator.hasNext()) {
-                Map.Entry<Long, Long> requestEntry = reqIterator.next();
+                final Map.Entry<Long, Long> requestEntry = reqIterator.next();
                 if (cur - requestEntry.getValue() > REQUEST_TIMEOUT) {
                     reqIterator.remove();
                     purgePending(request.nodeHash);
@@ -222,9 +248,9 @@ public class FastSyncManager {
         }
     }
 
-    private synchronized void processResponse(TrieNodeRequest req) {
+    private synchronized void processResponse(final TrieNodeRequest req) {
         dbWriteQueue.add(req);
-        for (TrieNodeRequest childRequest : req.createChildRequests()) {
+        for (final TrieNodeRequest childRequest : req.createChildRequests()) {
             if (nodesQueue.size() > NODE_QUEUE_BEST_SIZE) {
                 // reducing queue by traversing tree depth-first
                 nodesQueue.addFirst(childRequest);
@@ -235,7 +261,7 @@ public class FastSyncManager {
         }
     }
 
-    private boolean requestNextNodes(int cnt) {
+    private boolean requestNextNodes(final int cnt) {
         final Channel idle = pool.getAnyIdle();
 
         if (idle != null) {
@@ -244,7 +270,7 @@ public class FastSyncManager {
             final Set<Long> sentRequestIds = new HashSet<>();
             synchronized (this) {
                 for (int i = 0; i < cnt && !nodesQueue.isEmpty(); i++) {
-                    TrieNodeRequest req = nodesQueue.poll();
+                    final TrieNodeRequest req = nodesQueue.poll();
                     hashes.add(req.nodeHash);
                     TrieNodeRequest request = pendingNodes.get(req.nodeHash);
                     if (request == null) {
@@ -259,25 +285,25 @@ public class FastSyncManager {
             }
             if (hashes.size() > 0) {
                 logger.trace("Requesting " + hashes.size() + " nodes from peer: " + idle);
-                ListenableFuture<List<Pair<byte[], byte[]>>> nodes = ((Eth63) idle.getEthHandler()).requestTrieNodes(hashes);
+                final ListenableFuture<List<Pair<byte[], byte[]>>> nodes = ((Eth63) idle.getEthHandler()).requestTrieNodes(hashes);
                 final long reqTime = System.currentTimeMillis();
                 Futures.addCallback(nodes, new FutureCallback<List<Pair<byte[], byte[]>>>() {
                     @Override
-                    public void onSuccess(List<Pair<byte[], byte[]>> result) {
+                    public void onSuccess(final List<Pair<byte[], byte[]>> result) {
                         try {
                             synchronized (FastSyncManager.this) {
                                 logger.trace("Received " + result.size() + " nodes (of " + hashes.size() + ") from peer: " + idle);
-                                for (Pair<byte[], byte[]> pair : result) {
-                                    TrieNodeRequest request = pendingNodes.get(pair.getKey());
+                                for (final Pair<byte[], byte[]> pair : result) {
+                                    final TrieNodeRequest request = pendingNodes.get(pair.getKey());
                                     if (request == null) {
-                                        long t = System.currentTimeMillis();
+                                        final long t = System.currentTimeMillis();
                                         logger.debug("Received node which was not requested: " + Hex.toHexString(pair.getKey()) + " from " + idle);
                                         return;
                                     }
-                                    Set<Long> intersection = request.requestIdsSnapshot();
+                                    final Set<Long> intersection = request.requestIdsSnapshot();
                                     intersection.retainAll(sentRequestIds);
                                     if (!intersection.isEmpty()) {
-                                        Long inter = intersection.iterator().next();
+                                        final Long inter = intersection.iterator().next();
                                         request.requestSent.remove(inter);
                                         purgePending(pair.getKey());
                                         request.response = pair.getValue();
@@ -291,22 +317,22 @@ public class FastSyncManager {
                                 idle.getNodeStatistics().eth63NodesReceived.add(result.size());
                                 idle.getNodeStatistics().eth63NodesRetrieveTime.add(System.currentTimeMillis() - reqTime);
                             }
-                        } catch (Exception e) {
+                        } catch (final Exception e) {
                             logger.error("Unexpected error processing nodes", e);
                         }
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(final Throwable t) {
                         logger.warn("Error with Trie Node request: " + t);
                         synchronized (FastSyncManager.this) {
-                            for (byte[] hash : hashes) {
+                            for (final byte[] hash : hashes) {
                                 final TrieNodeRequest request = pendingNodes.get(hash);
                                 if (request == null) continue;
-                                Set<Long> intersection = request.requestIdsSnapshot();
+                                final Set<Long> intersection = request.requestIdsSnapshot();
                                 intersection.retainAll(sentRequestIds);
                                 if (!intersection.isEmpty()) {
-                                    Long inter = intersection.iterator().next();
+                                    final Long inter = intersection.iterator().next();
                                     request.requestSent.remove(inter);
                                     nodesQueue.addFirst(request);
                                     purgePending(hash);
@@ -341,22 +367,22 @@ public class FastSyncManager {
                     waitDbQueueSizeBelow(MSX_DB_QUEUE_SIZE);
 
                     logStat();
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     throw e;
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     logger.error("Error", t);
                 }
             }
             waitDbQueueSizeBelow(0);
 
             dbWriterThread.interrupt();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             logger.warn("Main fast sync loop was interrupted", e);
         }
     }
 
     private void logStat() {
-        long cur = System.currentTimeMillis();
+        final long cur = System.currentTimeMillis();
         if (cur - last > 5000) {
             logger.info("FastSync: received: " + nodesInserted + ", known: " + nodesQueue.size() + ", pending: " + pendingNodes.size()
                     + String.format(", nodes/sec: %1$.2f", 1000d * (nodesInserted - lastNodeCount) / (cur - last)));
@@ -366,12 +392,12 @@ public class FastSyncManager {
     }
 
     private EthereumListener.SyncState getSyncStage() {
-        byte[] bytes = blockchainDB.get(FASTSYNC_DB_KEY_SYNC_STAGE);
+        final byte[] bytes = blockchainDB.get(FASTSYNC_DB_KEY_SYNC_STAGE);
         if (bytes == null) return UNSECURE;
         return EthereumListener.SyncState.values()[bytes[0]];
     }
 
-    private void setSyncStage(EthereumListener.SyncState stage) {
+    private void setSyncStage(final EthereumListener.SyncState stage) {
         if (stage == null) {
             blockchainDB.delete(FASTSYNC_DB_KEY_SYNC_STAGE);
         } else {
@@ -379,9 +405,9 @@ public class FastSyncManager {
         }
     }
 
-    private void syncUnsecure(BlockHeader pivot) {
-        byte[] pivotStateRoot = pivot.getStateRoot();
-        TrieNodeRequest request = new TrieNodeRequest(TrieNodeType.STATE, pivotStateRoot);
+    private void syncUnsecure(final BlockHeader pivot) {
+        final byte[] pivotStateRoot = pivot.getStateRoot();
+        final TrieNodeRequest request = new TrieNodeRequest(TrieNodeType.STATE, pivotStateRoot);
         nodesQueue.add(request);
         logger.info("FastSync: downloading state trie at pivot block: " + pivot.getShortDescr());
 
@@ -406,7 +432,7 @@ public class FastSyncManager {
         final CountDownLatch syncDoneLatch = new CountDownLatch(1);
         listener.addListener(new EthereumListenerAdapter() {
             @Override
-            public void onSyncDone(SyncState state) {
+            public void onSyncDone(final SyncState state) {
                 syncDoneLatch.countDown();
             }
         });
@@ -469,8 +495,8 @@ public class FastSyncManager {
         logger.info("FastSync: updating totDifficulties starting from the pivot block...");
         blockchain.updateBlockTotDifficulties((int) pivot.getNumber());
         synchronized (blockchain) {
-            Block bestBlock = blockchain.getBestBlock();
-            BigInteger totalDifficulty = blockchain.getTotalDifficulty();
+            final Block bestBlock = blockchain.getBestBlock();
+            final BigInteger totalDifficulty = blockchain.getTotalDifficulty();
             logger.info("FastSync: totDifficulties updated: bestBlock: " + bestBlock.getShortDescr() + ", totDiff: " + totalDifficulty);
         }
         setSyncStage(null);
@@ -488,13 +514,13 @@ public class FastSyncManager {
             fastSyncInProgress = true;
             pool.setNodesSelector(new Functional.Predicate<NodeHandler>() {
                 @Override
-                public boolean test(NodeHandler handler) {
+                public boolean test(final NodeHandler handler) {
                     return handler.getNodeStatistics().capabilities.contains(ETH63_CAPABILITY);
                 }
             });
 
             try {
-                EthereumListener.SyncState origSyncStage = getSyncStage();
+                final EthereumListener.SyncState origSyncStage = getSyncStage();
 
                 switch (origSyncStage) {
                     case UNSECURE:
@@ -528,7 +554,7 @@ public class FastSyncManager {
                         listener.onSyncDone(EthereumListener.SyncState.COMPLETE);
                 }
                 logger.info("FastSync: Full sync done.");
-            } catch (InterruptedException ex) {
+            } catch (final InterruptedException ex) {
                 logger.info("Shutting down due to interruption");
             } finally {
                 fastSyncInProgress = false;
@@ -546,10 +572,10 @@ public class FastSyncManager {
     }
 
     private BlockHeader getPivotBlock() throws InterruptedException {
-        byte[] pivotBlockHash = config.getFastSyncPivotBlockHash();
+        final byte[] pivotBlockHash = config.getFastSyncPivotBlockHash();
         long pivotBlockNumber = 0;
 
-        long start = System.currentTimeMillis();
+        final long start = System.currentTimeMillis();
         long s = start;
 
         if (pivotBlockHash != null) {
@@ -559,13 +585,13 @@ public class FastSyncManager {
             BlockIdentifier bestKnownBlock;
 
             while (true) {
-                List<Channel> allIdle = pool.getAllIdle();
+                final List<Channel> allIdle = pool.getAllIdle();
 
                 forceSyncRemains = FORCE_SYNC_TIMEOUT - (System.currentTimeMillis() - start);
 
                 if (allIdle.size() >= MIN_PEERS_FOR_PIVOT_SELECTION || forceSyncRemains < 0 && !allIdle.isEmpty()) {
                     Channel bestPeer = allIdle.get(0);
-                    for (Channel channel : allIdle) {
+                    for (final Channel channel : allIdle) {
                         if (bestPeer.getEthHandler().getBestKnownBlock().getNumber() < channel.getEthHandler().getBestKnownBlock().getNumber()) {
                             bestPeer = channel;
                         }
@@ -577,7 +603,7 @@ public class FastSyncManager {
                     }
                 }
 
-                long t = System.currentTimeMillis();
+                final long t = System.currentTimeMillis();
                 if (t - s > 5000) {
                     logger.info("FastSync: waiting for at least " + MIN_PEERS_FOR_PIVOT_SELECTION + " peers or " + forceSyncRemains / 1000 + " sec to select pivot block... ("
                             + allIdle.size() + " peers so far)");
@@ -598,7 +624,7 @@ public class FastSyncManager {
                 if (pivotBlockHash != null) {
                     result = getPivotHeaderByHash(pivotBlockHash);
                 } else {
-                    Pair<BlockHeader, Long> pivotResult = getPivotHeaderByNumber(pivotBlockNumber);
+                    final Pair<BlockHeader, Long> pivotResult = getPivotHeaderByNumber(pivotBlockNumber);
                     if (pivotResult != null) {
                         if (pivotResult.getRight() != null) {
                             pivotBlockNumber = pivotResult.getRight();
@@ -613,7 +639,7 @@ public class FastSyncManager {
 
                 if (result != null) return result;
 
-                long t = System.currentTimeMillis();
+                final long t = System.currentTimeMillis();
                 if (t - s > 5000) {
                     logger.info("FastSync: waiting for a peer to fetch pivot block...");
                     s = t;
@@ -621,23 +647,23 @@ public class FastSyncManager {
 
                 Thread.sleep(500);
             }
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.error("Unexpected", e);
             throw new RuntimeException(e);
         }
     }
 
-    private BlockHeader getPivotHeaderByHash(byte[] pivotBlockHash) throws Exception {
-        Channel bestIdle = pool.getAnyIdle();
+    private BlockHeader getPivotHeaderByHash(final byte[] pivotBlockHash) throws Exception {
+        final Channel bestIdle = pool.getAnyIdle();
         if (bestIdle != null) {
             try {
-                ListenableFuture<List<BlockHeader>> future =
+                final ListenableFuture<List<BlockHeader>> future =
                         bestIdle.getEthHandler().sendGetBlockHeaders(pivotBlockHash, 1, 0, false);
-                List<BlockHeader> blockHeaders = future.get(3, TimeUnit.SECONDS);
+                final List<BlockHeader> blockHeaders = future.get(3, TimeUnit.SECONDS);
                 if (!blockHeaders.isEmpty()) {
-                    BlockHeader ret = blockHeaders.get(0);
+                    final BlockHeader ret = blockHeaders.get(0);
                     if (FastByteComparisons.equal(pivotBlockHash, ret.getHash())) {
                         logger.info("Pivot header fetched: " + ret.getShortDescr());
                         return ret;
@@ -650,7 +676,7 @@ public class FastSyncManager {
                     bestIdle.getNodeStatistics().wrongFork = true;
                     bestIdle.disconnect(ReasonCode.USELESS_PEER);
                 }
-            } catch (TimeoutException e) {
+            } catch (final TimeoutException e) {
                 logger.debug("Timeout waiting for answer", e);
             }
         }
@@ -667,24 +693,24 @@ public class FastSyncManager {
      *             null, newPivotBlockNumber - if it's better to try other pivot block number
      *             BlockHeader, null - if pivot successfully fetched and verified by majority of peers
      */
-    private Pair<BlockHeader, Long> getPivotHeaderByNumber(long pivotBlockNumber) throws Exception {
-        List<Channel> allIdle = pool.getAllIdle();
+    private Pair<BlockHeader, Long> getPivotHeaderByNumber(final long pivotBlockNumber) throws Exception {
+        final List<Channel> allIdle = pool.getAllIdle();
         if (!allIdle.isEmpty()) {
             try {
-                List<ListenableFuture<List<BlockHeader>>> result = new ArrayList<>();
+                final List<ListenableFuture<List<BlockHeader>>> result = new ArrayList<>();
 
-                for (Channel channel : allIdle) {
-                    ListenableFuture<List<BlockHeader>> future =
+                for (final Channel channel : allIdle) {
+                    final ListenableFuture<List<BlockHeader>> future =
                             channel.getEthHandler().sendGetBlockHeaders(pivotBlockNumber, 1, false);
                     result.add(future);
                 }
-                ListenableFuture<List<List<BlockHeader>>> successfulRequests = Futures.successfulAsList(result);
-                List<List<BlockHeader>> results = successfulRequests.get(3, TimeUnit.SECONDS);
+                final ListenableFuture<List<List<BlockHeader>>> successfulRequests = Futures.successfulAsList(result);
+                final List<List<BlockHeader>> results = successfulRequests.get(3, TimeUnit.SECONDS);
 
-                Map<BlockHeader, Integer> pivotMap = new HashMap<>();
-                for (List<BlockHeader> blockHeaders : results) {
+                final Map<BlockHeader, Integer> pivotMap = new HashMap<>();
+                for (final List<BlockHeader> blockHeaders : results) {
                     if (!blockHeaders.isEmpty()) {
-                        BlockHeader currentHeader = blockHeaders.get(0);
+                        final BlockHeader currentHeader = blockHeaders.get(0);
                         if (pivotMap.containsKey(currentHeader)) {
                             pivotMap.put(currentHeader, pivotMap.get(currentHeader) + 1);
                         } else {
@@ -693,8 +719,8 @@ public class FastSyncManager {
                     }
                 }
 
-                int peerCount = allIdle.size();
-                for (Map.Entry<BlockHeader, Integer> pivotEntry : pivotMap.entrySet()) {
+                final int peerCount = allIdle.size();
+                for (final Map.Entry<BlockHeader, Integer> pivotEntry : pivotMap.entrySet()) {
                     // Require 50% + 1 peer to trust pivot
                     if (pivotEntry.getValue() * 2 > peerCount) {
                         logger.info("Pivot header fetched: " + pivotEntry.getKey().getShortDescr());
@@ -702,11 +728,11 @@ public class FastSyncManager {
                     }
                 }
 
-                Long newPivotBlockNumber = Math.max(0, pivotBlockNumber - 1000);
+                final Long newPivotBlockNumber = Math.max(0, pivotBlockNumber - 1000);
                 logger.info("Current pivot candidate not verified by majority of peers, " +
                         "stepping back to block #{}", newPivotBlockNumber);
                 return Pair.of(null, newPivotBlockNumber);
-            } catch (TimeoutException e) {
+            } catch (final TimeoutException e) {
                 logger.debug("Timeout waiting for answer", e);
             }
         }
@@ -724,7 +750,7 @@ public class FastSyncManager {
             dbFlushManager.flushSync();
             fastSyncThread.join(10 * 1000);
             dbWriterThread.join(10 * 1000);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.warn("Problems closing FastSyncManager", e);
         }
     }
@@ -741,7 +767,7 @@ public class FastSyncManager {
         final byte[] nodeHash;
         byte[] response;
 
-        TrieNodeRequest(TrieNodeType type, byte[] nodeHash) {
+        TrieNodeRequest(final TrieNodeType type, final byte[] nodeHash) {
             this.type = type;
             this.nodeHash = nodeHash;
 
@@ -763,12 +789,12 @@ public class FastSyncManager {
                 return Collections.emptyList();
             }
 
-            List<Object> node = Value.fromRlpEncoded(response).asList();
-            List<TrieNodeRequest> ret = new ArrayList<>();
+            final List<Object> node = Value.fromRlpEncoded(response).asList();
+            final List<TrieNodeRequest> ret = new ArrayList<>();
             if (type == TrieNodeType.STATE) {
                 if (node.size() == 2 && hasTerminator((byte[]) node.get(0))) {
-                    byte[] nodeValue = (byte[]) node.get(1);
-                    AccountState state = new AccountState(nodeValue);
+                    final byte[] nodeValue = (byte[]) node.get(1);
+                    final AccountState state = new AccountState(nodeValue);
 
                     if (!FastByteComparisons.equal(HashUtil.EMPTY_DATA_HASH, state.getCodeHash())) {
                         ret.add(new TrieNodeRequest(TrieNodeType.CODE, state.getCodeHash()));
@@ -780,16 +806,16 @@ public class FastSyncManager {
                 }
             }
 
-            List<byte[]> childHashes = getChildHashes(node);
-            for (byte[] childHash : childHashes) {
+            final List<byte[]> childHashes = getChildHashes(node);
+            for (final byte[] childHash : childHashes) {
                 ret.add(new TrieNodeRequest(type, childHash));
             }
             return ret;
         }
 
-        public void reqSent(Long requestId) {
+        public void reqSent(final Long requestId) {
             synchronized (FastSyncManager.this) {
-                Long timestamp = System.currentTimeMillis();
+                final Long timestamp = System.currentTimeMillis();
                 requestSent.put(requestId, timestamp);
             }
         }

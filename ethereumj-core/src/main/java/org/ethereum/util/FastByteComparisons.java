@@ -1,19 +1,27 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+/*
+ * The MIT License (MIT)
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
  */
 package org.ethereum.util;
 
@@ -28,7 +36,7 @@ import com.google.common.primitives.UnsignedBytes;
 @SuppressWarnings("restriction")
 public abstract class FastByteComparisons {
 
-    public static boolean equal(byte[] b1, byte[] b2) {
+    public static boolean equal(final byte[] b1, final byte[] b2) {
         return b1.length == b2.length && compareTo(b1, 0, b1.length, b2, 0, b2.length) == 0;
     }
     /**
@@ -42,20 +50,19 @@ public abstract class FastByteComparisons {
      * @param l2 length2
      * @return int
      */
-    public static int compareTo(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+    public static int compareTo(final byte[] b1, final int s1, final int l1, final byte[] b2, final int s2, final int l2) {
         return LexicographicalComparerHolder.BEST_COMPARER.compareTo(
                 b1, s1, l1, b2, s2, l2);
-    }
-
-    private interface Comparer<T> {
-        int compareTo(T buffer1, int offset1, int length1,
-                      T buffer2, int offset2, int length2);
     }
 
     private static Comparer<byte[]> lexicographicalComparerJavaImpl() {
         return LexicographicalComparerHolder.PureJavaComparer.INSTANCE;
     }
 
+    private interface Comparer<T> {
+        int compareTo(T buffer1, int offset1, int length1,
+                      T buffer2, int offset2, int length2);
+    }
 
     /**
      *
@@ -74,14 +81,13 @@ public abstract class FastByteComparisons {
          */
         static Comparer<byte[]> getBestComparer() {
             try {
-                Class<?> theClass = Class.forName(UNSAFE_COMPARER_NAME);
+                final Class<?> theClass = Class.forName(UNSAFE_COMPARER_NAME);
 
                 // yes, UnsafeComparer does implement Comparer<byte[]>
-                @SuppressWarnings("unchecked")
-                Comparer<byte[]> comparer =
+                @SuppressWarnings("unchecked") final Comparer<byte[]> comparer =
                         (Comparer<byte[]>) theClass.getEnumConstants()[0];
                 return comparer;
-            } catch (Throwable t) { // ensure we really catch *everything*
+            } catch (final Throwable t) { // ensure we really catch *everything*
                 return lexicographicalComparerJavaImpl();
             }
         }
@@ -90,19 +96,19 @@ public abstract class FastByteComparisons {
             INSTANCE;
 
             @Override
-            public int compareTo(byte[] buffer1, int offset1, int length1,
-                                 byte[] buffer2, int offset2, int length2) {
+            public int compareTo(final byte[] buffer1, final int offset1, final int length1,
+                                 final byte[] buffer2, final int offset2, final int length2) {
                 // Short circuit equal case
                 if (buffer1 == buffer2 &&
                         offset1 == offset2 &&
                         length1 == length2) {
                     return 0;
                 }
-                int end1 = offset1 + length1;
-                int end2 = offset2 + length2;
+                final int end1 = offset1 + length1;
+                final int end2 = offset2 + length2;
                 for (int i = offset1, j = offset2; i < end1 && j < end2; i++, j++) {
-                    int a = (buffer1[i] & 0xff);
-                    int b = (buffer2[j] & 0xff);
+                    final int a = (buffer1[i] & 0xff);
+                    final int b = (buffer2[j] & 0xff);
                     if (a != b) {
                         return a - b;
                     }

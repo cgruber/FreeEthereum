@@ -44,13 +44,13 @@ public class GasLimitRule extends BlockHeaderRule {
 
     private final int MIN_GAS_LIMIT;
 
-    public GasLimitRule(SystemProperties config) {
+    public GasLimitRule(final SystemProperties config) {
         MIN_GAS_LIMIT = config.getBlockchainConfig().
                 getCommonConstants().getMinGasLimit();
     }
 
     @Override
-    public ValidationResult validate(BlockHeader header) {
+    public ValidationResult validate(final BlockHeader header) {
 
         if (new BigInteger(1, header.getGasLimit()).compareTo(BigInteger.valueOf(MIN_GAS_LIMIT)) < 0) {
             return fault("header.getGasLimit() < MIN_GAS_LIMIT");

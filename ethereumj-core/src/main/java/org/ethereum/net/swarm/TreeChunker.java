@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.swarm;
 
 import org.ethereum.util.ByteUtil;
@@ -49,7 +75,7 @@ public class TreeChunker implements Chunker {
     static {
         try {
             DEFAULT_HASHER = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             throw new RuntimeException(e);  // Can't happen.
         }
     }
@@ -62,7 +88,7 @@ public class TreeChunker implements Chunker {
         this(DEFAULT_BRANCHES, DEFAULT_HASHER);
     }
 
-    public TreeChunker(int branches, MessageDigest hasher) {
+    public TreeChunker(final int branches, final MessageDigest hasher) {
         this.branches = branches;
         this.hasher = hasher;
 
@@ -75,14 +101,14 @@ public class TreeChunker implements Chunker {
     }
 
     @Override
-    public Key split(SectionReader sectionReader, Collection<Chunk> consumer) {
-        TreeSize ts = new TreeSize(sectionReader.getSize());
+    public Key split(final SectionReader sectionReader, final Collection<Chunk> consumer) {
+        final TreeSize ts = new TreeSize(sectionReader.getSize());
         return splitImpl(ts.depth, ts.treeSize/branches, sectionReader, consumer);
     }
 
-    private Key splitImpl(int depth, long treeSize, SectionReader data, Collection<Chunk> consumer) {
-        long size = data.getSize();
-        TreeChunk newChunk;
+    private Key splitImpl(int depth, long treeSize, final SectionReader data, final Collection<Chunk> consumer) {
+        final long size = data.getSize();
+        final TreeChunk newChunk;
 
         while (depth > 0 && size < treeSize) {
             treeSize /= branches;
@@ -94,9 +120,9 @@ public class TreeChunker implements Chunker {
             data.read(newChunk.getData(), newChunk.getDataOffset());
         } else {
             // intermediate chunk containing child nodes hashes
-            int branchCnt = (int) ((size + treeSize - 1) / treeSize);
+            final int branchCnt = (int) ((size + treeSize - 1) / treeSize);
 
-            HashesChunk hChunk = new HashesChunk(size);
+            final HashesChunk hChunk = new HashesChunk(size);
 
             long pos = 0;
             long secSize;
@@ -110,9 +136,9 @@ public class TreeChunker implements Chunker {
                     secSize = treeSize;
                 }
                 // take the section of the data corresponding encoded in the subTree
-                SectionReader subTreeData = new SlicedReader(data, pos, secSize);
+                final SectionReader subTreeData = new SlicedReader(data, pos, secSize);
                 // the hash of that data
-                Key subTreeKey = splitImpl(depth-1, treeSize/branches, subTreeData, consumer);
+                final Key subTreeKey = splitImpl(depth - 1, treeSize / branches, subTreeData, consumer);
 
                 hChunk.setKey(i, subTreeKey);
 
@@ -129,7 +155,7 @@ public class TreeChunker implements Chunker {
     }
 
     @Override
-    public SectionReader join(ChunkStore chunkStore, Key key) {
+    public SectionReader join(final ChunkStore chunkStore, final Key key) {
         return new LazyChunkReader(chunkStore, key);
     }
 
@@ -146,24 +172,24 @@ public class TreeChunker implements Chunker {
         final long offset;
         final long len;
 
-        public SlicedReader(SectionReader delegate, long offset, long len) {
+        public SlicedReader(final SectionReader delegate, final long offset, final long len) {
             this.delegate = delegate;
             this.offset = offset;
             this.len = len;
         }
 
         @Override
-        public long seek(long offset, int whence) {
+        public long seek(final long offset, final int whence) {
             return delegate.seek(this.offset + offset, whence);
         }
 
         @Override
-        public int read(byte[] dest, int destOff) {
+        public int read(final byte[] dest, final int destOff) {
             return delegate.readAt(dest, destOff, offset);
         }
 
         @Override
-        public int readAt(byte[] dest, int destOff, long readerOffset) {
+        public int readAt(final byte[] dest, final int destOff, final long readerOffset) {
             return delegate.readAt(dest, destOff, offset + readerOffset);
         }
 
@@ -176,12 +202,12 @@ public class TreeChunker implements Chunker {
     public class TreeChunk extends Chunk {
         private static final int DATA_OFFSET = 8;
 
-        public TreeChunk(int dataSize) {
+        public TreeChunk(final int dataSize) {
             super(null, new byte[DATA_OFFSET + dataSize]);
             setSubtreeSize(dataSize);
         }
 
-        public TreeChunk(Chunk chunk) {
+        public TreeChunk(final Chunk chunk) {
             super(chunk.getKey(), chunk.getData());
         }
 
@@ -189,7 +215,7 @@ public class TreeChunker implements Chunker {
             return ByteBuffer.wrap(getData()).order(ByteOrder.LITTLE_ENDIAN).getLong(0);
         }
 
-        public void setSubtreeSize(long size) {
+        public void setSubtreeSize(final long size) {
             ByteBuffer.wrap(getData()).order(ByteOrder.LITTLE_ENDIAN).putLong(0, size);
         }
 
@@ -206,7 +232,7 @@ public class TreeChunker implements Chunker {
 
         @Override
         public String toString() {
-            String dataString = ByteUtil.toHexString(
+            final String dataString = ByteUtil.toHexString(
                     Arrays.copyOfRange(getData(), getDataOffset(), getDataOffset() + 16)) + "...";
             return "TreeChunk[" + getSubtreeSize() + ", " + getKey() + ", " + dataString + "]";
         }
@@ -214,12 +240,12 @@ public class TreeChunker implements Chunker {
 
     public class HashesChunk extends TreeChunk {
 
-        public HashesChunk(long subtreeSize) {
+        public HashesChunk(final long subtreeSize) {
             super(branches * hashSize);
             setSubtreeSize(subtreeSize);
         }
 
-        public HashesChunk(Chunk chunk) {
+        public HashesChunk(final Chunk chunk) {
             super(chunk);
         }
 
@@ -227,19 +253,19 @@ public class TreeChunker implements Chunker {
             return branches;
         }
 
-        public Key getKey(int idx) {
-            int off = getDataOffset() + idx * hashSize;
+        public Key getKey(final int idx) {
+            final int off = getDataOffset() + idx * hashSize;
             return new Key(Arrays.copyOfRange(getData(), off, off + hashSize));
         }
 
-        public void setKey(int idx, Key key) {
-            int off = getDataOffset() + idx * hashSize;
+        public void setKey(final int idx, final Key key) {
+            final int off = getDataOffset() + idx * hashSize;
             System.arraycopy(key.getBytes(), 0, getData(), off, hashSize);
         }
 
         @Override
         public String toString() {
-            StringBuilder hashes = new StringBuilder("{");
+            final StringBuilder hashes = new StringBuilder("{");
             for (int i = 0; i < getKeyCount(); i++) {
                 hashes.append(i == 0 ? "" : ", ").append(getKey(i));
             }
@@ -252,7 +278,7 @@ public class TreeChunker implements Chunker {
         int depth;
         long treeSize;
 
-        public TreeSize(long dataSize) {
+        public TreeSize(final long dataSize) {
             treeSize = chunkSize;
             for (; treeSize < dataSize; treeSize *= branches) {
                 depth++;
@@ -266,7 +292,7 @@ public class TreeChunker implements Chunker {
         final Key key;
         final ChunkStore chunkStore;
 
-        public LazyChunkReader(ChunkStore chunkStore, Key key) {
+        public LazyChunkReader(final ChunkStore chunkStore, final Key key) {
             this.chunkStore = chunkStore;
             this.key = key;
             root = chunkStore.get(key);
@@ -274,37 +300,37 @@ public class TreeChunker implements Chunker {
         }
 
         @Override
-        public int readAt(byte[] dest, int destOff, long readerOffset) {
-            int size = dest.length - destOff;
-            TreeSize ts = new TreeSize(this.size);
+        public int readAt(final byte[] dest, final int destOff, final long readerOffset) {
+            final int size = dest.length - destOff;
+            final TreeSize ts = new TreeSize(this.size);
             return readImpl(dest, destOff, root, ts.treeSize, 0, readerOffset,
                     readerOffset + min(size, this.size - readerOffset));
         }
 
-        private int readImpl(byte[] dest, int destOff, Chunk chunk, long chunkWidth, long chunkStart,
-                              long readStart, long readEnd) {
-            long chunkReadStart = max(readStart - chunkStart, 0);
-            long chunkReadEnd = min(chunkWidth, readEnd - chunkStart);
+        private int readImpl(final byte[] dest, final int destOff, final Chunk chunk, final long chunkWidth, final long chunkStart,
+                             final long readStart, final long readEnd) {
+            final long chunkReadStart = max(readStart - chunkStart, 0);
+            final long chunkReadEnd = min(chunkWidth, readEnd - chunkStart);
 
             int ret = 0;
             if (chunkWidth > chunkSize) {
-                long subChunkWidth = chunkWidth / branches;
+                final long subChunkWidth = chunkWidth / branches;
                 if (chunkReadStart >= chunkWidth || chunkReadEnd <= 0) {
                     throw new RuntimeException("Not expected.");
                 }
 
-                int startSubChunk = (int) (chunkReadStart / subChunkWidth);
-                int lastSubChunk = (int) ((chunkReadEnd - 1) / subChunkWidth);
+                final int startSubChunk = (int) (chunkReadStart / subChunkWidth);
+                final int lastSubChunk = (int) ((chunkReadEnd - 1) / subChunkWidth);
 
                 // TODO the loop can be parallelized
                 for (int i = startSubChunk; i <= lastSubChunk; i++) {
-                    HashesChunk hChunk = new HashesChunk(chunk);
-                    Chunk subChunk = chunkStore.get(hChunk.getKey(i));
+                    final HashesChunk hChunk = new HashesChunk(chunk);
+                    final Chunk subChunk = chunkStore.get(hChunk.getKey(i));
                     ret += readImpl(dest, (int) (destOff + (i - startSubChunk) * subChunkWidth),
                             subChunk, subChunkWidth, chunkStart + i * subChunkWidth, readStart, readEnd);
                 }
             } else {
-                TreeChunk dataChunk = new TreeChunk(chunk);
+                final TreeChunk dataChunk = new TreeChunk(chunk);
                 ret = (int) (chunkReadEnd - chunkReadStart);
                 System.arraycopy(dataChunk.getData(), (int) (dataChunk.getDataOffset() + chunkReadStart),
                         dest, destOff, ret);
@@ -313,7 +339,7 @@ public class TreeChunker implements Chunker {
         }
 
         @Override
-        public long seek(long offset, int whence) {
+        public long seek(final long offset, final int whence) {
             throw new RuntimeException("Not implemented");
         }
 
@@ -324,7 +350,7 @@ public class TreeChunker implements Chunker {
         }
 
         @Override
-        public int read(byte[] dest, int destOff) {
+        public int read(final byte[] dest, final int destOff) {
             return readAt(dest, destOff, 0);
         }
     }

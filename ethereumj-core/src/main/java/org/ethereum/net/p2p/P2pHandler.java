@@ -82,7 +82,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
 
     private static final ScheduledExecutorService pingTimer =
             Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                public Thread newThread(Runnable r) {
+                public Thread newThread(final Runnable r) {
                     return new Thread(r, "P2pPingTimer");
                 }
             });
@@ -109,24 +109,24 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
         this.peerDiscoveryMode = false;
     }
 
-    public P2pHandler(MessageQueue msgQueue, boolean peerDiscoveryMode) {
+    public P2pHandler(final MessageQueue msgQueue, final boolean peerDiscoveryMode) {
         this.msgQueue = msgQueue;
         this.peerDiscoveryMode = peerDiscoveryMode;
     }
 
-    public static boolean isProtocolVersionSupported(byte ver) {
-        for (byte v : SUPPORTED_VERSIONS) {
+    public static boolean isProtocolVersionSupported(final byte ver) {
+        for (final byte v : SUPPORTED_VERSIONS) {
             if (v == ver) return true;
         }
         return false;
     }
 
-    public void setPeerDiscoveryMode(boolean peerDiscoveryMode) {
+    public void setPeerDiscoveryMode(final boolean peerDiscoveryMode) {
         this.peerDiscoveryMode = peerDiscoveryMode;
     }
 
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+    public void handlerAdded(final ChannelHandlerContext ctx) throws Exception {
         logger.debug("P2P protocol activated");
         msgQueue.activate(ctx);
         ethereumListener.trace("P2P protocol activated");
@@ -134,7 +134,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
     }
 
     @Override
-    public void channelRead0(final ChannelHandlerContext ctx, P2pMessage msg) throws InterruptedException {
+    public void channelRead0(final ChannelHandlerContext ctx, final P2pMessage msg) throws InterruptedException {
 
         if (P2pMessageCodes.inRange(msg.getCommand().asByte()))
             logger.trace("P2PHandler invoke: [{}]", msg.getCommand());
@@ -177,25 +177,25 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
         }
     }
 
-    private void disconnect(ReasonCode reasonCode) {
+    private void disconnect(final ReasonCode reasonCode) {
         msgQueue.sendMessage(new DisconnectMessage(reasonCode));
         channel.getNodeStatistics().nodeDisconnectedLocal(reasonCode);
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         logger.debug("channel inactive: ", ctx.toString());
         this.killTimers();
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
         logger.warn("P2p handling failed", cause);
         ctx.close();
         killTimers();
     }
 
-    private void processDisconnect(ChannelHandlerContext ctx, DisconnectMessage msg) {
+    private void processDisconnect(final ChannelHandlerContext ctx, final DisconnectMessage msg) {
 
         if (logger.isInfoEnabled() && msg.getReason() == ReasonCode.USELESS_PEER) {
 
@@ -216,7 +216,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
         msgQueue.sendMessage(StaticMessages.GET_PEERS_MESSAGE);
     }
 
-    public void setHandshake(HelloMessage msg, ChannelHandlerContext ctx) {
+    public void setHandshake(final HelloMessage msg, final ChannelHandlerContext ctx) {
 
         channel.getNodeStatistics().setClientId(msg.getClientId());
         channel.getNodeStatistics().capabilities.clear();
@@ -230,9 +230,9 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
             disconnect(ReasonCode.INCOMPATIBLE_PROTOCOL);
         }
         else {
-            List<Capability> capInCommon = getSupportedCapabilities(msg);
+            final List<Capability> capInCommon = getSupportedCapabilities(msg);
             channel.initMessageCodes(capInCommon);
-            for (Capability capability : capInCommon) {
+            for (final Capability capability : capInCommon) {
                 if (capability.getName().equals(Capability.ETH)) {
 
                     // Activate EthHandler for this peer
@@ -263,15 +263,15 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
      *
      * @param tx - fresh transaction object
      */
-    public void sendTransaction(Transaction tx) {
+    public void sendTransaction(final Transaction tx) {
 
-        TransactionsMessage msg = new TransactionsMessage(tx);
+        final TransactionsMessage msg = new TransactionsMessage(tx);
         msgQueue.sendMessage(msg);
     }
 
-    public void sendNewBlock(Block block) {
+    public void sendNewBlock(final Block block) {
 
-        NewBlockMessage msg = new NewBlockMessage(block, block.getDifficulty());
+        final NewBlockMessage msg = new NewBlockMessage(block, block.getDifficulty());
         msgQueue.sendMessage(msg);
     }
 
@@ -290,7 +290,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
             public void run() {
                 try {
                     msgQueue.sendMessage(PING_MESSAGE);
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     logger.error("Unhandled exception", t);
                 }
             }
@@ -302,21 +302,21 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
         msgQueue.close();
     }
 
-    public void setMsgQueue(MessageQueue msgQueue) {
+    public void setMsgQueue(final MessageQueue msgQueue) {
         this.msgQueue = msgQueue;
     }
 
-    public void setChannel(Channel channel) {
+    public void setChannel(final Channel channel) {
         this.channel = channel;
     }
 
-    private List<Capability> getSupportedCapabilities(HelloMessage hello) {
-        List<Capability> configCaps = configCapabilities.getConfigCapabilities();
-        List<Capability> supported = new ArrayList<>();
+    private List<Capability> getSupportedCapabilities(final HelloMessage hello) {
+        final List<Capability> configCaps = configCapabilities.getConfigCapabilities();
+        final List<Capability> supported = new ArrayList<>();
 
-        List<Capability> eths = new ArrayList<>();
+        final List<Capability> eths = new ArrayList<>();
 
-        for (Capability cap : hello.getCapabilities()) {
+        for (final Capability cap : hello.getCapabilities()) {
             if (configCaps.contains(cap)) {
                 if (cap.isEth()) {
                     eths.add(cap);
@@ -333,7 +333,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
         // we need to pick up
         // the most recent Eth version
         Capability highest = null;
-        for (Capability eth : eths) {
+        for (final Capability eth : eths) {
             if (highest == null || highest.getVersion() < eth.getVersion()) {
                 highest = eth;
             }

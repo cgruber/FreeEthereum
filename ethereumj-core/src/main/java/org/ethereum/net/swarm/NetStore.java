@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.swarm;
 
 import io.netty.util.concurrent.DefaultPromise;
@@ -45,7 +71,7 @@ public class NetStore implements ChunkStore {
     private PeerAddress selfAddress;
 
     @Autowired
-    public NetStore(SystemProperties config) {
+    public NetStore(final SystemProperties config) {
         this(new LocalStore(new MemStore(), new MemStore()), new Hive(new PeerAddress(new byte[] {127,0,0,1},
                 config.listenPort(), config.nodeId())));
         start(hive.getSelfAddress());
@@ -53,7 +79,7 @@ public class NetStore implements ChunkStore {
         INST = this;
     }
 
-    public NetStore(LocalStore localStore, Hive hive) {
+    public NetStore(final LocalStore localStore, final Hive hive) {
         this.localStore = localStore;
         this.hive = hive;
     }
@@ -62,7 +88,7 @@ public class NetStore implements ChunkStore {
         return INST;
     }
 
-    public void start(PeerAddress self) {
+    public void start(final PeerAddress self) {
         this.selfAddress = self;
         hive.start();
     }
@@ -85,13 +111,13 @@ public class NetStore implements ChunkStore {
 
     // called from dpa, entrypoint for *local* chunk store requests
     @Override
-    public synchronized void put(Chunk chunk) {
+    public synchronized void put(final Chunk chunk) {
 //        Chunk localChunk = localStore.get(chunk.getKey()); // ???
         putImpl(chunk);
     }
 
     // store logic common to local and network chunk store requests
-    private void putImpl(Chunk chunk) {
+    private void putImpl(final Chunk chunk) {
         localStore.put(chunk);
         if (chunkRequestMap.get(chunk.getKey()) != null &&
                 chunkRequestMap.get(chunk.getKey()).status == EntryReqStatus.Searching) {
@@ -108,7 +134,7 @@ public class NetStore implements ChunkStore {
     }
 
     // the entrypoint for network store requests
-    public void addStoreRequest(BzzStoreReqMessage msg) {
+    public void addStoreRequest(final BzzStoreReqMessage msg) {
         statInStoreReq.add(1);
 
         Chunk chunk = localStore.get(msg.getKey()); // TODO hasKey() should be faster
@@ -122,18 +148,18 @@ public class NetStore implements ChunkStore {
     }
 
     // once a chunk is found propagate it its requesters unless timed out
-    private synchronized void propagateResponse(Chunk chunk) {
-        ChunkRequest chunkRequest = chunkRequestMap.get(chunk.getKey());
-        for (Promise<Chunk> localRequester : chunkRequest.localRequesters) {
+    private synchronized void propagateResponse(final Chunk chunk) {
+        final ChunkRequest chunkRequest = chunkRequestMap.get(chunk.getKey());
+        for (final Promise<Chunk> localRequester : chunkRequest.localRequesters) {
             localRequester.setSuccess(chunk);
         }
 
-        for (Map.Entry<Long, Collection<BzzRetrieveReqMessage>> e :
+        for (final Map.Entry<Long, Collection<BzzRetrieveReqMessage>> e :
                 chunkRequest.requesters.entrySet()) {
-            BzzStoreReqMessage msg = new BzzStoreReqMessage(e.getKey(), chunk.getKey(), chunk.getData());
+            final BzzStoreReqMessage msg = new BzzStoreReqMessage(e.getKey(), chunk.getKey(), chunk.getData());
 
             int counter = requesterCount;
-            for (BzzRetrieveReqMessage r : e.getValue()) {
+            for (final BzzRetrieveReqMessage r : e.getValue()) {
                 r.getPeer().sendMessage(msg);
                 statOutStoreReq.add(1);
                 if (--counter < 0) {
@@ -150,9 +176,9 @@ public class NetStore implements ChunkStore {
 
         hive.addTask(hive.new HiveTask(chunk.getKey(), timeout, maxStorePeers) {
             @Override
-            protected void processPeer(BzzProtocol peer) {
+            protected void processPeer(final BzzProtocol peer) {
                 if (chunkStoreRequestSource == null || !chunkStoreRequestSource.equals(peer.getNode())) {
-                    BzzStoreReqMessage msg = new BzzStoreReqMessage(chunk.getKey(), chunk.getData());
+                    final BzzStoreReqMessage msg = new BzzStoreReqMessage(chunk.getKey(), chunk.getData());
                     peer.sendMessage(msg);
                 }
             }
@@ -166,7 +192,7 @@ public class NetStore implements ChunkStore {
     @Override
     // Get is the entrypoint for local retrieve requests
     // waits for response or times out
-    public Chunk get(Key key) {
+    public Chunk get(final Key key) {
         try {
             return getAsync(key).get();
         } catch (InterruptedException | ExecutionException e) {
@@ -174,12 +200,13 @@ public class NetStore implements ChunkStore {
         }
     }
 
-    private synchronized Future<Chunk> getAsync(Key key) {
-        Chunk chunk = localStore.get(key);
-        Promise<Chunk> ret = new DefaultPromise<Chunk>() {};
+    private synchronized Future<Chunk> getAsync(final Key key) {
+        final Chunk chunk = localStore.get(key);
+        final Promise<Chunk> ret = new DefaultPromise<Chunk>() {
+        };
         if (chunk == null) {
 //            long timeout = 0; // TODO
-            ChunkRequest chunkRequest = new ChunkRequest();
+            final ChunkRequest chunkRequest = new ChunkRequest();
             chunkRequest.localRequesters.add(ret);
             chunkRequestMap.put(key, chunkRequest);
             startSearch(-1, key, timeout);
@@ -190,24 +217,24 @@ public class NetStore implements ChunkStore {
     }
 
     // entrypoint for network retrieve requests
-    public void addRetrieveRequest(BzzRetrieveReqMessage req) {
+    public void addRetrieveRequest(final BzzRetrieveReqMessage req) {
         statInGetReq.add(1);
 
-        Chunk chunk = localStore.get(req.getKey());
+        final Chunk chunk = localStore.get(req.getKey());
 
-        ChunkRequest chunkRequest = chunkRequestMap.get(req.getKey());
+        final ChunkRequest chunkRequest = chunkRequestMap.get(req.getKey());
 
         if (chunk == null) {
             peers(req, chunk, 0);
             if (chunkRequest == null && !req.getKey().isZero()) {
                 chunkRequestMap.put(req.getKey(), new ChunkRequest());
-                long timeout = strategyUpdateRequest(chunkRequestMap.get(req.getKey()), req);
+                final long timeout = strategyUpdateRequest(chunkRequestMap.get(req.getKey()), req);
                 startSearch(req.getId(), req.getKey(), timeout);
             }
 //            req.timeout = +10sec // TODO ???
         } else {
 
-            long timeout = strategyUpdateRequest(chunkRequestMap.get(req.getKey()), req);
+            final long timeout = strategyUpdateRequest(chunkRequestMap.get(req.getKey()), req);
             if (chunkRequest != null) {
                 chunkRequest.status = EntryReqStatus.Found;
             }
@@ -218,18 +245,18 @@ public class NetStore implements ChunkStore {
 
     // logic propagating retrieve requests to peers given by the kademlia hive
     // it's assumed that caller holds the lock
-    private Chunk startSearch(long id, Key key, long timeout) {
+    private Chunk startSearch(final long id, final Key key, final long timeout) {
         final ChunkRequest chunkRequest = chunkRequestMap.get(key);
         chunkRequest.status = EntryReqStatus.Searching;
 
         final BzzRetrieveReqMessage req = new BzzRetrieveReqMessage(key/*, timeout*/);
         hive.addTask(hive.new HiveTask(key, timeout, maxSearchPeers) {
             @Override
-            protected void processPeer(BzzProtocol peer) {
+            protected void processPeer(final BzzProtocol peer) {
                 boolean requester = false;
                 out:
-                for (Collection<BzzRetrieveReqMessage> chReqColl : chunkRequest.requesters.values()) {
-                    for (BzzRetrieveReqMessage chReq : chReqColl) {
+                for (final Collection<BzzRetrieveReqMessage> chReqColl : chunkRequest.requesters.values()) {
+                    for (final BzzRetrieveReqMessage chReq : chReqColl) {
                         if (chReq.getPeer().getNode().equals(peer.getNode())) {
                             requester = true;
                             break out;
@@ -247,7 +274,7 @@ public class NetStore implements ChunkStore {
     }
 
     // add peer request the chunk and decides the timeout for the response if still searching
-    private long strategyUpdateRequest(ChunkRequest chunkRequest, BzzRetrieveReqMessage req) {
+    private long strategyUpdateRequest(final ChunkRequest chunkRequest, final BzzRetrieveReqMessage req) {
         if (chunkRequest != null && chunkRequest.status == EntryReqStatus.Searching) {
             addRequester(chunkRequest, req);
             return searchingTimeout(chunkRequest, req);
@@ -262,22 +289,22 @@ public class NetStore implements ChunkStore {
     only add if less than requesterCount peers forwarded the same request id so far
     note this is done irrespective of status (searching or found)
     */
-    private void addRequester(ChunkRequest rs, BzzRetrieveReqMessage req) {
-        Collection<BzzRetrieveReqMessage> list = rs.requesters.computeIfAbsent(req.getId(), k -> new ArrayList<>());
+    private void addRequester(final ChunkRequest rs, final BzzRetrieveReqMessage req) {
+        final Collection<BzzRetrieveReqMessage> list = rs.requesters.computeIfAbsent(req.getId(), k -> new ArrayList<>());
         list.add(req);
     }
 
     // called on each request when a chunk is found,
     // delivery is done by sending a request to the requesting peer
-    private void deliver(BzzRetrieveReqMessage req, Chunk chunk) {
-        BzzStoreReqMessage msg = new BzzStoreReqMessage(req.getId(), req.getKey(), chunk.getData());
+    private void deliver(final BzzRetrieveReqMessage req, final Chunk chunk) {
+        final BzzStoreReqMessage msg = new BzzStoreReqMessage(req.getId(), req.getKey(), chunk.getData());
         req.getPeer().sendMessage(msg);
         statOutStoreReq.add(1);
     }
 
     // the immediate response to a retrieve request,
     // sends relevant peer data given by the kademlia hive to the requester
-    private void peers(BzzRetrieveReqMessage req, Chunk chunk, long timeout) {
+    private void peers(final BzzRetrieveReqMessage req, final Chunk chunk, final long timeout) {
 //        Collection<BzzProtocol> peers = hive.getPeers(req.getKey(), maxSearchPeers/*(int) req.getMaxPeers()*/);
 //        List<PeerAddress> peerAddrs = new ArrayList<>();
 //        for (BzzProtocol peer : peers) {
@@ -287,12 +314,12 @@ public class NetStore implements ChunkStore {
         if (key.isZero()) {
             key = new Key(req.getPeer().getNode().getId()); // .getAddrKey();
         }
-        Collection<PeerAddress> nodes = hive.getNodes(key, maxSearchPeers);
-        BzzPeersMessage msg = new BzzPeersMessage(new ArrayList<>(nodes), timeout, req.getKey(), req.getId());
+        final Collection<PeerAddress> nodes = hive.getNodes(key, maxSearchPeers);
+        final BzzPeersMessage msg = new BzzPeersMessage(new ArrayList<>(nodes), timeout, req.getKey(), req.getId());
         req.getPeer().sendMessage(msg);
     }
 
-    private long searchingTimeout(ChunkRequest chunkRequest, BzzRetrieveReqMessage req) {
+    private long searchingTimeout(final ChunkRequest chunkRequest, final BzzRetrieveReqMessage req) {
         // TODO
         return 0;
     }

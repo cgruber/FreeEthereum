@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.datasource;
 
 import com.googlecode.concurentlocks.ReadWriteUpdateLock;
@@ -34,12 +60,13 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
     private final ALock updateLock = new ALock(rwuLock.updateLock());
     volatile Map<Key, CacheEntry<Value>> cache = new HashMap<>();
     private boolean checked = false;
-    public WriteCache(Source<Key, Value> src, CacheType cacheType) {
+
+    public WriteCache(final Source<Key, Value> src, final CacheType cacheType) {
         super(src);
         this.isCounting = cacheType == CacheType.COUNTING;
     }
 
-    WriteCache<Key, Value> withCache(Map<Key, CacheEntry<Value>> cache) {
+    WriteCache<Key, Value> withCache(final Map<Key, CacheEntry<Value>> cache) {
         this.cache = cache;
         return this;
     }
@@ -56,7 +83,7 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
         return !cache.isEmpty();
     }
 
-    private CacheEntry<Value> createCacheEntry(Value val) {
+    private CacheEntry<Value> createCacheEntry(final Value val) {
         if (isCounting) {
             return new CountCacheEntry<>(val);
         } else {
@@ -65,7 +92,7 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
     }
 
     @Override
-    public void put(Key key, Value val) {
+    public void put(final Key key, final Value val) {
         checkByteArrKey(key);
         if (val == null)  {
             delete(key);
@@ -77,7 +104,7 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
             CacheEntry<Value> curVal = cache.get(key);
             if (curVal == null) {
                 curVal = createCacheEntry(val);
-                CacheEntry<Value> oldVal = cache.put(key, curVal);
+                final CacheEntry<Value> oldVal = cache.put(key, curVal);
                 if (oldVal != null) {
                     cacheRemoved(key, oldVal.value == unknownValue() ? null : oldVal.value);
                 }
@@ -91,14 +118,14 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
     }
 
     @Override
-    public Value get(Key key) {
+    public Value get(final Key key) {
         checkByteArrKey(key);
         try (ALock l = readLock.lock()){
-            CacheEntry<Value> curVal = cache.get(key);
+            final CacheEntry<Value> curVal = cache.get(key);
             if (curVal == null) {
                 return getSource() == null ? null : getSource().get(key);
             } else {
-                Value value = curVal.getValue();
+                final Value value = curVal.getValue();
                 if (value == unknownValue()) {
                     return getSource() == null ? null : getSource().get(key);
                 } else {
@@ -109,13 +136,13 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
     }
 
     @Override
-    public void delete(Key key) {
+    public void delete(final Key key) {
         checkByteArrKey(key);
         try (ALock l = writeLock.lock()){
             CacheEntry<Value> curVal = cache.get(key);
             if (curVal == null) {
                 curVal = createCacheEntry(getSource() == null ? null : unknownValue());
-                CacheEntry<Value> oldVal = cache.put(key, curVal);
+                final CacheEntry<Value> oldVal = cache.put(key, curVal);
                 if (oldVal != null) {
                     cacheRemoved(key, oldVal.value);
                 }
@@ -129,7 +156,7 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
     public boolean flush() {
         boolean ret = false;
         try (ALock l = updateLock.lock()){
-            for (Map.Entry<Key, CacheEntry<Value>> entry : cache.entrySet()) {
+            for (final Map.Entry<Key, CacheEntry<Value>> entry : cache.entrySet()) {
                 if (entry.getValue().counter > 0) {
                     for (int i = 0; i < entry.getValue().counter; i++) {
                         getSource().put(entry.getKey(), entry.getValue().value);
@@ -162,9 +189,9 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
         return (Value) CacheEntry.UNKNOWN_VALUE;
     }
 
-    public Entry<Value> getCached(Key key) {
+    public Entry<Value> getCached(final Key key) {
         try (ALock l = readLock.lock()){
-            CacheEntry<Value> entry = cache.get(key);
+            final CacheEntry<Value> entry = cache.get(key);
             if (entry == null || entry.value == unknownValue()) {
                 return null;
             }else {
@@ -176,7 +203,7 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
     // Guard against wrong cache Map
     // if a regular Map is accidentally used for byte[] type keys
     // the situation might be tricky to debug
-    private void checkByteArrKey(Key key) {
+    private void checkByteArrKey(final Key key) {
         if (checked) return;
 
         if (key instanceof byte[]) {
@@ -189,7 +216,7 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
 
     public long debugCacheSize() {
         long ret = 0;
-        for (Map.Entry<Key, CacheEntry<Value>> entry : cache.entrySet()) {
+        for (final Map.Entry<Key, CacheEntry<Value>> entry : cache.entrySet()) {
             ret += keySizeEstimator.estimateSize(entry.getKey());
             ret += valueSizeEstimator.estimateSize(entry.getValue().value());
         }
@@ -223,7 +250,7 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
         V value;
         int counter = 0;
 
-        CacheEntry(V value) {
+        CacheEntry(final V value) {
             this.value = value;
         }
 
@@ -235,13 +262,13 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
 
         @Override
         public V value() {
-            V v = getValue();
+            final V v = getValue();
             return v == UNKNOWN_VALUE ? null : v;
         }
     }
 
     private static final class SimpleCacheEntry<V> extends CacheEntry<V> {
-        public SimpleCacheEntry(V value) {
+        public SimpleCacheEntry(final V value) {
             super(value);
         }
 
@@ -260,7 +287,7 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
     }
 
     private static final class CountCacheEntry<V> extends CacheEntry<V> {
-        public CountCacheEntry(V value) {
+        public CountCacheEntry(final V value) {
             super(value);
         }
 
@@ -287,7 +314,7 @@ public class WriteCache<Key, Value> extends AbstractCachedSource<Key, Value> {
      */
     public static class BytesKey<V> extends WriteCache<byte[], V> implements CachedSource.BytesKey<V> {
 
-        public BytesKey(Source<byte[], V> src, CacheType cacheType) {
+        public BytesKey(final Source<byte[], V> src, final CacheType cacheType) {
             super(src, cacheType);
             withCache(new ByteArrayMap<>());
         }

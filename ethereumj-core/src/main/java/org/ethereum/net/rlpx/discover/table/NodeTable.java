@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx.discover.table;
 
 import org.ethereum.net.rlpx.Node;
@@ -15,11 +41,11 @@ public class NodeTable {
     private Map<Node, Node> evictedCandidates = new HashMap<>();
     private Map<Node, Date> expectedPongs = new HashMap<>();
 
-    public NodeTable(Node n) {
+    public NodeTable(final Node n) {
         this(n, true);
     }
 
-    public NodeTable(Node n, boolean includeHomeNode) {
+    public NodeTable(final Node n, final boolean includeHomeNode) {
         this.node = n;
         initialize();
         if (includeHomeNode) {
@@ -41,9 +67,9 @@ public class NodeTable {
         }
     }
 
-    public synchronized Node addNode(Node n) {
-        NodeEntry e = new NodeEntry(node.getId(), n);
-        NodeEntry lastSeen = buckets[getBucketId(e)].addNode(e);
+    public synchronized Node addNode(final Node n) {
+        final NodeEntry e = new NodeEntry(node.getId(), n);
+        final NodeEntry lastSeen = buckets[getBucketId(e)].addNode(e);
         if (lastSeen != null) {
             return lastSeen.getNode();
         }
@@ -53,15 +79,15 @@ public class NodeTable {
         return null;
     }
 
-    public synchronized void dropNode(Node n) {
-        NodeEntry e = new NodeEntry(node.getId(), n);
+    public synchronized void dropNode(final Node n) {
+        final NodeEntry e = new NodeEntry(node.getId(), n);
         buckets[getBucketId(e)].dropNode(e);
         nodes.remove(e);
     }
 
-    public synchronized boolean contains(Node n) {
-        NodeEntry e = new NodeEntry(node.getId(), n);
-        for (NodeBucket b : buckets) {
+    public synchronized boolean contains(final Node n) {
+        final NodeEntry e = new NodeEntry(node.getId(), n);
+        for (final NodeBucket b : buckets) {
             if (b.getNodes().contains(e)) {
                 return true;
             }
@@ -69,9 +95,9 @@ public class NodeTable {
         return false;
     }
 
-    public synchronized void touchNode(Node n) {
-        NodeEntry e = new NodeEntry(node.getId(), n);
-        for (NodeBucket b : buckets) {
+    public synchronized void touchNode(final Node n) {
+        final NodeEntry e = new NodeEntry(node.getId(), n);
+        for (final NodeBucket b : buckets) {
             if (b.getNodes().contains(e)) {
                 b.getNodes().get(b.getNodes().indexOf(e)).touch();
                 break;
@@ -81,7 +107,7 @@ public class NodeTable {
 
     public int getBucketsCount() {
         int i = 0;
-        for (NodeBucket b : buckets) {
+        for (final NodeBucket b : buckets) {
             if (b.getNodesCount() > 0) {
                 i++;
             }
@@ -93,8 +119,8 @@ public class NodeTable {
         return buckets;
     }
 
-    private int getBucketId(NodeEntry e) {
-        int id = e.getDistance() - 1;
+    private int getBucketId(final NodeEntry e) {
+        final int id = e.getDistance() - 1;
         return id < 0 ? 0 : id;
     }
 
@@ -104,12 +130,12 @@ public class NodeTable {
 
     public synchronized List<NodeEntry> getAllNodes()
     {
-        List<NodeEntry> nodes = new ArrayList<>();
+        final List<NodeEntry> nodes = new ArrayList<>();
 
-        for (NodeBucket b : buckets)
+        for (final NodeBucket b : buckets)
         {
 //            nodes.addAll(b.getNodes());
-            for (NodeEntry e : b.getNodes())
+            for (final NodeEntry e : b.getNodes())
             {
                 if (!e.getNode().equals(node)) {
                     nodes.add(e);
@@ -121,15 +147,15 @@ public class NodeTable {
         return nodes;
     }
 
-    public synchronized List<Node> getClosestNodes(byte[] targetId) {
+    public synchronized List<Node> getClosestNodes(final byte[] targetId) {
         List<NodeEntry> closestEntries = getAllNodes();
-        List<Node> closestNodes = new ArrayList<>();
+        final List<Node> closestNodes = new ArrayList<>();
         closestEntries.sort(new DistanceComparator(targetId));
         if (closestEntries.size() > KademliaOptions.BUCKET_SIZE) {
             closestEntries = closestEntries.subList(0, KademliaOptions.BUCKET_SIZE);
         }
 
-        for (NodeEntry e : closestEntries) {
+        for (final NodeEntry e : closestEntries) {
             if (!e.getNode().isDiscoveryNode()) {
                 closestNodes.add(e.getNode());
             }

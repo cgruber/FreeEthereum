@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.eth.message;
 
 import org.ethereum.core.BlockIdentifier;
@@ -51,15 +77,15 @@ public class GetBlockHeadersMessage extends EthMessage {
      */
     private boolean reverse;
 
-    public GetBlockHeadersMessage(byte[] encoded) {
+    public GetBlockHeadersMessage(final byte[] encoded) {
         super(encoded);
     }
 
-    public GetBlockHeadersMessage(long blockNumber, int maxHeaders) {
+    public GetBlockHeadersMessage(final long blockNumber, final int maxHeaders) {
         this(blockNumber, null, maxHeaders, 0, false);
     }
 
-    public GetBlockHeadersMessage(long blockNumber, byte[] blockHash, int maxHeaders, int skipBlocks, boolean reverse) {
+    public GetBlockHeadersMessage(final long blockNumber, final byte[] blockHash, final int maxHeaders, final int skipBlocks, final boolean reverse) {
         this.blockNumber = blockNumber;
         this.blockHash = blockHash;
         this.maxHeaders = maxHeaders;
@@ -71,24 +97,24 @@ public class GetBlockHeadersMessage extends EthMessage {
     }
 
     private void encode() {
-        byte[] maxHeaders  = RLP.encodeInt(this.maxHeaders);
-        byte[] skipBlocks = RLP.encodeInt(this.skipBlocks);
-        byte[] reverse  = RLP.encodeByte((byte) (this.reverse ? 1 : 0));
+        final byte[] maxHeaders = RLP.encodeInt(this.maxHeaders);
+        final byte[] skipBlocks = RLP.encodeInt(this.skipBlocks);
+        final byte[] reverse = RLP.encodeByte((byte) (this.reverse ? 1 : 0));
 
         if (this.blockHash != null) {
-            byte[] hash = RLP.encodeElement(this.blockHash);
+            final byte[] hash = RLP.encodeElement(this.blockHash);
             this.encoded = RLP.encodeList(hash, maxHeaders, skipBlocks, reverse);
         } else {
-            byte[] number = RLP.encodeBigInteger(BigInteger.valueOf(this.blockNumber));
+            final byte[] number = RLP.encodeBigInteger(BigInteger.valueOf(this.blockNumber));
             this.encoded = RLP.encodeList(number, maxHeaders, skipBlocks, reverse);
         }
     }
 
     private synchronized void parse() {
         if (parsed) return;
-        RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
+        final RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 
-        byte[] blockBytes = paramsList.get(0).getRLPData();
+        final byte[] blockBytes = paramsList.get(0).getRLPData();
 
         // it might be either a hash or number
         if (blockBytes == null) {
@@ -99,13 +125,13 @@ public class GetBlockHeadersMessage extends EthMessage {
             this.blockNumber = byteArrayToLong(blockBytes);
         }
 
-        byte[] maxHeaders = paramsList.get(1).getRLPData();
+        final byte[] maxHeaders = paramsList.get(1).getRLPData();
         this.maxHeaders = byteArrayToInt(maxHeaders);
 
-        byte[] skipBlocks = paramsList.get(2).getRLPData();
+        final byte[] skipBlocks = paramsList.get(2).getRLPData();
         this.skipBlocks = byteArrayToInt(skipBlocks);
 
-        byte[] reverse = paramsList.get(3).getRLPData();
+        final byte[] reverse = paramsList.get(3).getRLPData();
         this.reverse = byteArrayToInt(reverse) == 1;
 
         parsed = true;

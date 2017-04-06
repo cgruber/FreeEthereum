@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.vm.trace;
 
 import org.ethereum.config.SystemProperties;
@@ -24,7 +50,7 @@ public class ProgramTrace {
         this(null, null);
     }
 
-    public ProgramTrace(SystemProperties config, ProgramInvoke programInvoke) {
+    public ProgramTrace(final SystemProperties config, final ProgramInvoke programInvoke) {
         if (programInvoke != null && config.vmTrace()) {
             contractAddress = Hex.toHexString(programInvoke.getOwnerAddress().getLast20Bytes());
         }
@@ -34,7 +60,7 @@ public class ProgramTrace {
         return ops;
     }
 
-    public void setOps(List<Op> ops) {
+    public void setOps(final List<Op> ops) {
         this.ops = ops;
     }
 
@@ -42,7 +68,7 @@ public class ProgramTrace {
         return result;
     }
 
-    private void setResult(String result) {
+    private void setResult(final String result) {
         this.result = result;
     }
 
@@ -50,7 +76,7 @@ public class ProgramTrace {
         return error;
     }
 
-    private void setError(String error) {
+    private void setError(final String error) {
         this.error = error;
     }
 
@@ -58,22 +84,22 @@ public class ProgramTrace {
         return contractAddress;
     }
 
-    public void setContractAddress(String contractAddress) {
+    public void setContractAddress(final String contractAddress) {
         this.contractAddress = contractAddress;
     }
 
-    public ProgramTrace result(byte[] result) {
+    public ProgramTrace result(final byte[] result) {
         setResult(toHexString(result));
         return this;
     }
 
-    public ProgramTrace error(Exception error) {
+    public ProgramTrace error(final Exception error) {
         setError(error == null ? "" : format("%s: %s", error.getClass(), error.getMessage()));
         return this;
     }
 
-    public Op addOp(byte code, int pc, int deep, DataWord gas, OpActions actions) {
-        Op op = new Op();
+    public Op addOp(final byte code, final int pc, final int deep, final DataWord gas, final OpActions actions) {
+        final Op op = new Op();
         op.setActions(actions);
         op.setCode(OpCode.code(code));
         op.setDeep(deep);
@@ -88,11 +114,11 @@ public class ProgramTrace {
     /**
      * Used for merging sub calls execution.
      */
-    public void merge(ProgramTrace programTrace) {
+    public void merge(final ProgramTrace programTrace) {
         this.ops.addAll(programTrace.ops);
     }
 
-    public String asJsonString(boolean formatted) {
+    public String asJsonString(final boolean formatted) {
         return serializeFieldsOnly(this, formatted);
     }
 

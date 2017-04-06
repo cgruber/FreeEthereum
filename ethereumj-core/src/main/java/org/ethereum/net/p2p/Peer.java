@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.p2p;
 
 import org.ethereum.net.client.Capability;
@@ -18,7 +44,7 @@ public class Peer {
     private final String peerId;
     private final List<Capability> capabilities;
 
-    public Peer(InetAddress ip, int port, String peerId) {
+    public Peer(final InetAddress ip, final int port, final String peerId) {
         this.address = ip;
         this.port = port;
         this.peerId = peerId;
@@ -42,15 +68,15 @@ public class Peer {
     }
 
     public byte[] getEncoded() {
-        byte[] ip = RLP.encodeElement(this.address.getAddress());
-        byte[] port = RLP.encodeInt(this.port);
-        byte[] peerId = RLP.encodeElement(Hex.decode(this.peerId));
-        byte[][] encodedCaps = new byte[this.capabilities.size()][];
+        final byte[] ip = RLP.encodeElement(this.address.getAddress());
+        final byte[] port = RLP.encodeInt(this.port);
+        final byte[] peerId = RLP.encodeElement(Hex.decode(this.peerId));
+        final byte[][] encodedCaps = new byte[this.capabilities.size()][];
         for (int i = 0; i < this.capabilities.size() * 2; i++) {
             encodedCaps[i] = RLP.encodeString(this.capabilities.get(i).getName());
             encodedCaps[i] = RLP.encodeByte(this.capabilities.get(i).getVersion());
         }
-        byte[] capabilities = RLP.encodeList(encodedCaps);
+        final byte[] capabilities = RLP.encodeList(encodedCaps);
         return RLP.encodeList(ip, port, peerId, capabilities);
     }
 
@@ -62,9 +88,9 @@ public class Peer {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if(!(obj instanceof Peer)) return false;
-        Peer peerData = (Peer) obj;
+        final Peer peerData = (Peer) obj;
         return peerData.peerId.equals(this.peerId)
                 || this.getAddress().equals(peerData.getAddress());
     }

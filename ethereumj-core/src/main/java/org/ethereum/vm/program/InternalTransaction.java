@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.vm.program;
 
 import org.ethereum.core.Transaction;
@@ -21,12 +47,12 @@ public class InternalTransaction extends Transaction {
     private boolean rejected = false;
     private String note;
 
-    public InternalTransaction(byte[] rawData) {
+    public InternalTransaction(final byte[] rawData) {
         super(rawData);
     }
 
-    public InternalTransaction(byte[] parentHash, int deep, int index, byte[] nonce, DataWord gasPrice, DataWord gasLimit,
-                               byte[] sendAddress, byte[] receiveAddress, byte[] value, byte[] data, String note) {
+    public InternalTransaction(final byte[] parentHash, final int deep, final int index, final byte[] nonce, final DataWord gasPrice, final DataWord gasLimit,
+                               final byte[] sendAddress, final byte[] receiveAddress, final byte[] value, final byte[] data, final String note) {
 
         super(nonce, getData(gasPrice), getData(gasLimit), receiveAddress, nullToEmpty(value), nullToEmpty(data));
 
@@ -38,26 +64,26 @@ public class InternalTransaction extends Transaction {
         this.parsed = true;
     }
 
-    private static byte[] getData(DataWord gasPrice) {
+    private static byte[] getData(final DataWord gasPrice) {
         return (gasPrice == null) ? ByteUtil.EMPTY_BYTE_ARRAY : gasPrice.getData();
     }
 
-    private static byte[] intToBytes(int value) {
+    private static byte[] intToBytes(final int value) {
         return ByteBuffer.allocate(Integer.SIZE / Byte.SIZE)
                 .order(ByteOrder.LITTLE_ENDIAN)
                 .putInt(value)
                 .array();
     }
 
-    private static int bytesToInt(byte[] bytes) {
+    private static int bytesToInt(final byte[] bytes) {
         return isEmpty(bytes) ? 0 : ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
     }
 
-    private static byte[] encodeInt(int value) {
+    private static byte[] encodeInt(final int value) {
         return RLP.encodeElement(intToBytes(value));
     }
 
-    private static int decodeInt(byte[] encoded) {
+    private static int decodeInt(final byte[] encoded) {
         return bytesToInt(encoded);
     }
 
@@ -100,8 +126,8 @@ public class InternalTransaction extends Transaction {
     public byte[] getEncoded() {
         if (rlpEncoded == null) {
 
-            byte[] nonce = getNonce();
-            boolean isEmptyNonce = isEmpty(nonce) || (getLength(nonce) == 1 && nonce[0] == 0);
+            final byte[] nonce = getNonce();
+            final boolean isEmptyNonce = isEmpty(nonce) || (getLength(nonce) == 1 && nonce[0] == 0);
 
             this.rlpEncoded = RLP.encodeList(
                     RLP.encodeElement(isEmptyNonce ? null : nonce),
@@ -130,8 +156,8 @@ public class InternalTransaction extends Transaction {
     @Override
     public synchronized void rlpParse() {
         if (parsed) return;
-        RLPList decodedTxList = RLP.decode2(rlpEncoded);
-        RLPList transaction = (RLPList) decodedTxList.get(0);
+        final RLPList decodedTxList = RLP.decode2(rlpEncoded);
+        final RLPList transaction = (RLPList) decodedTxList.get(0);
 
         setNonce(transaction.get(0).getRLPData());
         this.parentHash = transaction.get(1).getRLPData();
@@ -155,7 +181,7 @@ public class InternalTransaction extends Transaction {
     }
 
     @Override
-    public void sign(byte[] privKeyBytes) throws ECKey.MissingPrivateKeyException {
+    public void sign(final byte[] privKeyBytes) throws ECKey.MissingPrivateKeyException {
         throw new UnsupportedOperationException("Cannot sign internal transaction.");
     }
 

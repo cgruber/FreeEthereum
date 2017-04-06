@@ -42,7 +42,7 @@ import static org.ethereum.util.BIUtil.max;
  * Created by Anton Nashatyrev on 13.01.2017.
  */
 public class ETCFork3M extends Eip160HFConfig {
-    public ETCFork3M(BlockchainConfig parent) {
+    public ETCFork3M(final BlockchainConfig parent) {
         super(parent);
     }
 
@@ -57,16 +57,16 @@ public class ETCFork3M extends Eip160HFConfig {
     }
 
     @Override
-    public BigInteger calcDifficulty(BlockHeader curBlock, BlockHeader parent) {
-        BigInteger pd = parent.getDifficultyBI();
-        BigInteger quotient = pd.divide(getConstants().getDifficultyBoundDivisor());
+    public BigInteger calcDifficulty(final BlockHeader curBlock, final BlockHeader parent) {
+        final BigInteger pd = parent.getDifficultyBI();
+        final BigInteger quotient = pd.divide(getConstants().getDifficultyBoundDivisor());
 
-        BigInteger sign = getCalcDifficultyMultiplier(curBlock, parent);
+        final BigInteger sign = getCalcDifficultyMultiplier(curBlock, parent);
 
-        BigInteger fromParent = pd.add(quotient.multiply(sign));
+        final BigInteger fromParent = pd.add(quotient.multiply(sign));
         BigInteger difficulty = max(getConstants().getMinimumDifficulty(), fromParent);
 
-        int explosion = getExplosion(curBlock, parent);
+        final int explosion = getExplosion(curBlock, parent);
 
         if (explosion >= 0) {
             difficulty = max(getConstants().getMinimumDifficulty(), difficulty.add(BigInteger.ONE.shiftLeft(explosion)));
@@ -75,16 +75,16 @@ public class ETCFork3M extends Eip160HFConfig {
         return difficulty;
     }
 
-    private BigInteger getCalcDifficultyMultiplier(BlockHeader curBlock, BlockHeader parent) {
+    private BigInteger getCalcDifficultyMultiplier(final BlockHeader curBlock, final BlockHeader parent) {
         return BigInteger.valueOf(Math.max(1 - (curBlock.getTimestamp() - parent.getTimestamp()) / 10, -99));
     }
 
 
-    private int getExplosion(BlockHeader curBlock, BlockHeader parent) {
-        int pauseBlock = 3000000;
-        int contBlock = 5000000;
-        int delay = (contBlock - pauseBlock) / 100000;
-        int fixedDiff = (pauseBlock / 100000) - 2;
+    private int getExplosion(final BlockHeader curBlock, final BlockHeader parent) {
+        final int pauseBlock = 3000000;
+        final int contBlock = 5000000;
+        final int delay = (contBlock - pauseBlock) / 100000;
+        final int fixedDiff = (pauseBlock / 100000) - 2;
 
         if (curBlock.getNumber() < contBlock) {
             return fixedDiff;

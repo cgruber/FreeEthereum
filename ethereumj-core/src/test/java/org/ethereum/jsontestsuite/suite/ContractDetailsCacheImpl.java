@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.db.ContractDetails;
@@ -18,7 +44,7 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
     private final ContractDetails origContract;
     private Map<DataWord, DataWord> storage = new HashMap<>();
 
-    public ContractDetailsCacheImpl(ContractDetails origContract) {
+    public ContractDetailsCacheImpl(final ContractDetails origContract) {
         this.origContract = origContract;
         if (origContract != null) {
             if (origContract instanceof AbstractContractDetails) {
@@ -30,13 +56,13 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
     }
 
     @Override
-    public void put(DataWord key, DataWord value) {
+    public void put(final DataWord key, final DataWord value) {
         storage.put(key, value);
         this.setDirty(true);
     }
 
     @Override
-    public DataWord get(DataWord key) {
+    public DataWord get(final DataWord key) {
 
         DataWord value = storage.get(key);
         if (value != null)
@@ -56,11 +82,11 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
     @Override
     public byte[] getStorageHash() { // todo: unsupported
 
-        SecureTrie storageTrie = new SecureTrie((byte[]) null);
+        final SecureTrie storageTrie = new SecureTrie((byte[]) null);
 
-        for (DataWord key : storage.keySet()) {
+        for (final DataWord key : storage.keySet()) {
 
-            DataWord value = storage.get(key);
+            final DataWord value = storage.get(key);
 
             storageTrie.put(key.getData(),
                     RLP.encodeElement(value.getNoLeadZeroesData()));
@@ -70,7 +96,7 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
     }
 
     @Override
-    public void decode(byte[] rlpCode) {
+    public void decode(final byte[] rlpCode) {
         throw new RuntimeException("Not supported by this implementation.");
     }
 
@@ -85,16 +111,16 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
     }
 
     @Override
-    public void setStorage(Map<DataWord, DataWord> storage) {
+    public void setStorage(final Map<DataWord, DataWord> storage) {
         this.storage = storage;
     }
 
     @Override
-    public Map<DataWord, DataWord> getStorage(Collection<DataWord> keys) {
+    public Map<DataWord, DataWord> getStorage(final Collection<DataWord> keys) {
         if (keys == null) return getStorage();
 
-        Map<DataWord, DataWord> result = new HashMap<>();
-        for (DataWord key : keys) {
+        final Map<DataWord, DataWord> result = new HashMap<>();
+        for (final DataWord key : keys) {
             result.put(key, storage.get(key));
         }
         return unmodifiableMap(result);
@@ -115,12 +141,12 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
     }
 
     @Override
-    public void setStorage(List<DataWord> storageKeys, List<DataWord> storageValues) {
+    public void setStorage(final List<DataWord> storageKeys, final List<DataWord> storageValues) {
 
         for (int i = 0; i < storageKeys.size(); ++i){
 
-            DataWord key   = storageKeys.get(i);
-            DataWord value = storageValues.get(i);
+            final DataWord key = storageKeys.get(i);
+            final DataWord value = storageValues.get(i);
 
             if (value.isZero())
                 storage.put(key, null);
@@ -134,16 +160,16 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
     }
 
     @Override
-    public void setAddress(byte[] address) {
+    public void setAddress(final byte[] address) {
         if (origContract != null) origContract.setAddress(address);
     }
 
     @Override
     public ContractDetails clone() {
 
-        ContractDetailsCacheImpl contractDetails = new ContractDetailsCacheImpl(origContract);
+        final ContractDetailsCacheImpl contractDetails = new ContractDetailsCacheImpl(origContract);
 
-        Object storageClone = ((HashMap<DataWord, DataWord>)storage).clone();
+        final Object storageClone = ((HashMap<DataWord, DataWord>) storage).clone();
 
         contractDetails.setCode(this.getCode());
         contractDetails.setStorage( (HashMap<DataWord, DataWord>) storageClone);
@@ -159,7 +185,7 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
 
         if (origContract == null) return;
 
-        for (DataWord key : storage.keySet()) {
+        for (final DataWord key : storage.keySet()) {
             origContract.put(key, storage.get(key));
         }
 
@@ -173,7 +199,7 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
 
 
     @Override
-    public ContractDetails getSnapshotTo(byte[] hash) {
+    public ContractDetails getSnapshotTo(final byte[] hash) {
         throw new UnsupportedOperationException("No snapshot option during cache state");
     }
 }

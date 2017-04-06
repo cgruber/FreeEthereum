@@ -1,53 +1,34 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 // $Id: DigestEngine.java 229 2010-06-16 20:22:27Z tp $
 
 package org.ethereum.crypto.cryptohash;
 
 import java.security.MessageDigest;
-
-/**
- * <p>This class is a template which can be used to implement hash
- * functions. It takes care of some of the API, and also provides an
- * internal data buffer whose length is equal to the hash function
- * internal block length.</p>
- *
- * <p>Classes which use this template MUST provide a working {@link
- * #getBlockLength} method even before initialization (alternatively,
- * they may define a custom {@link #getInternalBlockLength} which does
- * not call {@link #getBlockLength}. The {@link #getDigestLength} should
- * also be operational from the beginning, but it is acceptable that it
- * returns 0 while the {@link #doInit} method has not been called
- * yet.</p>
- *
- * <pre>
- * ==========================(LICENSE BEGIN)============================
- *
- * Copyright (c) 2007-2010  Projet RNRT SAPHIR
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * ===========================(LICENSE END)=============================
- * </pre>
- *
- * @version   $Revision: 229 $
- * @author    Thomas Pornin &lt;thomas.pornin@cryptolog.com&gt;
- */
 
 public abstract class DigestEngine extends MessageDigest implements Digest {
 
@@ -61,7 +42,7 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
     /**
      * Instantiate the engine.
      */
-    DigestEngine(String alg) {
+    DigestEngine(final String alg) {
         super(alg);
         doInit();
         digestLen = engineGetDigestLength();
@@ -116,21 +97,19 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
 	public byte[] digest()
 	{
 		adjustDigestLen();
-		byte[] result = new byte[digestLen];
-		digest(result, 0, digestLen);
+        final byte[] result = new byte[digestLen];
+        digest(result, 0, digestLen);
 		return result;
 	}
 
 	/** @see org.ethereum.crypto.cryptohash.Digest */
-	public byte[] digest(byte[] input)
-	{
+    public byte[] digest(final byte[] input) {
 		update(input, 0, input.length);
 		return digest();
 	}
 
 	/** @see org.ethereum.crypto.cryptohash.Digest */
-	public int digest(byte[] buf, int offset, int len)
-	{
+    public int digest(final byte[] buf, final int offset, final int len) {
 		adjustDigestLen();
 		if (len >= digestLen) {
 			doPadding(buf, offset);
@@ -153,7 +132,7 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
 	}
 
 	/** @see org.ethereum.crypto.cryptohash.Digest */
-	public void update(byte input) {
+    public void update(final byte input) {
         inputBuf[inputLen++] = input;
         if (inputLen == blockLen) {
 			processBlock(inputBuf);
@@ -163,14 +142,12 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
 	}
 
 	/** @see org.ethereum.crypto.cryptohash.Digest */
-	public void update(byte[] input)
-	{
+    public void update(final byte[] input) {
 		update(input, 0, input.length);
 	}
 
 	/** @see org.ethereum.crypto.cryptohash.Digest */
-	public void update(byte[] input, int offset, int len)
-	{
+    public void update(final byte[] input, int offset, int len) {
 		while (len > 0) {
 			int copyLen = blockLen - inputLen;
 			if (copyLen > len)
@@ -252,8 +229,8 @@ public abstract class DigestEngine extends MessageDigest implements Digest {
 	 * @param dest   the copy
 	 * @return  the value {@code dest}
      */
-    Digest copyState(DigestEngine dest) {
-		dest.inputLen = inputLen;
+    Digest copyState(final DigestEngine dest) {
+        dest.inputLen = inputLen;
 		dest.blockCount = blockCount;
 		System.arraycopy(inputBuf, 0, dest.inputBuf, 0,
 			inputBuf.length);

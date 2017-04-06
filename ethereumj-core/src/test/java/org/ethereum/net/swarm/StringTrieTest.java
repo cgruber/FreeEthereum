@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.swarm;
 
 import org.junit.Assert;
@@ -10,7 +36,7 @@ public class StringTrieTest {
 
     @Test
     public void testAdd() {
-        T trie = new T();
+        final T trie = new T();
 
         trie.add("aaa");
         trie.add("bbb");
@@ -29,7 +55,7 @@ public class StringTrieTest {
 
     @Test
     public void testAddRootLeaf() {
-        T trie = new T();
+        final T trie = new T();
 
         trie.add("ax");
         trie.add("ay");
@@ -40,19 +66,19 @@ public class StringTrieTest {
 
     @Test
     public void testAddDuplicate() {
-        T trie = new T();
+        final T trie = new T();
 
-        A a = trie.add("a");
-        A ay = trie.add("ay");
-        A a1 = trie.add("a");
+        final A a = trie.add("a");
+        final A ay = trie.add("ay");
+        final A a1 = trie.add("a");
         Assert.assertTrue(a == a1);
-        A ay1 = trie.add("ay");
+        final A ay1 = trie.add("ay");
         Assert.assertTrue(ay == ay1);
     }
 
     @Test
     public void testAddLeafRoot() {
-        T trie = new T();
+        final T trie = new T();
 
         trie.add("a");
         trie.add("ax");
@@ -62,7 +88,7 @@ public class StringTrieTest {
 
     @Test
     public void testAddDelete() {
-        T trie = new T();
+        final T trie = new T();
 
         trie.add("aaaa");
         trie.add("aaaaxxxx");
@@ -80,16 +106,16 @@ public class StringTrieTest {
         public A() {
         }
 
-        public A(A parent, String relPath) {
+        public A(final A parent, final String relPath) {
             super(parent, relPath);
         }
 
-        public void setId(String id) {
+        public void setId(final String id) {
             this.id = id;
         }
 
         @Override
-        protected A createNode(A parent, String path) {
+        protected A createNode(final A parent, final String path) {
             return new A(parent, path);
         }
 
@@ -106,8 +132,8 @@ public class StringTrieTest {
         }
 
         @Override
-        public A add(String path) {
-            A ret = super.add(path);
+        public A add(final String path) {
+            final A ret = super.add(path);
             ret.setId(path);
             return ret;
         }

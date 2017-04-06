@@ -1,41 +1,32 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 // $Id: KeccakCore.java 258 2011-07-15 22:16:50Z tp $
 
 package org.ethereum.crypto.cryptohash;
-
-/**
- * This class implements the core operations for the Keccak digest
- * algorithm.
- *
- * <pre>
- * ==========================(LICENSE BEGIN)============================
- *
- * Copyright (c) 2007-2010  Projet RNRT SAPHIR
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * ===========================(LICENSE END)=============================
- * </pre>
- *
- * @version   $Revision: 258 $
- * @author    Thomas Pornin &lt;thomas.pornin@cryptolog.com&gt;
- */
 
 abstract class KeccakCore extends DigestEngine{
 
@@ -56,7 +47,7 @@ abstract class KeccakCore extends DigestEngine{
     private long[] A;
     private byte[] tmpOut;
 
-    KeccakCore(String alg) {
+    KeccakCore(final String alg) {
         super(alg);
     }
 
@@ -69,8 +60,7 @@ abstract class KeccakCore extends DigestEngine{
 	 * @param buf   the destination buffer
 	 * @param off   the destination offset
 	 */
-	private static void encodeLELong(long val, byte[] buf, int off)
-	{
+    private static void encodeLELong(final long val, final byte[] buf, final int off) {
 		buf[off + 0] = (byte)val;
 		buf[off + 1] = (byte)(val >>> 8);
 		buf[off + 2] = (byte)(val >>> 16);
@@ -89,8 +79,7 @@ abstract class KeccakCore extends DigestEngine{
 	 * @param off   the source offset
 	 * @return  the decoded value
 	 */
-	private static long decodeLELong(byte[] buf, int off)
-	{
+    private static long decodeLELong(final byte[] buf, final int off) {
 		return (buf[off + 0] & 0xFFL)
 			| ((buf[off + 1] & 0xFFL) << 8)
 			| ((buf[off + 2] & 0xFFL) << 16)
@@ -108,8 +97,7 @@ abstract class KeccakCore extends DigestEngine{
 	}
 
 	/** @see org.ethereum.crypto.cryptohash.DigestEngine */
-	protected void processBlock(byte[] data)
-	{
+    protected void processBlock(final byte[] data) {
 		/* Input block */
 		for (int i = 0; i < data.length; i += 8)
 			A[i >>> 3] ^= decodeLELong(data, i);
@@ -518,11 +506,10 @@ abstract class KeccakCore extends DigestEngine{
 	}
 
 	/** @see org.ethereum.crypto.cryptohash.DigestEngine */
-	protected void doPadding(byte[] out, int off)
-	{
-		int ptr = flush();
-		byte[] buf = getBlockBuffer();
-		if ((ptr + 1) == buf.length) {
+    protected void doPadding(final byte[] out, final int off) {
+        final int ptr = flush();
+        final byte[] buf = getBlockBuffer();
+        if ((ptr + 1) == buf.length) {
 			buf[ptr] = (byte)0x81;
 		} else {
 			buf[ptr] = (byte)0x01;
@@ -537,8 +524,8 @@ abstract class KeccakCore extends DigestEngine{
 		A[12] = ~A[12];
 		A[17] = ~A[17];
 		A[20] = ~A[20];
-		int dlen = engineGetDigestLength();
-		for (int i = 0; i < dlen; i += 8)
+        final int dlen = engineGetDigestLength();
+        for (int i = 0; i < dlen; i += 8)
 			encodeLELong(A[i >>> 3], tmpOut, i);
 		System.arraycopy(tmpOut, 0, out, off, dlen);
 	}
@@ -570,8 +557,8 @@ abstract class KeccakCore extends DigestEngine{
 	}
 
 	/** @see org.ethereum.crypto.cryptohash.DigestEngine */
-    Digest copyState(KeccakCore dst) {
-		System.arraycopy(A, 0, dst.A, 0, 25);
+    Digest copyState(final KeccakCore dst) {
+        System.arraycopy(A, 0, dst.A, 0, 25);
 		return super.copyState(dst);
 	}
 

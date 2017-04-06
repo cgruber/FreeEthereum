@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.db;
 
 import com.google.common.util.concurrent.Futures;
@@ -37,7 +63,7 @@ public class DbFlushManager {
     private int commitCount = 0;
     private Future<Boolean> lastFlush = Futures.immediateFuture(false);
 
-    public DbFlushManager(SystemProperties config, Set<DbSource> dbSources, AbstractCachedSource<byte[], byte[]> stateDbCache) {
+    public DbFlushManager(final SystemProperties config, final Set<DbSource> dbSources, final AbstractCachedSource<byte[], byte[]> stateDbCache) {
         this.config = config;
         this.dbSources = dbSources;
         sizeThreshold = config.getConfig().getInt("cache.flush.writeCacheSize") * 1024 * 1024;
@@ -47,11 +73,11 @@ public class DbFlushManager {
     }
 
     @Autowired
-    public void setEthereumListener(CompositeEthereumListener listener) {
+    public void setEthereumListener(final CompositeEthereumListener listener) {
         if (!flushAfterSyncDone) return;
         listener.addListener(new EthereumListenerAdapter() {
             @Override
-            public void onSyncDone(SyncState state) {
+            public void onSyncDone(final SyncState state) {
                 if (state == SyncState.COMPLETE) {
                     logger.info("DbFlushManager: long sync done, flushing each block now");
                     syncDone = true;
@@ -60,29 +86,29 @@ public class DbFlushManager {
         });
     }
 
-    public void setSizeThreshold(long sizeThreshold) {
+    public void setSizeThreshold(final long sizeThreshold) {
         this.sizeThreshold = sizeThreshold;
     }
 
-    public void addCache(AbstractCachedSource<byte[], byte[]> cache) {
+    public void addCache(final AbstractCachedSource<byte[], byte[]> cache) {
         writeCaches.add(cache);
     }
 
     private long getCacheSize() {
         long ret = 0;
-        for (AbstractCachedSource<byte[], byte[]> writeCache : writeCaches) {
+        for (final AbstractCachedSource<byte[], byte[]> writeCache : writeCaches) {
             ret += writeCache.estimateCacheSize();
         }
         return ret;
     }
 
-    public synchronized void commit(Runnable atomicUpdate) {
+    public synchronized void commit(final Runnable atomicUpdate) {
         atomicUpdate.run();
         commit();
     }
 
     public synchronized void commit() {
-        long cacheSize = getCacheSize();
+        final long cacheSize = getCacheSize();
         if (sizeThreshold >= 0 && cacheSize >= sizeThreshold) {
             logger.info("DbFlushManager: flushing db due to write cache size (" + cacheSize + ") reached threshold (" + sizeThreshold + ")");
             flush();
@@ -100,7 +126,7 @@ public class DbFlushManager {
     public synchronized void flushSync() {
         try {
             flush().get();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -110,17 +136,17 @@ public class DbFlushManager {
             logger.info("Waiting for previous flush to complete...");
             try {
                 lastFlush.get();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 logger.error("Error during last flush", e);
             }
         }
         logger.debug("Flipping async storages");
-        for (AbstractCachedSource<byte[], byte[]> writeCache : writeCaches) {
+        for (final AbstractCachedSource<byte[], byte[]> writeCache : writeCaches) {
             try {
                 if (writeCache instanceof AsyncFlushable) {
                     ((AsyncFlushable) writeCache).flipStorage();
                 }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -130,14 +156,14 @@ public class DbFlushManager {
             @Override
             public Boolean call() throws Exception {
                 boolean ret = false;
-                long s = System.nanoTime();
+                final long s = System.nanoTime();
                 logger.info("Flush started");
 
-                for (AbstractCachedSource<byte[], byte[]> writeCache : writeCaches) {
+                for (final AbstractCachedSource<byte[], byte[]> writeCache : writeCaches) {
                     if (writeCache instanceof AsyncFlushable) {
                         try {
                             ret |= ((AsyncFlushable) writeCache).flushAsync().get();
-                        } catch (InterruptedException e) {
+                        } catch (final InterruptedException e) {
                             throw new RuntimeException(e);
                         }
                     } else {
@@ -162,11 +188,11 @@ public class DbFlushManager {
         logger.info("Flushing DBs...");
         flushSync();
         logger.info("Flush done.");
-        for (DbSource dbSource : dbSources) {
+        for (final DbSource dbSource : dbSources) {
             logger.info("Closing DB: {}", dbSource.getName());
             try {
                 dbSource.close();
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 logger.error(String.format("Caught error while closing DB: %s", dbSource.getName()), ex);
             }
         }

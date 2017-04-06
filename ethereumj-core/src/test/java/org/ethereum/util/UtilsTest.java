@@ -1,7 +1,32 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.util;
 
 import org.junit.Test;
-
 import org.spongycastle.util.Arrays;
 import org.spongycastle.util.encoders.Hex;
 
@@ -19,8 +44,8 @@ public class UtilsTest {
     public void testGetValueShortString1() {
 
         int aaa;
-        String expected = "123\u00b7(10^24)";
-        String result = Utils.getValueShortString(new BigInteger("123456789123445654363653463"));
+        final String expected = "123\u00b7(10^24)";
+        final String result = Utils.getValueShortString(new BigInteger("123456789123445654363653463"));
 
         assertEquals(expected, result);
     }
@@ -28,8 +53,8 @@ public class UtilsTest {
     @Test
     public void testGetValueShortString2() {
 
-        String expected = "123\u00b7(10^3)";
-        String result = Utils.getValueShortString(new BigInteger("123456"));
+        final String expected = "123\u00b7(10^3)";
+        final String result = Utils.getValueShortString(new BigInteger("123456"));
 
         assertEquals(expected, result);
     }
@@ -37,8 +62,8 @@ public class UtilsTest {
     @Test
     public void testGetValueShortString3() {
 
-        String expected = "1\u00b7(10^3)";
-        String result = Utils.getValueShortString(new BigInteger("1234"));
+        final String expected = "1\u00b7(10^3)";
+        final String result = Utils.getValueShortString(new BigInteger("1234"));
 
         assertEquals(expected, result);
     }
@@ -46,8 +71,8 @@ public class UtilsTest {
     @Test
     public void testGetValueShortString4() {
 
-        String expected = "123\u00b7(10^0)";
-        String result = Utils.getValueShortString(new BigInteger("123"));
+        final String expected = "123\u00b7(10^0)";
+        final String result = Utils.getValueShortString(new BigInteger("123"));
 
         assertEquals(expected, result);
     }
@@ -55,9 +80,9 @@ public class UtilsTest {
     @Test
     public void testGetValueShortString5() {
 
-        byte[] decimal = Hex.decode("3913517ebd3c0c65000000");
-        String expected = "69\u00b7(10^24)";
-        String result = Utils.getValueShortString(new BigInteger(decimal));
+        final byte[] decimal = Hex.decode("3913517ebd3c0c65000000");
+        final String expected = "69\u00b7(10^24)";
+        final String result = Utils.getValueShortString(new BigInteger(decimal));
 
         assertEquals(expected, result);
     }

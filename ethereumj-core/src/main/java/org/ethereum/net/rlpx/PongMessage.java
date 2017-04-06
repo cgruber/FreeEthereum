@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
@@ -15,21 +41,21 @@ public class PongMessage extends Message {
     private byte[] token; // token is the MDC of the ping
     private long expires;
 
-    public static PongMessage create(byte[] token, Node toNode, ECKey privKey) {
+    public static PongMessage create(final byte[] token, final Node toNode, final ECKey privKey) {
 
-        long expiration = 90 * 60 + System.currentTimeMillis() / 1000;
+        final long expiration = 90 * 60 + System.currentTimeMillis() / 1000;
 
-        byte[] rlpToList = toNode.getBriefRLP();
+        final byte[] rlpToList = toNode.getBriefRLP();
 
         /* RLP Encode data */
-        byte[] rlpToken = RLP.encodeElement(token);
-        byte[] tmpExp = longToBytes(expiration);
-        byte[] rlpExp = RLP.encodeElement(stripLeadingZeroes(tmpExp));
+        final byte[] rlpToken = RLP.encodeElement(token);
+        final byte[] tmpExp = longToBytes(expiration);
+        final byte[] rlpExp = RLP.encodeElement(stripLeadingZeroes(tmpExp));
 
-        byte[] type = new byte[]{2};
-        byte[] data = RLP.encodeList(rlpToList, rlpToken, rlpExp);
+        final byte[] type = new byte[]{2};
+        final byte[] data = RLP.encodeList(rlpToList, rlpToken, rlpExp);
 
-        PongMessage pong = new PongMessage();
+        final PongMessage pong = new PongMessage();
         pong.encode(type, data, privKey);
 
         pong.token = token;
@@ -38,20 +64,20 @@ public class PongMessage extends Message {
         return pong;
     }
 
-    public static PongMessage create(byte[] token, ECKey privKey) {
+    public static PongMessage create(final byte[] token, final ECKey privKey) {
         return create(token, privKey, 3 + System.currentTimeMillis() / 1000);
     }
 
-    static PongMessage create(byte[] token, ECKey privKey, long expiration) {
+    static PongMessage create(final byte[] token, final ECKey privKey, final long expiration) {
 
         /* RLP Encode data */
-        byte[] rlpToken = RLP.encodeElement(token);
-        byte[] rlpExp = RLP.encodeElement(ByteUtil.longToBytes(expiration));
+        final byte[] rlpToken = RLP.encodeElement(token);
+        final byte[] rlpExp = RLP.encodeElement(ByteUtil.longToBytes(expiration));
 
-        byte[] type = new byte[]{2};
-        byte[] data = RLP.encodeList(rlpToken, rlpExp);
+        final byte[] type = new byte[]{2};
+        final byte[] data = RLP.encodeList(rlpToken, rlpExp);
 
-        PongMessage pong = new PongMessage();
+        final PongMessage pong = new PongMessage();
         pong.encode(type, data, privKey);
 
         pong.token = token;
@@ -62,11 +88,11 @@ public class PongMessage extends Message {
 
 
     @Override
-    public void parse(byte[] data) {
-        RLPList list = (RLPList) RLP.decode2OneItem(data, 0);
+    public void parse(final byte[] data) {
+        final RLPList list = (RLPList) RLP.decode2OneItem(data, 0);
 
         this.token = list.get(0).getRLPData();
-        RLPItem expires = (RLPItem) list.get(1);
+        final RLPItem expires = (RLPItem) list.get(1);
         this.expires = ByteUtil.byteArrayToLong(expires.getRLPData());
     }
 
@@ -81,9 +107,9 @@ public class PongMessage extends Message {
 
     @Override
     public String toString() {
-        long currTime = System.currentTimeMillis() / 1000;
+        final long currTime = System.currentTimeMillis() / 1000;
 
-        String out = String.format("[PongMessage] \n token: %s \n expires in %d seconds \n %s\n",
+        final String out = String.format("[PongMessage] \n token: %s \n expires in %d seconds \n %s\n",
                 Hex.toHexString(token), (expires - currTime), super.toString());
 
         return out;

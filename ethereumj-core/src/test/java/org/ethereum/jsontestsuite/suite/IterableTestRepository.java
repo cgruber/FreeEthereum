@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.core.AccountState;
@@ -22,7 +48,7 @@ public class IterableTestRepository implements Repository {
     private Set<byte[]> accounts = new ByteArraySet();
     private Map<byte[], Set<DataWord>> storageKeys = new ByteArrayMap<>();
 
-    private IterableTestRepository(Repository src, IterableTestRepository parent) {
+    private IterableTestRepository(final Repository src, final IterableTestRepository parent) {
         this.src = src;
         if (parent != null) {
             this.accounts = parent.accounts;
@@ -31,17 +57,17 @@ public class IterableTestRepository implements Repository {
         }
     }
 
-    public IterableTestRepository(Repository src) {
+    public IterableTestRepository(final Repository src) {
         this(src, null);
     }
 
-    void addAccount(byte[] addr) {
+    void addAccount(final byte[] addr) {
         accounts.add(addr);
     }
 
-    private void addStorageKey(byte[] acct, DataWord key) {
+    private void addStorageKey(final byte[] acct, final DataWord key) {
         addAccount(acct);
-        Set<DataWord> keys = storageKeys.computeIfAbsent(acct, k -> new HashSet<>());
+        final Set<DataWord> keys = storageKeys.computeIfAbsent(acct, k -> new HashSet<>());
         keys.add(key);
     }
 
@@ -51,66 +77,66 @@ public class IterableTestRepository implements Repository {
     }
 
     @Override
-    public Repository getSnapshotTo(byte[] root) {
+    public Repository getSnapshotTo(final byte[] root) {
         return new IterableTestRepository(src.getSnapshotTo(root), this);
     }
 
     @Override
-    public AccountState createAccount(byte[] addr) {
+    public AccountState createAccount(final byte[] addr) {
         addAccount(addr);
         return src.createAccount(addr);
     }
 
     @Override
-    public boolean isExist(byte[] addr) {
+    public boolean isExist(final byte[] addr) {
         return src.isExist(addr);
     }
 
     @Override
-    public AccountState getAccountState(byte[] addr) {
+    public AccountState getAccountState(final byte[] addr) {
         return src.getAccountState(addr);
     }
 
     @Override
-    public void delete(byte[] addr) {
+    public void delete(final byte[] addr) {
         addAccount(addr);
         src.delete(addr);
     }
 
     @Override
-    public BigInteger increaseNonce(byte[] addr) {
+    public BigInteger increaseNonce(final byte[] addr) {
         addAccount(addr);
         return src.increaseNonce(addr);
     }
 
     @Override
-    public BigInteger setNonce(byte[] addr, BigInteger nonce) {
+    public BigInteger setNonce(final byte[] addr, final BigInteger nonce) {
         return src.setNonce(addr, nonce);
     }
 
     @Override
-    public BigInteger getNonce(byte[] addr) {
+    public BigInteger getNonce(final byte[] addr) {
         return src.getNonce(addr);
     }
 
     @Override
-    public ContractDetails getContractDetails(byte[] addr) {
+    public ContractDetails getContractDetails(final byte[] addr) {
         return new IterableContractDetails(src.getContractDetails(addr));
     }
 
     @Override
-    public boolean hasContractDetails(byte[] addr) {
+    public boolean hasContractDetails(final byte[] addr) {
         return src.hasContractDetails(addr);
     }
 
     @Override
-    public void saveCode(byte[] addr, byte[] code) {
+    public void saveCode(final byte[] addr, final byte[] code) {
         addAccount(addr);
         src.saveCode(addr, code);
     }
 
     @Override
-    public byte[] getCode(byte[] addr) {
+    public byte[] getCode(final byte[] addr) {
         if (environmental) {
             if (!src.isExist(addr)) {
                 createAccount(addr);
@@ -120,23 +146,23 @@ public class IterableTestRepository implements Repository {
     }
 
     @Override
-    public byte[] getCodeHash(byte[] addr) {
+    public byte[] getCodeHash(final byte[] addr) {
         return src.getCodeHash(addr);
     }
 
     @Override
-    public void addStorageRow(byte[] addr, DataWord key, DataWord value) {
+    public void addStorageRow(final byte[] addr, final DataWord key, final DataWord value) {
         addStorageKey(addr, key);
         src.addStorageRow(addr, key, value);
     }
 
     @Override
-    public DataWord getStorageValue(byte[] addr, DataWord key) {
+    public DataWord getStorageValue(final byte[] addr, final DataWord key) {
         return src.getStorageValue(addr, key);
     }
 
     @Override
-    public BigInteger getBalance(byte[] addr) {
+    public BigInteger getBalance(final byte[] addr) {
         if (environmental) {
             if (!src.isExist(addr)) {
                 createAccount(addr);
@@ -146,15 +172,15 @@ public class IterableTestRepository implements Repository {
     }
 
     @Override
-    public BigInteger addBalance(byte[] addr, BigInteger value) {
+    public BigInteger addBalance(final byte[] addr, final BigInteger value) {
         addAccount(addr);
         return src.addBalance(addr, value);
     }
 
     @Override
     public Set<byte[]> getAccountsKeys() {
-        Set<byte[]> ret = new ByteArraySet();
-        for (byte[] account : accounts) {
+        final Set<byte[]> ret = new ByteArraySet();
+        for (final byte[] account : accounts) {
             if (isExist(account)) {
                 ret.add(account);
             }
@@ -163,7 +189,7 @@ public class IterableTestRepository implements Repository {
     }
 
     @Override
-    public void dumpState(Block block, long gasUsed, int txNumber, byte[] txHash) {
+    public void dumpState(final Block block, final long gasUsed, final int txNumber, final byte[] txHash) {
         src.dumpState(block, gasUsed, txNumber, txHash);
     }
 
@@ -188,7 +214,7 @@ public class IterableTestRepository implements Repository {
     }
 
     @Override
-    public void syncToRoot(byte[] root) {
+    public void syncToRoot(final byte[] root) {
         src.syncToRoot(root);
     }
 
@@ -208,14 +234,14 @@ public class IterableTestRepository implements Repository {
     }
 
     @Override
-    public void updateBatch(HashMap<ByteArrayWrapper, AccountState> accountStates, HashMap<ByteArrayWrapper, ContractDetails> contractDetailes) {
+    public void updateBatch(final HashMap<ByteArrayWrapper, AccountState> accountStates, final HashMap<ByteArrayWrapper, ContractDetails> contractDetailes) {
         src.updateBatch(accountStates, contractDetailes);
-        for (ByteArrayWrapper wrapper : accountStates.keySet()) {
+        for (final ByteArrayWrapper wrapper : accountStates.keySet()) {
             addAccount(wrapper.getData());
         }
 
-        for (Map.Entry<ByteArrayWrapper, ContractDetails> entry : contractDetailes.entrySet()) {
-            for (DataWord key : entry.getValue().getStorageKeys()) {
+        for (final Map.Entry<ByteArrayWrapper, ContractDetails> entry : contractDetailes.entrySet()) {
+            for (final DataWord key : entry.getValue().getStorageKeys()) {
                 addStorageKey(entry.getKey().getData(), key);
             }
         }
@@ -227,40 +253,40 @@ public class IterableTestRepository implements Repository {
     }
 
     @Override
-    public void loadAccount(byte[] addr, HashMap<ByteArrayWrapper, AccountState> cacheAccounts, HashMap<ByteArrayWrapper, ContractDetails> cacheDetails) {
+    public void loadAccount(final byte[] addr, final HashMap<ByteArrayWrapper, AccountState> cacheAccounts, final HashMap<ByteArrayWrapper, ContractDetails> cacheDetails) {
         src.loadAccount(addr, cacheAccounts, cacheDetails);
     }
 
     @Override
-    public int getStorageSize(byte[] addr) {
+    public int getStorageSize(final byte[] addr) {
         return src.getStorageSize(addr);
     }
 
     @Override
-    public Set<DataWord> getStorageKeys(byte[] addr) {
+    public Set<DataWord> getStorageKeys(final byte[] addr) {
         return src.getStorageKeys(addr);
     }
 
     @Override
-    public Map<DataWord, DataWord> getStorage(byte[] addr, @Nullable Collection<DataWord> keys) {
+    public Map<DataWord, DataWord> getStorage(final byte[] addr, @Nullable final Collection<DataWord> keys) {
         return src.getStorage(addr, keys);
     }
 
     private class IterableContractDetails implements ContractDetails {
         final ContractDetails src;
 
-        public IterableContractDetails(ContractDetails src) {
+        public IterableContractDetails(final ContractDetails src) {
             this.src = src;
         }
 
         @Override
-        public void put(DataWord key, DataWord value) {
+        public void put(final DataWord key, final DataWord value) {
             addStorageKey(getAddress(), key);
             src.put(key, value);
         }
 
         @Override
-        public DataWord get(DataWord key) {
+        public DataWord get(final DataWord key) {
             return src.get(key);
         }
 
@@ -270,13 +296,13 @@ public class IterableTestRepository implements Repository {
         }
 
         @Override
-        public void setCode(byte[] code) {
+        public void setCode(final byte[] code) {
             addAccount(getAddress());
             src.setCode(code);
         }
 
         @Override
-        public byte[] getCode(byte[] codeHash) {
+        public byte[] getCode(final byte[] codeHash) {
             return src.getCode(codeHash);
         }
 
@@ -286,7 +312,7 @@ public class IterableTestRepository implements Repository {
         }
 
         @Override
-        public void decode(byte[] rlpCode) {
+        public void decode(final byte[] rlpCode) {
             src.decode(rlpCode);
         }
 
@@ -296,7 +322,7 @@ public class IterableTestRepository implements Repository {
         }
 
         @Override
-        public void setDirty(boolean dirty) {
+        public void setDirty(final boolean dirty) {
             src.setDirty(dirty);
         }
 
@@ -306,7 +332,7 @@ public class IterableTestRepository implements Repository {
         }
 
         @Override
-        public void setDeleted(boolean deleted) {
+        public void setDeleted(final boolean deleted) {
             src.setDeleted(deleted);
         }
 
@@ -317,7 +343,7 @@ public class IterableTestRepository implements Repository {
 
         @Override
         public int getStorageSize() {
-            Set<DataWord> set = storageKeys.get(getAddress());
+            final Set<DataWord> set = storageKeys.get(getAddress());
             return set == null ? 0 : set.size();
         }
 
@@ -327,19 +353,19 @@ public class IterableTestRepository implements Repository {
         }
 
         @Override
-        public Map<DataWord, DataWord> getStorage(@Nullable Collection<DataWord> keys) {
+        public Map<DataWord, DataWord> getStorage(@Nullable final Collection<DataWord> keys) {
             throw new RuntimeException();
         }
 
         @Override
         public Map<DataWord, DataWord> getStorage() {
-            Map<DataWord, DataWord> ret = new HashMap<>();
-            Set<DataWord> set = storageKeys.get(getAddress());
+            final Map<DataWord, DataWord> ret = new HashMap<>();
+            final Set<DataWord> set = storageKeys.get(getAddress());
 
             if (set == null) return Collections.emptyMap();
 
-            for (DataWord key : set) {
-                DataWord val = get(key);
+            for (final DataWord key : set) {
+                final DataWord val = get(key);
                 if (val != null && !val.isZero()) {
                     ret.put(key, get(key));
                 }
@@ -348,12 +374,12 @@ public class IterableTestRepository implements Repository {
         }
 
         @Override
-        public void setStorage(Map<DataWord, DataWord> storage) {
+        public void setStorage(final Map<DataWord, DataWord> storage) {
             src.setStorage(storage);
         }
 
         @Override
-        public void setStorage(List<DataWord> storageKeys, List<DataWord> storageValues) {
+        public void setStorage(final List<DataWord> storageKeys, final List<DataWord> storageValues) {
             src.setStorage(storageKeys, storageValues);
         }
 
@@ -363,7 +389,7 @@ public class IterableTestRepository implements Repository {
         }
 
         @Override
-        public void setAddress(byte[] address) {
+        public void setAddress(final byte[] address) {
             src.setAddress(address);
         }
 
@@ -383,7 +409,7 @@ public class IterableTestRepository implements Repository {
         }
 
         @Override
-        public ContractDetails getSnapshotTo(byte[] hash) {
+        public ContractDetails getSnapshotTo(final byte[] hash) {
             return new IterableContractDetails(src.getSnapshotTo(hash));
         }
     }

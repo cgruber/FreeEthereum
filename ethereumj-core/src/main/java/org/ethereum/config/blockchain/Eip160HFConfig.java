@@ -47,7 +47,7 @@ public class Eip160HFConfig extends Eip150HFConfig {
     private static final GasCost NEW_GAS_COST = new GasCostEip160HF();
     private final Constants constants;
 
-    public Eip160HFConfig(BlockchainConfig parent) {
+    public Eip160HFConfig(final BlockchainConfig parent) {
         super(parent);
         constants = new ConstantsAdapter(parent.getConstants()) {
             @Override
@@ -78,7 +78,7 @@ public class Eip160HFConfig extends Eip150HFConfig {
     }
 
     @Override
-    public boolean acceptTransactionSignature(Transaction tx) {
+    public boolean acceptTransactionSignature(final Transaction tx) {
         // Restoring old logic. Making this through inheritance stinks too much
         if (!tx.getSignature().validateComponents() ||
                 tx.getSignature().s.compareTo(SECP256K1N_HALF) > 0) return false;

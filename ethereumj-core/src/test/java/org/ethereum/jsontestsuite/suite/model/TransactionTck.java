@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite.model;
 
 /**
@@ -25,7 +51,7 @@ public class TransactionTck {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(final String data) {
         this.data = data;
     }
 
@@ -33,7 +59,7 @@ public class TransactionTck {
         return gasLimit;
     }
 
-    public void setGasLimit(String gasLimit) {
+    public void setGasLimit(final String gasLimit) {
         this.gasLimit = gasLimit;
     }
 
@@ -41,7 +67,7 @@ public class TransactionTck {
         return gasPrice;
     }
 
-    public void setGasPrice(String gasPrice) {
+    public void setGasPrice(final String gasPrice) {
         this.gasPrice = gasPrice;
     }
 
@@ -49,7 +75,7 @@ public class TransactionTck {
         return nonce;
     }
 
-    public void setNonce(String nonce) {
+    public void setNonce(final String nonce) {
         this.nonce = nonce;
     }
 
@@ -57,7 +83,7 @@ public class TransactionTck {
         return r;
     }
 
-    public void setR(String r) {
+    public void setR(final String r) {
         this.r = r;
     }
 
@@ -65,7 +91,7 @@ public class TransactionTck {
         return s;
     }
 
-    public void setS(String s) {
+    public void setS(final String s) {
         this.s = s;
     }
 
@@ -73,7 +99,7 @@ public class TransactionTck {
         return to;
     }
 
-    public void setTo(String to) {
+    public void setTo(final String to) {
         this.to = to;
     }
 
@@ -81,7 +107,7 @@ public class TransactionTck {
         return v;
     }
 
-    public void setV(String v) {
+    public void setV(final String v) {
         this.v = v;
     }
 
@@ -89,7 +115,7 @@ public class TransactionTck {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(final String value) {
         this.value = value;
     }
 
@@ -97,7 +123,7 @@ public class TransactionTck {
         return secretKey;
     }
 
-    public void setSecretKey(String secretKey) {
+    public void setSecretKey(final String secretKey) {
         this.secretKey = secretKey;
     }
 

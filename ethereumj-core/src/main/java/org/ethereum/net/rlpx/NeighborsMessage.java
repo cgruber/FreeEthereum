@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
@@ -13,29 +39,29 @@ public class NeighborsMessage extends Message {
     private List<Node> nodes;
     private long expires;
 
-    public static NeighborsMessage create(List<Node> nodes, ECKey privKey) {
+    public static NeighborsMessage create(final List<Node> nodes, final ECKey privKey) {
 
-        long expiration = 90 * 60 + System.currentTimeMillis() / 1000;
+        final long expiration = 90 * 60 + System.currentTimeMillis() / 1000;
 
         byte[][] nodeRLPs = null;
 
         if (nodes != null) {
             nodeRLPs = new byte[nodes.size()][];
             int i = 0;
-            for (Node node : nodes) {
+            for (final Node node : nodes) {
                 nodeRLPs[i] = node.getRLP();
                 ++i;
             }
         }
 
-        byte[] rlpListNodes = RLP.encodeList(nodeRLPs);
+        final byte[] rlpListNodes = RLP.encodeList(nodeRLPs);
         byte[] rlpExp = longToBytesNoLeadZeroes(expiration);
         rlpExp = RLP.encodeElement(rlpExp);
 
-        byte[] type = new byte[]{4};
-        byte[] data = RLP.encodeList(rlpListNodes, rlpExp);
+        final byte[] type = new byte[]{4};
+        final byte[] data = RLP.encodeList(rlpListNodes, rlpExp);
 
-        NeighborsMessage neighborsMessage = new NeighborsMessage();
+        final NeighborsMessage neighborsMessage = new NeighborsMessage();
         neighborsMessage.encode(type, data, privKey);
         neighborsMessage.nodes = nodes;
         neighborsMessage.expires = expiration;
@@ -44,17 +70,17 @@ public class NeighborsMessage extends Message {
     }
 
     @Override
-    public void parse(byte[] data) {
-        RLPList list = (RLPList) RLP.decode2OneItem(data, 0);
+    public void parse(final byte[] data) {
+        final RLPList list = (RLPList) RLP.decode2OneItem(data, 0);
 
-        RLPList nodesRLP = (RLPList) list.get(0);
-        RLPItem expires = (RLPItem) list.get(1);
+        final RLPList nodesRLP = (RLPList) list.get(0);
+        final RLPItem expires = (RLPItem) list.get(1);
 
         nodes = new ArrayList<>();
 
-        for (RLPElement aNodesRLP : nodesRLP) {
-            RLPList nodeRLP = (RLPList) aNodesRLP;
-            Node node = new Node(nodeRLP.getRLPData());
+        for (final RLPElement aNodesRLP : nodesRLP) {
+            final RLPList nodeRLP = (RLPList) aNodesRLP;
+            final Node node = new Node(nodeRLP.getRLPData());
             nodes.add(node);
         }
         this.expires = ByteUtil.byteArrayToLong(expires.getRLPData());
@@ -72,9 +98,9 @@ public class NeighborsMessage extends Message {
     @Override
     public String toString() {
 
-        long currTime = System.currentTimeMillis() / 1000;
+        final long currTime = System.currentTimeMillis() / 1000;
 
-        String out = String.format("[NeighborsMessage] \n nodes [%d]: %s \n expires in %d seconds \n %s\n",
+        final String out = String.format("[NeighborsMessage] \n nodes [%d]: %s \n expires in %d seconds \n %s\n",
                 this.getNodes().size(), this.getNodes(), (expires - currTime), super.toString());
 
         return out;

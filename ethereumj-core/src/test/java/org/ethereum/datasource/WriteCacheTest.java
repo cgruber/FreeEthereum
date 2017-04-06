@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.datasource;
 
 import org.ethereum.datasource.inmem.HashMapDB;
@@ -14,23 +40,23 @@ import static org.junit.Assert.*;
  */
 public class WriteCacheTest {
 
-    private byte[] intToKey(int i) {
+    private byte[] intToKey(final int i) {
         return sha3(longToBytes(i));
     }
 
-    private byte[] intToValue(int i) {
+    private byte[] intToValue(final int i) {
         return (new DataWord(i)).getData();
     }
 
-    private String str(Object obj) {
+    private String str(final Object obj) {
         if (obj == null) return null;
         return Hex.toHexString((byte[]) obj);
     }
 
     @Test
     public void testSimple() {
-        Source<byte[], byte[]> src = new HashMapDB<>();
-        WriteCache<byte[], byte[]> writeCache = new WriteCache.BytesKey<>(src, WriteCache.CacheType.SIMPLE);
+        final Source<byte[], byte[]> src = new HashMapDB<>();
+        final WriteCache<byte[], byte[]> writeCache = new WriteCache.BytesKey<>(src, WriteCache.CacheType.SIMPLE);
         for (int i = 0; i < 10_000; ++i) {
             writeCache.put(intToKey(i), intToValue(i));
         }
@@ -68,9 +94,9 @@ public class WriteCacheTest {
 
     @Test
     public void testCounting() {
-        Source<byte[], byte[]> parentSrc = new HashMapDB<>();
-        Source<byte[], byte[]> src = new CountingBytesSource(parentSrc);
-        WriteCache<byte[], byte[]> writeCache = new WriteCache.BytesKey<>(src, WriteCache.CacheType.COUNTING);
+        final Source<byte[], byte[]> parentSrc = new HashMapDB<>();
+        final Source<byte[], byte[]> src = new CountingBytesSource(parentSrc);
+        final WriteCache<byte[], byte[]> writeCache = new WriteCache.BytesKey<>(src, WriteCache.CacheType.COUNTING);
         for (int i = 0; i < 100; ++i) {
             for (int j = 0; j <= i; ++j) {
                 writeCache.put(intToKey(i), intToValue(i));
@@ -116,14 +142,14 @@ public class WriteCacheTest {
 
     @Test
     public void testWithSizeEstimator() {
-        Source<byte[], byte[]> src = new HashMapDB<>();
-        WriteCache<byte[], byte[]> writeCache = new WriteCache.BytesKey<>(src, WriteCache.CacheType.SIMPLE);
+        final Source<byte[], byte[]> src = new HashMapDB<>();
+        final WriteCache<byte[], byte[]> writeCache = new WriteCache.BytesKey<>(src, WriteCache.CacheType.SIMPLE);
         writeCache.withSizeEstimators(MemSizeEstimator.ByteArrayEstimator, MemSizeEstimator.ByteArrayEstimator);
         assertEquals(0, writeCache.estimateCacheSize());
 
         writeCache.put(intToKey(0), intToValue(0));
         assertNotEquals(0, writeCache.estimateCacheSize());
-        long oneObjSize = writeCache.estimateCacheSize();
+        final long oneObjSize = writeCache.estimateCacheSize();
 
         for (int i = 0; i < 100; ++i) {
             for (int j = 0; j <= i; ++j) {

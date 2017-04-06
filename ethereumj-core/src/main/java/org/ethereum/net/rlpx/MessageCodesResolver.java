@@ -45,18 +45,18 @@ public class MessageCodesResolver {
     public MessageCodesResolver() {
     }
 
-    public MessageCodesResolver(List<Capability> caps) {
+    public MessageCodesResolver(final List<Capability> caps) {
         init(caps);
     }
 
-    public void init(List<Capability> caps) {
+    public void init(final List<Capability> caps) {
         Collections.sort(caps);
         int offset = P2pMessageCodes.USER.asByte() + 1;
 
-        for (Capability capability : caps) {
+        for (final Capability capability : caps) {
             if (capability.getName().equals(Capability.ETH)) {
                 setEthOffset(offset);
-                EthVersion v = EthVersion.Companion.fromCode(capability.getVersion());
+                final EthVersion v = EthVersion.Companion.fromCode(capability.getVersion());
                 offset += EthMessageCodes.values(v).length;
             }
 
@@ -73,66 +73,66 @@ public class MessageCodesResolver {
         }
     }
 
-    public byte withP2pOffset(byte code) {
+    public byte withP2pOffset(final byte code) {
         return withOffset(code, Capability.P2P);
     }
 
-    public byte withBzzOffset(byte code) {
+    public byte withBzzOffset(final byte code) {
         return withOffset(code, Capability.BZZ);
     }
 
-    public byte withEthOffset(byte code) {
+    public byte withEthOffset(final byte code) {
         return withOffset(code, Capability.ETH);
     }
 
-    public byte withShhOffset(byte code) {
+    public byte withShhOffset(final byte code) {
         return withOffset(code, Capability.SHH);
     }
 
-    private byte withOffset(byte code, String cap) {
-        byte offset = getOffset(cap);
+    private byte withOffset(final byte code, final String cap) {
+        final byte offset = getOffset(cap);
         return (byte)(code + offset);
     }
 
-    public byte resolveP2p(byte code) {
+    public byte resolveP2p(final byte code) {
         return resolve(code, Capability.P2P);
     }
 
-    public byte resolveBzz(byte code) {
+    public byte resolveBzz(final byte code) {
         return resolve(code, Capability.BZZ);
     }
 
-    public byte resolveEth(byte code) {
+    public byte resolveEth(final byte code) {
         return resolve(code, Capability.ETH);
     }
 
-    public byte resolveShh(byte code) {
+    public byte resolveShh(final byte code) {
         return resolve(code, Capability.SHH);
     }
 
-    private byte resolve(byte code, String cap) {
-        byte offset = getOffset(cap);
+    private byte resolve(final byte code, final String cap) {
+        final byte offset = getOffset(cap);
         return (byte)(code - offset);
     }
 
-    private byte getOffset(String cap) {
-        Integer offset = offsets.get(cap);
+    private byte getOffset(final String cap) {
+        final Integer offset = offsets.get(cap);
         return offset == null ? 0 : offset.byteValue();
     }
 
-    private void setBzzOffset(int offset) {
+    private void setBzzOffset(final int offset) {
         setOffset(Capability.BZZ, offset);
     }
 
-    public void setEthOffset(int offset) {
+    public void setEthOffset(final int offset) {
         setOffset(Capability.ETH, offset);
     }
 
-    public void setShhOffset(int offset) {
+    public void setShhOffset(final int offset) {
         setOffset(Capability.SHH, offset);
     }
 
-    private void setOffset(String cap, int offset) {
+    private void setOffset(final String cap, final int offset) {
         offsets.put(cap, offset);
     }
 }

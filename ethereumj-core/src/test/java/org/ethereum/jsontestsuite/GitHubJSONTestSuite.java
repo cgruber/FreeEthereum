@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite;
 
 import org.ethereum.jsontestsuite.suite.*;
@@ -25,16 +51,16 @@ class GitHubJSONTestSuite {
     private static final Logger logger = LoggerFactory.getLogger("TCK-Test");
 
 
-    static void runGitHubJsonVMTest(String json, String testName) throws ParseException {
+    static void runGitHubJsonVMTest(final String json, final String testName) throws ParseException {
         Assume.assumeFalse("Online test is not available", json.equals(""));
 
-        JSONParser parser = new JSONParser();
-        JSONObject testSuiteObj = (JSONObject) parser.parse(json);
+        final JSONParser parser = new JSONParser();
+        final JSONObject testSuiteObj = (JSONObject) parser.parse(json);
 
-        TestSuite testSuite = new TestSuite(testSuiteObj);
-        Iterator<TestCase> testIterator = testSuite.iterator();
+        final TestSuite testSuite = new TestSuite(testSuiteObj);
+        final Iterator<TestCase> testIterator = testSuite.iterator();
 
-        for (TestCase testCase : testSuite.getAllTests()) {
+        for (final TestCase testCase : testSuite.getAllTests()) {
 
             String prefix = "    ";
             if (testName.equals(testCase.getName())) prefix = " => ";
@@ -44,32 +70,32 @@ class GitHubJSONTestSuite {
 
         while (testIterator.hasNext()) {
 
-            TestCase testCase = testIterator.next();
+            final TestCase testCase = testIterator.next();
             if (testName.equals((testCase.getName()))) {
-                TestRunner runner = new TestRunner();
-                List<String> result = runner.runTestCase(testCase);
+                final TestRunner runner = new TestRunner();
+                final List<String> result = runner.runTestCase(testCase);
                 Assert.assertTrue(result.isEmpty());
                 return;
             }
         }
     }
 
-    static void runGitHubJsonVMTest(String json) throws ParseException {
-        Set<String> excluded = new HashSet<>();
+    static void runGitHubJsonVMTest(final String json) throws ParseException {
+        final Set<String> excluded = new HashSet<>();
         runGitHubJsonVMTest(json, excluded);
     }
 
 
-    static void runGitHubJsonVMTest(String json, Set<String> excluded) throws ParseException {
+    static void runGitHubJsonVMTest(final String json, final Set<String> excluded) throws ParseException {
         Assume.assumeFalse("Online test is not available", json.equals(""));
 
-        JSONParser parser = new JSONParser();
-        JSONObject testSuiteObj = (JSONObject) parser.parse(json);
+        final JSONParser parser = new JSONParser();
+        final JSONObject testSuiteObj = (JSONObject) parser.parse(json);
 
-        TestSuite testSuite = new TestSuite(testSuiteObj);
-        Iterator<TestCase> testIterator = testSuite.iterator();
+        final TestSuite testSuite = new TestSuite(testSuiteObj);
+        final Iterator<TestCase> testIterator = testSuite.iterator();
 
-        for (TestCase testCase : testSuite.getAllTests()) {
+        for (final TestCase testCase : testSuite.getAllTests()) {
 
             String prefix = "    ";
             if (excluded.contains(testCase.getName())) prefix = "[X] ";
@@ -80,15 +106,15 @@ class GitHubJSONTestSuite {
 
         while (testIterator.hasNext()) {
 
-            TestCase testCase = testIterator.next();
+            final TestCase testCase = testIterator.next();
             if (excluded.contains(testCase.getName()))
                 continue;
 
-            TestRunner runner = new TestRunner();
-            List<String> result = runner.runTestCase(testCase);
+            final TestRunner runner = new TestRunner();
+            final List<String> result = runner.runTestCase(testCase);
             try {
                 Assert.assertTrue(result.isEmpty());
-            } catch (AssertionError e) {
+            } catch (final AssertionError e) {
                 System.out.println(String.format("Error on running testcase %s : %s", testCase.getName(), result.get(0)));
                 throw e;
             }
@@ -96,12 +122,12 @@ class GitHubJSONTestSuite {
     }
 
 
-    static void runGitHubJsonSingleBlockTest(String json, String testName) throws ParseException, IOException {
+    static void runGitHubJsonSingleBlockTest(final String json, final String testName) throws ParseException, IOException {
 
-        BlockTestSuite testSuite = new BlockTestSuite(json);
-        Set<String> testCollection = testSuite.getTestCases().keySet();
+        final BlockTestSuite testSuite = new BlockTestSuite(json);
+        final Set<String> testCollection = testSuite.getTestCases().keySet();
 
-        for (String testCase : testCollection) {
+        for (final String testCase : testCollection) {
             if (testCase.equals(testName))
                 logger.info(" => " + testCase);
             else
@@ -112,28 +138,28 @@ class GitHubJSONTestSuite {
     }
 
 
-    static void runGitHubJsonBlockTest(String json, Set<String> excluded) throws ParseException, IOException {
+    static void runGitHubJsonBlockTest(final String json, final Set<String> excluded) throws ParseException, IOException {
         Assume.assumeFalse("Online test is not available", json.equals(""));
 
-        BlockTestSuite testSuite = new BlockTestSuite(json);
-        Set<String> testCases = testSuite.getTestCases().keySet();
-        Map<String, Boolean> summary = new HashMap<>();
+        final BlockTestSuite testSuite = new BlockTestSuite(json);
+        final Set<String> testCases = testSuite.getTestCases().keySet();
+        final Map<String, Boolean> summary = new HashMap<>();
 
-        for (String testCase : testCases)
+        for (final String testCase : testCases)
             if ( excluded.contains(testCase))
                 logger.info(" [X] " + testCase);
             else
                 logger.info("     " + testCase);
 
 
-        for (String testName : testCases) {
+        for (final String testName : testCases) {
 
             if ( excluded.contains(testName)) {
                 logger.info(" Not running: " + testName);
                 continue;
             }
 
-            List<String> result = runSingleBlockTest(testSuite, testName);
+            final List<String> result = runSingleBlockTest(testSuite, testName);
 
             if (!result.isEmpty())
                 summary.put(testName, false);
@@ -148,10 +174,10 @@ class GitHubJSONTestSuite {
         logger.info("=========");
 
         int fails = 0; int pass = 0;
-        for (String key : summary.keySet()){
+        for (final String key : summary.keySet()) {
 
             if (summary.get(key)) ++pass; else ++fails;
-            String sumTest = String.format("%-60s:^%s", key, (summary.get(key) ? "OK" : "FAIL")).
+            final String sumTest = String.format("%-60s:^%s", key, (summary.get(key) ? "OK" : "FAIL")).
                     replace(' ', '.').
                     replace("^", " ");
             logger.info(sumTest);
@@ -163,22 +189,22 @@ class GitHubJSONTestSuite {
 
     }
 
-    protected static void runGitHubJsonBlockTest(String json) throws ParseException, IOException {
-        Set<String> excluded = new HashSet<>();
+    protected static void runGitHubJsonBlockTest(final String json) throws ParseException, IOException {
+        final Set<String> excluded = new HashSet<>();
         runGitHubJsonBlockTest(json, excluded);
     }
 
-    private static List<String> runSingleBlockTest(BlockTestSuite testSuite, String testName){
+    private static List<String> runSingleBlockTest(final BlockTestSuite testSuite, final String testName) {
 
-        BlockTestCase blockTestCase =  testSuite.getTestCases().get(testName);
-        TestRunner runner = new TestRunner();
+        final BlockTestCase blockTestCase = testSuite.getTestCases().get(testName);
+        final TestRunner runner = new TestRunner();
 
         logger.info("\n\n ***************** Running test: {} ***************************** \n\n", testName);
-        List<String> result = runner.runTestCase(blockTestCase);
+        final List<String> result = runner.runTestCase(blockTestCase);
 
         logger.info("--------- POST Validation---------");
         if (!result.isEmpty())
-            for (String single : result)
+            for (final String single : result)
                 logger.info(single);
 
 
@@ -186,32 +212,32 @@ class GitHubJSONTestSuite {
     }
 
 
-    public static void runStateTest(String jsonSuite) throws IOException {
+    public static void runStateTest(final String jsonSuite) throws IOException {
         runStateTest(jsonSuite, new HashSet<>());
     }
 
 
-    public static void runStateTest(String jsonSuite, String testName) throws IOException {
+    public static void runStateTest(final String jsonSuite, final String testName) throws IOException {
 
-        StateTestSuite stateTestSuite = new StateTestSuite(jsonSuite);
-        Map<String, StateTestCase> testCases = stateTestSuite.getTestCases();
+        final StateTestSuite stateTestSuite = new StateTestSuite(jsonSuite);
+        final Map<String, StateTestCase> testCases = stateTestSuite.getTestCases();
 
-        for (String testCase : testCases.keySet()) {
+        for (final String testCase : testCases.keySet()) {
             if (testCase.equals(testName))
                 logger.info("  => " + testCase);
             else
                 logger.info("     " + testCase);
         }
 
-        StateTestCase testCase = testCases.get(testName);
+        final StateTestCase testCase = testCases.get(testName);
         if (testCase != null){
-            String output = String.format("*  running: %s  *", testName);
-            String line = output.replaceAll(".", "*");
+            final String output = String.format("*  running: %s  *", testName);
+            final String line = output.replaceAll(".", "*");
 
             logger.info(line);
             logger.info(output);
             logger.info(line);
-            List<String> fails = StateTestRunner.run(testCases.get(testName));
+            final List<String> fails = StateTestRunner.run(testCases.get(testName));
 
             Assert.assertTrue(fails.isEmpty());
 
@@ -220,32 +246,32 @@ class GitHubJSONTestSuite {
         }
     }
 
-    public static void runStateTest(String jsonSuite, Set<String> excluded) throws IOException {
+    public static void runStateTest(final String jsonSuite, final Set<String> excluded) throws IOException {
 
-        StateTestSuite stateTestSuite = new StateTestSuite(jsonSuite);
-        Map<String, StateTestCase> testCases = stateTestSuite.getTestCases();
-        Map<String, Boolean> summary = new HashMap<>();
+        final StateTestSuite stateTestSuite = new StateTestSuite(jsonSuite);
+        final Map<String, StateTestCase> testCases = stateTestSuite.getTestCases();
+        final Map<String, Boolean> summary = new HashMap<>();
 
 
-        for (String testCase : testCases.keySet()) {
+        for (final String testCase : testCases.keySet()) {
             if ( excluded.contains(testCase))
                 logger.info(" [X] " + testCase);
             else
                 logger.info("     " + testCase);
         }
 
-        Set<String> testNames = stateTestSuite.getTestCases().keySet();
-        for (String testName : testNames){
+        final Set<String> testNames = stateTestSuite.getTestCases().keySet();
+        for (final String testName : testNames) {
 
             if (excluded.contains(testName)) continue;
-            String output = String.format("*  running: %s  *", testName);
-            String line = output.replaceAll(".", "*");
+            final String output = String.format("*  running: %s  *", testName);
+            final String line = output.replaceAll(".", "*");
 
             logger.info(line);
             logger.info(output);
             logger.info(line);
 
-            List<String> result = StateTestRunner.run(testCases.get(testName));
+            final List<String> result = StateTestRunner.run(testCases.get(testName));
             if (!result.isEmpty())
                 summary.put(testName, false);
             else
@@ -256,10 +282,10 @@ class GitHubJSONTestSuite {
         logger.info("=========");
 
         int fails = 0; int pass = 0;
-        for (String key : summary.keySet()){
+        for (final String key : summary.keySet()) {
 
             if (summary.get(key)) ++pass; else ++fails;
-            String sumTest = String.format("%-60s:^%s", key, (summary.get(key) ? "OK" : "FAIL")).
+            final String sumTest = String.format("%-60s:^%s", key, (summary.get(key) ? "OK" : "FAIL")).
                     replace(' ', '.').
                     replace("^", " ");
             logger.info(sumTest);
@@ -270,33 +296,33 @@ class GitHubJSONTestSuite {
         Assert.assertTrue(fails == 0);
     }
 
-    public static void runGitHubJsonTransactionTest(String json, Set<String> excluded) throws IOException, ParseException {
+    public static void runGitHubJsonTransactionTest(final String json, final Set<String> excluded) throws IOException, ParseException {
 
-        TransactionTestSuite transactionTestSuite = new TransactionTestSuite(json);
-        Map<String, TransactionTestCase> testCases = transactionTestSuite.getTestCases();
-        Map<String, Boolean> summary = new HashMap<>();
+        final TransactionTestSuite transactionTestSuite = new TransactionTestSuite(json);
+        final Map<String, TransactionTestCase> testCases = transactionTestSuite.getTestCases();
+        final Map<String, Boolean> summary = new HashMap<>();
 
 
-        for (String testCase : testCases.keySet()) {
+        for (final String testCase : testCases.keySet()) {
             if ( excluded.contains(testCase))
                 logger.info(" [X] " + testCase);
             else
                 logger.info("     " + testCase);
         }
 
-        Set<String> testNames = transactionTestSuite.getTestCases().keySet();
-        for (String testName : testNames){
+        final Set<String> testNames = transactionTestSuite.getTestCases().keySet();
+        for (final String testName : testNames) {
 
             if (excluded.contains(testName)) continue;
-            String output = String.format("*  running: %s  *", testName);
-            String line = output.replaceAll(".", "*");
+            final String output = String.format("*  running: %s  *", testName);
+            final String line = output.replaceAll(".", "*");
 
             logger.info(line);
             logger.info(output);
             logger.info(line);
 
             logger.info("==> Running test case: {}", testName);
-            List<String> result = TransactionTestRunner.run(testCases.get(testName));
+            final List<String> result = TransactionTestRunner.run(testCases.get(testName));
             if (!result.isEmpty())
                 summary.put(testName, false);
             else
@@ -307,10 +333,10 @@ class GitHubJSONTestSuite {
         logger.info("=========");
 
         int fails = 0; int pass = 0;
-        for (String key : summary.keySet()){
+        for (final String key : summary.keySet()) {
 
             if (summary.get(key)) ++pass; else ++fails;
-            String sumTest = String.format("%-60s:^%s", key, (summary.get(key) ? "OK" : "FAIL")).
+            final String sumTest = String.format("%-60s:^%s", key, (summary.get(key) ? "OK" : "FAIL")).
                     replace(' ', '.').
                     replace("^", " ");
             logger.info(sumTest);

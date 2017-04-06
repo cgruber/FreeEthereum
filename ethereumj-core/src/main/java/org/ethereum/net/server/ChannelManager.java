@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.server;
 
 import org.apache.commons.collections4.map.LRUMap;
@@ -68,7 +94,7 @@ public class ChannelManager {
     @Autowired
     private ChannelManager(final SystemProperties config, final SyncManager syncManager,
                            final PeerServer peerServer) {
-        SystemProperties config1 = config;
+        final SystemProperties config1 = config;
         this.syncManager = syncManager;
         this.peerServer = peerServer;
         maxActivePeers = config.maxActivePeers();
@@ -76,7 +102,7 @@ public class ChannelManager {
         mainWorker.scheduleWithFixedDelay(() -> {
             try {
                 processNewPeers();
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
                 logger.error("Error", t);
             }
         }, 0, 1, TimeUnit.SECONDS);
@@ -99,7 +125,7 @@ public class ChannelManager {
         this.txDistributeThread.start();
     }
 
-    public void connect(Node node) {
+    public void connect(final Node node) {
         if (logger.isTraceEnabled()) logger.trace(
                 "Peer {}: initiate connection",
                 node.getHexIdShort()
@@ -116,11 +142,11 @@ public class ChannelManager {
     }
 
     private Set<String> nodesInUse() {
-        Set<String> ids = new HashSet<>();
-        for (Channel peer : getActivePeers()) {
+        final Set<String> ids = new HashSet<>();
+        for (final Channel peer : getActivePeers()) {
             ids.add(peer.getPeerId());
         }
-        for (Channel peer : newPeers) {
+        for (final Channel peer : newPeers) {
             ids.add(peer.getPeerId());
         }
         return ids;
@@ -129,10 +155,10 @@ public class ChannelManager {
     private void processNewPeers() {
         if (newPeers.isEmpty()) return;
 
-        List<Channel> processed = new ArrayList<>();
+        final List<Channel> processed = new ArrayList<>();
 
         int addCnt = 0;
-        for(Channel peer : newPeers) {
+        for (final Channel peer : newPeers) {
 
             logger.debug("Processing new peer: " + peer);
 
@@ -167,14 +193,14 @@ public class ChannelManager {
         newPeers.removeAll(processed);
     }
 
-    private void disconnect(Channel peer, ReasonCode reason) {
+    private void disconnect(final Channel peer, final ReasonCode reason) {
         logger.debug("Disconnecting peer with reason " + reason + ": " + peer);
         peer.disconnect(reason);
         recentlyDisconnected.put(peer.getInetSocketAddress().getAddress(), new Date());
     }
 
-    public boolean isRecentlyDisconnected(InetAddress peerAddr) {
-        Date disconnectTime = recentlyDisconnected.get(peerAddr);
+    public boolean isRecentlyDisconnected(final InetAddress peerAddr) {
+        final Date disconnectTime = recentlyDisconnected.get(peerAddr);
         if (disconnectTime != null &&
                 System.currentTimeMillis() - disconnectTime.getTime() < inboundConnectionBanTimeout) {
             return true;
@@ -184,7 +210,7 @@ public class ChannelManager {
         }
     }
 
-    private void process(Channel peer) {
+    private void process(final Channel peer) {
         if(peer.hasEthStatusSucceeded()) {
             // prohibit transactions processing until main sync is done
             if (syncManager.isSyncDone()) {
@@ -203,8 +229,8 @@ public class ChannelManager {
      * @param receivedFrom the peer which sent original message or null if
      *                     the transactions were originated by this peer
      */
-    public void sendTransaction(List<Transaction> tx, Channel receivedFrom) {
-        for (Channel channel : activePeers.values()) {
+    public void sendTransaction(final List<Transaction> tx, final Channel receivedFrom) {
+        for (final Channel channel : activePeers.values()) {
             if (channel != receivedFrom) {
                 channel.sendTransaction(tx);
             }
@@ -217,8 +243,8 @@ public class ChannelManager {
      * Use {@link #sendNewBlock(Block, Channel)} for sending blocks received from net
      * @param block  new Block to be sent
      */
-    public void sendNewBlock(Block block) {
-        for (Channel channel : activePeers.values()) {
+    public void sendNewBlock(final Block block) {
+        for (final Channel channel : activePeers.values()) {
             channel.sendNewBlock(block);
         }
     }
@@ -227,7 +253,7 @@ public class ChannelManager {
      * Called on new blocks received from other peers
      * @param blockWrapper  Block with additional info
      */
-    public void onNewForeignBlock(BlockWrapper blockWrapper) {
+    public void onNewForeignBlock(final BlockWrapper blockWrapper) {
         newForeignBlocks.add(blockWrapper);
     }
 
@@ -239,11 +265,11 @@ public class ChannelManager {
             BlockWrapper wrapper = null;
             try {
                 wrapper = newForeignBlocks.take();
-                Channel receivedFrom = getActivePeer(wrapper.getNodeId());
+                final Channel receivedFrom = getActivePeer(wrapper.getNodeId());
                 sendNewBlock(wrapper.getBlock(), receivedFrom);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 break;
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 if (wrapper != null) {
                     logger.error("Error broadcasting new block {}: ", wrapper.getBlock().getShortDescr(), e);
                     logger.error("Block dump: {}", wrapper.getBlock());
@@ -262,13 +288,13 @@ public class ChannelManager {
             Channel channel = null;
             try {
                 channel = newActivePeers.take();
-                List<Transaction> pendingTransactions = pendingState.getPendingTransactions();
+                final List<Transaction> pendingTransactions = pendingState.getPendingTransactions();
                 if (!pendingTransactions.isEmpty()) {
                     channel.sendTransaction(pendingTransactions);
                 }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 break;
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 if (channel != null) {
                     logger.error("Error sending transactions to peer {}: ", channel.getNode().getHexIdShort(), e);
                 } else {
@@ -285,8 +311,8 @@ public class ChannelManager {
      * @param block  new Block to be sent
      * @param receivedFrom the peer which sent original message
      */
-    private void sendNewBlock(Block block, Channel receivedFrom) {
-        for (Channel channel : activePeers.values()) {
+    private void sendNewBlock(final Block block, final Channel receivedFrom) {
+        for (final Channel channel : activePeers.values()) {
             if (channel == receivedFrom) continue;
             if (rnd.nextInt(10) < 3) {  // 30%
                 channel.sendNewBlock(block);
@@ -296,12 +322,12 @@ public class ChannelManager {
         }
     }
 
-    public void add(Channel peer) {
+    public void add(final Channel peer) {
         logger.debug("New peer in ChannelManager {}", peer);
         newPeers.add(peer);
     }
 
-    public void notifyDisconnect(Channel channel) {
+    public void notifyDisconnect(final Channel channel) {
         logger.debug("Peer {}: notifies about disconnect", channel);
         channel.onDisconnect();
         syncPool.onDisconnect(channel);
@@ -309,8 +335,8 @@ public class ChannelManager {
         newPeers.remove(channel);
     }
 
-    public void onSyncDone(boolean done) {
-        for (Channel channel : activePeers.values())
+    public void onSyncDone(final boolean done) {
+        for (final Channel channel : activePeers.values())
             channel.onSyncDone(done);
     }
 
@@ -318,7 +344,7 @@ public class ChannelManager {
         return new ArrayList<>(activePeers.values());
     }
 
-    public Channel getActivePeer(byte[] nodeId) {
+    public Channel getActivePeer(final byte[] nodeId) {
         return activePeers.get(new ByteArrayWrapper(nodeId));
     }
 
@@ -331,18 +357,18 @@ public class ChannelManager {
             logger.info("Shutting down ChannelManager worker thread...");
             mainWorker.shutdownNow();
             mainWorker.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.warn("Problems shutting down", e);
         }
         peerServer.close();
 
-        ArrayList<Channel> allPeers = new ArrayList<>(activePeers.values());
+        final ArrayList<Channel> allPeers = new ArrayList<>(activePeers.values());
         allPeers.addAll(newPeers);
 
-        for (Channel channel : allPeers) {
+        for (final Channel channel : allPeers) {
             try {
                 channel.dropConnection();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 logger.warn("Problems disconnecting channel " + channel, e);
             }
         }

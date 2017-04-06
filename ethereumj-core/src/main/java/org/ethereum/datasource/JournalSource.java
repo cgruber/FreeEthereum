@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.datasource;
 
 import org.ethereum.datasource.inmem.HashMapDB;
@@ -41,15 +67,20 @@ public class JournalSource<V> extends AbstractChainedSource<byte[], V, byte[], V
      * @param src the Source must implement counting semantics
      *            see e.g. {@link CountingBytesSource} or {@link WriteCache.CacheType#COUNTING}
      */
-    public JournalSource(Source<byte[], V> src) {
+    public JournalSource(final Source<byte[], V> src) {
         super(src);
     }
 
-    public void setJournalStore(Source<byte[], byte[]> journalSource) {
+    public void setJournalStore(final Source<byte[], byte[]> journalSource) {
         journal = new SourceCodec.BytesKey<>(journalSource,
                 new Serializer<Update, byte[]>() {
-                    public byte[] serialize(Update object) { return object.serialize(); }
-                    public Update deserialize(byte[] stream) { return stream == null ? null : new Update(stream); }
+                    public byte[] serialize(final Update object) {
+                        return object.serialize();
+                    }
+
+                    public Update deserialize(final byte[] stream) {
+                        return stream == null ? null : new Update(stream);
+                    }
                 });
     }
 
@@ -59,7 +90,7 @@ public class JournalSource<V> extends AbstractChainedSource<byte[], V, byte[], V
      * The insert might later be reverted due to revertUpdate call
      */
     @Override
-    public synchronized void put(byte[] key, V val) {
+    public synchronized void put(final byte[] key, final V val) {
         if (val == null) {
             delete(key);
             return;
@@ -75,12 +106,12 @@ public class JournalSource<V> extends AbstractChainedSource<byte[], V, byte[], V
      * might be later persisted with persistUpdate call
      */
     @Override
-    public synchronized void delete(byte[] key) {
+    public synchronized void delete(final byte[] key) {
         currentUpdate.deletedKeys.add(key);
     }
 
     @Override
-    public synchronized V get(byte[] key) {
+    public synchronized V get(final byte[] key) {
         return getSource().get(key);
     }
 
@@ -92,7 +123,7 @@ public class JournalSource<V> extends AbstractChainedSource<byte[], V, byte[], V
      * or reverted from the backing Source (inserts only)
      * via revertUpdate call
      */
-    public synchronized void commitUpdates(byte[] updateHash) {
+    public synchronized void commitUpdates(final byte[] updateHash) {
         currentUpdate.updateHash = updateHash;
         journal.put(updateHash, currentUpdate);
         currentUpdate = new Update();
@@ -101,17 +132,17 @@ public class JournalSource<V> extends AbstractChainedSource<byte[], V, byte[], V
     /**
      *  Checks if the update with this hash key exists
      */
-    public synchronized boolean hasUpdate(byte[] updateHash) {
+    public synchronized boolean hasUpdate(final byte[] updateHash) {
         return journal.get(updateHash) != null;
     }
 
     /**
      * Persists all deletes to the backing store made under this hash key
      */
-    public synchronized void persistUpdate(byte[] updateHash) {
-        Update update = journal.get(updateHash);
+    public synchronized void persistUpdate(final byte[] updateHash) {
+        final Update update = journal.get(updateHash);
         if (update == null) throw new RuntimeException("No update found: " + Hex.toHexString(updateHash));
-        for (byte[] key : update.deletedKeys) {
+        for (final byte[] key : update.deletedKeys) {
             getSource().delete(key);
         }
         journal.delete(updateHash);
@@ -120,10 +151,10 @@ public class JournalSource<V> extends AbstractChainedSource<byte[], V, byte[], V
     /**
      * Deletes all inserts to the backing store made under this hash key
      */
-    public synchronized void revertUpdate(byte[] updateHash) {
-        Update update = journal.get(updateHash);
+    public synchronized void revertUpdate(final byte[] updateHash) {
+        final Update update = journal.get(updateHash);
         if (update == null) throw new RuntimeException("No update found: " + Hex.toHexString(updateHash));
-        for (byte[] key : update.insertedKeys) {
+        for (final byte[] key : update.insertedKeys) {
             getSource().delete(key);
         }
         journal.delete(updateHash);
@@ -143,16 +174,16 @@ public class JournalSource<V> extends AbstractChainedSource<byte[], V, byte[], V
         public Update() {
         }
 
-        public Update(byte[] bytes) {
+        public Update(final byte[] bytes) {
             parse(bytes);
         }
 
         public byte[] serialize() {
-            byte[][] insertedBytes = new byte[insertedKeys.size()][];
+            final byte[][] insertedBytes = new byte[insertedKeys.size()][];
             for (int i = 0; i < insertedBytes.length; i++) {
                 insertedBytes[i] = RLP.encodeElement(insertedKeys.get(i));
             }
-            byte[][] deletedBytes = new byte[deletedKeys.size()][];
+            final byte[][] deletedBytes = new byte[deletedKeys.size()][];
             for (int i = 0; i < deletedBytes.length; i++) {
                 deletedBytes[i] = RLP.encodeElement(deletedKeys.get(i));
             }
@@ -160,14 +191,14 @@ public class JournalSource<V> extends AbstractChainedSource<byte[], V, byte[], V
                     RLP.encodeList(insertedBytes), RLP.encodeList(deletedBytes));
         }
 
-        private void parse(byte[] encoded) {
-            RLPList l = (RLPList) RLP.decode2(encoded).get(0);
+        private void parse(final byte[] encoded) {
+            final RLPList l = (RLPList) RLP.decode2(encoded).get(0);
             updateHash = l.get(0).getRLPData();
 
-            for (RLPElement aRInserted : (RLPList) l.get(1)) {
+            for (final RLPElement aRInserted : (RLPList) l.get(1)) {
                 insertedKeys.add(aRInserted.getRLPData());
             }
-            for (RLPElement aRDeleted : (RLPList) l.get(2)) {
+            for (final RLPElement aRDeleted : (RLPList) l.get(2)) {
                 deletedKeys.add(aRDeleted.getRLPData());
             }
         }

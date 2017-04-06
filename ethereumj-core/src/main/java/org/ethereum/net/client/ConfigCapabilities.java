@@ -51,10 +51,10 @@ public class ConfigCapabilities {
     public ConfigCapabilities(final SystemProperties config) {
         this.config = config;
         if (config.syncVersion() != null) {
-            EthVersion eth = EthVersion.Companion.fromCode(config.syncVersion());
+            final EthVersion eth = EthVersion.Companion.fromCode(config.syncVersion());
             if (eth != null) AllCaps.add(new Capability(ETH, eth.getCode()));
         } else {
-            for (EthVersion v : EthVersion.Companion.supported())
+            for (final EthVersion v : EthVersion.Companion.supported())
                 AllCaps.add(new Capability(ETH, v.getCode()));
         }
 
@@ -67,9 +67,9 @@ public class ConfigCapabilities {
      * sorted by their names.
      */
     public List<Capability> getConfigCapabilities() {
-        List<Capability> ret = new ArrayList<>();
-        List<String> caps = config.peerCapabilities();
-        for (Capability capability : AllCaps) {
+        final List<Capability> ret = new ArrayList<>();
+        final List<String> caps = config.peerCapabilities();
+        for (final Capability capability : AllCaps) {
             if (caps.contains(capability.getName())) {
                 ret.add(capability);
             }

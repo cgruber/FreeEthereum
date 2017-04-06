@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.util;
 
 import com.cedarsoftware.util.DeepEquals;
@@ -22,7 +48,7 @@ public class Value {
     private Value() {
     }
 
-    public Value(Object obj) {
+    public Value(final Object obj) {
 
         this.decoded = true;
         if (obj == null) return;
@@ -34,21 +60,21 @@ public class Value {
         }
     }
 
-    public static Value fromRlpEncoded(byte[] data) {
+    public static Value fromRlpEncoded(final byte[] data) {
 
         if (data != null && data.length != 0) {
-            Value v = new Value();
+            final Value v = new Value();
             v.init(data);
             return v;
         }
         return null;
     }
 
-    private void init(byte[] rlp) {
+    private void init(final byte[] rlp) {
         this.rlp = rlp;
     }
 
-    public Value withHash(byte[] hash) {
+    public Value withHash(final byte[] hash) {
         sha3 = hash;
         return this;
     }
@@ -64,7 +90,7 @@ public class Value {
 
     public List<Object> asList() {
         decode();
-        Object[] valueArray = (Object[]) value;
+        final Object[] valueArray = (Object[]) value;
         return Arrays.asList(valueArray);
     }
 
@@ -126,7 +152,7 @@ public class Value {
         return (int[]) value;
     }
 
-    public Value get(int index) {
+    public Value get(final int index) {
         if (isList()) {
             // Guard for OutOfBounds
             if (asList().size() <= index) {
@@ -164,7 +190,7 @@ public class Value {
         return sha3;
     }
 
-    public boolean cmp(Value o) {
+    public boolean cmp(final Value o) {
         return DeepEquals.deepEquals(this, o);
     }
 
@@ -207,13 +233,13 @@ public class Value {
 
         decode();
         int readableChars = 0;
-        byte[] data = (byte[]) value;
+        final byte[] data = (byte[]) value;
 
         if (data.length == 1 && data[0] > 31 && data[0] < 126) {
             return true;
         }
 
-        for (byte aData : data) {
+        for (final byte aData : data) {
             if (aData > 32 && aData < 126) ++readableChars;
         }
 
@@ -225,9 +251,9 @@ public class Value {
 
         decode();
         int hexChars = 0;
-        byte[] data = (byte[]) value;
+        final byte[] data = (byte[]) value;
 
-        for (byte aData : data) {
+        for (final byte aData : data) {
 
             if ((aData >= 48 && aData <= 57)
                     || (aData >= 97 && aData <= 102))
@@ -271,26 +297,26 @@ public class Value {
     public String toString() {
 
         decode();
-        StringBuilder stringBuilder = new StringBuilder();
+        final StringBuilder stringBuilder = new StringBuilder();
 
         if (isList()) {
 
-            Object[] list = (Object[]) value;
+            final Object[] list = (Object[]) value;
 
             // special case - key/value node
             if (list.length == 2) {
 
                 stringBuilder.append("[ ");
 
-                Value key = new Value(list[0]);
+                final Value key = new Value(list[0]);
 
-                byte[] keyNibbles = CompactEncoder.binToNibblesNoTerminator(key.asBytes());
-                String keyString = ByteUtil.nibblesToPrettyString(keyNibbles);
+                final byte[] keyNibbles = CompactEncoder.binToNibblesNoTerminator(key.asBytes());
+                final String keyString = ByteUtil.nibblesToPrettyString(keyNibbles);
                 stringBuilder.append(keyString);
 
                 stringBuilder.append(",");
 
-                Value val = new Value(list[1]);
+                final Value val = new Value(list[1]);
                 stringBuilder.append(val.toString());
 
                 stringBuilder.append(" ]");
@@ -299,7 +325,7 @@ public class Value {
             stringBuilder.append(" [");
 
             for (int i = 0; i < list.length; ++i) {
-                Value val = new Value(list[i]);
+                final Value val = new Value(list[i]);
                 if (val.isString() || val.isEmpty()) {
                     stringBuilder.append("'").append(val.toString()).append("'");
                 } else {
@@ -315,12 +341,12 @@ public class Value {
             return "";
         } else if (isBytes()) {
 
-            StringBuilder output = new StringBuilder();
+            final StringBuilder output = new StringBuilder();
             if (isHashCode()) {
                 output.append(Hex.toHexString(asBytes()));
             } else if (isReadableString()) {
                 output.append("'");
-                for (byte oneByte : asBytes()) {
+                for (final byte oneByte : asBytes()) {
                     if (oneByte < 16) {
                         output.append("\\x").append(ByteUtil.oneByteToHexString(oneByte));
                     } else {
@@ -340,9 +366,9 @@ public class Value {
     private int countBranchNodes() {
         decode();
         if (this.isList()) {
-            List<Object> objList = this.asList();
+            final List<Object> objList = this.asList();
             int i = 0;
-            for (Object obj : objList) {
+            for (final Object obj : objList) {
                 i += (new Value(obj)).countBranchNodes();
             }
             return i;

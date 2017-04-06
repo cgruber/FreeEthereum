@@ -38,20 +38,20 @@ public class OlympicConfig extends AbstractConfig {
     public OlympicConfig() {
     }
 
-    OlympicConfig(Constants constants) {
+    OlympicConfig(final Constants constants) {
         super(constants);
     }
 
     @Override
-    protected BigInteger getCalcDifficultyMultiplier(BlockHeader curBlock, BlockHeader parent) {
+    protected BigInteger getCalcDifficultyMultiplier(final BlockHeader curBlock, final BlockHeader parent) {
         return BigInteger.valueOf(curBlock.getTimestamp() >= parent.getTimestamp() +
                 getConstants().getDurationLimit() ? -1 : 1);
     }
 
     @Override
-    public long getTransactionCost(Transaction tx) {
-        long nonZeroes = tx.nonZeroDataBytes();
-        long zeroVals  = ArrayUtils.getLength(tx.getData()) - nonZeroes;
+    public long getTransactionCost(final Transaction tx) {
+        final long nonZeroes = tx.nonZeroDataBytes();
+        final long zeroVals = ArrayUtils.getLength(tx.getData()) - nonZeroes;
 
         return getGasCost().getTRANSACTION() + zeroVals * getGasCost().getTX_ZERO_DATA() +
                 nonZeroes * getGasCost().getTX_NO_ZERO_DATA();

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.config.blockchain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,59 +41,6 @@ import java.util.List;
  * Created by Anton Nashatyrev on 18.07.2016.
  */
 public class DaoHFConfig extends AbstractDaoConfig {
-
-    private final List<byte[]> daoAccounts = new ArrayList<>();
-    private final byte[] withdrawAccount = Hex.decode("bf4ed7b27f1d666546e30d74d50d173d20bca754");
-
-    {
-        supportFork = true;
-    }
-
-    public DaoHFConfig() {
-        initDaoConfig(new HomesteadConfig(), ETH_FORK_BLOCK_NUMBER);
-    }
-
-    public DaoHFConfig(BlockchainConfig parent, long forkBlockNumber) {
-        initDaoConfig(parent, forkBlockNumber);
-    }
-
-    @Override
-    protected void initDaoConfig(BlockchainConfig parent, long forkBlockNumber) {
-        super.initDaoConfig(parent, forkBlockNumber);
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            DaoAcct[] daoAccts = objectMapper.readValue(accountsJson.replace('\'', '"'), DaoAcct[].class);
-            for (DaoAcct daoAcct : daoAccts) {
-                daoAccounts.add(Hex.decode(daoAcct.address.substring(2)));
-                daoAccounts.add(Hex.decode(daoAcct.extraBalanceAccount.substring(2)));
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Goal is to transfer balance from set of accounts to single refund one.
-     * Accounts may not exists in tests. However refund account should be created anyway.
-     */
-    @Override
-    public void hardForkTransfers(Block block, Repository repo) {
-        if (block.getNumber() == forkBlockNumber) {
-            repo.addBalance(withdrawAccount, BigInteger.ZERO);
-            for (byte[] account : daoAccounts) {
-                if (repo.isExist(account)) {
-                    BigInteger balance = repo.getBalance(account);
-                    repo.addBalance(account, balance.negate());
-                    repo.addBalance(withdrawAccount, balance);
-                }
-            }
-        }
-    }
-
-    private static class DaoAcct {
-        public String address;
-        public String extraBalanceAccount;
-    }
 
     private static final String accountsJson = "" +
             "[  " +
@@ -304,9 +277,61 @@ public class DaoHFConfig extends AbstractDaoConfig {
             "      'extraBalanceAccount':'0x807640a13483f8ac783c557fcdf27be11ea4ac7a'" +
             "   }" +
             "]";
+    private final List<byte[]> daoAccounts = new ArrayList<>();
+    private final byte[] withdrawAccount = Hex.decode("bf4ed7b27f1d666546e30d74d50d173d20bca754");
+
+    {
+        supportFork = true;
+    }
+
+    public DaoHFConfig() {
+        initDaoConfig(new HomesteadConfig(), ETH_FORK_BLOCK_NUMBER);
+    }
+
+    public DaoHFConfig(final BlockchainConfig parent, final long forkBlockNumber) {
+        initDaoConfig(parent, forkBlockNumber);
+    }
+
+    @Override
+    protected void initDaoConfig(final BlockchainConfig parent, final long forkBlockNumber) {
+        super.initDaoConfig(parent, forkBlockNumber);
+        try {
+            final ObjectMapper objectMapper = new ObjectMapper();
+            final DaoAcct[] daoAccts = objectMapper.readValue(accountsJson.replace('\'', '"'), DaoAcct[].class);
+            for (final DaoAcct daoAcct : daoAccts) {
+                daoAccounts.add(Hex.decode(daoAcct.address.substring(2)));
+                daoAccounts.add(Hex.decode(daoAcct.extraBalanceAccount.substring(2)));
+            }
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Goal is to transfer balance from set of accounts to single refund one.
+     * Accounts may not exists in tests. However refund account should be created anyway.
+     */
+    @Override
+    public void hardForkTransfers(final Block block, final Repository repo) {
+        if (block.getNumber() == forkBlockNumber) {
+            repo.addBalance(withdrawAccount, BigInteger.ZERO);
+            for (final byte[] account : daoAccounts) {
+                if (repo.isExist(account)) {
+                    final BigInteger balance = repo.getBalance(account);
+                    repo.addBalance(account, balance.negate());
+                    repo.addBalance(withdrawAccount, balance);
+                }
+            }
+        }
+    }
 
     @Override
     public String toString() {
         return super.toString() + "(forkBlock:" + forkBlockNumber + ")";
+    }
+
+    private static class DaoAcct {
+        public String address;
+        public String extraBalanceAccount;
     }
 }

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
@@ -23,34 +49,34 @@ public class Node implements Serializable {
     // discovery endpoint doesn't have real nodeId for example
     private boolean isFakeNodeId = false;
 
-    public Node(String enodeURL) {
+    public Node(final String enodeURL) {
         try {
-            URI uri = new URI(enodeURL);
+            final URI uri = new URI(enodeURL);
             if (!uri.getScheme().equals("enode")) {
                 throw new RuntimeException("expecting URL in the format enode://PUBKEY@HOST:PORT");
             }
             this.id = Hex.decode(uri.getUserInfo());
             this.host = uri.getHost();
             this.port = uri.getPort();
-        } catch (URISyntaxException e) {
+        } catch (final URISyntaxException e) {
             throw new RuntimeException("expecting URL in the format enode://PUBKEY@HOST:PORT", e);
         }
     }
 
-    public Node(byte[] id, String host, int port) {
+    public Node(final byte[] id, final String host, final int port) {
         this.id = id;
         this.host = host;
         this.port = port;
     }
 
-    public Node(byte[] rlp) {
+    public Node(final byte[] rlp) {
 
         RLPList nodeRLP = RLP.decode2(rlp);
         nodeRLP = (RLPList) nodeRLP.get(0);
 
-        byte[] hostB = nodeRLP.get(0).getRLPData();
-        byte[] portB = nodeRLP.get(1).getRLPData();
-        byte[] idB;
+        final byte[] hostB = nodeRLP.get(0).getRLPData();
+        final byte[] portB = nodeRLP.get(1).getRLPData();
+        final byte[] idB;
 
         if (nodeRLP.size() > 3) {
             idB = nodeRLP.get(3).getRLPData();
@@ -58,7 +84,7 @@ public class Node implements Serializable {
             idB = nodeRLP.get(2).getRLPData();
         }
 
-        int port = byteArrayToInt(portB);
+        final int port = byteArrayToInt(portB);
 
         this.host = bytesToIp(hostB);
         this.port = port;
@@ -70,13 +96,13 @@ public class Node implements Serializable {
      * - otherwise fallback to random nodeId, if supplied with only "address:port"
      * NOTE: validation is absent as method is not heavily used
      */
-    public static Node instanceOf(String addressOrEnode) {
+    public static Node instanceOf(final String addressOrEnode) {
         try {
-            URI uri = new URI(addressOrEnode);
+            final URI uri = new URI(addressOrEnode);
             if (uri.getScheme().equals("enode")) {
                 return new Node(addressOrEnode);
             }
-        } catch (URISyntaxException e) {
+        } catch (final URISyntaxException e) {
             // continue
         }
 
@@ -94,7 +120,7 @@ public class Node implements Serializable {
         return isFakeNodeId;
     }
 
-    public void setDiscoveryNode(boolean isDiscoveryNode) {
+    public void setDiscoveryNode(final boolean isDiscoveryNode) {
         isFakeNodeId = isDiscoveryNode;
     }
 
@@ -102,7 +128,7 @@ public class Node implements Serializable {
         return id;
     }
 
-    public void setId(byte[] id) {
+    public void setId(final byte[] id) {
         this.id = id;
     }
 
@@ -118,7 +144,7 @@ public class Node implements Serializable {
         return host;
     }
 
-    public void setHost(String host) {
+    public void setHost(final String host) {
         this.host = host;
     }
 
@@ -126,7 +152,7 @@ public class Node implements Serializable {
         return port;
     }
 
-    public void setPort(int port) {
+    public void setPort(final int port) {
         this.port = port;
     }
 
@@ -136,10 +162,10 @@ public class Node implements Serializable {
      * @return RLP-encoded node data
      */
     public byte[] getRLP() {
-        byte[] rlphost = RLP.encodeElement(hostToBytes(host));
-        byte[] rlpTCPPort = RLP.encodeInt(port);
-        byte[] rlpUDPPort = RLP.encodeInt(port);
-        byte[] rlpId = RLP.encodeElement(id);
+        final byte[] rlphost = RLP.encodeElement(hostToBytes(host));
+        final byte[] rlpTCPPort = RLP.encodeInt(port);
+        final byte[] rlpUDPPort = RLP.encodeInt(port);
+        final byte[] rlpId = RLP.encodeElement(id);
 
         return RLP.encodeList(rlphost, rlpUDPPort, rlpTCPPort, rlpId);
     }
@@ -150,9 +176,9 @@ public class Node implements Serializable {
      * @return RLP-encoded node data
      */
     public byte[] getBriefRLP() {
-        byte[] rlphost = RLP.encodeElement(hostToBytes(host));
-        byte[] rlpTCPPort = RLP.encodeInt(port);
-        byte[] rlpUDPPort = RLP.encodeInt(port);
+        final byte[] rlphost = RLP.encodeElement(hostToBytes(host));
+        final byte[] rlpTCPPort = RLP.encodeInt(port);
+        final byte[] rlpUDPPort = RLP.encodeInt(port);
 
         return RLP.encodeList(rlphost, rlpUDPPort, rlpTCPPort);
     }
@@ -172,7 +198,7 @@ public class Node implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == null) {
             return false;
         }

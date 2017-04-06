@@ -41,26 +41,26 @@ public class HomesteadConfig extends FrontierConfig {
         this(new HomesteadConstants());
     }
 
-    public HomesteadConfig(Constants constants) {
+    public HomesteadConfig(final Constants constants) {
         super(constants);
     }
 
     @Override
-    protected BigInteger getCalcDifficultyMultiplier(BlockHeader curBlock, BlockHeader parent) {
+    protected BigInteger getCalcDifficultyMultiplier(final BlockHeader curBlock, final BlockHeader parent) {
         return BigInteger.valueOf(Math.max(1 - (curBlock.getTimestamp() - parent.getTimestamp()) / 10, -99));
     }
 
     @Override
-    public long getTransactionCost(Transaction tx) {
-        long nonZeroes = tx.nonZeroDataBytes();
-        long zeroVals  = ArrayUtils.getLength(tx.getData()) - nonZeroes;
+    public long getTransactionCost(final Transaction tx) {
+        final long nonZeroes = tx.nonZeroDataBytes();
+        final long zeroVals = ArrayUtils.getLength(tx.getData()) - nonZeroes;
 
         return (tx.isContractCreation() ? getGasCost().getTRANSACTION_CREATE_CONTRACT() : getGasCost().getTRANSACTION())
                 + zeroVals * getGasCost().getTX_ZERO_DATA() + nonZeroes * getGasCost().getTX_NO_ZERO_DATA();
     }
 
     @Override
-    public boolean acceptTransactionSignature(Transaction tx) {
+    public boolean acceptTransactionSignature(final Transaction tx) {
         if (!super.acceptTransactionSignature(tx)) return false;
         return tx.getSignature().s.compareTo(SECP256K1N_HALF) <= 0;
     }

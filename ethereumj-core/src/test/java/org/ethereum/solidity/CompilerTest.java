@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.solidity;
 
 import org.ethereum.core.CallTransaction;
@@ -18,6 +44,10 @@ import static org.hamcrest.core.StringContains.containsString;
  */
 public class CompilerTest {
 
+    public static void main(final String[] args) throws Exception {
+        new CompilerTest().simpleTest();
+    }
+
     @Test
     public void solc_getVersion_shouldWork() throws IOException {
         final String version = SolidityCompiler.runGetVersionOutput();
@@ -32,7 +62,7 @@ public class CompilerTest {
 
     @Test
     public void simpleTest() throws IOException {
-        String contract =
+        final String contract =
             "pragma solidity ^0.4.7;\n" +
                     "\n" +
                     "contract a {\n" +
@@ -44,11 +74,11 @@ public class CompilerTest {
                     "\n" +
                     "}";
 
-        SolidityCompiler.Result res = SolidityCompiler.compile(
+        final SolidityCompiler.Result res = SolidityCompiler.compile(
                 contract.getBytes(), true, ABI, BIN, INTERFACE, METADATA);
         System.out.println("Out: '" + res.output + "'");
         System.out.println("Err: '" + res.errors + "'");
-        CompilationResult result = CompilationResult.parse(res.output);
+        final CompilationResult result = CompilationResult.parse(res.output);
         if (result.contracts.get("a") != null)
             System.out.println(result.contracts.get("a").bin);
         else
@@ -57,41 +87,36 @@ public class CompilerTest {
 
     @Test
     public void defaultFuncTest() throws IOException {
-        String contractSrc =
+        final String contractSrc =
             "pragma solidity ^0.4.7;\n" +
                     "contract a {" +
                     "        function() {throw;}" +
                     "}";
 
-        SolidityCompiler.Result res = SolidityCompiler.compile(
+        final SolidityCompiler.Result res = SolidityCompiler.compile(
                 contractSrc.getBytes(), true, ABI, BIN, INTERFACE, METADATA);
         System.out.println("Out: '" + res.output + "'");
         System.out.println("Err: '" + res.errors + "'");
-        CompilationResult result = CompilationResult.parse(res.output);
+        final CompilationResult result = CompilationResult.parse(res.output);
 
-        CompilationResult.ContractMetadata a = result.contracts.get("a");
-        CallTransaction.Contract contract = new CallTransaction.Contract(a.abi);
+        final CompilationResult.ContractMetadata a = result.contracts.get("a");
+        final CallTransaction.Contract contract = new CallTransaction.Contract(a.abi);
         System.out.printf(contract.functions[0].toString());
     }
 
     @Test
     public void compileFilesTest() throws IOException {
 
-        File source = new File("src/test/resources/solidity/file1.sol");
+        final File source = new File("src/test/resources/solidity/file1.sol");
 
-        SolidityCompiler.Result res = SolidityCompiler.compile(
+        final SolidityCompiler.Result res = SolidityCompiler.compile(
                 source, true, ABI, BIN, INTERFACE, METADATA);
         System.out.println("Out: '" + res.output + "'");
         System.out.println("Err: '" + res.errors + "'");
-        CompilationResult result = CompilationResult.parse(res.output);
+        final CompilationResult result = CompilationResult.parse(res.output);
 
-        CompilationResult.ContractMetadata a = result.contracts.get("test1");
-        CallTransaction.Contract contract = new CallTransaction.Contract(a.abi);
+        final CompilationResult.ContractMetadata a = result.contracts.get("test1");
+        final CallTransaction.Contract contract = new CallTransaction.Contract(a.abi);
         System.out.printf(contract.functions[0].toString());
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        new CompilerTest().simpleTest();
     }
 }

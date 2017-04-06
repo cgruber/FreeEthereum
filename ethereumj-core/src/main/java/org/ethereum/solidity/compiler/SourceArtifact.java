@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.solidity.compiler;
 
 
@@ -19,18 +45,18 @@ class SourceArtifact {
     private List<String> dependencies;
     private String source;
 
-    public SourceArtifact(String name, String source) {
+    public SourceArtifact(final String name, final String source) {
         this.name = name;
         this.dependencies = extractDependencies(source);
         this.source = source.replaceAll("import\\s\"\\.*?\\.sol\";", "");
     }
 
-    public SourceArtifact(File f) {
+    public SourceArtifact(final File f) {
 
     }
 
-    private static List<String> extractDependencies(String source) {
-        String[] deps = substringsBetween(source, "import \"", "\";");
+    private static List<String> extractDependencies(final String source) {
+        final String[] deps = substringsBetween(source, "import \"", "\";");
         return deps == null ? Collections.emptyList() : asList(deps);
     }
 
@@ -38,12 +64,12 @@ class SourceArtifact {
 //        this(srcFile.getOriginalFilename(), new String(srcFile.getBytes(), "UTF-8"));
 //    }
 
-    public void injectDependency(SourceArtifact srcArtifact) {
+    public void injectDependency(final SourceArtifact srcArtifact) {
         injectedDependencies.add(srcArtifact);
         srcArtifact.addDependentArtifact(this);
     }
 
-    private void addDependentArtifact(SourceArtifact srcArtifact) {
+    private void addDependentArtifact(final SourceArtifact srcArtifact) {
         dependentArtifacts.add(srcArtifact);
     }
 
@@ -52,8 +78,8 @@ class SourceArtifact {
     }
 
     private Collection<String> getUnresolvedDependencies() {
-        Set<String> ret = new HashSet<>();
-        for (SourceArtifact injectedDependency : injectedDependencies) {
+        final Set<String> ret = new HashSet<>();
+        for (final SourceArtifact injectedDependency : injectedDependencies) {
             ret.add(injectedDependency.getName());
         }
 
@@ -61,15 +87,15 @@ class SourceArtifact {
     }
 
     public String plainSource() {
-        Collection<String> unresolvedDeps = getUnresolvedDependencies();
+        final Collection<String> unresolvedDeps = getUnresolvedDependencies();
         if (isNotEmpty(unresolvedDeps)) {
             throw assembleError("Followed dependencies aren't resolved: %s", unresolvedDeps);
         }
 
         String result = this.source;
-        for (SourceArtifact dependencyArtifact : injectedDependencies) {
-            String importDefinition = format("import \"%s\";", dependencyArtifact.getName());
-            String dependencySrc = format("// %s\n%s", importDefinition, dependencyArtifact.plainSource());
+        for (final SourceArtifact dependencyArtifact : injectedDependencies) {
+            final String importDefinition = format("import \"%s\";", dependencyArtifact.getName());
+            final String dependencySrc = format("// %s\n%s", importDefinition, dependencyArtifact.plainSource());
 
             result = result.replace(importDefinition, dependencySrc);
         }

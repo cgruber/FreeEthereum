@@ -31,7 +31,7 @@ import java.math.BigInteger;
 public class ConstantsAdapter extends Constants {
     private final Constants delegate;
 
-    public ConstantsAdapter(Constants delegate) {
+    public ConstantsAdapter(final Constants delegate) {
         this.delegate = delegate;
     }
 

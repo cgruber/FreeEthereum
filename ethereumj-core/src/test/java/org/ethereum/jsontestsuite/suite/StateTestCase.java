@@ -1,9 +1,35 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite;
 
-import org.ethereum.jsontestsuite.suite.model.TransactionTck;
 import org.ethereum.jsontestsuite.suite.model.AccountTck;
 import org.ethereum.jsontestsuite.suite.model.EnvTck;
 import org.ethereum.jsontestsuite.suite.model.LogTck;
+import org.ethereum.jsontestsuite.suite.model.TransactionTck;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +53,7 @@ public class StateTestCase {
         return env;
     }
 
-    public void setEnv(EnvTck env) {
+    public void setEnv(final EnvTck env) {
         this.env = env;
     }
 
@@ -35,7 +61,7 @@ public class StateTestCase {
         return logs;
     }
 
-    public void setLogs(List<LogTck> logs) {
+    public void setLogs(final List<LogTck> logs) {
         this.logs = logs;
     }
 
@@ -43,7 +69,7 @@ public class StateTestCase {
         return out;
     }
 
-    public void setOut(String out) {
+    public void setOut(final String out) {
         this.out = out;
     }
 
@@ -51,7 +77,7 @@ public class StateTestCase {
         return pre;
     }
 
-    public void setPre(Map<String, AccountTck> pre) {
+    public void setPre(final Map<String, AccountTck> pre) {
         this.pre = pre;
     }
 
@@ -59,7 +85,7 @@ public class StateTestCase {
         return postStateRoot;
     }
 
-    public void setPostStateRoot(String postStateRoot) {
+    public void setPostStateRoot(final String postStateRoot) {
         this.postStateRoot = postStateRoot;
     }
 
@@ -67,7 +93,7 @@ public class StateTestCase {
         return post;
     }
 
-    public void setPost(Map<String, AccountTck> post) {
+    public void setPost(final Map<String, AccountTck> post) {
         this.post = post;
     }
 
@@ -75,7 +101,7 @@ public class StateTestCase {
         return transaction;
     }
 
-    public void setTransaction(TransactionTck transaction) {
+    public void setTransaction(final TransactionTck transaction) {
         this.transaction = transaction;
     }
 }

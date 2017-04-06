@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite.runners;
 
 import org.ethereum.config.BlockchainConfig;
@@ -24,11 +50,11 @@ public class TransactionTestRunner {
     private long blockNumber;
     private BlockchainConfig blockchainConfig;
 
-    private TransactionTestRunner(TransactionTestCase transactionTestCase) {
+    private TransactionTestRunner(final TransactionTestCase transactionTestCase) {
         this.transactionTestCase = transactionTestCase;
     }
 
-    public static List<String> run(TransactionTestCase transactionTestCase2) {
+    public static List<String> run(final TransactionTestCase transactionTestCase2) {
         return new TransactionTestRunner(transactionTestCase2).runImpl();
     }
 
@@ -39,10 +65,10 @@ public class TransactionTestRunner {
         this.blockchainConfig = SystemProperties.getDefault().getBlockchainConfig().getConfigForBlock(blockNumber);
 
         try {
-            byte[] rlp = Utils.parseData(transactionTestCase.getRlp());
+            final byte[] rlp = Utils.parseData(transactionTestCase.getRlp());
             transaction = new Transaction(rlp);
             transaction.verify();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             transaction = null;
         }
         if (transaction == null || transaction.getEncoded().length < 10000) {
@@ -60,7 +86,7 @@ public class TransactionTestRunner {
 
         // Not enough GAS
         if (transaction != null) {
-            long basicTxCost = blockchainConfig.getTransactionCost(transaction);
+            final long basicTxCost = blockchainConfig.getTransactionCost(transaction);
             if (new BigInteger(1, transaction.getGasLimit()).compareTo(BigInteger.valueOf(basicTxCost)) < 0) {
                 transaction = null;
             }
@@ -68,7 +94,7 @@ public class TransactionTestRunner {
 
         // Transaction signature verification
         String acceptFail = null;
-        boolean shouldAccept = transaction != null && blockchainConfig.acceptTransactionSignature(transaction);
+        final boolean shouldAccept = transaction != null && blockchainConfig.acceptTransactionSignature(transaction);
         if (!shouldAccept) transaction = null;
         if (shouldAccept != (expectedTransaction != null)) {
             acceptFail = "Transaction shouldn't be accepted";
@@ -88,9 +114,9 @@ public class TransactionTestRunner {
         }
 
         logger.info("--------- POST Validation---------");
-        List<String> results = new ArrayList<>();
+        final List<String> results = new ArrayList<>();
 
-        ArrayList<String> outputSummary =
+        final ArrayList<String> outputSummary =
                 TransactionValidator.valid(transaction, expectedTransaction);
 
         results.addAll(outputSummary);
@@ -98,7 +124,7 @@ public class TransactionTestRunner {
         if (wrongSender != null) results.add(wrongSender);
         if (wrongHash != null) results.add(wrongHash);
 
-        for (String result : results) {
+        for (final String result : results) {
             logger.error(result);
         }
 

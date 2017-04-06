@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.mine;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -31,17 +57,17 @@ public class EthashAlgoSlow {
         this(new EthashParams());
     }
 
-    public EthashAlgoSlow(EthashParams params) {
+    public EthashAlgoSlow(final EthashParams params) {
         this.params = params;
     }
 
     // Little-Endian !
-    private static long getWord(byte[] arr, int wordOff) {
+    private static long getWord(final byte[] arr, final int wordOff) {
         return ByteBuffer.wrap(arr, wordOff * 4, 4).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFFL;
     }
 
-    private static void setWord(byte[] arr, int wordOff, long val) {
-        ByteBuffer bb = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt((int) val);
+    private static void setWord(final byte[] arr, final int wordOff, final long val) {
+        final ByteBuffer bb = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt((int) val);
         bb.rewind();
         bb.get(arr, wordOff * 4, 4);
     }
@@ -50,9 +76,9 @@ public class EthashAlgoSlow {
         return params;
     }
 
-    public byte[][] makeCache(long cacheSize, byte[] seed) {
-        int n = (int) (cacheSize / params.getHASH_BYTES());
-        byte[][] o = new byte[n][];
+    public byte[][] makeCache(final long cacheSize, final byte[] seed) {
+        final int n = (int) (cacheSize / params.getHASH_BYTES());
+        final byte[][] o = new byte[n][];
         o[0] = sha512(seed);
         for (int i = 1; i < n; i++) {
             o[i] = sha512(o[i - 1]);
@@ -60,111 +86,111 @@ public class EthashAlgoSlow {
 
         for (int cacheRound = 0; cacheRound < params.getCACHE_ROUNDS(); cacheRound++) {
             for (int i = 0; i < n; i++) {
-                int v = (int) (getWord(o[i], 0) % n);
+                final int v = (int) (getWord(o[i], 0) % n);
                 o[i] = sha512(xor(o[(i - 1 + n) % n], o[v]));
             }
         }
         return o;
     }
 
-    private long fnv(long v1, long v2) {
+    private long fnv(final long v1, final long v2) {
         return ((v1 * FNV_PRIME) ^ v2) % (1L << 32);
     }
 
-    private byte[] fnv(byte[] b1, byte[] b2) {
+    private byte[] fnv(final byte[] b1, final byte[] b2) {
         if (b1.length != b2.length || b1.length % 4 != 0) throw new RuntimeException();
 
-        byte[] ret = new byte[b1.length];
+        final byte[] ret = new byte[b1.length];
         for (int i = 0; i < b1.length / 4; i++) {
-            long i1 = getWord(b1, i);
-            long i2 = getWord(b2, i);
+            final long i1 = getWord(b1, i);
+            final long i2 = getWord(b2, i);
             setWord(ret, i, fnv(i1, i2));
         }
         return ret;
     }
 
-    private byte[] calcDatasetItem(byte[][] cache, int i) {
-        int n = cache.length;
-        int r = params.getHASH_BYTES() / params.getWORD_BYTES();
+    private byte[] calcDatasetItem(final byte[][] cache, final int i) {
+        final int n = cache.length;
+        final int r = params.getHASH_BYTES() / params.getWORD_BYTES();
         byte[] mix = cache[i % n].clone();
 
         setWord(mix, 0, i ^ getWord(mix, 0));
         mix = sha512(mix);
         for (int j = 0; j < params.getDATASET_PARENTS(); j++) {
-            long cacheIdx = fnv(i ^ j, getWord(mix, j % r));
+            final long cacheIdx = fnv(i ^ j, getWord(mix, j % r));
             mix = fnv(mix, cache[(int) (cacheIdx % n)]);
         }
         return sha512(mix);
     }
 
-    public byte[][] calcDataset(long fullSize, byte[][] cache) {
-        byte[][] ret = new byte[(int) (fullSize / params.getHASH_BYTES())][];
+    public byte[][] calcDataset(final long fullSize, final byte[][] cache) {
+        final byte[][] ret = new byte[(int) (fullSize / params.getHASH_BYTES())][];
         for (int i = 0; i < ret.length; i++) {
             ret[i] = calcDatasetItem(cache, i);
         }
         return ret;
     }
 
-    private Pair<byte[], byte[]> hashimoto(byte[] blockHeaderTruncHash, byte[] nonce, long fullSize, DatasetLookup lookup) {
+    private Pair<byte[], byte[]> hashimoto(final byte[] blockHeaderTruncHash, final byte[] nonce, final long fullSize, final DatasetLookup lookup) {
 //        if (nonce.length != 4) throw new RuntimeException("nonce.length != 4");
 
-        int w = params.getMIX_BYTES() / params.getWORD_BYTES();
-        int mixhashes = params.getMIX_BYTES() / params.getHASH_BYTES();
-        byte[] s = sha512(merge(blockHeaderTruncHash, reverse(nonce)));
+        final int w = params.getMIX_BYTES() / params.getWORD_BYTES();
+        final int mixhashes = params.getMIX_BYTES() / params.getHASH_BYTES();
+        final byte[] s = sha512(merge(blockHeaderTruncHash, reverse(nonce)));
         byte[] mix = new byte[params.getMIX_BYTES()];
         for (int i = 0; i < mixhashes; i++) {
             arraycopy(s, 0, mix, i * s.length, s.length);
         }
 
-        int numFullPages = (int) (fullSize / params.getMIX_BYTES());
+        final int numFullPages = (int) (fullSize / params.getMIX_BYTES());
         for (int i = 0; i < params.getACCESSES(); i++) {
-            long p = fnv(i ^ getWord(s, 0), getWord(mix, i % w)) % numFullPages;
-            byte[] newData = new byte[params.getMIX_BYTES()];
+            final long p = fnv(i ^ getWord(s, 0), getWord(mix, i % w)) % numFullPages;
+            final byte[] newData = new byte[params.getMIX_BYTES()];
             for (int j = 0; j < mixhashes; j++) {
-                byte[] lookup1 = lookup.lookup((int) (p * mixhashes + j));
+                final byte[] lookup1 = lookup.lookup((int) (p * mixhashes + j));
                 arraycopy(lookup1, 0, newData, j * lookup1.length, lookup1.length);
             }
             mix = fnv(mix, newData);
         }
 
-        byte[] cmix = new byte[mix.length / 4];
+        final byte[] cmix = new byte[mix.length / 4];
         for (int i = 0; i < mix.length / 4; i += 4 /* ? */) {
-            long fnv1 = fnv(getWord(mix, i), getWord(mix, i + 1));
-            long fnv2 = fnv(fnv1, getWord(mix, i + 2));
-            long fnv3 = fnv(fnv2, getWord(mix, i + 3));
+            final long fnv1 = fnv(getWord(mix, i), getWord(mix, i + 1));
+            final long fnv2 = fnv(fnv1, getWord(mix, i + 2));
+            final long fnv3 = fnv(fnv2, getWord(mix, i + 3));
             setWord(cmix, i / 4, fnv3);
         }
 
         return Pair.of(cmix, sha3(merge(s, cmix)));
     }
 
-    private Pair<byte[], byte[]> hashimotoLight(long fullSize, final byte[][] cache, byte[] blockHeaderTruncHash,
-                                                byte[] nonce) {
+    private Pair<byte[], byte[]> hashimotoLight(final long fullSize, final byte[][] cache, final byte[] blockHeaderTruncHash,
+                                                final byte[] nonce) {
         return hashimoto(blockHeaderTruncHash, nonce, fullSize, new DatasetLookup() {
             @Override
-            public byte[] lookup(int idx) {
+            public byte[] lookup(final int idx) {
                 return calcDatasetItem(cache, idx);
             }
         });
     }
 
-    private Pair<byte[], byte[]> hashimotoFull(long fullSize, final byte[][] dataset, byte[] blockHeaderTruncHash,
-                                               byte[] nonce) {
+    private Pair<byte[], byte[]> hashimotoFull(final long fullSize, final byte[][] dataset, final byte[] blockHeaderTruncHash,
+                                               final byte[] nonce) {
         return hashimoto(blockHeaderTruncHash, nonce, fullSize, new DatasetLookup() {
             @Override
-            public byte[] lookup(int idx) {
+            public byte[] lookup(final int idx) {
                 return dataset[idx];
             }
         });
     }
 
-    public long mine(long fullSize, byte[][] dataset, byte[] blockHeaderTruncHash, long difficulty) {
-        BigInteger target = valueOf(2).pow(256).divide(valueOf(difficulty));
+    public long mine(final long fullSize, final byte[][] dataset, final byte[] blockHeaderTruncHash, final long difficulty) {
+        final BigInteger target = valueOf(2).pow(256).divide(valueOf(difficulty));
         long nonce = new Random().nextLong();
         while(!Thread.currentThread().isInterrupted()) {
             nonce++;
-            Pair<byte[], byte[]> pair = hashimotoFull(fullSize, dataset, blockHeaderTruncHash, longToBytes(nonce));
-            BigInteger h = new BigInteger(1, pair.getRight() /* ?? */);
+            final Pair<byte[], byte[]> pair = hashimotoFull(fullSize, dataset, blockHeaderTruncHash, longToBytes(nonce));
+            final BigInteger h = new BigInteger(1, pair.getRight() /* ?? */);
             if (h.compareTo(target) < 0) break;
         }
         return nonce;
@@ -174,19 +200,19 @@ public class EthashAlgoSlow {
      * This the slower miner version which uses only cache thus taking much less memory than
      * regular {@link #mine} method
      */
-    public long mineLight(long fullSize, final byte[][] cache, byte[] blockHeaderTruncHash, long difficulty) {
-        BigInteger target = valueOf(2).pow(256).divide(valueOf(difficulty));
+    public long mineLight(final long fullSize, final byte[][] cache, final byte[] blockHeaderTruncHash, final long difficulty) {
+        final BigInteger target = valueOf(2).pow(256).divide(valueOf(difficulty));
         long nonce = new Random().nextLong();
         while(!Thread.currentThread().isInterrupted()) {
             nonce++;
-            Pair<byte[], byte[]> pair = hashimotoLight(fullSize, cache, blockHeaderTruncHash, longToBytes(nonce));
-            BigInteger h = new BigInteger(1, pair.getRight() /* ?? */);
+            final Pair<byte[], byte[]> pair = hashimotoLight(fullSize, cache, blockHeaderTruncHash, longToBytes(nonce));
+            final BigInteger h = new BigInteger(1, pair.getRight() /* ?? */);
             if (h.compareTo(target) < 0) break;
         }
         return nonce;
     }
 
-    public byte[] getSeedHash(long blockNumber) {
+    public byte[] getSeedHash(final long blockNumber) {
         byte[] ret = new byte[32];
         for (int i = 0; i < blockNumber / params.getEPOCH_LENGTH(); i++) {
             ret = sha3(ret);

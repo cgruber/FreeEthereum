@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.sync;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -52,7 +78,7 @@ class ReceiptsDownloader {
     private int cnt;
     private Thread retrieveThread;
 
-    public ReceiptsDownloader(long fromBlock, long toBlock) {
+    public ReceiptsDownloader(final long fromBlock, final long toBlock) {
         this.fromBlock = fromBlock;
         this.toBlock = toBlock;
     }
@@ -67,9 +93,9 @@ class ReceiptsDownloader {
         retrieveThread.start();
     }
 
-    private List<List<byte[]>> getToDownload(int maxAskSize, int maxAsks) {
-        List<byte[]> toDownload = getToDownload(maxAskSize * maxAsks);
-        List<List<byte[]>> ret = new ArrayList<>();
+    private List<List<byte[]>> getToDownload(final int maxAskSize, final int maxAsks) {
+        final List<byte[]> toDownload = getToDownload(maxAskSize * maxAsks);
+        final List<List<byte[]>> ret = new ArrayList<>();
         for (int i = 0; i < toDownload.size(); i += maxAskSize) {
             ret.add(toDownload.subList(i, Math.min(toDownload.size(), i + maxAskSize)));
         }
@@ -77,10 +103,10 @@ class ReceiptsDownloader {
     }
 
     private synchronized List<byte[]> getToDownload(int maxSize) {
-        List<byte[]> ret = new ArrayList<>();
+        final List<byte[]> ret = new ArrayList<>();
         for (long i = fromBlock; i < toBlock && maxSize > 0; i++) {
             if (!completedBlocks.contains(i)) {
-                BlockHeader header = headerStore.get((int) i);
+                final BlockHeader header = headerStore.get((int) i);
 
                 // Skipping download for blocks with no transactions
                 if (FastByteComparisons.equal(header.getReceiptsRoot(), HashUtil.EMPTY_TRIE_HASH)) {
@@ -95,12 +121,12 @@ class ReceiptsDownloader {
         return ret;
     }
 
-    private void processDownloaded(byte[] blockHash, List<TransactionReceipt> receipts) {
-        Block block = blockStore.getBlockByHash(blockHash);
+    private void processDownloaded(final byte[] blockHash, final List<TransactionReceipt> receipts) {
+        final Block block = blockStore.getBlockByHash(blockHash);
         if (block.getNumber() >= fromBlock && validate(block, receipts) && !completedBlocks.contains(block.getNumber())) {
             for (int i = 0; i < receipts.size(); i++) {
-                TransactionReceipt receipt = receipts.get(i);
-                TransactionInfo txInfo = new TransactionInfo(receipt, block.getHash(), i);
+                final TransactionReceipt receipt = receipts.get(i);
+                final TransactionInfo txInfo = new TransactionInfo(receipt, block.getHash(), i);
                 txInfo.setTransaction(block.getTransactionsList().get(i));
                 txStore.put(txInfo);
             }
@@ -109,7 +135,7 @@ class ReceiptsDownloader {
         }
     }
 
-    private void finalizeBlock(Long blockNumber) {
+    private void finalizeBlock(final Long blockNumber) {
         synchronized (this) {
             completedBlocks.add(blockNumber);
 
@@ -123,8 +149,8 @@ class ReceiptsDownloader {
         dbFlushManager.commit();
     }
 
-    private boolean validate(Block block, List<TransactionReceipt> receipts) {
-        byte[] receiptsRoot = BlockchainImpl.calcReceiptsTrie(receipts);
+    private boolean validate(final Block block, final List<TransactionReceipt> receipts) {
+        final byte[] receiptsRoot = BlockchainImpl.calcReceiptsTrie(receipts);
         return FastByteComparisons.equal(receiptsRoot, block.getReceiptsRoot());
     }
 
@@ -136,31 +162,32 @@ class ReceiptsDownloader {
                     toDownload = getToDownload(100, 20);
                 }
 
-                Channel idle = getAnyPeer();
+                final Channel idle = getAnyPeer();
                 if (idle != null) {
                     final List<byte[]> list = toDownload.remove(0);
-                    ListenableFuture<List<List<TransactionReceipt>>> future =
+                    final ListenableFuture<List<List<TransactionReceipt>>> future =
                             ((Eth63) idle.getEthHandler()).requestReceipts(list);
                     if (future != null) {
                         Futures.addCallback(future, new FutureCallback<List<List<TransactionReceipt>>>() {
                             @Override
-                            public void onSuccess(List<List<TransactionReceipt>> result) {
+                            public void onSuccess(final List<List<TransactionReceipt>> result) {
                                 for (int i = 0; i < result.size(); i++) {
                                     processDownloaded(list.get(i), result.get(i));
                                 }
                             }
                             @Override
-                            public void onFailure(Throwable t) {}
+                            public void onFailure(final Throwable t) {
+                            }
                         });
                     }
                 } else {
                     try {
                         Thread.sleep(100);
-                    } catch (InterruptedException e) {
+                    } catch (final InterruptedException e) {
                         break;
                     }
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 logger.warn("Unexpected during receipts downloading", e);
             }
         }
@@ -187,7 +214,7 @@ class ReceiptsDownloader {
     public void waitForStop() {
         try {
             stopLatch.await();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

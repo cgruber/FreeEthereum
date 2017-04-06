@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx.discover;
 
 import io.netty.bootstrap.Bootstrap;
@@ -56,7 +82,7 @@ public class UDPListener {
                     public void run() {
                         try {
                             UDPListener.this.start(bootPeers);
-                        } catch (Exception e) {
+                        } catch (final Exception e) {
                             e.printStackTrace();
                             throw new RuntimeException(e);
                         }
@@ -66,21 +92,21 @@ public class UDPListener {
         }
     }
 
-    private UDPListener(String address, int port) {
+    private UDPListener(final String address, final int port) {
         this.address = address;
         this.port = port;
     }
 
-    public static Node parseNode(String s) {
-        int idx1 = s.indexOf('@');
-        int idx2 = s.indexOf(':');
-        String id = s.substring(0, idx1);
-        String host = s.substring(idx1 + 1, idx2);
-        int port = Integer.parseInt(s.substring(idx2+1));
+    public static Node parseNode(final String s) {
+        final int idx1 = s.indexOf('@');
+        final int idx2 = s.indexOf(':');
+        final String id = s.substring(0, idx1);
+        final String host = s.substring(idx1 + 1, idx2);
+        final int port = Integer.parseInt(s.substring(idx2 + 1));
         return new Node(Hex.decode(id), host, port);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         String address = "0.0.0.0";
         int port = 30303;
         if (args.length >= 2) {
@@ -90,14 +116,14 @@ public class UDPListener {
         new UDPListener(address, port).start(Arrays.copyOfRange(args, 2, args.length));
     }
 
-    private void start(String[] args) throws Exception {
+    private void start(final String[] args) throws Exception {
 
         logger.info("Discovery UDPListener started");
-        NioEventLoopGroup group = new NioEventLoopGroup(1);
+        final NioEventLoopGroup group = new NioEventLoopGroup(1);
 
         final List<Node> bootNodes = new ArrayList<>();
 
-        for (String boot: args) {
+        for (final String boot : args) {
             // since discover IP list has no NodeIds we will generate random but persistent
             bootNodes.add(Node.instanceOf(boot));
         }
@@ -110,16 +136,16 @@ public class UDPListener {
             discoveryExecutor.start();
 
             while (!shutdown) {
-                Bootstrap b = new Bootstrap();
+                final Bootstrap b = new Bootstrap();
                 b.group(group)
                         .channel(NioDatagramChannel.class)
                         .handler(new ChannelInitializer<NioDatagramChannel>() {
                             @Override
-                            public void initChannel(NioDatagramChannel ch)
+                            public void initChannel(final NioDatagramChannel ch)
                                     throws Exception {
                                 ch.pipeline().addLast(stats.udp);
                                 ch.pipeline().addLast(new PacketDecoder());
-                                MessageHandler messageHandler = new MessageHandler(ch, nodeManager);
+                                final MessageHandler messageHandler = new MessageHandler(ch, nodeManager);
                                 nodeManager.setMessageSender(messageHandler);
                                 ch.pipeline().addLast(messageHandler);
                             }
@@ -135,7 +161,7 @@ public class UDPListener {
                 logger.warn("UDP channel closed. Recreating after 5 sec pause...");
                 Thread.sleep(5000);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             if (e instanceof BindException && e.getMessage().contains("Address already in use")) {
                 logger.error("Port " + port + " is busy. Check if another instance is running with the same port.");
             } else {
@@ -152,7 +178,7 @@ public class UDPListener {
         if (channel != null) {
             try {
                 channel.close().await(10, TimeUnit.SECONDS);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 logger.warn("Problems closing UDPListener", e);
             }
         }
@@ -160,7 +186,7 @@ public class UDPListener {
         if (discoveryExecutor != null) {
             try {
                 discoveryExecutor.close();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 logger.warn("Problems closing DiscoveryExecutor", e);
             }
         }

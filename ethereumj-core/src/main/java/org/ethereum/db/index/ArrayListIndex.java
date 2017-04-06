@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.db.index;
 
 import java.util.*;
@@ -9,19 +35,19 @@ import java.util.*;
 public class ArrayListIndex implements Index {
     private final List<Long> index;
 
-    public ArrayListIndex(Collection<Long> numbers) {
+    public ArrayListIndex(final Collection<Long> numbers) {
         index = new ArrayList<>(numbers);
         sort();
     }
 
     @Override
-    public synchronized void addAll(Collection<Long> nums) {
+    public synchronized void addAll(final Collection<Long> nums) {
         index.addAll(nums);
         sort();
     }
 
     @Override
-    public synchronized void add(Long num) {
+    public synchronized void add(final Long num) {
         index.add(num);
         sort();
     }
@@ -33,13 +59,13 @@ public class ArrayListIndex implements Index {
 
     @Override
     public synchronized Long poll() {
-        Long num = index.get(0);
+        final Long num = index.get(0);
         index.remove(0);
         return num;
     }
 
     @Override
-    public synchronized boolean contains(Long num) {
+    public synchronized boolean contains(final Long num) {
         return Collections.binarySearch(index, num) >= 0;
     }
 
@@ -67,7 +93,7 @@ public class ArrayListIndex implements Index {
         return new ArrayList<>(index).iterator();
     }
 
-    public synchronized void removeAll(Collection<Long> indexes) {
+    public synchronized void removeAll(final Collection<Long> indexes) {
         index.removeAll(indexes);
     }
 
@@ -79,7 +105,7 @@ public class ArrayListIndex implements Index {
     }
 
     @Override
-    public synchronized void remove(Long num) {
+    public synchronized void remove(final Long num) {
         index.remove(num);
     }
 }

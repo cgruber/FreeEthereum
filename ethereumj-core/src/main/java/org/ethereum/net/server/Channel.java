@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.server;
 
 import io.netty.buffer.ByteBuf;
@@ -87,7 +113,7 @@ public class Channel {
     private boolean isDisconnected;
     private String remoteId;
 
-    public void init(ChannelPipeline pipeline, String remoteId, boolean discoveryMode, ChannelManager channelManager) {
+    public void init(final ChannelPipeline pipeline, final String remoteId, final boolean discoveryMode, final ChannelManager channelManager) {
         this.channelManager = channelManager;
         this.remoteId = remoteId;
 
@@ -122,8 +148,8 @@ public class Channel {
         messageCodec.setBzzMessageFactory(new BzzMessageFactory());
     }
 
-    public void publicRLPxHandshakeFinished(ChannelHandlerContext ctx, FrameCodec frameCodec,
-                                            HelloMessage helloRemote) throws IOException, InterruptedException {
+    public void publicRLPxHandshakeFinished(final ChannelHandlerContext ctx, final FrameCodec frameCodec,
+                                            final HelloMessage helloRemote) throws IOException, InterruptedException {
 
         logger.debug("publicRLPxHandshakeFinished with " + ctx.channel().remoteAddress());
         if (P2pHandler.isProtocolVersionSupported(helloRemote.getP2PVersion())) {
@@ -132,7 +158,7 @@ public class Channel {
                 messageCodec.setSupportChunkedFrames(false);
             }
 
-            FrameCodecHandler frameCodecHandler = new FrameCodecHandler(frameCodec, this);
+            final FrameCodecHandler frameCodecHandler = new FrameCodecHandler(frameCodec, this);
             ctx.pipeline().addLast("medianFrameCodec", frameCodecHandler);
             ctx.pipeline().addLast("messageCodec", messageCodec);
             ctx.pipeline().addLast(Capability.P2P, p2pHandler);
@@ -144,8 +170,8 @@ public class Channel {
         }
     }
 
-    public void sendHelloMessage(ChannelHandlerContext ctx, FrameCodec frameCodec, String nodeId,
-                                 HelloMessage inboundHelloMessage) throws IOException, InterruptedException {
+    public void sendHelloMessage(final ChannelHandlerContext ctx, final FrameCodec frameCodec, final String nodeId,
+                                 final HelloMessage inboundHelloMessage) throws IOException, InterruptedException {
 
         final HelloMessage helloMessage = staticMessages.createHelloMessage(nodeId);
 
@@ -154,7 +180,7 @@ public class Channel {
             helloMessage.setP2pVersion(inboundHelloMessage.getP2PVersion());
         }
 
-        ByteBuf byteBufMsg = ctx.alloc().buffer();
+        final ByteBuf byteBufMsg = ctx.alloc().buffer();
         frameCodec.writeFrame(new FrameCodec.Frame(helloMessage.getCode(), helloMessage.getEncoded()), byteBufMsg);
         ctx.writeAndFlush(byteBufMsg).sync();
 
@@ -163,9 +189,9 @@ public class Channel {
         getNodeStatistics().rlpxOutHello.add();
     }
 
-    public void activateEth(ChannelHandlerContext ctx, EthVersion version) {
-        EthHandler handler = ethHandlerFactory.create(version);
-        MessageFactory messageFactory = createEthMessageFactory(version);
+    public void activateEth(final ChannelHandlerContext ctx, final EthVersion version) {
+        final EthHandler handler = ethHandlerFactory.create(version);
+        final MessageFactory messageFactory = createEthMessageFactory(version);
         messageCodec.setEthVersion(version);
         messageCodec.setEthMessageFactory(messageFactory);
 
@@ -182,7 +208,7 @@ public class Channel {
         eth = handler;
     }
 
-    private MessageFactory createEthMessageFactory(EthVersion version) {
+    private MessageFactory createEthMessageFactory(final EthVersion version) {
         switch (version) {
             case V62:   return new Eth62MessageFactory();
             case V63:   return new Eth63MessageFactory();
@@ -190,12 +216,12 @@ public class Channel {
         }
     }
 
-    public void activateShh(ChannelHandlerContext ctx) {
+    public void activateShh(final ChannelHandlerContext ctx) {
         ctx.pipeline().addLast(Capability.SHH, shhHandler);
         shhHandler.activate();
     }
 
-    public void activateBzz(ChannelHandlerContext ctx) {
+    public void activateBzz(final ChannelHandlerContext ctx) {
         ctx.pipeline().addLast(Capability.BZZ, bzzHandler);
         bzzHandler.activate();
     }
@@ -207,12 +233,12 @@ public class Channel {
     /**
      * Set node and register it in NodeManager if it is not registered yet.
      */
-    public void initWithNode(byte[] nodeId, int remotePort) {
+    public void initWithNode(final byte[] nodeId, final int remotePort) {
         node = new Node(nodeId, inetSocketAddress.getHostString(), remotePort);
         nodeStatistics = nodeManager.getNodeStatistics(node);
     }
 
-    public void initWithNode(byte[] nodeId) {
+    public void initWithNode(final byte[] nodeId) {
         initWithNode(nodeId, inetSocketAddress.getPort());
     }
 
@@ -220,7 +246,7 @@ public class Channel {
         return node;
     }
 
-    public void initMessageCodes(List<Capability> caps) {
+    public void initMessageCodes(final List<Capability> caps) {
         messageCodec.initMessageCodes(caps);
     }
 
@@ -236,7 +262,7 @@ public class Channel {
         return isDisconnected;
     }
 
-    public void onSyncDone(boolean done) {
+    public void onSyncDone(final boolean done) {
 
         if (done) {
             eth.enableTransactions();
@@ -275,7 +301,7 @@ public class Channel {
         return node == null ? null : new ByteArrayWrapper(node.getId());
     }
 
-    public void disconnect(ReasonCode reason) {
+    public void disconnect(final ReasonCode reason) {
         msgQueue.disconnect(reason);
     }
 
@@ -283,7 +309,7 @@ public class Channel {
         return inetSocketAddress;
     }
 
-    public void setInetSocketAddress(InetSocketAddress inetSocketAddress) {
+    public void setInetSocketAddress(final InetSocketAddress inetSocketAddress) {
         this.inetSocketAddress = inetSocketAddress;
     }
 
@@ -293,11 +319,11 @@ public class Channel {
 
     // ETH sub protocol
 
-    public void fetchBlockBodies(List<BlockHeaderWrapper> headers) {
+    public void fetchBlockBodies(final List<BlockHeaderWrapper> headers) {
         eth.fetchBodies(headers);
     }
 
-    public boolean isEthCompatible(Channel peer) {
+    public boolean isEthCompatible(final Channel peer) {
         return peer != null && peer.getEthVersion().isCompatible(getEthVersion());
     }
 
@@ -341,15 +367,15 @@ public class Channel {
         eth.disableTransactions();
     }
 
-    public void sendTransaction(List<Transaction> tx) {
+    public void sendTransaction(final List<Transaction> tx) {
         eth.sendTransaction(tx);
     }
 
-    public void sendNewBlock(Block block) {
+    public void sendNewBlock(final Block block) {
         eth.sendNewBlock(block);
     }
 
-    public void sendNewBlockHashes(Block block) {
+    public void sendNewBlockHashes(final Block block) {
         eth.sendNewBlockHashes(block);
     }
 
@@ -366,11 +392,11 @@ public class Channel {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Channel channel = (Channel) o;
+        final Channel channel = (Channel) o;
 
 
         if (inetSocketAddress != null ? !inetSocketAddress.equals(channel.inetSocketAddress) : channel.inetSocketAddress != null) return false;

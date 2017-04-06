@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net;
 
 import io.netty.channel.ChannelFutureListener;
@@ -45,7 +71,7 @@ public class MessageQueue {
     private static final ScheduledExecutorService timer = Executors.newScheduledThreadPool(4, new ThreadFactory() {
         private final AtomicInteger cnt = new AtomicInteger(0);
 
-        public Thread newThread(Runnable r) {
+        public Thread newThread(final Runnable r) {
             return new Thread(r, "MessageQueueTimer-" + cnt.getAndIncrement());
         }
     });
@@ -62,24 +88,24 @@ public class MessageQueue {
     public MessageQueue() {
     }
 
-    public void activate(ChannelHandlerContext ctx) {
+    public void activate(final ChannelHandlerContext ctx) {
         this.ctx = ctx;
         timerTask = timer.scheduleAtFixedRate(new Runnable() {
             public void run() {
                 try {
                     nudgeQueue();
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     logger.error("Unhandled exception", t);
                 }
             }
         }, 10, 10, TimeUnit.MILLISECONDS);
     }
 
-    public void setChannel(Channel channel) {
+    public void setChannel(final Channel channel) {
         this.channel = channel;
     }
 
-    public void sendMessage(Message msg) {
+    public void sendMessage(final Message msg) {
         if (msg instanceof PingMessage) {
             if (hasPing) return;
             hasPing = true;
@@ -95,22 +121,22 @@ public class MessageQueue {
         disconnect(DISCONNECT_MESSAGE);
     }
 
-    public void disconnect(ReasonCode reason) {
+    public void disconnect(final ReasonCode reason) {
         disconnect(new DisconnectMessage(reason));
     }
 
-    private void disconnect(DisconnectMessage msg) {
+    private void disconnect(final DisconnectMessage msg) {
         ctx.writeAndFlush(msg);
         ctx.close();
     }
 
-    public void receivedMessage(Message msg) throws InterruptedException {
+    public void receivedMessage(final Message msg) throws InterruptedException {
 
         ethereumListener.trace("[Recv: " + msg + "]");
 
         if (requestQueue.peek() != null) {
-            MessageRoundtrip messageRoundtrip = requestQueue.peek();
-            Message waitingMessage = messageRoundtrip.getMsg();
+            final MessageRoundtrip messageRoundtrip = requestQueue.peek();
+            final Message waitingMessage = messageRoundtrip.getMsg();
 
             if (waitingMessage instanceof PingMessage) hasPing = false;
 
@@ -125,7 +151,7 @@ public class MessageQueue {
         }
     }
 
-    private void removeAnsweredMessage(MessageRoundtrip messageRoundtrip) {
+    private void removeAnsweredMessage(final MessageRoundtrip messageRoundtrip) {
         if (messageRoundtrip != null && messageRoundtrip.isAnswered())
             requestQueue.remove();
     }
@@ -138,12 +164,12 @@ public class MessageQueue {
         sendToWire(requestQueue.peek());
     }
 
-    private void sendToWire(MessageRoundtrip messageRoundtrip) {
+    private void sendToWire(final MessageRoundtrip messageRoundtrip) {
 
         if (messageRoundtrip != null && messageRoundtrip.getRetryTimes() == 0) {
             // TODO: retry logic || messageRoundtrip.hasToRetry()){
 
-            Message msg = messageRoundtrip.getMsg();
+            final Message msg = messageRoundtrip.getMsg();
 
             ethereumListener.onSendMessage(channel, msg);
 

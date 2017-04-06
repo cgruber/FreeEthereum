@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.longrun;
 
 import com.typesafe.config.ConfigFactory;
@@ -60,7 +86,7 @@ public class SyncWithLoadTest {
     private static final AtomicBoolean firstRun = new AtomicBoolean(true);
     private static final ScheduledExecutorService statTimer =
             Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                public Thread newThread(Runnable r) {
+                public Thread newThread(final Runnable r) {
                     return new Thread(r, "StatTimer");
                 }
             });
@@ -68,8 +94,8 @@ public class SyncWithLoadTest {
 
     public SyncWithLoadTest() throws Exception {
 
-        String resetDb = System.getProperty("reset.db.onFirstRun");
-        String overrideConfigPath = System.getProperty("override.config.res");
+        final String resetDb = System.getProperty("reset.db.onFirstRun");
+        final String overrideConfigPath = System.getProperty("override.config.res");
         if (Boolean.parseBoolean(resetDb)) {
             resetDBOnFirstRun.setValue(true);
         } else if (resetDb != null && resetDb.equalsIgnoreCase("false")) {
@@ -81,7 +107,7 @@ public class SyncWithLoadTest {
             @Override
             public void run() {
                 // Adds error if no successfully imported blocks for LAST_IMPORT_TIMEOUT
-                long currentMillis = System.currentTimeMillis();
+                final long currentMillis = System.currentTimeMillis();
                 if (lastImport.get() != 0 && currentMillis - lastImport.get() > LAST_IMPORT_TIMEOUT) {
                     testLogger.error("No imported block for {} seconds", LAST_IMPORT_TIMEOUT / 1000);
                     fatalErrors.incrementAndGet();
@@ -92,7 +118,7 @@ public class SyncWithLoadTest {
                         statTimer.shutdownNow();
                         errorLatch.countDown();
                     }
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     SyncWithLoadTest.testLogger.error("Unhandled exception", t);
                 }
 
@@ -110,7 +136,7 @@ public class SyncWithLoadTest {
         return fatalErrors.get() == 0;
     }
 
-    private static void fullSanityCheck(Ethereum ethereum, CommonConfig commonConfig) {
+    private static void fullSanityCheck(final Ethereum ethereum, final CommonConfig commonConfig) {
 
         BlockchainValidation.fullCheck(ethereum, commonConfig, fatalErrors);
         logStats();
@@ -143,7 +169,7 @@ public class SyncWithLoadTest {
                         runEthereum();
                         isRunning.set(true);
                     }
-                } catch (Throwable e) {
+                } catch (final Throwable e) {
                     e.printStackTrace();
                 }
             }
@@ -175,7 +201,7 @@ public class SyncWithLoadTest {
          */
         @Bean
         public SystemProperties systemProperties() {
-            SystemProperties props = new SystemProperties();
+            final SystemProperties props = new SystemProperties();
             props.overrideParams(ConfigFactory.parseResources(configPath.getValue()));
             if (firstRun.get() && resetDBOnFirstRun.getValue() != null) {
                 props.setDatabaseReset(resetDBOnFirstRun.getValue());
@@ -196,31 +222,31 @@ public class SyncWithLoadTest {
          */
         final EthereumListener blockListener = new EthereumListenerAdapter() {
             @Override
-            public void onBlock(BlockSummary blockSummary) {
+            public void onBlock(final BlockSummary blockSummary) {
                 lastImport.set(System.currentTimeMillis());
             }
 
             @Override
-            public void onBlock(Block block, List<TransactionReceipt> receipts) {
-                for (TransactionReceipt receipt : receipts) {
+            public void onBlock(final Block block, final List<TransactionReceipt> receipts) {
+                for (final TransactionReceipt receipt : receipts) {
                     // Getting contract details
-                    byte[] contractAddress = receipt.getTransaction().getContractAddress();
+                    final byte[] contractAddress = receipt.getTransaction().getContractAddress();
                     if (contractAddress != null) {
-                        ContractDetails details = ((Repository) ethereum.getRepository()).getContractDetails(contractAddress);
+                        final ContractDetails details = ((Repository) ethereum.getRepository()).getContractDetails(contractAddress);
                         assert FastByteComparisons.equal(details.getAddress(), contractAddress);
                     }
 
                     // Getting AccountState for sender in the past
-                    Random rnd = new Random();
-                    Block bestBlock = ethereum.getBlockchain().getBestBlock();
-                    Block randomBlock = ethereum.getBlockchain().getBlockByNumber(rnd.nextInt((int) bestBlock.getNumber()));
-                    byte[] sender = receipt.getTransaction().getSender();
-                    AccountState senderState = ((Repository) ethereum.getRepository()).getSnapshotTo(randomBlock.getStateRoot()).getAccountState(sender);
+                    final Random rnd = new Random();
+                    final Block bestBlock = ethereum.getBlockchain().getBestBlock();
+                    final Block randomBlock = ethereum.getBlockchain().getBlockByNumber(rnd.nextInt((int) bestBlock.getNumber()));
+                    final byte[] sender = receipt.getTransaction().getSender();
+                    final AccountState senderState = ((Repository) ethereum.getRepository()).getSnapshotTo(randomBlock.getStateRoot()).getAccountState(sender);
                     if (senderState != null) senderState.getBalance();
 
                     // Getting receiver's nonce somewhere in the past
-                    Block anotherRandomBlock = ethereum.getBlockchain().getBlockByNumber(rnd.nextInt((int) bestBlock.getNumber()));
-                    byte[] receiver = receipt.getTransaction().getReceiveAddress();
+                    final Block anotherRandomBlock = ethereum.getBlockchain().getBlockByNumber(rnd.nextInt((int) bestBlock.getNumber()));
+                    final byte[] receiver = receipt.getTransaction().getReceiveAddress();
                     if (receiver != null) {
                         ((Repository) ethereum.getRepository()).getSnapshotTo(anotherRandomBlock.getStateRoot()).getNonce(receiver);
                     }
@@ -228,16 +254,16 @@ public class SyncWithLoadTest {
             }
 
             @Override
-            public void onPendingTransactionsReceived(List<Transaction> transactions) {
-                Random rnd = new Random();
-                Block bestBlock = ethereum.getBlockchain().getBestBlock();
-                for (Transaction tx : transactions) {
-                    Block block = ethereum.getBlockchain().getBlockByNumber(rnd.nextInt((int) bestBlock.getNumber()));
-                    Repository repository = ((Repository) ethereum.getRepository())
+            public void onPendingTransactionsReceived(final List<Transaction> transactions) {
+                final Random rnd = new Random();
+                final Block bestBlock = ethereum.getBlockchain().getBestBlock();
+                for (final Transaction tx : transactions) {
+                    final Block block = ethereum.getBlockchain().getBlockByNumber(rnd.nextInt((int) bestBlock.getNumber()));
+                    final Repository repository = ((Repository) ethereum.getRepository())
                             .getSnapshotTo(block.getStateRoot())
                             .startTracking();
                     try {
-                        TransactionExecutor executor = new TransactionExecutor
+                        final TransactionExecutor executor = new TransactionExecutor
                                 (tx, block.getCoinbase(), repository, ethereum.getBlockchain().getBlockStore(),
                                         programInvokeFactory, block, new EthereumListenerAdapter(), 0)
                                 .withCommonConfig(commonConfig)
@@ -268,15 +294,15 @@ public class SyncWithLoadTest {
                 ethereum.addListener(blockListener);
 
                 // Run 1-30 minutes
-                Random generator = new Random();
-                int i = generator.nextInt(30) + 1;
+                final Random generator = new Random();
+                final int i = generator.nextInt(30) + 1;
                 testLogger.info("Running for {} minutes until stop and check", i);
                 sleep(i * 60_000);
 
                 // Stop syncing
                 syncPool.close();
                 syncManager.close();
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 testLogger.error("Error occurred during run: ", ex);
             }
 

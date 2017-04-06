@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.eth.message;
 
 import org.ethereum.core.TransactionReceipt;
@@ -18,30 +44,30 @@ public class ReceiptsMessage extends EthMessage {
 
     private List<List<TransactionReceipt>> receipts;
 
-    public ReceiptsMessage(byte[] encoded) {
+    public ReceiptsMessage(final byte[] encoded) {
         super(encoded);
     }
 
-    public ReceiptsMessage(List<List<TransactionReceipt>> receiptList) {
+    public ReceiptsMessage(final List<List<TransactionReceipt>> receiptList) {
         this.receipts = receiptList;
         parsed = true;
     }
 
     private synchronized void parse() {
         if (parsed) return;
-        RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
+        final RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 
         this.receipts = new ArrayList<>();
-        for (RLPElement aParamsList : paramsList) {
-            RLPList blockRLP = (RLPList) aParamsList;
+        for (final RLPElement aParamsList : paramsList) {
+            final RLPList blockRLP = (RLPList) aParamsList;
 
-            List<TransactionReceipt> blockReceipts = new ArrayList<>();
-            for (RLPElement txReceipt : blockRLP) {
-                RLPList receiptRLP = (RLPList) txReceipt;
+            final List<TransactionReceipt> blockReceipts = new ArrayList<>();
+            for (final RLPElement txReceipt : blockRLP) {
+                final RLPList receiptRLP = (RLPList) txReceipt;
                 if (receiptRLP.size() != 4) {
                     continue;
                 }
-                TransactionReceipt receipt = new TransactionReceipt(receiptRLP);
+                final TransactionReceipt receipt = new TransactionReceipt(receiptRLP);
                 blockReceipts.add(receipt);
             }
             this.receipts.add(blockReceipts);
@@ -50,21 +76,21 @@ public class ReceiptsMessage extends EthMessage {
     }
 
     private void encode() {
-        List<byte[]> blocks = new ArrayList<>();
+        final List<byte[]> blocks = new ArrayList<>();
 
-        for (List<TransactionReceipt> blockReceipts : receipts) {
+        for (final List<TransactionReceipt> blockReceipts : receipts) {
 
-            List<byte[]> encodedBlockReceipts = new ArrayList<>();
-            for (TransactionReceipt txReceipt : blockReceipts) {
+            final List<byte[]> encodedBlockReceipts = new ArrayList<>();
+            for (final TransactionReceipt txReceipt : blockReceipts) {
                 encodedBlockReceipts.add(txReceipt.getEncoded(true));
             }
-            byte[][] encodedElementArray = encodedBlockReceipts.toArray(new byte[encodedBlockReceipts.size()][]);
-            byte[] blockReceiptsEncoded = RLP.encodeList(encodedElementArray);
+            final byte[][] encodedElementArray = encodedBlockReceipts.toArray(new byte[encodedBlockReceipts.size()][]);
+            final byte[] blockReceiptsEncoded = RLP.encodeList(encodedElementArray);
 
             blocks.add(blockReceiptsEncoded);
         }
 
-        byte[][] encodedElementArray = blocks.toArray(new byte[blocks.size()][]);
+        final byte[][] encodedElementArray = blocks.toArray(new byte[blocks.size()][]);
         this.encoded = RLP.encodeList(encodedElementArray);
     }
 
@@ -94,7 +120,7 @@ public class ReceiptsMessage extends EthMessage {
         parse();
         final StringBuilder sb = new StringBuilder();
         if (receipts.size() < 4) {
-            for (List<TransactionReceipt> blockReceipts : receipts)
+            for (final List<TransactionReceipt> blockReceipts : receipts)
                 sb.append("\n   ").append(blockReceipts.size()).append(" receipts in block");
         } else {
             for (int i = 0; i < 3; i++) {

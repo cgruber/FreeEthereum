@@ -43,17 +43,17 @@ public class ParentGasLimitRule extends DependentBlockHeaderRule {
 
     private final int GAS_LIMIT_BOUND_DIVISOR;
 
-    public ParentGasLimitRule(SystemProperties config) {
+    public ParentGasLimitRule(final SystemProperties config) {
         GAS_LIMIT_BOUND_DIVISOR = config.getBlockchainConfig().
                 getCommonConstants().getGasLimitBoundDivisor();
     }
 
     @Override
-    public boolean validate(BlockHeader header, BlockHeader parent) {
+    public boolean validate(final BlockHeader header, final BlockHeader parent) {
 
         errors.clear();
-        BigInteger headerGasLimit = new BigInteger(1, header.getGasLimit());
-        BigInteger parentGasLimit = new BigInteger(1, parent.getGasLimit());
+        final BigInteger headerGasLimit = new BigInteger(1, header.getGasLimit());
+        final BigInteger parentGasLimit = new BigInteger(1, parent.getGasLimit());
 
         if (headerGasLimit.compareTo(parentGasLimit.multiply(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR - 1)).divide(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR))) < 0 ||
             headerGasLimit.compareTo(parentGasLimit.multiply(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR + 1)).divide(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR))) > 0) {

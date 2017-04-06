@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.vm.program.invoke;
 
 import org.ethereum.core.Block;
@@ -27,55 +53,55 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
 
     // Invocation by the wire tx
     @Override
-    public ProgramInvoke createProgramInvoke(Transaction tx, Block block, Repository repository,
-                                             BlockStore blockStore) {
+    public ProgramInvoke createProgramInvoke(final Transaction tx, final Block block, final Repository repository,
+                                             final BlockStore blockStore) {
 
         /***         ADDRESS op       ***/
         // YP: Get address of currently executing account.
-        byte[] address = tx.isContractCreation() ? tx.getContractAddress() : tx.getReceiveAddress();
+        final byte[] address = tx.isContractCreation() ? tx.getContractAddress() : tx.getReceiveAddress();
 
         /***         ORIGIN op       ***/
         // YP: This is the sender of original transaction; it is never a contract.
-        byte[] origin = tx.getSender();
+        final byte[] origin = tx.getSender();
 
         /***         CALLER op       ***/
         // YP: This is the address of the account that is directly responsible for this execution.
-        byte[] caller = tx.getSender();
+        final byte[] caller = tx.getSender();
 
         /***         BALANCE op       ***/
-        byte[] balance = repository.getBalance(address).toByteArray();
+        final byte[] balance = repository.getBalance(address).toByteArray();
 
         /***         GASPRICE op       ***/
-        byte[] gasPrice = tx.getGasPrice();
+        final byte[] gasPrice = tx.getGasPrice();
 
         /*** GAS op ***/
-        byte[] gas = tx.getGasLimit();
+        final byte[] gas = tx.getGasLimit();
 
         /***        CALLVALUE op      ***/
-        byte[] callValue = nullToEmpty(tx.getValue());
+        final byte[] callValue = nullToEmpty(tx.getValue());
 
         /***     CALLDATALOAD  op   ***/
         /***     CALLDATACOPY  op   ***/
         /***     CALLDATASIZE  op   ***/
-        byte[] data = tx.isContractCreation() ? ByteUtil.EMPTY_BYTE_ARRAY : nullToEmpty(tx.getData());
+        final byte[] data = tx.isContractCreation() ? ByteUtil.EMPTY_BYTE_ARRAY : nullToEmpty(tx.getData());
 
         /***    PREVHASH  op  ***/
-        byte[] lastHash = block.getParentHash();
+        final byte[] lastHash = block.getParentHash();
 
         /***   COINBASE  op ***/
-        byte[] coinbase = block.getCoinbase();
+        final byte[] coinbase = block.getCoinbase();
 
         /*** TIMESTAMP  op  ***/
-        long timestamp = block.getTimestamp();
+        final long timestamp = block.getTimestamp();
 
         /*** NUMBER  op  ***/
-        long number = block.getNumber();
+        final long number = block.getNumber();
 
         /*** DIFFICULTY  op  ***/
-        byte[] difficulty = block.getDifficulty();
+        final byte[] difficulty = block.getDifficulty();
 
         /*** GASLIMIT op ***/
-        byte[] gaslimit = block.getGasLimit();
+        final byte[] gaslimit = block.getGasLimit();
 
         if (logger.isInfoEnabled()) {
             logger.info("Top level call: \n" +
@@ -119,27 +145,27 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
      * This invocation created for contract call contract
      */
     @Override
-    public ProgramInvoke createProgramInvoke(Program program, DataWord toAddress, DataWord callerAddress,
-                                             DataWord inValue, DataWord inGas,
-                                             BigInteger balanceInt, byte[] dataIn,
-                                             Repository repository, BlockStore blockStore, boolean byTestingSuite) {
+    public ProgramInvoke createProgramInvoke(final Program program, final DataWord toAddress, final DataWord callerAddress,
+                                             final DataWord inValue, final DataWord inGas,
+                                             final BigInteger balanceInt, final byte[] dataIn,
+                                             final Repository repository, final BlockStore blockStore, final boolean byTestingSuite) {
 
-        DataWord address = toAddress;
-        DataWord origin = program.getOriginAddress();
-        DataWord caller = callerAddress;
+        final DataWord address = toAddress;
+        final DataWord origin = program.getOriginAddress();
+        final DataWord caller = callerAddress;
 
-        DataWord balance = new DataWord(balanceInt.toByteArray());
-        DataWord gasPrice = program.getGasPrice();
-        DataWord gas = inGas;
-        DataWord callValue = inValue;
+        final DataWord balance = new DataWord(balanceInt.toByteArray());
+        final DataWord gasPrice = program.getGasPrice();
+        final DataWord gas = inGas;
+        final DataWord callValue = inValue;
 
-        byte[] data = dataIn;
-        DataWord lastHash = program.getPrevHash();
-        DataWord coinbase = program.getCoinbase();
-        DataWord timestamp = program.getTimestamp();
-        DataWord number = program.getNumber();
-        DataWord difficulty = program.getDifficulty();
-        DataWord gasLimit = program.getGasLimit();
+        final byte[] data = dataIn;
+        final DataWord lastHash = program.getPrevHash();
+        final DataWord coinbase = program.getCoinbase();
+        final DataWord timestamp = program.getTimestamp();
+        final DataWord number = program.getNumber();
+        final DataWord difficulty = program.getDifficulty();
+        final DataWord gasLimit = program.getGasLimit();
 
         if (logger.isInfoEnabled()) {
             logger.info("Internal call: \n" +

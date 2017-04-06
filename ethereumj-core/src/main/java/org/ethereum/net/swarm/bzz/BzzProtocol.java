@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.swarm.bzz;
 
 import org.ethereum.net.client.Capability;
@@ -40,11 +66,11 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
     private List<BzzMessage> pendingHandshakeOutMessages = new ArrayList<>();
     private List<BzzMessage> pendingHandshakeInMessages = new ArrayList<>();
 
-    public BzzProtocol(NetStore netStore) {
+    public BzzProtocol(final NetStore netStore) {
         this.netStore = netStore;
     }
 
-    private static String addressToShortString(PeerAddress addr) {
+    private static String addressToShortString(final PeerAddress addr) {
         if (addr == null) return "<null>";
         String s = Hex.toHexString(addr.getId());
         s = s.substring(0, min(8, s.length()));
@@ -57,7 +83,7 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
      * In the testing environment this could be a special handler which delivers the message
      * without network stack
      */
-    public void setMessageSender(Functional.Consumer<BzzMessage> messageSender) {
+    public void setMessageSender(final Functional.Consumer<BzzMessage> messageSender) {
         this.messageSender = messageSender;
     }
 
@@ -78,7 +104,7 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
     private void handshakeOut() {
         if (!handshakeOut) {
             handshakeOut = true;
-            BzzStatusMessage outStatus = new BzzStatusMessage(Version, "honey",
+            final BzzStatusMessage outStatus = new BzzStatusMessage(Version, "honey",
                     netStore.getSelfAddress(), NetworkId,
                     Collections.singletonList(new Capability(Capability.BZZ, (byte) 0)));
             LOG.info("Outbound handshake: " + outStatus);
@@ -89,7 +115,7 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
     /**
      * Handles inbound Status Message
      */
-    private void handshakeIn(BzzStatusMessage msg) {
+    private void handshakeIn(final BzzStatusMessage msg) {
         if (!handshaken) {
             LOG.info("Inbound handshake: " + msg);
             netStore.statHandshakes.add(1);
@@ -104,7 +130,7 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
 
             if (!pendingHandshakeOutMessages.isEmpty()) {
                 LOG.info("Send pending handshake messages: " + pendingHandshakeOutMessages.size());
-                for (BzzMessage pmsg : pendingHandshakeOutMessages) {
+                for (final BzzMessage pmsg : pendingHandshakeOutMessages) {
                     sendMessageImpl(pmsg);
                 }
             }
@@ -115,7 +141,7 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
 
             if (!pendingHandshakeInMessages.isEmpty()) {
                 LOG.info("Processing pending handshake inbound messages: " + pendingHandshakeInMessages.size());
-                for (BzzMessage pmsg : pendingHandshakeInMessages) {
+                for (final BzzMessage pmsg : pendingHandshakeInMessages) {
                     handleMsg(pmsg);
                 }
             }
@@ -126,7 +152,7 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
         }
     }
 
-    public synchronized void sendMessage(BzzMessage msg) {
+    public synchronized void sendMessage(final BzzMessage msg) {
         if (handshaken) {
             sendMessageImpl(msg);
         } else {
@@ -134,7 +160,7 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
         }
     }
 
-    private void sendMessageImpl(BzzMessage msg) {
+    private void sendMessageImpl(final BzzMessage msg) {
         netStore.statOutMsg.add(1);
         msg.setId(idGenerator.incrementAndGet());
         LOG.debug("<===   (to " + addressToShortString(getNode()) + ") " + msg);
@@ -142,11 +168,11 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
     }
 
     @Override
-    public void accept(BzzMessage bzzMessage) {
+    public void accept(final BzzMessage bzzMessage) {
         handleMsg(bzzMessage);
     }
 
-    private void handleMsg(BzzMessage msg) {
+    private void handleMsg(final BzzMessage msg) {
         synchronized (netStore) {
             netStore.statInMsg.add(1);
             msg.setPeer(this);

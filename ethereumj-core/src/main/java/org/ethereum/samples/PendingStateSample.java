@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.samples;
 
 import org.ethereum.core.Block;
@@ -43,7 +69,7 @@ public class PendingStateSample extends TestNetSample {
     private
     PendingState pendingState;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         sLogger.info("Starting EthereumJ!");
 
         class Config extends TestNetConfig {
@@ -64,15 +90,15 @@ public class PendingStateSample extends TestNetSample {
         ethereum.addListener(new EthereumListenerAdapter() {
             // listening here when the PendingState is updated with new transactions
             @Override
-            public void onPendingTransactionsReceived(List<Transaction> transactions) {
-                for (Transaction tx : transactions) {
+            public void onPendingTransactionsReceived(final List<Transaction> transactions) {
+                for (final Transaction tx : transactions) {
                     PendingStateSample.this.onPendingTransactionReceived(tx);
                 }
             }
 
             // when block arrives look for our included transactions
             @Override
-            public void onBlock(Block block, List<TransactionReceipt> receipts) {
+            public void onBlock(final Block block, final List<TransactionReceipt> receipts) {
                 PendingStateSample.this.onBlock(block, receipts);
             }
         });
@@ -82,7 +108,7 @@ public class PendingStateSample extends TestNetSample {
             public void run() {
                 try {
                     sendTransactions();
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     logger.error("Error while sending transactions", e);
                 }
             }
@@ -98,11 +124,11 @@ public class PendingStateSample extends TestNetSample {
         // for further transactions we just do nonce++
         BigInteger nonce = ethereum.getRepository().getNonce(senderAddress);
 
-        int weisToSend = 100;
+        final int weisToSend = 100;
         int count = 0;
         while(true) {
             if (count < 5) {
-                Transaction tx = new Transaction(
+                final Transaction tx = new Transaction(
                         ByteUtil.bigIntegerToBytes(nonce),
                         ByteUtil.longToBytesNoLeadZeroes(ethereum.getGasPrice()),
                         ByteUtil.longToBytesNoLeadZeroes(1_000_000),
@@ -133,11 +159,11 @@ public class PendingStateSample extends TestNetSample {
      *  Prints the current receiver balance (based on blocks) and the pending balance
      *  which should immediately reflect receiver balance change
      */
-    private void onPendingTransactionReceived(Transaction tx) {
+    private void onPendingTransactionReceived(final Transaction tx) {
         logger.info("onPendingTransactionReceived: " + tx);
         if (Arrays.equals(tx.getSender(), senderAddress)) {
-            BigInteger receiverBalance = ethereum.getRepository().getBalance(receiverAddress);
-            BigInteger receiverBalancePending = pendingState.getRepository().getBalance(receiverAddress);
+            final BigInteger receiverBalance = ethereum.getRepository().getBalance(receiverAddress);
+            final BigInteger receiverBalancePending = pendingState.getRepository().getBalance(receiverAddress);
             logger.info(" + New pending transaction 0x" + Hex.toHexString(tx.getHash()).substring(0, 8));
 
             pendingTxs.put(new ByteArrayWrapper(tx.getHash()), tx);
@@ -151,11 +177,11 @@ public class PendingStateSample extends TestNetSample {
      * For each block we are looking for our transactions and clearing them
      * The actual receiver balance is confirmed upon block arrival
      */
-    private void onBlock(Block block, List<TransactionReceipt> receipts) {
+    private void onBlock(final Block block, final List<TransactionReceipt> receipts) {
         int cleared = 0;
-        for (Transaction tx : block.getTransactionsList()) {
-            ByteArrayWrapper txHash = new ByteArrayWrapper(tx.getHash());
-            Transaction ptx = pendingTxs.get(txHash);
+        for (final Transaction tx : block.getTransactionsList()) {
+            final ByteArrayWrapper txHash = new ByteArrayWrapper(tx.getHash());
+            final Transaction ptx = pendingTxs.get(txHash);
             if (ptx != null) {
                 logger.info(" - Pending transaction cleared 0x" + Hex.toHexString(tx.getHash()).substring(0, 8) +
                         " in block " + block.getShortDescr());
@@ -164,8 +190,8 @@ public class PendingStateSample extends TestNetSample {
                 cleared++;
             }
         }
-        BigInteger receiverBalance = ethereum.getRepository().getBalance(receiverAddress);
-        BigInteger receiverBalancePending = pendingState.getRepository().getBalance(receiverAddress);
+        final BigInteger receiverBalance = ethereum.getRepository().getBalance(receiverAddress);
+        final BigInteger receiverBalancePending = pendingState.getRepository().getBalance(receiverAddress);
         logger.info("" + cleared + " transactions cleared in the block " + block.getShortDescr());
         logger.info("Receiver pending/current balance: " + receiverBalancePending + " / " + receiverBalance +
                 " (" + pendingTxs.size() + " pending txs)");

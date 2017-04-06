@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.config;
 
 import org.ethereum.core.BlockHeader;
@@ -69,7 +95,7 @@ public class CommonConfig {
     }
 
     @Bean @Scope("prototype")
-    public Repository repository(byte[] stateRoot) {
+    public Repository repository(final byte[] stateRoot) {
         return new RepositoryRoot(stateSource(), stateRoot);
     }
 
@@ -77,7 +103,7 @@ public class CommonConfig {
     @Bean
     public StateSource stateSource() {
         fastSyncCleanUp();
-        StateSource stateSource = new StateSource(blockchainSource("state"),
+        final StateSource stateSource = new StateSource(blockchainSource("state"),
                 systemProperties().databasePruneDepth() >= 0, systemProperties().getConfig().getInt("cache.maxStateBloomSize") << 20);
 
         dbFlushManager().addCache(stateSource.getWriteCache());
@@ -87,11 +113,11 @@ public class CommonConfig {
 
     @Bean
     @Scope("prototype")
-    public Source<byte[], byte[]> cachedDbSource(String name) {
-        AbstractCachedSource<byte[], byte[]>  writeCache = new AsyncWriteCache<byte[], byte[]>(blockchainSource(name)) {
+    public Source<byte[], byte[]> cachedDbSource(final String name) {
+        final AbstractCachedSource<byte[], byte[]> writeCache = new AsyncWriteCache<byte[], byte[]>(blockchainSource(name)) {
             @Override
-            protected WriteCache<byte[], byte[]> createCache(Source<byte[], byte[]> source) {
-                WriteCache.BytesKey<byte[]> ret = new WriteCache.BytesKey<>(source, WriteCache.CacheType.SIMPLE);
+            protected WriteCache<byte[], byte[]> createCache(final Source<byte[], byte[]> source) {
+                final WriteCache.BytesKey<byte[]> ret = new WriteCache.BytesKey<>(source, WriteCache.CacheType.SIMPLE);
                 ret.withSizeEstimators(MemSizeEstimator.ByteArrayEstimator, MemSizeEstimator.ByteArrayEstimator);
                 ret.setFlushSource(true);
                 return ret;
@@ -103,13 +129,13 @@ public class CommonConfig {
 
     @Bean
     @Scope("prototype")
-    public Source<byte[], byte[]> blockchainSource(String name) {
+    public Source<byte[], byte[]> blockchainSource(final String name) {
         return new XorDataSource<>(blockchainDbCache(), HashUtil.sha3(name.getBytes()));
     }
 
     @Bean
     public AbstractCachedSource<byte[], byte[]> blockchainDbCache() {
-        WriteCache.BytesKey<byte[]> ret = new WriteCache.BytesKey<>(
+        final WriteCache.BytesKey<byte[]> ret = new WriteCache.BytesKey<>(
                 new BatchSourceWriter<>(blockchainDB()), WriteCache.CacheType.SIMPLE);
         ret.setFlushSource(true);
         return ret;
@@ -118,10 +144,10 @@ public class CommonConfig {
     @Bean
     @Scope("prototype")
     @Primary
-    public DbSource<byte[]> keyValueDataSource(String name) {
+    public DbSource<byte[]> keyValueDataSource(final String name) {
         String dataSource = systemProperties().getKeyValueDataSource();
         try {
-            DbSource<byte[]> dbSource;
+            final DbSource<byte[]> dbSource;
             if ("inmem".equals(dataSource)) {
                 dbSource = new HashMapDB<>();
             } else {
@@ -144,10 +170,10 @@ public class CommonConfig {
     }
 
     public void fastSyncCleanUp() {
-        byte[] fastsyncStageBytes = blockchainDB().get(FastSyncManager.FASTSYNC_DB_KEY_SYNC_STAGE);
+        final byte[] fastsyncStageBytes = blockchainDB().get(FastSyncManager.FASTSYNC_DB_KEY_SYNC_STAGE);
         if (fastsyncStageBytes == null) return; // no uncompleted fast sync
 
-        EthereumListener.SyncState syncStage = EthereumListener.SyncState.values()[fastsyncStageBytes[0]];
+        final EthereumListener.SyncState syncStage = EthereumListener.SyncState.values()[fastsyncStageBytes[0]];
 
         if (!systemProperties().isFastSyncEnabled() || syncStage == EthereumListener.SyncState.UNSECURE) {
             // we need to cleanup state/blocks/tranasaction DBs when previous fast sync was not complete:
@@ -156,12 +182,12 @@ public class CommonConfig {
 
             logger.warn("Last fastsync was interrupted. Removing inconsistent DBs...");
 
-            DbSource bcSource = blockchainDB();
+            final DbSource bcSource = blockchainDB();
             resetDataSource(bcSource);
         }
     }
 
-    private void resetDataSource(Source source) {
+    private void resetDataSource(final Source source) {
         if (source instanceof LevelDbDataSource) {
             ((LevelDbDataSource) source).reset();
         } else {
@@ -172,37 +198,37 @@ public class CommonConfig {
     @Bean
     @Lazy
     public DataSourceArray<BlockHeader> headerSource() {
-        DbSource<byte[]> dataSource = keyValueDataSource("headers");
-        BatchSourceWriter<byte[], byte[]> batchSourceWriter = new BatchSourceWriter<>(dataSource);
-        WriteCache.BytesKey<byte[]> writeCache = new WriteCache.BytesKey<>(batchSourceWriter, WriteCache.CacheType.SIMPLE);
+        final DbSource<byte[]> dataSource = keyValueDataSource("headers");
+        final BatchSourceWriter<byte[], byte[]> batchSourceWriter = new BatchSourceWriter<>(dataSource);
+        final WriteCache.BytesKey<byte[]> writeCache = new WriteCache.BytesKey<>(batchSourceWriter, WriteCache.CacheType.SIMPLE);
         writeCache.withSizeEstimators(MemSizeEstimator.ByteArrayEstimator, MemSizeEstimator.ByteArrayEstimator);
         writeCache.setFlushSource(true);
-        ObjectDataSource<BlockHeader> objectDataSource = new ObjectDataSource<>(dataSource, Serializers.BlockHeaderSerializer, 0);
-        DataSourceArray<BlockHeader> dataSourceArray = new DataSourceArray<>(objectDataSource);
+        final ObjectDataSource<BlockHeader> objectDataSource = new ObjectDataSource<>(dataSource, Serializers.BlockHeaderSerializer, 0);
+        final DataSourceArray<BlockHeader> dataSourceArray = new DataSourceArray<>(objectDataSource);
         return dataSourceArray;
     }
 
     @Bean
     public Source<byte[], ProgramPrecompile> precompileSource() {
 
-        StateSource source = stateSource();
+        final StateSource source = stateSource();
         return new SourceCodec<>(source,
                 new Serializer<byte[], byte[]>() {
-                    public byte[] serialize(byte[] object) {
-                        DataWord ret = new DataWord(object);
+                    public byte[] serialize(final byte[] object) {
+                        final DataWord ret = new DataWord(object);
                         ret.add(new DataWord(1));
                         return ret.getLast20Bytes();
                     }
 
-                    public byte[] deserialize(byte[] stream) {
+                    public byte[] deserialize(final byte[] stream) {
                         throw new RuntimeException("Shouldn't be called");
                     }
                 }, new Serializer<ProgramPrecompile, byte[]>() {
-            public byte[] serialize(ProgramPrecompile object) {
+            public byte[] serialize(final ProgramPrecompile object) {
                 return object == null ? null : object.serialize();
             }
 
-            public ProgramPrecompile deserialize(byte[] stream) {
+            public ProgramPrecompile deserialize(final byte[] stream) {
                 return stream == null ? null : ProgramPrecompile.deserialize(stream);
             }
         });
@@ -221,7 +247,7 @@ public class CommonConfig {
     @Bean
     public BlockHeaderValidator headerValidator() {
 
-        List<BlockHeaderRule> rules = new ArrayList<>(asList(
+        final List<BlockHeaderRule> rules = new ArrayList<>(asList(
                 new GasValueRule(),
                 new ExtraDataRule(systemProperties()),
                 new ProofOfWorkRule(),
@@ -235,7 +261,7 @@ public class CommonConfig {
     @Bean
     public ParentBlockHeaderValidator parentHeaderValidator() {
 
-        List<DependentBlockHeaderRule> rules = new ArrayList<>(asList(
+        final List<DependentBlockHeaderRule> rules = new ArrayList<>(asList(
                 new ParentNumberRule(),
                 new DifficultyRule(systemProperties()),
                 new ParentGasLimitRule(systemProperties())
@@ -247,7 +273,7 @@ public class CommonConfig {
     @Bean
     @Lazy
     public PeerSource peerSource() {
-        DbSource<byte[]> dbSource = keyValueDataSource("peers");
+        final DbSource<byte[]> dbSource = keyValueDataSource("peers");
         dbSources.add(dbSource);
         return new PeerSource(dbSource);
     }

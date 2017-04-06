@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.longrun;
 
 import com.typesafe.config.ConfigFactory;
@@ -47,7 +73,7 @@ public class SyncSanityTest {
     private final static long MAX_RUN_MINUTES = 180L;
     private static final ScheduledExecutorService statTimer =
             Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                public Thread newThread(Runnable r) {
+                public Thread newThread(final Runnable r) {
                     return new Thread(r, "StatTimer");
                 }
             });
@@ -55,8 +81,8 @@ public class SyncSanityTest {
 
     public SyncSanityTest() throws Exception {
 
-        String resetDb = System.getProperty("reset.db.onFirstRun");
-        String overrideConfigPath = System.getProperty("override.config.res");
+        final String resetDb = System.getProperty("reset.db.onFirstRun");
+        final String overrideConfigPath = System.getProperty("override.config.res");
         if (Boolean.parseBoolean(resetDb)) {
             resetDBOnFirstRun.setValue(true);
         } else if (resetDb != null && resetDb.equalsIgnoreCase("false")) {
@@ -71,7 +97,7 @@ public class SyncSanityTest {
                     if (fatalErrors.get() > 0) {
                         statTimer.shutdownNow();
                     }
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     SyncSanityTest.testLogger.error("Unhandled exception", t);
                 }
             }
@@ -86,7 +112,7 @@ public class SyncSanityTest {
         return fatalErrors.get() == 0;
     }
 
-    private static void fullSanityCheck(Ethereum ethereum, CommonConfig commonConfig) {
+    private static void fullSanityCheck(final Ethereum ethereum, final CommonConfig commonConfig) {
 
         BlockchainValidation.fullCheck(ethereum, commonConfig, fatalErrors);
         logStats();
@@ -117,7 +143,7 @@ public class SyncSanityTest {
                 sleep(60_000);
                 testLogger.info("Starting second run");
                 runEthereum();
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 e.printStackTrace();
             }
             }
@@ -153,7 +179,7 @@ public class SyncSanityTest {
          */
         @Bean
         public SystemProperties systemProperties() {
-            SystemProperties props = new SystemProperties();
+            final SystemProperties props = new SystemProperties();
             props.overrideParams(ConfigFactory.parseResources(configPath.getValue()));
             if (firstRun.get() && resetDBOnFirstRun.getValue() != null) {
                 props.setDatabaseReset(resetDBOnFirstRun.getValue());

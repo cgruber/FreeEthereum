@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.eth.handler;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -47,13 +73,13 @@ public class Eth63 extends Eth62 {
     }
 
     @Autowired
-    public Eth63(final SystemProperties config, final Blockchain blockchain, BlockStore blockStore,
+    public Eth63(final SystemProperties config, final Blockchain blockchain, final BlockStore blockStore,
                  final CompositeEthereumListener ethereumListener) {
         super(version, config, blockchain, blockStore, ethereumListener);
     }
 
     @Override
-    public void channelRead0(final ChannelHandlerContext ctx, EthMessage msg) throws InterruptedException {
+    public void channelRead0(final ChannelHandlerContext ctx, final EthMessage msg) throws InterruptedException {
 
         super.channelRead0(ctx, msg);
 
@@ -76,7 +102,7 @@ public class Eth63 extends Eth62 {
         }
     }
 
-    private synchronized void processGetNodeData(GetNodeDataMessage msg) {
+    private synchronized void processGetNodeData(final GetNodeDataMessage msg) {
 
         if (logger.isTraceEnabled()) logger.trace(
                 "Peer {}: processing GetNodeData, size [{}]",
@@ -84,11 +110,11 @@ public class Eth63 extends Eth62 {
                 msg.getNodeKeys().size()
         );
 
-        List<Value> nodeValues = new ArrayList<>();
-        for (byte[] nodeKey : msg.getNodeKeys()) {
-            byte[] rawNode = stateSource.get(nodeKey);
+        final List<Value> nodeValues = new ArrayList<>();
+        for (final byte[] nodeKey : msg.getNodeKeys()) {
+            final byte[] rawNode = stateSource.get(nodeKey);
             if (rawNode != null) {
-                Value value = new Value(rawNode);
+                final Value value = new Value(rawNode);
                 nodeValues.add(value);
                 logger.trace("Eth63: " + Hex.toHexString(nodeKey).substring(0, 8) + " -> " + value);
             }
@@ -97,7 +123,7 @@ public class Eth63 extends Eth62 {
         sendMessage(new NodeDataMessage(nodeValues));
     }
 
-    private synchronized void processGetReceipts(GetReceiptsMessage msg) {
+    private synchronized void processGetReceipts(final GetReceiptsMessage msg) {
 
         if (logger.isTraceEnabled()) logger.trace(
                 "Peer {}: processing GetReceipts, size [{}]",
@@ -105,14 +131,14 @@ public class Eth63 extends Eth62 {
                 msg.getBlockHashes().size()
         );
 
-        List<List<TransactionReceipt>> receipts = new ArrayList<>();
-        for (byte[] blockHash : msg.getBlockHashes()) {
-            Block block = blockchain.getBlockByHash(blockHash);
+        final List<List<TransactionReceipt>> receipts = new ArrayList<>();
+        for (final byte[] blockHash : msg.getBlockHashes()) {
+            final Block block = blockchain.getBlockByHash(blockHash);
             if (block == null) continue;
 
-            List<TransactionReceipt> blockReceipts = new ArrayList<>();
-            for (Transaction transaction : block.getTransactionsList()) {
-                TransactionInfo transactionInfo = blockchain.getTransactionInfo(transaction.getHash());
+            final List<TransactionReceipt> blockReceipts = new ArrayList<>();
+            for (final Transaction transaction : block.getTransactionsList()) {
+                final TransactionInfo transactionInfo = blockchain.getTransactionInfo(transaction.getHash());
                 if (transactionInfo == null) break;
                 blockReceipts.add(transactionInfo.getReceipt());
             }
@@ -122,10 +148,10 @@ public class Eth63 extends Eth62 {
         sendMessage(new ReceiptsMessage(receipts));
     }
 
-    public synchronized ListenableFuture<List<Pair<byte[], byte[]>>> requestTrieNodes(List<byte[]> hashes) {
+    public synchronized ListenableFuture<List<Pair<byte[], byte[]>>> requestTrieNodes(final List<byte[]> hashes) {
         if (peerState != PeerState.IDLE) return null;
 
-        GetNodeDataMessage msg = new GetNodeDataMessage(hashes);
+        final GetNodeDataMessage msg = new GetNodeDataMessage(hashes);
         requestedNodes = new ByteArraySet();
         requestedNodes.addAll(hashes);
 
@@ -137,10 +163,10 @@ public class Eth63 extends Eth62 {
         return requestNodesFuture;
     }
 
-    public synchronized ListenableFuture<List<List<TransactionReceipt>>> requestReceipts(List<byte[]> hashes) {
+    public synchronized ListenableFuture<List<List<TransactionReceipt>>> requestReceipts(final List<byte[]> hashes) {
         if (peerState != PeerState.IDLE) return null;
 
-        GetReceiptsMessage msg = new GetReceiptsMessage(hashes);
+        final GetReceiptsMessage msg = new GetReceiptsMessage(hashes);
         requestedReceipts = hashes;
         peerState = PeerState.RECEIPT_RETRIEVING;
 
@@ -151,23 +177,23 @@ public class Eth63 extends Eth62 {
         return requestReceiptsFuture;
     }
 
-    private synchronized void processNodeData(NodeDataMessage msg) {
+    private synchronized void processNodeData(final NodeDataMessage msg) {
         if (requestedNodes == null) {
             logger.debug("Received NodeDataMessage when requestedNodes == null. Dropping peer " + channel);
             dropConnection();
         }
 
-        List<Pair<byte[], byte[]>> ret = new ArrayList<>();
+        final List<Pair<byte[], byte[]>> ret = new ArrayList<>();
         if(msg.getDataList().isEmpty()) {
-            String err = "Received NodeDataMessage contains empty node data. Dropping peer " + channel;
+            final String err = "Received NodeDataMessage contains empty node data. Dropping peer " + channel;
             dropUselessPeer(err);
             return;
         }
 
-        for (Value nodeVal : msg.getDataList()) {
-            byte[] hash = nodeVal.hash();
+        for (final Value nodeVal : msg.getDataList()) {
+            final byte[] hash = nodeVal.hash();
             if (!requestedNodes.contains(hash)) {
-                String err = "Received NodeDataMessage contains non-requested node with hash :" + Hex.toHexString(hash) + " . Dropping peer " + channel;
+                final String err = "Received NodeDataMessage contains non-requested node with hash :" + Hex.toHexString(hash) + " . Dropping peer " + channel;
                 dropUselessPeer(err);
                 return;
             }
@@ -182,7 +208,7 @@ public class Eth63 extends Eth62 {
         peerState = PeerState.IDLE;
     }
 
-    private synchronized void processReceipts(ReceiptsMessage msg) {
+    private synchronized void processReceipts(final ReceiptsMessage msg) {
         if (requestedReceipts == null) {
             logger.debug("Received ReceiptsMessage when requestedReceipts == null. Dropping peer " + channel);
             dropConnection();
@@ -195,7 +221,7 @@ public class Eth63 extends Eth62 {
                 msg.getReceipts().size()
         );
 
-        List<List<TransactionReceipt>> receipts = msg.getReceipts();
+        final List<List<TransactionReceipt>> receipts = msg.getReceipts();
 
         requestReceiptsFuture.set(receipts);
 
@@ -207,7 +233,7 @@ public class Eth63 extends Eth62 {
     }
 
 
-    private void dropUselessPeer(String err) {
+    private void dropUselessPeer(final String err) {
         logger.debug(err);
         requestNodesFuture.setException(new RuntimeException(err));
         dropConnection();
@@ -215,9 +241,9 @@ public class Eth63 extends Eth62 {
 
     @Override
     public String getSyncStats() {
-        double nodesPerSec = 1000d * channel.getNodeStatistics().eth63NodesReceived.get() / channel.getNodeStatistics().eth63NodesRetrieveTime.get();
-        double missNodesRatio = 1 - (double) channel.getNodeStatistics().eth63NodesReceived.get() / channel.getNodeStatistics().eth63NodesRequested.get();
-        long lifeTime = System.currentTimeMillis() - connectedTime;
+        final double nodesPerSec = 1000d * channel.getNodeStatistics().eth63NodesReceived.get() / channel.getNodeStatistics().eth63NodesRetrieveTime.get();
+        final double missNodesRatio = 1 - (double) channel.getNodeStatistics().eth63NodesReceived.get() / channel.getNodeStatistics().eth63NodesRequested.get();
+        final long lifeTime = System.currentTimeMillis() - connectedTime;
         return super.getSyncStats() + String.format("\tNodes/sec: %1$.2f, miss: %2$.2f", nodesPerSec, missNodesRatio);
     }
 }

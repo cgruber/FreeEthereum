@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.samples;
 
 import com.typesafe.config.ConfigFactory;
@@ -24,6 +50,22 @@ import org.springframework.context.annotation.Bean;
  * Created by Anton Nashatyrev on 05.02.2016.
  */
 public class PrivateMinerSample {
+
+    /**
+     * Creating two EthereumJ instances with different config classes
+     */
+    public static void main(final String[] args) throws Exception {
+        if (Runtime.getRuntime().maxMemory() < (1250L << 20)) {
+            MinerNode.sLogger.error("Not enough JVM heap (" + (Runtime.getRuntime().maxMemory() >> 20) + "Mb) to generate DAG for mining (DAG requires min 1G). For this sample it is recommended to set -Xmx2G JVM option");
+            return;
+        }
+
+        BasicSample.sLogger.info("Starting EthtereumJ miner instance!");
+        EthereumFactory.createEthereum(MinerConfig.class);
+
+        BasicSample.sLogger.info("Starting EthtereumJ regular instance!");
+        EthereumFactory.createEthereum(RegularConfig.class);
+    }
 
     /**
      * Spring configuration class for the Miner peer
@@ -61,7 +103,7 @@ public class PrivateMinerSample {
          */
         @Bean
         public SystemProperties systemProperties() {
-            SystemProperties props = new SystemProperties();
+            final SystemProperties props = new SystemProperties();
             props.overrideParams(ConfigFactory.parseString(config.replaceAll("'", "\"")));
             return props;
         }
@@ -84,7 +126,7 @@ public class PrivateMinerSample {
                 logger.info("Generating Full Dataset (may take up to 10 min if not cached)...");
                 // calling this just for indication of the dataset generation
                 // basically this is not required
-                Ethash ethash = Ethash.getForBlock(config, ethereum.getBlockchain().getBestBlock().getNumber());
+                final Ethash ethash = Ethash.getForBlock(config, ethereum.getBlockchain().getBestBlock().getNumber());
                 ethash.getFullDataset();
                 logger.info("Full dataset generated (loaded).");
             }
@@ -103,17 +145,17 @@ public class PrivateMinerSample {
         }
 
         @Override
-        public void blockMiningStarted(Block block) {
+        public void blockMiningStarted(final Block block) {
             logger.info("Start mining block: " + block.getShortDescr());
         }
 
         @Override
-        public void blockMined(Block block) {
+        public void blockMined(final Block block) {
             logger.info("Block mined! : \n" + block);
         }
 
         @Override
-        public void blockMiningCanceled(Block block) {
+        public void blockMiningCanceled(final Block block) {
             logger.info("Cancel mining block: " + block.getShortDescr());
         }
     }
@@ -150,7 +192,7 @@ public class PrivateMinerSample {
          */
         @Bean
         public SystemProperties systemProperties() {
-            SystemProperties props = new SystemProperties();
+            final SystemProperties props = new SystemProperties();
             props.overrideParams(ConfigFactory.parseString(config.replaceAll("'", "\"")));
             return props;
         }
@@ -175,7 +217,7 @@ public class PrivateMinerSample {
                 public void run() {
                     try {
                         generateTransactions();
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         logger.error("Error generating tx: ", e);
                     }
                 }
@@ -190,12 +232,12 @@ public class PrivateMinerSample {
             logger.info("Start generating transactions...");
 
             // the sender which some coins from the genesis
-            ECKey senderKey = ECKey.fromPrivate(Hex.decode("6ef8da380c27cea8fdf7448340ea99e8e2268fc2950d79ed47cbf6f85dc977ec"));
-            byte[] receiverAddr = Hex.decode("5db10750e8caff27f906b41c71b3471057dd2004");
+            final ECKey senderKey = ECKey.fromPrivate(Hex.decode("6ef8da380c27cea8fdf7448340ea99e8e2268fc2950d79ed47cbf6f85dc977ec"));
+            final byte[] receiverAddr = Hex.decode("5db10750e8caff27f906b41c71b3471057dd2004");
 
             for (int i = ethereum.getRepository().getNonce(senderKey.getAddress()).intValue(), j = 0; j < 20000; i++, j++) {
                 {
-                    Transaction tx = new Transaction(ByteUtil.intToBytesNoLeadZeroes(i),
+                    final Transaction tx = new Transaction(ByteUtil.intToBytesNoLeadZeroes(i),
                             ByteUtil.longToBytesNoLeadZeroes(50_000_000_000L), ByteUtil.longToBytesNoLeadZeroes(0xfffff),
                             receiverAddr, new byte[]{77}, new byte[0], ethereum.getChainIdForNextBlock());
                     tx.sign(senderKey);
@@ -205,21 +247,5 @@ public class PrivateMinerSample {
                 Thread.sleep(7000);
             }
         }
-    }
-
-    /**
-     *  Creating two EthereumJ instances with different config classes
-     */
-    public static void main(String[] args) throws Exception {
-        if (Runtime.getRuntime().maxMemory() < (1250L << 20)) {
-            MinerNode.sLogger.error("Not enough JVM heap (" + (Runtime.getRuntime().maxMemory() >> 20) + "Mb) to generate DAG for mining (DAG requires min 1G). For this sample it is recommended to set -Xmx2G JVM option");
-            return;
-        }
-
-        BasicSample.sLogger.info("Starting EthtereumJ miner instance!");
-        EthereumFactory.createEthereum(MinerConfig.class);
-
-        BasicSample.sLogger.info("Starting EthtereumJ regular instance!");
-        EthereumFactory.createEthereum(RegularConfig.class);
     }
 }

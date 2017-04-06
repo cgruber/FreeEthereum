@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.p2p;
 
 import com.google.common.base.Joiner;
@@ -43,12 +69,12 @@ public class HelloMessage extends P2pMessage {
      */
     private String peerId;
 
-    public HelloMessage(byte[] encoded) {
+    public HelloMessage(final byte[] encoded) {
         super(encoded);
     }
 
-    public HelloMessage(byte p2pVersion, String clientId,
-                        List<Capability> capabilities, int listenPort, String peerId) {
+    public HelloMessage(final byte p2pVersion, final String clientId,
+                        final List<Capability> capabilities, final int listenPort, final String peerId) {
         this.p2pVersion = p2pVersion;
         this.clientId = clientId;
         this.capabilities = capabilities;
@@ -58,49 +84,49 @@ public class HelloMessage extends P2pMessage {
     }
 
     private void parse() {
-        RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
+        final RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 
-        byte[] p2pVersionBytes = paramsList.get(0).getRLPData();
+        final byte[] p2pVersionBytes = paramsList.get(0).getRLPData();
         this.p2pVersion = p2pVersionBytes != null ? p2pVersionBytes[0] : 0;
 
-        byte[] clientIdBytes = paramsList.get(1).getRLPData();
+        final byte[] clientIdBytes = paramsList.get(1).getRLPData();
         this.clientId = new String(clientIdBytes != null ? clientIdBytes : EMPTY_BYTE_ARRAY);
 
-        RLPList capabilityList = (RLPList) paramsList.get(2);
+        final RLPList capabilityList = (RLPList) paramsList.get(2);
         this.capabilities = new ArrayList<>();
-        for (Object aCapabilityList : capabilityList) {
+        for (final Object aCapabilityList : capabilityList) {
 
-            RLPElement capId = ((RLPList) aCapabilityList).get(0);
-            RLPElement capVersion = ((RLPList) aCapabilityList).get(1);
+            final RLPElement capId = ((RLPList) aCapabilityList).get(0);
+            final RLPElement capVersion = ((RLPList) aCapabilityList).get(1);
 
-            String name = new String(capId.getRLPData());
-            byte version = capVersion.getRLPData() == null ? 0 : capVersion.getRLPData()[0];
+            final String name = new String(capId.getRLPData());
+            final byte version = capVersion.getRLPData() == null ? 0 : capVersion.getRLPData()[0];
 
-            Capability cap = new Capability(name, version);
+            final Capability cap = new Capability(name, version);
             this.capabilities.add(cap);
         }
 
-        byte[] peerPortBytes = paramsList.get(3).getRLPData();
+        final byte[] peerPortBytes = paramsList.get(3).getRLPData();
         this.listenPort = ByteUtil.byteArrayToInt(peerPortBytes);
 
-        byte[] peerIdBytes = paramsList.get(4).getRLPData();
+        final byte[] peerIdBytes = paramsList.get(4).getRLPData();
         this.peerId = Hex.toHexString(peerIdBytes);
         this.parsed = true;
     }
 
     private void encode() {
-        byte[] p2pVersion = RLP.encodeByte(this.p2pVersion);
-        byte[] clientId = RLP.encodeString(this.clientId);
-        byte[][] capabilities = new byte[this.capabilities.size()][];
+        final byte[] p2pVersion = RLP.encodeByte(this.p2pVersion);
+        final byte[] clientId = RLP.encodeString(this.clientId);
+        final byte[][] capabilities = new byte[this.capabilities.size()][];
         for (int i = 0; i < this.capabilities.size(); i++) {
-            Capability capability = this.capabilities.get(i);
+            final Capability capability = this.capabilities.get(i);
             capabilities[i] = RLP.encodeList(
                     RLP.encodeElement(capability.getName().getBytes()),
                     RLP.encodeInt(capability.getVersion()));
         }
-        byte[] capabilityList = RLP.encodeList(capabilities);
-        byte[] peerPort = RLP.encodeInt(this.listenPort);
-        byte[] peerId = RLP.encodeElement(Hex.decode(this.peerId));
+        final byte[] capabilityList = RLP.encodeList(capabilities);
+        final byte[] peerPort = RLP.encodeInt(this.listenPort);
+        final byte[] peerId = RLP.encodeElement(Hex.decode(this.peerId));
 
         this.encoded = RLP.encodeList(p2pVersion, clientId,
                 capabilityList, peerPort, peerId);
@@ -137,16 +163,16 @@ public class HelloMessage extends P2pMessage {
         return peerId;
     }
 
+    public void setPeerId(final String peerId) {
+        this.peerId = peerId;
+    }
+
     @Override
     public P2pMessageCodes getCommand() {
         return P2pMessageCodes.HELLO;
     }
 
-    public void setPeerId(String peerId) {
-        this.peerId = peerId;
-    }
-
-    public void setP2pVersion(byte p2pVersion) {
+    public void setP2pVersion(final byte p2pVersion) {
         this.p2pVersion = p2pVersion;
     }
 

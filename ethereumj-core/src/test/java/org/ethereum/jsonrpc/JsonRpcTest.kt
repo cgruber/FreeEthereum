@@ -136,7 +136,7 @@ class JsonRpcTest {
             assertTrue(TypeConverter.StringHexToBigInteger(txHash1).compareTo(BigInteger.ZERO) > 0)
 
             var i = 0
-            while (i < 50 && changes.size == 0) {
+            while (i < 50 && changes.isEmpty()) {
                 changes = jsonRpc!!.eth_getFilterChanges(pendingTxFilterId)
                 Thread.sleep(200)
                 i++

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.config.blockchain;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,18 +54,18 @@ public class Eip150HFConfig implements BlockchainConfig, BlockchainNetConfig {
     private static final GasCost NEW_GAS_COST = new GasCostEip150HF();
     private final BlockchainConfig parent;
 
-    public Eip150HFConfig(BlockchainConfig parent) {
+    public Eip150HFConfig(final BlockchainConfig parent) {
         this.parent = parent;
     }
 
     @Override
-    public DataWord getCallGas(OpCode op, DataWord requestedGas, DataWord availableGas) throws Program.OutOfGasException {
-        DataWord maxAllowed = Utils.allButOne64th(availableGas);
+    public DataWord getCallGas(final OpCode op, final DataWord requestedGas, final DataWord availableGas) throws Program.OutOfGasException {
+        final DataWord maxAllowed = Utils.allButOne64th(availableGas);
         return requestedGas.compareTo(maxAllowed) > 0 ? maxAllowed : requestedGas;
     }
 
     @Override
-    public DataWord getCreateGas(DataWord availableGas) {
+    public DataWord getCreateGas(final DataWord availableGas) {
         return Utils.allButOne64th(availableGas);
     }
 
@@ -49,37 +75,37 @@ public class Eip150HFConfig implements BlockchainConfig, BlockchainNetConfig {
     }
 
     @Override
-    public MinerIfc getMineAlgorithm(SystemProperties config) {
+    public MinerIfc getMineAlgorithm(final SystemProperties config) {
         return parent.getMineAlgorithm(config);
     }
 
     @Override
-    public BigInteger calcDifficulty(BlockHeader curBlock, BlockHeader parent) {
+    public BigInteger calcDifficulty(final BlockHeader curBlock, final BlockHeader parent) {
         return this.parent.calcDifficulty(curBlock, parent);
     }
 
     @Override
-    public long getTransactionCost(Transaction tx) {
+    public long getTransactionCost(final Transaction tx) {
         return parent.getTransactionCost(tx);
     }
 
     @Override
-    public boolean acceptTransactionSignature(Transaction tx) {
+    public boolean acceptTransactionSignature(final Transaction tx) {
         return parent.acceptTransactionSignature(tx) && tx.getChainId() == null;
     }
 
     @Override
-    public String validateTransactionChanges(BlockStore blockStore, Block curBlock, Transaction tx, Repository repository) {
+    public String validateTransactionChanges(final BlockStore blockStore, final Block curBlock, final Transaction tx, final Repository repository) {
         return parent.validateTransactionChanges(blockStore, curBlock, tx, repository);
     }
 
     @Override
-    public void hardForkTransfers(Block block, Repository repo) {
+    public void hardForkTransfers(final Block block, final Repository repo) {
         parent.hardForkTransfers(block, repo);
     }
 
     @Override
-    public byte[] getExtraData(byte[] minerExtraData, long blockNumber) {
+    public byte[] getExtraData(final byte[] minerExtraData, final long blockNumber) {
         return parent.getExtraData(minerExtraData, blockNumber);
     }
 
@@ -99,7 +125,7 @@ public class Eip150HFConfig implements BlockchainConfig, BlockchainNetConfig {
     }
 
     @Override
-    public BlockchainConfig getConfigForBlock(long blockNumber) {
+    public BlockchainConfig getConfigForBlock(final long blockNumber) {
         return this;
     }
 

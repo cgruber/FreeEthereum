@@ -67,7 +67,7 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
         this(new Constants());
     }
 
-    AbstractConfig(Constants constants) {
+    AbstractConfig(final Constants constants) {
         this.constants = constants;
     }
 
@@ -77,7 +77,7 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
     }
 
     @Override
-    public BlockchainConfig getConfigForBlock(long blockHeader) {
+    public BlockchainConfig getConfigForBlock(final long blockHeader) {
         return this;
     }
 
@@ -87,22 +87,22 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
     }
 
     @Override
-    public MinerIfc getMineAlgorithm(SystemProperties config) {
+    public MinerIfc getMineAlgorithm(final SystemProperties config) {
         if (miner == null) miner = new EthashMiner(config);
         return miner;
     }
 
     @Override
-    public BigInteger calcDifficulty(BlockHeader curBlock, BlockHeader parent) {
-        BigInteger pd = parent.getDifficultyBI();
-        BigInteger quotient = pd.divide(getConstants().getDifficultyBoundDivisor());
+    public BigInteger calcDifficulty(final BlockHeader curBlock, final BlockHeader parent) {
+        final BigInteger pd = parent.getDifficultyBI();
+        final BigInteger quotient = pd.divide(getConstants().getDifficultyBoundDivisor());
 
-        BigInteger sign = getCalcDifficultyMultiplier(curBlock, parent);
+        final BigInteger sign = getCalcDifficultyMultiplier(curBlock, parent);
 
-        BigInteger fromParent = pd.add(quotient.multiply(sign));
+        final BigInteger fromParent = pd.add(quotient.multiply(sign));
         BigInteger difficulty = max(getConstants().getMinimumDifficulty(), fromParent);
 
-        int explosion = getExplosion(curBlock, parent);
+        final int explosion = getExplosion(curBlock, parent);
 
         if (explosion >= 0) {
             difficulty = max(getConstants().getMinimumDifficulty(), difficulty.add(BigInteger.ONE.shiftLeft(explosion)));
@@ -113,27 +113,28 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
 
     protected abstract BigInteger getCalcDifficultyMultiplier(BlockHeader curBlock, BlockHeader parent);
 
-    private int getExplosion(BlockHeader curBlock, BlockHeader parent) {
-        int periodCount = (int) (curBlock.getNumber() / getConstants().getExpDifficultyPeriod());
+    private int getExplosion(final BlockHeader curBlock, final BlockHeader parent) {
+        final int periodCount = (int) (curBlock.getNumber() / getConstants().getExpDifficultyPeriod());
         return periodCount - 2;
     }
 
     @Override
-    public boolean acceptTransactionSignature(Transaction tx) {
+    public boolean acceptTransactionSignature(final Transaction tx) {
         return Objects.equals(tx.getChainId(), getChainId());
     }
 
     @Override
-    public String validateTransactionChanges(BlockStore blockStore, Block curBlock, Transaction tx,
-                                               Repository repository) {
+    public String validateTransactionChanges(final BlockStore blockStore, final Block curBlock, final Transaction tx,
+                                             final Repository repository) {
         return null;
     }
 
     @Override
-    public void hardForkTransfers(Block block, Repository repo) {}
+    public void hardForkTransfers(final Block block, final Repository repo) {
+    }
 
     @Override
-    public byte[] getExtraData(byte[] minerExtraData, long blockNumber) {
+    public byte[] getExtraData(final byte[] minerExtraData, final long blockNumber) {
         return minerExtraData;
     }
 
@@ -149,7 +150,7 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
     }
 
     @Override
-    public DataWord getCallGas(OpCode op, DataWord requestedGas, DataWord availableGas) throws Program.OutOfGasException {
+    public DataWord getCallGas(final OpCode op, final DataWord requestedGas, final DataWord availableGas) throws Program.OutOfGasException {
         if (requestedGas.compareTo(availableGas) > 0) {
             throw Program.Exception.notEnoughOpGas(op, requestedGas, availableGas);
         }
@@ -157,7 +158,7 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
     }
 
     @Override
-    public DataWord getCreateGas(DataWord availableGas) {
+    public DataWord getCreateGas(final DataWord availableGas) {
         return availableGas;
     }
 

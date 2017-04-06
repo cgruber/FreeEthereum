@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.swarm;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -26,11 +52,11 @@ public class Manifest {
      *
      * @param dpa DPA
      */
-    public Manifest(DPA dpa) {
+    public Manifest(final DPA dpa) {
         this(dpa, new ManifestEntry(null, ""));
     }
 
-    private Manifest(DPA dpa, ManifestEntry root) {
+    private Manifest(final DPA dpa, final ManifestEntry root) {
         this.dpa = dpa;
         trie = new StringTrie<ManifestEntry>(root.setThisMF(this)) {
         };
@@ -39,24 +65,24 @@ public class Manifest {
     /**
      * Loads the manifest with the specified hashKey from the DPA storage
      */
-    public static Manifest loadManifest(DPA dpa, String hashKey) {
-        ManifestRoot manifestRoot = load(dpa, hashKey);
+    public static Manifest loadManifest(final DPA dpa, final String hashKey) {
+        final ManifestRoot manifestRoot = load(dpa, hashKey);
 
-        Manifest ret = new Manifest(dpa);
-        for (Manifest.ManifestEntry entry : manifestRoot.entries) {
+        final Manifest ret = new Manifest(dpa);
+        for (final Manifest.ManifestEntry entry : manifestRoot.entries) {
             ret.add(entry);
         }
         return ret;
     }
 
-    private static Manifest.ManifestRoot load(DPA dpa, String hashKey) {
+    private static Manifest.ManifestRoot load(final DPA dpa, final String hashKey) {
         try {
-            SectionReader sr = dpa.retrieve(new Key(hashKey));
-            ObjectMapper om = new ObjectMapper();
-            String s = Util.readerToString(sr);
-            ManifestRoot manifestRoot = om.readValue(s, ManifestRoot.class);
+            final SectionReader sr = dpa.retrieve(new Key(hashKey));
+            final ObjectMapper om = new ObjectMapper();
+            final String s = Util.readerToString(sr);
+            final ManifestRoot manifestRoot = om.readValue(s, ManifestRoot.class);
             return manifestRoot;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -64,7 +90,7 @@ public class Manifest {
     /**
      * Retrieves the entry with the specified path loading necessary nested manifests on demand
      */
-    public ManifestEntry get(String path) {
+    public ManifestEntry get(final String path) {
         return trie.get(path);
     }
 
@@ -72,12 +98,12 @@ public class Manifest {
      * Adds a new entry to the manifest hierarchy with loading necessary nested manifests on demand.
      * The entry path should contain the absolute path relative to this manifest root
      */
-    public void add(ManifestEntry entry) {
+    public void add(final ManifestEntry entry) {
         add(null, entry);
     }
 
-    private void add(ManifestEntry parent, ManifestEntry entry) {
-        ManifestEntry added = parent == null ? trie.add(entry.path) : trie.add(parent, entry.path);
+    private void add(final ManifestEntry parent, final ManifestEntry entry) {
+        final ManifestEntry added = parent == null ? trie.add(entry.path) : trie.add(parent, entry.path);
         added.hash = entry.hash;
         added.contentType = entry.contentType;
         added.status = entry.status;
@@ -86,7 +112,7 @@ public class Manifest {
     /**
      * Deletes the leaf manifest entry with the specified path
      */
-    public void delete(String path) {
+    public void delete(final String path) {
         trie.delete(path);
     }
 
@@ -99,25 +125,25 @@ public class Manifest {
         return save(trie.rootNode);
     }
 
-    private String save(ManifestEntry e) {
+    private String save(final ManifestEntry e) {
         if (e.isValid()) return e.hash;
-        for (ManifestEntry c : e.getChildren()) {
+        for (final ManifestEntry c : e.getChildren()) {
             save(c);
         }
         e.hash = serialize(dpa, e);
         return e.hash;
     }
 
-    private String serialize(DPA dpa, ManifestEntry manifest) {
+    private String serialize(final DPA dpa, final ManifestEntry manifest) {
         try {
-            ObjectMapper om = new ObjectMapper();
+            final ObjectMapper om = new ObjectMapper();
 
-            ManifestRoot mr = new ManifestRoot(manifest);
-            String s = om.writeValueAsString(mr);
+            final ManifestRoot mr = new ManifestRoot(manifest);
+            final String s = om.writeValueAsString(mr);
 
-            String hash = dpa.store(Util.stringToReader(s)).getHexString();
+            final String hash = dpa.store(Util.stringToReader(s)).getHexString();
             return hash;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -134,7 +160,8 @@ public class Manifest {
         NOT_FOUND(404);
 
         private final int code;
-        Status(int code) {
+
+        Status(final int code) {
             this.code = code;
         }
     }
@@ -146,11 +173,11 @@ public class Manifest {
         public ManifestRoot() {
         }
 
-        public ManifestRoot(List<ManifestEntry> entries) {
+        public ManifestRoot(final List<ManifestEntry> entries) {
             this.entries = entries;
         }
 
-        public ManifestRoot(ManifestEntry parent) {
+        public ManifestRoot(final ManifestEntry parent) {
             entries.addAll(parent.getChildren());
         }
     }
@@ -172,7 +199,7 @@ public class Manifest {
             super(null, "");
         }
 
-        public ManifestEntry(String path, String hash, String contentType, Status status) {
+        public ManifestEntry(final String path, final String hash, final String contentType, final Status status) {
             super(null, "");
             this.path = path;
             this.hash = hash;
@@ -180,7 +207,7 @@ public class Manifest {
             this.status = status;
         }
 
-        ManifestEntry(ManifestEntry parent, String path) {
+        ManifestEntry(final ManifestEntry parent, final String path) {
             super(parent, path);
             this.path = path;
         }
@@ -203,9 +230,9 @@ public class Manifest {
         @Override
         protected Map<String, ManifestEntry> loadChildren() {
             if (isManifestType() && children.isEmpty() && isValid()) {
-                ManifestRoot manifestRoot = load(thisMF.dpa, hash);
+                final ManifestRoot manifestRoot = load(thisMF.dpa, hash);
                 children = new HashMap<>();
-                for (Manifest.ManifestEntry entry : manifestRoot.entries) {
+                for (final Manifest.ManifestEntry entry : manifestRoot.entries) {
                     children.put(getKey(entry.path), entry);
                 }
             }
@@ -218,12 +245,12 @@ public class Manifest {
         }
 
         @JsonProperty
-        public void setPath(String path) {
+        public void setPath(final String path) {
             this.path = path;
         }
 
         @Override
-        protected ManifestEntry createNode(ManifestEntry parent, String path) {
+        protected ManifestEntry createNode(final ManifestEntry parent, final String path) {
             return new ManifestEntry(parent, path).setThisMF(parent.thisMF);
         }
 
@@ -235,7 +262,7 @@ public class Manifest {
             }
         }
 
-        ManifestEntry setThisMF(Manifest thisMF) {
+        ManifestEntry setThisMF(final Manifest thisMF) {
             this.thisMF = thisMF;
             return this;
         }

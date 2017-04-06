@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.config.CommonConfig;
@@ -44,22 +70,22 @@ public class ContractDetailsImpl extends AbstractContractDetails {
     public ContractDetailsImpl() {
     }
 
-    private ContractDetailsImpl(byte[] address, SecureTrie storageTrie, Map<ByteArrayWrapper, byte[]> codes) {
+    private ContractDetailsImpl(final byte[] address, final SecureTrie storageTrie, final Map<ByteArrayWrapper, byte[]> codes) {
         this.address = address;
         this.storageTrie = storageTrie;
         setCodes(codes);
     }
 
-    private void addKey(byte[] key) {
+    private void addKey(final byte[] key) {
         keys.add(wrap(key));
     }
 
-    private void removeKey(byte[] key) {
+    private void removeKey(final byte[] key) {
 //        keys.remove(wrap(key)); // TODO: we can't remove keys , because of fork branching
     }
 
     @Override
-    public void put(DataWord key, DataWord value) {
+    public void put(final DataWord key, final DataWord value) {
         if (value.equals(DataWord.ZERO)) {
             storageTrie.delete(key.getData());
             removeKey(key.getData());
@@ -72,12 +98,12 @@ public class ContractDetailsImpl extends AbstractContractDetails {
     }
 
     @Override
-    public DataWord get(DataWord key) {
+    public DataWord get(final DataWord key) {
         DataWord result = null;
 
-        byte[] data = storageTrie.get(key.getData());
+        final byte[] data = storageTrie.get(key.getData());
         if (data.length > 0) {
-            byte[] dataDecoded = RLP.decode2(data).get(0).getRLPData();
+            final byte[] dataDecoded = RLP.decode2(data).get(0).getRLPData();
             result = new DataWord(dataDecoded);
         }
 
@@ -90,7 +116,7 @@ public class ContractDetailsImpl extends AbstractContractDetails {
     }
 
     @Override
-    public void decode(byte[] rlpCode) {
+    public void decode(final byte[] rlpCode) {
         throw new RuntimeException("Not supported");
     }
 
@@ -100,12 +126,12 @@ public class ContractDetailsImpl extends AbstractContractDetails {
     }
 
     @Override
-    public Map<DataWord, DataWord> getStorage(Collection<DataWord> keys) {
-        Map<DataWord, DataWord> storage = new HashMap<>();
+    public Map<DataWord, DataWord> getStorage(final Collection<DataWord> keys) {
+        final Map<DataWord, DataWord> storage = new HashMap<>();
         if (keys == null) {
-            for (ByteArrayWrapper keyBytes : this.keys) {
-                DataWord key = new DataWord(keyBytes);
-                DataWord value = get(key);
+            for (final ByteArrayWrapper keyBytes : this.keys) {
+                final DataWord key = new DataWord(keyBytes);
+                final DataWord value = get(key);
 
                 // we check if the value is not null,
                 // cause we keep all historical keys
@@ -113,8 +139,8 @@ public class ContractDetailsImpl extends AbstractContractDetails {
                     storage.put(key, value);
             }
         } else {
-            for (DataWord key : keys) {
-                DataWord value = get(key);
+            for (final DataWord key : keys) {
+                final DataWord value = get(key);
 
                 // we check if the value is not null,
                 // cause we keep all historical keys
@@ -132,8 +158,8 @@ public class ContractDetailsImpl extends AbstractContractDetails {
     }
 
     @Override
-    public void setStorage(Map<DataWord, DataWord> storage) {
-        for (DataWord key : storage.keySet()) {
+    public void setStorage(final Map<DataWord, DataWord> storage) {
+        for (final DataWord key : storage.keySet()) {
             put(key, storage.get(key));
         }
     }
@@ -145,15 +171,15 @@ public class ContractDetailsImpl extends AbstractContractDetails {
 
     @Override
     public Set<DataWord> getStorageKeys() {
-        Set<DataWord> result = new HashSet<>();
-        for (ByteArrayWrapper key : keys) {
+        final Set<DataWord> result = new HashSet<>();
+        for (final ByteArrayWrapper key : keys) {
             result.add(new DataWord(key));
         }
         return result;
     }
 
     @Override
-    public void setStorage(List<DataWord> storageKeys, List<DataWord> storageValues) {
+    public void setStorage(final List<DataWord> storageKeys, final List<DataWord> storageValues) {
 
         for (int i = 0; i < storageKeys.size(); ++i)
             put(storageKeys.get(i), storageValues.get(i));
@@ -165,7 +191,7 @@ public class ContractDetailsImpl extends AbstractContractDetails {
     }
 
     @Override
-    public void setAddress(byte[] address) {
+    public void setAddress(final byte[] address) {
         this.address = address;
     }
 
@@ -189,15 +215,15 @@ public class ContractDetailsImpl extends AbstractContractDetails {
     }
 
     @Override
-    public ContractDetails getSnapshotTo(byte[] hash){
+    public ContractDetails getSnapshotTo(final byte[] hash) {
 
-        Source<byte[], byte[]> cache = this.storageTrie.getCache();
+        final Source<byte[], byte[]> cache = this.storageTrie.getCache();
 
-        SecureTrie snapStorage = wrap(hash).equals(wrap(EMPTY_TRIE_HASH)) ?
+        final SecureTrie snapStorage = wrap(hash).equals(wrap(EMPTY_TRIE_HASH)) ?
             new SecureTrie(cache, "".getBytes()):
             new SecureTrie(cache, hash);
 
-        ContractDetailsImpl details = new ContractDetailsImpl(this.address, snapStorage, getCodes());
+        final ContractDetailsImpl details = new ContractDetailsImpl(this.address, snapStorage, getCodes());
         details.externalStorage = this.externalStorage;
         details.externalStorageDataSource = this.externalStorageDataSource;
         details.keys = this.keys;

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.datasource;
 
 /**
@@ -15,7 +41,7 @@ package org.ethereum.datasource;
  */
 public abstract class MultiCache<V extends CachedSource> extends ReadWriteCache.BytesKey<V> {
 
-    public MultiCache(Source<byte[], V> src) {
+    public MultiCache(final Source<byte[], V> src) {
         super(src, WriteCache.CacheType.SIMPLE);
     }
 
@@ -25,11 +51,11 @@ public abstract class MultiCache<V extends CachedSource> extends ReadWriteCache.
      * via create() method
      */
     @Override
-    public synchronized V get(byte[] key) {
-        AbstractCachedSource.Entry<V> ownCacheEntry = getCached(key);
+    public synchronized V get(final byte[] key) {
+        final AbstractCachedSource.Entry<V> ownCacheEntry = getCached(key);
         V ownCache = ownCacheEntry == null ? null : ownCacheEntry.value();
         if (ownCache == null) {
-            V v = getSource() != null ? super.get(key) : null;
+            final V v = getSource() != null ? super.get(key) : null;
             ownCache = create(key, v);
             put(key, ownCache);
         }
@@ -43,8 +69,8 @@ public abstract class MultiCache<V extends CachedSource> extends ReadWriteCache.
     @Override
     public synchronized boolean flushImpl() {
         boolean ret = false;
-        for (byte[] key: writeCache.getModified()) {
-            V value = super.get(key);
+        for (final byte[] key : writeCache.getModified()) {
+            final V value = super.get(key);
             if (value == null) {
                 // cache was deleted
                 ret |= flushChild(key, value);
@@ -65,7 +91,7 @@ public abstract class MultiCache<V extends CachedSource> extends ReadWriteCache.
      * Is invoked to flush child cache if it has backing Source
      * Some additional tasks may be performed by subclasses here
      */
-    protected boolean flushChild(byte[] key, V childCache) {
+    protected boolean flushChild(final byte[] key, final V childCache) {
         return childCache == null || childCache.flush();
     }
 

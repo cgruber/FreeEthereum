@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.core;
 
 
@@ -51,25 +77,25 @@ public class ImportTest {
     @Test
     public void testScenario1() throws URISyntaxException, IOException {
 
-        BlockchainImpl blockchain = (BlockchainImpl) worldManager.getBlockchain();
+        final BlockchainImpl blockchain = (BlockchainImpl) worldManager.getBlockchain();
         logger.info("Running as: {}", SystemProperties.getDefault().genesisInfo());
 
-        URL scenario1 = ClassLoader
+        final URL scenario1 = ClassLoader
                 .getSystemResource("blockload/scenario1.dmp");
 
-        File file = new File(scenario1.toURI());
-        List<String> strData = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+        final File file = new File(scenario1.toURI());
+        final List<String> strData = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
 
         byte[] root = Genesis.getInstance().getStateRoot();
-        for (String blockRLP : strData) {
-            Block block = new Block(
+        for (final String blockRLP : strData) {
+            final Block block = new Block(
                     Hex.decode(blockRLP));
             logger.info("sending block.hash: {}", Hex.toHexString(block.getHash()));
             blockchain.tryToConnect(block);
             root = block.getStateRoot();
         }
 
-        Repository repository = (Repository)worldManager.getRepository();
+        final Repository repository = (Repository) worldManager.getRepository();
         logger.info("asserting root state is: {}", Hex.toHexString(root));
         assertEquals(Hex.toHexString(root),
                 Hex.toHexString(repository.getRoot()));
@@ -84,7 +110,7 @@ public class ImportTest {
         @Bean
         public BlockStore blockStore() {
 
-            IndexedBlockStore blockStore = new IndexedBlockStore();
+            final IndexedBlockStore blockStore = new IndexedBlockStore();
             blockStore.init(new HashMapDB<>(), new HashMapDB<>());
 
             return blockStore;

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.crypto;
 
 import org.ethereum.config.SystemProperties;
@@ -34,14 +60,14 @@ public class HashUtil {
     private static final MessageDigest sha256digest;
 
     static {
-        SystemProperties props = SystemProperties.getDefault();
+        final SystemProperties props = SystemProperties.getDefault();
         Security.addProvider(SpongyCastleProvider.getInstance());
         CRYPTO_PROVIDER = Security.getProvider(props.getCryptoProviderName());
         HASH_256_ALGORITHM_NAME = props.getHash256AlgName();
         HASH_512_ALGORITHM_NAME = props.getHash512AlgName();
         try {
             sha256digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             LOG.error("Can't initialize HashUtils", e);
             throw new RuntimeException(e); // Can't happen.
         }
@@ -55,31 +81,31 @@ public class HashUtil {
      *            - data for hashing
      * @return - sha256 hash of the data
      */
-    public static byte[] sha256(byte[] input) {
+    public static byte[] sha256(final byte[] input) {
         return sha256digest.digest(input);
     }
 
-    public static byte[] sha3(byte[] input) {
-        MessageDigest digest;
+    public static byte[] sha3(final byte[] input) {
+        final MessageDigest digest;
         try {
             digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME, CRYPTO_PROVIDER);
             digest.update(input);
             return digest.digest();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             LOG.error("Can't find such algorithm", e);
             throw new RuntimeException(e);
         }
 
     }
 
-    public static byte[] sha3(byte[] input1, byte[] input2) {
-        MessageDigest digest;
+    public static byte[] sha3(final byte[] input1, final byte[] input2) {
+        final MessageDigest digest;
         try {
             digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME, CRYPTO_PROVIDER);
             digest.update(input1, 0, input1.length);
             digest.update(input2, 0, input2.length);
             return digest.digest();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             LOG.error("Can't find such algorithm", e);
             throw new RuntimeException(e);
         }
@@ -96,25 +122,25 @@ public class HashUtil {
      *            - length of hashing chunk
      * @return - keccak hash of the chunk
      */
-    public static byte[] sha3(byte[] input, int start, int length) {
-        MessageDigest digest;
+    public static byte[] sha3(final byte[] input, final int start, final int length) {
+        final MessageDigest digest;
         try {
             digest = MessageDigest.getInstance(HASH_256_ALGORITHM_NAME, CRYPTO_PROVIDER);
             digest.update(input, start, length);
             return digest.digest();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             LOG.error("Can't find such algorithm", e);
             throw new RuntimeException(e);
         }
     }
 
-    public static byte[] sha512(byte[] input) {
-        MessageDigest digest;
+    public static byte[] sha512(final byte[] input) {
+        final MessageDigest digest;
         try {
             digest = MessageDigest.getInstance(HASH_512_ALGORITHM_NAME, CRYPTO_PROVIDER);
             digest.update(input);
             return digest.digest();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (final NoSuchAlgorithmException e) {
             LOG.error("Can't find such algorithm", e);
             throw new RuntimeException(e);
         }
@@ -125,10 +151,10 @@ public class HashUtil {
      *            - message to hash
      * @return - reipmd160 hash of the message
      */
-    public static byte[] ripemd160(byte[] data) {
-        Digest digest = new RIPEMD160Digest();
+    public static byte[] ripemd160(final byte[] data) {
+        final Digest digest = new RIPEMD160Digest();
         if (data != null) {
-            byte[] resBuf = new byte[digest.getDigestSize()];
+            final byte[] resBuf = new byte[digest.getDigestSize()];
             digest.update(data, 0, data.length);
             digest.doFinal(resBuf, 0);
             return resBuf;
@@ -144,8 +170,8 @@ public class HashUtil {
      *            - data
      * @return - 20 right bytes of the hash keccak of the data
      */
-    public static byte[] sha3omit12(byte[] input) {
-        byte[] hash = sha3(input);
+    public static byte[] sha3omit12(final byte[] input) {
+        final byte[] hash = sha3(input);
         return copyOfRange(hash, 12, hash.length);
     }
 
@@ -158,10 +184,10 @@ public class HashUtil {
      *            - nonce of creating address
      * @return new address
      */
-    public static byte[] calcNewAddr(byte[] addr, byte[] nonce) {
+    public static byte[] calcNewAddr(final byte[] addr, final byte[] nonce) {
 
-        byte[] encSender = RLP.encodeElement(addr);
-        byte[] encNonce = RLP.encodeBigInteger(new BigInteger(1, nonce));
+        final byte[] encSender = RLP.encodeElement(addr);
+        final byte[] encNonce = RLP.encodeBigInteger(new BigInteger(1, nonce));
 
         return sha3omit12(RLP.encodeList(encSender, encNonce));
     }
@@ -173,7 +199,7 @@ public class HashUtil {
      *            -
      * @return -
      */
-    public static byte[] doubleDigest(byte[] input) {
+    public static byte[] doubleDigest(final byte[] input) {
         return doubleDigest(input, 0, input.length);
     }
 
@@ -190,11 +216,11 @@ public class HashUtil {
      *            -
      * @return -
      */
-    private static byte[] doubleDigest(byte[] input, int offset, int length) {
+    private static byte[] doubleDigest(final byte[] input, final int offset, final int length) {
         synchronized (sha256digest) {
             sha256digest.reset();
             sha256digest.update(input, offset, length);
-            byte[] first = sha256digest.digest();
+            final byte[] first = sha256digest.digest();
             return sha256digest.digest(first);
         }
     }
@@ -204,7 +230,7 @@ public class HashUtil {
      */
     public static byte[] randomPeerId() {
 
-        byte[] peerIdBytes = new BigInteger(512, Utils.getRandom()).toByteArray();
+        final byte[] peerIdBytes = new BigInteger(512, Utils.getRandom()).toByteArray();
 
         final String peerId;
         if (peerIdBytes.length > 64)
@@ -220,13 +246,13 @@ public class HashUtil {
      */
     public static byte[] randomHash() {
 
-        byte[] randomHash = new byte[32];
-        Random random = new Random();
+        final byte[] randomHash = new byte[32];
+        final Random random = new Random();
         random.nextBytes(randomHash);
         return randomHash;
     }
 
-    public static String shortHash(byte[] hash) {
+    public static String shortHash(final byte[] hash) {
         return Hex.toHexString(hash).substring(0, 6);
     }
 }

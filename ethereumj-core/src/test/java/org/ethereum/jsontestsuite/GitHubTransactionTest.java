@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite;
 
 import org.ethereum.config.SystemProperties;
@@ -34,7 +60,7 @@ public class GitHubTransactionTest {
 
     @Test
     public void testEIP155TransactionTestFromGitHub() throws ParseException, IOException {
-        Set<String> excluded = new HashSet<>();
+        final Set<String> excluded = new HashSet<>();
         SystemProperties.getDefault().setBlockchainConfig(new BaseNetConfig() {{
             add(0, new FrontierConfig());
             add(1_150_000, new HomesteadConfig());
@@ -46,73 +72,73 @@ public class GitHubTransactionTest {
                 }
             });
         }});
-        String json = JSONReader.loadJSONFromCommit("TransactionTests/EIP155/ttTransactionTest.json", shacommit);
+        final String json = JSONReader.loadJSONFromCommit("TransactionTests/EIP155/ttTransactionTest.json", shacommit);
         GitHubJSONTestSuite.runGitHubJsonTransactionTest(json, excluded);
     }
 
     @Ignore
     @Test
     public void runsingleTest() throws Exception {
-        String json = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttTransactionTest.json", shacommit);
-        TransactionTestSuite testSuite = new TransactionTestSuite(json);
-        List<String> res = TransactionTestRunner.run(testSuite.getTestCases().get("V_overflow64bitPlus28"));
+        final String json = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttTransactionTest.json", shacommit);
+        final TransactionTestSuite testSuite = new TransactionTestSuite(json);
+        final List<String> res = TransactionTestRunner.run(testSuite.getTestCases().get("V_overflow64bitPlus28"));
         System.out.println(res);
     }
 
     @Test
     public void testHomesteadTestsFromGitHub() throws ParseException, IOException {
-        Set<String> excluded = new HashSet<>();
-        String json1 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/tt10mbDataField.json", shacommit);
+        final Set<String> excluded = new HashSet<>();
+        final String json1 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/tt10mbDataField.json", shacommit);
         GitHubJSONTestSuite.runGitHubJsonTransactionTest(json1, excluded);
 
-        String json2 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttTransactionTest.json", shacommit);
+        final String json2 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttTransactionTest.json", shacommit);
         GitHubJSONTestSuite.runGitHubJsonTransactionTest(json2, excluded);
 
-        String json3 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttTransactionTestEip155VitaliksTests.json", shacommit);
+        final String json3 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttTransactionTestEip155VitaliksTests.json", shacommit);
         GitHubJSONTestSuite.runGitHubJsonTransactionTest(json3, excluded);
 
-        String json4 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttWrongRLPTransaction.json", shacommit);
+        final String json4 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttWrongRLPTransaction.json", shacommit);
         GitHubJSONTestSuite.runGitHubJsonTransactionTest(json4, excluded);
     }
 
     @Test
     public void testRandomTestFromGitHub() throws ParseException, IOException {
-        Set<String> excluded = new HashSet<>();
+        final Set<String> excluded = new HashSet<>();
         // pre-EIP155 wrong chain id (negative)
-        String json = JSONReader.loadJSONFromCommit("TransactionTests/RandomTests/tr201506052141PYTHON.json", shacommit);
+        final String json = JSONReader.loadJSONFromCommit("TransactionTests/RandomTests/tr201506052141PYTHON.json", shacommit);
         GitHubJSONTestSuite.runGitHubJsonTransactionTest(json, excluded);
     }
 
     @Test
     public void testGeneralTestsFromGitHub() throws ParseException, IOException {
-        Set<String> excluded = new HashSet<>();
-        String json1 = JSONReader.loadJSONFromCommit("TransactionTests/tt10mbDataField.json", shacommit);
+        final Set<String> excluded = new HashSet<>();
+        final String json1 = JSONReader.loadJSONFromCommit("TransactionTests/tt10mbDataField.json", shacommit);
         GitHubJSONTestSuite.runGitHubJsonTransactionTest(json1, excluded);
 
-        String json2 = JSONReader.loadJSONFromCommit("TransactionTests/ttTransactionTest.json", shacommit);
+        final String json2 = JSONReader.loadJSONFromCommit("TransactionTests/ttTransactionTest.json", shacommit);
         GitHubJSONTestSuite.runGitHubJsonTransactionTest(json2, excluded);
     }
 
     @Ignore // Few tests fails, RLPWrongByteEncoding and RLPLength preceding 0s errors left
     @Test
     public void testWrongRLPTestsFromGitHub() throws ParseException, IOException {
-        Set<String> excluded = new HashSet<>();
+        final Set<String> excluded = new HashSet<>();
 
-        String json = JSONReader.loadJSONFromCommit("TransactionTests/ttWrongRLPTransaction.json", shacommit);
+        final String json = JSONReader.loadJSONFromCommit("TransactionTests/ttWrongRLPTransaction.json", shacommit);
         GitHubJSONTestSuite.runGitHubJsonTransactionTest(json, excluded);
     }
 
     @Test
     public void testEip155VitaliksTestFromGitHub() throws ParseException, IOException {
-        Set<String> excluded = new HashSet<>();
-        String json = JSONReader.loadJSONFromCommit("TransactionTests/EIP155/ttTransactionTestEip155VitaliksTests.json", shacommit);
+        final Set<String> excluded = new HashSet<>();
+        final String json = JSONReader.loadJSONFromCommit("TransactionTests/EIP155/ttTransactionTestEip155VitaliksTests.json", shacommit);
         GitHubJSONTestSuite.runGitHubJsonTransactionTest(json, excluded);
     }
 
     @Test
     public void testEip155VRuleTestFromGitHub() throws ParseException, IOException {
-        Set<String> excluded = new HashSet<>();
-        String json = JSONReader.loadJSONFromCommit("TransactionTests/EIP155/ttTransactionTestVRule.json", shacommit);
+        final Set<String> excluded = new HashSet<>();
+        final String json = JSONReader.loadJSONFromCommit("TransactionTests/EIP155/ttTransactionTestVRule.json", shacommit);
         GitHubJSONTestSuite.runGitHubJsonTransactionTest(json, excluded);
     }
 }

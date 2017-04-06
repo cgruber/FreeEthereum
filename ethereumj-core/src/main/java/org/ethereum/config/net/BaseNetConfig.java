@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.config.net;
 
 import org.ethereum.config.BlockchainConfig;
@@ -14,7 +40,7 @@ import java.util.Arrays;
     private final BlockchainConfig[] configs = new BlockchainConfig[64];
     private int count;
 
-    public void add(long startBlockNumber, BlockchainConfig config) {
+    public void add(final long startBlockNumber, final BlockchainConfig config) {
         if (count >= blockNumbers.length) throw new RuntimeException();
         if (count > 0 && blockNumbers[count] >= startBlockNumber)
             throw new RuntimeException("Block numbers should increase");
@@ -25,7 +51,7 @@ import java.util.Arrays;
     }
 
     @Override
-    public BlockchainConfig getConfigForBlock(long blockNumber) {
+    public BlockchainConfig getConfigForBlock(final long blockNumber) {
         for (int i = 0; i < count; i++) {
             if (blockNumber < blockNumbers[i]) return configs[i - 1];
         }

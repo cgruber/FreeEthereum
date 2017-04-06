@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.swarm.bzz;
 
 import org.ethereum.net.client.Capability;
@@ -21,11 +47,11 @@ public class BzzStatusMessage extends BzzMessage {
     private long networkId;
     private List<Capability> capabilities;
 
-    public BzzStatusMessage(byte[] encoded) {
+    public BzzStatusMessage(final byte[] encoded) {
         super(encoded);
     }
 
-    public BzzStatusMessage(int version, String id, PeerAddress addr, long networkId, List<Capability> capabilities) {
+    public BzzStatusMessage(final int version, final String id, final PeerAddress addr, final long networkId, final List<Capability> capabilities) {
         this.version = version;
         this.id = id;
         this.addr = addr;
@@ -36,7 +62,7 @@ public class BzzStatusMessage extends BzzMessage {
 
     @Override
     protected void decode() {
-        RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
+        final RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 
         version = rlpDecodeLong(paramsList.get(0));
         id = rlpDecodeString(paramsList.get(1));
@@ -44,9 +70,9 @@ public class BzzStatusMessage extends BzzMessage {
         networkId = rlpDecodeInt(paramsList.get(3));
 
         capabilities = new ArrayList<>();
-        RLPList caps = (RLPList) paramsList.get(4);
-        for (RLPElement c : caps) {
-            RLPList e = (RLPList) c;
+        final RLPList caps = (RLPList) paramsList.get(4);
+        for (final RLPElement c : caps) {
+            final RLPList e = (RLPList) c;
             capabilities.add(new Capability(rlpDecodeString(e.get(0)), rlpDecodeByte(e.get(1))));
         }
 
@@ -54,9 +80,9 @@ public class BzzStatusMessage extends BzzMessage {
     }
 
     private void encode() {
-        byte[][] capabilities = new byte[this.capabilities.size()][];
+        final byte[][] capabilities = new byte[this.capabilities.size()][];
         for (int i = 0; i < this.capabilities.size(); i++) {
-            Capability capability = this.capabilities.get(i);
+            final Capability capability = this.capabilities.get(i);
             capabilities[i] = rlpEncodeList(capability.getName(),capability.getVersion());
         }
         this.encoded = rlpEncodeList(version, id, addr.encodeRlp(), networkId, rlpEncodeList(capabilities));

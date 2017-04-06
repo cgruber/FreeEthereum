@@ -52,22 +52,22 @@ public class NettyTest {
 
         final ByteToMessageDecoder decoder2 = new ByteToMessageDecoder() {
             @Override
-            protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-                int i = in.readInt();
+            protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
+                final int i = in.readInt();
                 System.out.println("decoder2 read int (4 bytes): " + Integer.toHexString(i));
                 int2[0] = i;
                 if (i == 0) out.add("aaa");
             }
 
             @Override
-            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
                 System.out.println("Decoder2 exception: " + cause);
             }
         };
 
         final MessageToMessageCodec decoder3 = new MessageToMessageCodec<Object, Object>() {
             @Override
-            protected void decode(ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
+            protected void decode(final ChannelHandlerContext ctx, final Object msg, final List<Object> out) throws Exception {
                 System.out.println("NettyTest.decode: msg = [" + msg + "]");
                 if (msg == "aaa") {
                     throw new RuntimeException("Test exception 3");
@@ -75,12 +75,12 @@ public class NettyTest {
             }
 
             @Override
-            protected void encode(ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
+            protected void encode(final ChannelHandlerContext ctx, final Object msg, final List<Object> out) throws Exception {
                 throw new RuntimeException("Test exception 4");
             }
 
             @Override
-            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
                 System.out.println("Decoder3 exception: " + cause);
                 exception[0] = true;
             }
@@ -88,8 +88,8 @@ public class NettyTest {
 
         final ByteToMessageDecoder decoder1 = new ByteToMessageDecoder() {
             @Override
-            protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-                int i = in.readInt();
+            protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
+                final int i = in.readInt();
                 System.out.println("decoder1 read int (4 bytes). Needs no more: " + Integer.toHexString(i));
                 ctx.pipeline().addAfter("decoder1", "decoder2", decoder2);
                 ctx.pipeline().addAfter("decoder2", "decoder3", decoder3);
@@ -97,33 +97,33 @@ public class NettyTest {
             }
 
             @Override
-            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
                 System.out.println("Decoder1 exception: " + cause);
             }
         };
 
-        ChannelInboundHandlerAdapter initiator = new ChannelInboundHandlerAdapter() {
+        final ChannelInboundHandlerAdapter initiator = new ChannelInboundHandlerAdapter() {
             @Override
-            public void channelActive(ChannelHandlerContext ctx) throws Exception {
+            public void channelActive(final ChannelHandlerContext ctx) throws Exception {
                 ctx.pipeline().addFirst("decoder1", decoder1);
                 System.out.println("NettyTest.channelActive");
             }
         };
 
-        EmbeddedChannel channel0 = new EmbeddedChannel(new ChannelOutboundHandlerAdapter() {
+        final EmbeddedChannel channel0 = new EmbeddedChannel(new ChannelOutboundHandlerAdapter() {
             @Override
-            public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+            public void write(final ChannelHandlerContext ctx, final Object msg, final ChannelPromise promise) throws Exception {
                 throw new RuntimeException("Test");
             }
 
             @Override
-            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+            public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
                 System.out.println("Exception caught: " + cause);
             }
 
         });
-        EmbeddedChannel channel = new EmbeddedChannel(initiator);
-        ByteBuf buffer = Unpooled.buffer();
+        final EmbeddedChannel channel = new EmbeddedChannel(initiator);
+        final ByteBuf buffer = Unpooled.buffer();
         buffer.writeInt(0x12345678);
         buffer.writeInt(0xabcdefff);
         channel.writeInbound(buffer);

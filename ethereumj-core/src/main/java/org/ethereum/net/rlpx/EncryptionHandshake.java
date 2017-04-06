@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import com.google.common.base.Preconditions;
@@ -32,7 +58,7 @@ public class EncryptionHandshake {
     private byte[] responderNonce;
     private Secrets secrets;
 
-    public EncryptionHandshake(ECPoint remotePublicKey) {
+    public EncryptionHandshake(final ECPoint remotePublicKey) {
         this.remotePublicKey = remotePublicKey;
         ephemeralKey = new ECKey(random);
         initiatorNonce = new byte[NONCE_SIZE];
@@ -40,7 +66,7 @@ public class EncryptionHandshake {
         isInitiator = true;
     }
 
-    EncryptionHandshake(ECPoint remotePublicKey, ECKey ephemeralKey, byte[] initiatorNonce, byte[] responderNonce, boolean isInitiator) {
+    EncryptionHandshake(final ECPoint remotePublicKey, final ECKey ephemeralKey, final byte[] initiatorNonce, final byte[] responderNonce, final boolean isInitiator) {
         this.remotePublicKey = remotePublicKey;
         this.ephemeralKey = ephemeralKey;
         this.initiatorNonce = initiatorNonce;
@@ -55,9 +81,9 @@ public class EncryptionHandshake {
         isInitiator = false;
     }
 
-    private static byte[] xor(byte[] b1, byte[] b2) {
+    private static byte[] xor(final byte[] b1, final byte[] b2) {
         Preconditions.checkArgument(b1.length == b2.length);
-        byte[] out = new byte[b1.length];
+        final byte[] out = new byte[b1.length];
         for (int i = 0; i < b1.length; i++) {
             out[i] = (byte) (b1[i] ^ b2[i]);
         }
@@ -77,65 +103,65 @@ public class EncryptionHandshake {
      *
      * @param key our private key
      */
-    public AuthInitiateMessageV4 createAuthInitiateV4(ECKey key) {
-        AuthInitiateMessageV4 message = new AuthInitiateMessageV4();
+    public AuthInitiateMessageV4 createAuthInitiateV4(final ECKey key) {
+        final AuthInitiateMessageV4 message = new AuthInitiateMessageV4();
 
-        BigInteger secretScalar = key.keyAgreement(remotePublicKey);
-        byte[] token = ByteUtil.bigIntegerToBytes(secretScalar, NONCE_SIZE);
+        final BigInteger secretScalar = key.keyAgreement(remotePublicKey);
+        final byte[] token = ByteUtil.bigIntegerToBytes(secretScalar, NONCE_SIZE);
 
-        byte[] nonce = initiatorNonce;
-        byte[] signed = xor(token, nonce);
+        final byte[] nonce = initiatorNonce;
+        final byte[] signed = xor(token, nonce);
         message.signature = ephemeralKey.sign(signed);
         message.publicKey = key.getPubKeyPoint();
         message.nonce = initiatorNonce;
         return message;
     }
 
-    public byte[] encryptAuthInitiateV4(AuthInitiateMessageV4 message) {
+    public byte[] encryptAuthInitiateV4(final AuthInitiateMessageV4 message) {
 
-        byte[] msg = message.encode();
-        byte[] padded = padEip8(msg);
+        final byte[] msg = message.encode();
+        final byte[] padded = padEip8(msg);
 
         return encryptAuthEIP8(padded);
     }
 
-    public AuthInitiateMessageV4 decryptAuthInitiateV4(byte[] in, ECKey myKey) throws InvalidCipherTextException {
+    public AuthInitiateMessageV4 decryptAuthInitiateV4(final byte[] in, final ECKey myKey) throws InvalidCipherTextException {
         try {
 
-            byte[] prefix = new byte[2];
+            final byte[] prefix = new byte[2];
             System.arraycopy(in, 0, prefix, 0, 2);
-            short size = ByteUtil.bigEndianToShort(prefix, 0);
-            byte[] ciphertext = new byte[size];
+            final short size = ByteUtil.bigEndianToShort(prefix, 0);
+            final byte[] ciphertext = new byte[size];
             System.arraycopy(in, 2, ciphertext, 0, size);
 
-            byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext, prefix);
+            final byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext, prefix);
 
             return AuthInitiateMessageV4.decode(plaintext);
-        } catch (InvalidCipherTextException e) {
+        } catch (final InvalidCipherTextException e) {
             throw e;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
     }
 
-    public byte[] encryptAuthResponseV4(AuthResponseMessageV4 message) {
+    public byte[] encryptAuthResponseV4(final AuthResponseMessageV4 message) {
 
-        byte[] msg = message.encode();
-        byte[] padded = padEip8(msg);
+        final byte[] msg = message.encode();
+        final byte[] padded = padEip8(msg);
 
         return encryptAuthEIP8(padded);
     }
 
-    public AuthResponseMessageV4 decryptAuthResponseV4(byte[] in, ECKey myKey) {
+    public AuthResponseMessageV4 decryptAuthResponseV4(final byte[] in, final ECKey myKey) {
         try {
 
-            byte[] prefix = new byte[2];
+            final byte[] prefix = new byte[2];
             System.arraycopy(in, 0, prefix, 0, 2);
-            short size = ByteUtil.bigEndianToShort(prefix, 0);
-            byte[] ciphertext = new byte[size];
+            final short size = ByteUtil.bigEndianToShort(prefix, 0);
+            final byte[] ciphertext = new byte[size];
             System.arraycopy(in, 2, ciphertext, 0, size);
 
-            byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext, prefix);
+            final byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext, prefix);
 
             return AuthResponseMessageV4.decode(plaintext);
         } catch (IOException | InvalidCipherTextException e) {
@@ -143,42 +169,42 @@ public class EncryptionHandshake {
         }
     }
 
-    AuthResponseMessageV4 makeAuthInitiateV4(AuthInitiateMessageV4 initiate, ECKey key) {
+    AuthResponseMessageV4 makeAuthInitiateV4(final AuthInitiateMessageV4 initiate, final ECKey key) {
         initiatorNonce = initiate.nonce;
         remotePublicKey = initiate.publicKey;
 
-        BigInteger secretScalar = key.keyAgreement(remotePublicKey);
+        final BigInteger secretScalar = key.keyAgreement(remotePublicKey);
 
-        byte[] token = ByteUtil.bigIntegerToBytes(secretScalar, NONCE_SIZE);
-        byte[] signed = xor(token, initiatorNonce);
+        final byte[] token = ByteUtil.bigIntegerToBytes(secretScalar, NONCE_SIZE);
+        final byte[] signed = xor(token, initiatorNonce);
 
-        ECKey ephemeral = ECKey.recoverFromSignature(recIdFromSignatureV(initiate.signature.v),
+        final ECKey ephemeral = ECKey.recoverFromSignature(recIdFromSignatureV(initiate.signature.v),
                 initiate.signature, signed);
         if (ephemeral == null) {
             throw new RuntimeException("failed to recover signatue from message");
         }
         remoteEphemeralKey = ephemeral.getPubKeyPoint();
-        AuthResponseMessageV4 response = new AuthResponseMessageV4();
+        final AuthResponseMessageV4 response = new AuthResponseMessageV4();
         response.ephemeralPublicKey = ephemeralKey.getPubKeyPoint();
         response.nonce = responderNonce;
         return response;
     }
 
-    public AuthResponseMessageV4 handleAuthResponseV4(ECKey myKey, byte[] initiatePacket, byte[] responsePacket) {
-        AuthResponseMessageV4 response = decryptAuthResponseV4(responsePacket, myKey);
+    public AuthResponseMessageV4 handleAuthResponseV4(final ECKey myKey, final byte[] initiatePacket, final byte[] responsePacket) {
+        final AuthResponseMessageV4 response = decryptAuthResponseV4(responsePacket, myKey);
         remoteEphemeralKey = response.ephemeralPublicKey;
         responderNonce = response.nonce;
         agreeSecret(initiatePacket, responsePacket);
         return response;
     }
 
-    private byte[] encryptAuthEIP8(byte[] msg) {
+    private byte[] encryptAuthEIP8(final byte[] msg) {
 
-        short size = (short) (msg.length + ECIESCoder.getOverhead());
-        byte[] prefix = ByteUtil.shortToBytes(size);
-        byte[] encrypted = ECIESCoder.encrypt(remotePublicKey, msg, prefix);
+        final short size = (short) (msg.length + ECIESCoder.getOverhead());
+        final byte[] prefix = ByteUtil.shortToBytes(size);
+        final byte[] encrypted = ECIESCoder.encrypt(remotePublicKey, msg, prefix);
 
-        byte[] out = new byte[prefix.length + encrypted.length];
+        final byte[] out = new byte[prefix.length + encrypted.length];
         int offset = 0;
         System.arraycopy(prefix, 0, out, offset, prefix.length);
         offset += prefix.length;
@@ -193,19 +219,19 @@ public class EncryptionHandshake {
      * @param token previous token if we had a previous session
      * @param key our private key
      */
-    public AuthInitiateMessage createAuthInitiate(@Nullable byte[] token, ECKey key) {
-        AuthInitiateMessage message = new AuthInitiateMessage();
-        boolean isToken;
+    public AuthInitiateMessage createAuthInitiate(@Nullable byte[] token, final ECKey key) {
+        final AuthInitiateMessage message = new AuthInitiateMessage();
+        final boolean isToken;
         if (token == null) {
             isToken = false;
-            BigInteger secretScalar = key.keyAgreement(remotePublicKey);
+            final BigInteger secretScalar = key.keyAgreement(remotePublicKey);
             token = ByteUtil.bigIntegerToBytes(secretScalar, NONCE_SIZE);
         } else {
             isToken = true;
         }
 
-        byte[] nonce = initiatorNonce;
-        byte[] signed = xor(token, nonce);
+        final byte[] nonce = initiatorNonce;
+        final byte[] signed = xor(token, nonce);
         message.signature = ephemeralKey.sign(signed);
         message.isTokenUsed = isToken;
         message.ephemeralPublicHash = sha3(ephemeralKey.getPubKey(), 1, 64);
@@ -214,47 +240,47 @@ public class EncryptionHandshake {
         return message;
     }
 
-    public byte[] encryptAuthMessage(AuthInitiateMessage message) {
+    public byte[] encryptAuthMessage(final AuthInitiateMessage message) {
         return ECIESCoder.encrypt(remotePublicKey, message.encode());
     }
 
-    public byte[] encryptAuthResponse(AuthResponseMessage message) {
+    public byte[] encryptAuthResponse(final AuthResponseMessage message) {
         return ECIESCoder.encrypt(remotePublicKey, message.encode());
     }
 
-    private AuthResponseMessage decryptAuthResponse(byte[] ciphertext, ECKey myKey) {
+    private AuthResponseMessage decryptAuthResponse(final byte[] ciphertext, final ECKey myKey) {
         try {
-            byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext);
+            final byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext);
             return AuthResponseMessage.decode(plaintext);
         } catch (IOException | InvalidCipherTextException e) {
             throw Throwables.propagate(e);
         }
     }
 
-    public AuthInitiateMessage decryptAuthInitiate(byte[] ciphertext, ECKey myKey) throws InvalidCipherTextException {
+    public AuthInitiateMessage decryptAuthInitiate(final byte[] ciphertext, final ECKey myKey) throws InvalidCipherTextException {
         try {
-            byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext);
+            final byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext);
             return AuthInitiateMessage.decode(plaintext);
-        } catch (InvalidCipherTextException e) {
+        } catch (final InvalidCipherTextException e) {
             throw e;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
     }
 
-    public AuthResponseMessage handleAuthResponse(ECKey myKey, byte[] initiatePacket, byte[] responsePacket) {
-        AuthResponseMessage response = decryptAuthResponse(responsePacket, myKey);
+    public AuthResponseMessage handleAuthResponse(final ECKey myKey, final byte[] initiatePacket, final byte[] responsePacket) {
+        final AuthResponseMessage response = decryptAuthResponse(responsePacket, myKey);
         remoteEphemeralKey = response.ephemeralPublicKey;
         responderNonce = response.nonce;
         agreeSecret(initiatePacket, responsePacket);
         return response;
     }
 
-    void agreeSecret(byte[] initiatePacket, byte[] responsePacket) {
-        BigInteger secretScalar = ephemeralKey.keyAgreement(remoteEphemeralKey);
-        byte[] agreedSecret = ByteUtil.bigIntegerToBytes(secretScalar, SECRET_SIZE);
-        byte[] sharedSecret = sha3(agreedSecret, sha3(responderNonce, initiatorNonce));
-        byte[] aesSecret = sha3(agreedSecret, sharedSecret);
+    void agreeSecret(final byte[] initiatePacket, final byte[] responsePacket) {
+        final BigInteger secretScalar = ephemeralKey.keyAgreement(remoteEphemeralKey);
+        final byte[] agreedSecret = ByteUtil.bigIntegerToBytes(secretScalar, SECRET_SIZE);
+        final byte[] sharedSecret = sha3(agreedSecret, sha3(responderNonce, initiatorNonce));
+        final byte[] aesSecret = sha3(agreedSecret, sharedSecret);
         secrets = new Secrets();
         secrets.aes = aesSecret;
         secrets.mac = sha3(agreedSecret, aesSecret);
@@ -264,13 +290,13 @@ public class EncryptionHandshake {
 //        System.out.println("shared " + Hex.toHexString(sharedSecret));
 //        System.out.println("ecdhe " + Hex.toHexString(agreedSecret));
 
-        KeccakDigest mac1 = new KeccakDigest(MAC_SIZE);
+        final KeccakDigest mac1 = new KeccakDigest(MAC_SIZE);
         mac1.update(xor(secrets.mac, responderNonce), 0, secrets.mac.length);
-        byte[] buf = new byte[32];
+        final byte[] buf = new byte[32];
         new KeccakDigest(mac1).doFinal(buf, 0);
         mac1.update(initiatePacket, 0, initiatePacket.length);
         new KeccakDigest(mac1).doFinal(buf, 0);
-        KeccakDigest mac2 = new KeccakDigest(MAC_SIZE);
+        final KeccakDigest mac2 = new KeccakDigest(MAC_SIZE);
         mac2.update(xor(secrets.mac, initiatorNonce), 0, secrets.mac.length);
         new KeccakDigest(mac2).doFinal(buf, 0);
         mac2.update(responsePacket, 0, responsePacket.length);
@@ -284,32 +310,32 @@ public class EncryptionHandshake {
         }
     }
 
-    public byte[] handleAuthInitiate(byte[] initiatePacket, ECKey key) throws InvalidCipherTextException {
-        AuthResponseMessage response = makeAuthInitiate(initiatePacket, key);
-        byte[] responsePacket = encryptAuthResponse(response);
+    public byte[] handleAuthInitiate(final byte[] initiatePacket, final ECKey key) throws InvalidCipherTextException {
+        final AuthResponseMessage response = makeAuthInitiate(initiatePacket, key);
+        final byte[] responsePacket = encryptAuthResponse(response);
         agreeSecret(initiatePacket, responsePacket);
         return responsePacket;
     }
 
-    private AuthResponseMessage makeAuthInitiate(byte[] initiatePacket, ECKey key) throws InvalidCipherTextException {
-        AuthInitiateMessage initiate = decryptAuthInitiate(initiatePacket, key);
+    private AuthResponseMessage makeAuthInitiate(final byte[] initiatePacket, final ECKey key) throws InvalidCipherTextException {
+        final AuthInitiateMessage initiate = decryptAuthInitiate(initiatePacket, key);
         return makeAuthInitiate(initiate, key);
     }
 
-    AuthResponseMessage makeAuthInitiate(AuthInitiateMessage initiate, ECKey key) {
+    AuthResponseMessage makeAuthInitiate(final AuthInitiateMessage initiate, final ECKey key) {
         initiatorNonce = initiate.nonce;
         remotePublicKey = initiate.publicKey;
-        BigInteger secretScalar = key.keyAgreement(remotePublicKey);
-        byte[] token = ByteUtil.bigIntegerToBytes(secretScalar, NONCE_SIZE);
-        byte[] signed = xor(token, initiatorNonce);
+        final BigInteger secretScalar = key.keyAgreement(remotePublicKey);
+        final byte[] token = ByteUtil.bigIntegerToBytes(secretScalar, NONCE_SIZE);
+        final byte[] signed = xor(token, initiatorNonce);
 
-        ECKey ephemeral = ECKey.recoverFromSignature(recIdFromSignatureV(initiate.signature.v),
+        final ECKey ephemeral = ECKey.recoverFromSignature(recIdFromSignatureV(initiate.signature.v),
                 initiate.signature, signed);
         if (ephemeral == null) {
             throw new RuntimeException("failed to recover signatue from message");
         }
         remoteEphemeralKey = ephemeral.getPubKeyPoint();
-        AuthResponseMessage response = new AuthResponseMessage();
+        final AuthResponseMessage response = new AuthResponseMessage();
         response.isTokenUsed = initiate.isTokenUsed;
         response.ephemeralPublicKey = ephemeralKey.getPubKeyPoint();
         response.nonce = responderNonce;
@@ -324,9 +350,9 @@ public class EncryptionHandshake {
      * @param msg message to pad
      * @return padded message
      */
-    private byte[] padEip8(byte[] msg) {
+    private byte[] padEip8(final byte[] msg) {
 
-        byte[] paddedMessage = new byte[msg.length + random.nextInt(200) + 100];
+        final byte[] paddedMessage = new byte[msg.length + random.nextInt(200) + 100];
         random.nextBytes(paddedMessage);
         System.arraycopy(msg, 0, paddedMessage, 0, msg.length);
 

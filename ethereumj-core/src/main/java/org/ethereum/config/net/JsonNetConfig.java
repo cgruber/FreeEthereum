@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.config.net;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -24,7 +50,7 @@ public class JsonNetConfig extends BaseNetConfig {
      *
      * @param config
      */
-    public JsonNetConfig(GenesisConfig config) throws RuntimeException {
+    public JsonNetConfig(final GenesisConfig config) throws RuntimeException {
 
         final List<Pair<Integer, ? extends BlockchainConfig>> candidates = new ArrayList<>();
 
@@ -37,7 +63,7 @@ public class JsonNetConfig extends BaseNetConfig {
             candidates.add(lastCandidate);
 
             if (config.daoForkBlock != null) {
-                AbstractDaoConfig daoConfig = config.daoForkSupport ?
+                final AbstractDaoConfig daoConfig = config.daoForkSupport ?
                         new DaoHFConfig(lastCandidate.getRight(), config.daoForkBlock) :
                         new DaoNoHFConfig(lastCandidate.getRight(), config.daoForkBlock);
                 lastCandidate = Pair.of(config.daoForkBlock, daoConfig);
@@ -50,7 +76,7 @@ public class JsonNetConfig extends BaseNetConfig {
             }
 
             if (config.eip155Block != null || config.eip158Block != null) {
-                int block;
+                final int block;
                 if (config.eip155Block != null) {
                     if (config.eip158Block != null && !config.eip155Block.equals(config.eip158Block)) {
                         throw new RuntimeException("Unable to build config with different blocks for EIP155 (" + config.eip155Block + ") and EIP158 (" + config.eip158Block + ")");
@@ -78,7 +104,7 @@ public class JsonNetConfig extends BaseNetConfig {
         {
             // add candidate per each block (take last in row for same block)
             Pair<Integer, ? extends BlockchainConfig> last = candidates.remove(0);
-            for (Pair<Integer, ? extends BlockchainConfig> current : candidates) {
+            for (final Pair<Integer, ? extends BlockchainConfig> current : candidates) {
                 if (current.getLeft().compareTo(last.getLeft()) > 0) {
                     add(last.getLeft(), last.getRight());
                 }

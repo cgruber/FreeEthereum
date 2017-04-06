@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.eth.handler;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -42,12 +68,12 @@ public abstract class EthHandler extends SimpleChannelInboundHandler<EthMessage>
     private Block bestBlock;
     private final EthereumListener listener = new EthereumListenerAdapter() {
         @Override
-        public void onBlock(Block block, List<TransactionReceipt> receipts) {
+        public void onBlock(final Block block, final List<TransactionReceipt> receipts) {
             bestBlock = block;
         }
     };
 
-    EthHandler(EthVersion version) {
+    EthHandler(final EthVersion version) {
         this.version = version;
     }
 
@@ -65,7 +91,7 @@ public abstract class EthHandler extends SimpleChannelInboundHandler<EthMessage>
     }
 
     @Override
-    public void channelRead0(final ChannelHandlerContext ctx, EthMessage msg) throws InterruptedException {
+    public void channelRead0(final ChannelHandlerContext ctx, final EthMessage msg) throws InterruptedException {
 
         if (EthMessageCodes.inRange(msg.getCommand().asByte(), version))
             logger.trace("EthHandler invoke: [{}]", msg.getCommand());
@@ -78,13 +104,13 @@ public abstract class EthHandler extends SimpleChannelInboundHandler<EthMessage>
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
         logger.warn("Eth handling failed", cause);
         ctx.close();
     }
 
     @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+    public void handlerRemoved(final ChannelHandlerContext ctx) throws Exception {
         logger.debug("handlerRemoved: kill timers in EthHandler");
         ethereumListener.removeListener(listener);
         onShutdown();
@@ -96,12 +122,12 @@ public abstract class EthHandler extends SimpleChannelInboundHandler<EthMessage>
         sendStatus();
     }
 
-    void disconnect(ReasonCode reason) {
+    void disconnect(final ReasonCode reason) {
         msgQueue.disconnect(reason);
         channel.getNodeStatistics().nodeDisconnectedLocal(reason);
     }
 
-    protected void sendMessage(EthMessage message) {
+    protected void sendMessage(final EthMessage message) {
         msgQueue.sendMessage(message);
         channel.getNodeStatistics().ethOutbound.add();
     }
@@ -110,15 +136,15 @@ public abstract class EthHandler extends SimpleChannelInboundHandler<EthMessage>
         return channel.getNodeStatistics().getEthLastInboundStatusMsg();
     }
 
-    public void setMsgQueue(MessageQueue msgQueue) {
+    public void setMsgQueue(final MessageQueue msgQueue) {
         this.msgQueue = msgQueue;
     }
 
-    public void setPeerDiscoveryMode(boolean peerDiscoveryMode) {
+    public void setPeerDiscoveryMode(final boolean peerDiscoveryMode) {
         this.peerDiscoveryMode = peerDiscoveryMode;
     }
 
-    public void setChannel(Channel channel) {
+    public void setChannel(final Channel channel) {
         this.channel = channel;
     }
 

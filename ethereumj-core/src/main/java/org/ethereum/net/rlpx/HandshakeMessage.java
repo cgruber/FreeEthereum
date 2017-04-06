@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import com.google.common.collect.Lists;
@@ -25,7 +51,7 @@ public class HandshakeMessage {
     long listenPort;
     byte[] nodeId;
 
-    public HandshakeMessage(long version, String name, List<Capability> caps, long listenPort, byte[] nodeId) {
+    public HandshakeMessage(final long version, final String name, final List<Capability> caps, final long listenPort, final byte[] nodeId) {
         this.version = version;
         this.name = name;
         this.caps = caps;
@@ -36,18 +62,18 @@ public class HandshakeMessage {
     private HandshakeMessage() {
     }
 
-    static HandshakeMessage parse(byte[] wire) {
-        RLPList list = (RLPList) RLP.decode2(wire).get(0);
-        HandshakeMessage message = new HandshakeMessage();
-        Iterator<RLPElement> iter = list.iterator();
+    static HandshakeMessage parse(final byte[] wire) {
+        final RLPList list = (RLPList) RLP.decode2(wire).get(0);
+        final HandshakeMessage message = new HandshakeMessage();
+        final Iterator<RLPElement> iter = list.iterator();
         message.version = ByteUtil.byteArrayToInt(iter.next().getRLPData()); // FIXME long
         message.name = new String(iter.next().getRLPData(), Charset.forName("UTF-8"));
         // caps
         message.caps = Lists.newArrayList();
-        for (RLPElement capEl : (RLPList)iter.next()) {
-            RLPList capElList = (RLPList)capEl;
-            String name = new String(capElList.get(0).getRLPData(), Charset.forName("UTF-8"));
-            long version = ByteUtil.byteArrayToInt(capElList.get(1).getRLPData());
+        for (final RLPElement capEl : (RLPList) iter.next()) {
+            final RLPList capElList = (RLPList) capEl;
+            final String name = new String(capElList.get(0).getRLPData(), Charset.forName("UTF-8"));
+            final long version = ByteUtil.byteArrayToInt(capElList.get(1).getRLPData());
 
             message.caps.add(new Capability(name, (byte)version)); // FIXME long
         }
@@ -57,8 +83,8 @@ public class HandshakeMessage {
     }
 
     public byte[] encode() {
-        List<byte[]> capsItemBytes = Lists.newArrayList();
-        for (Capability cap : caps) {
+        final List<byte[]> capsItemBytes = Lists.newArrayList();
+        for (final Capability cap : caps) {
             capsItemBytes.add(RLP.encodeList(
                     RLP.encodeElement(cap.getName().getBytes()),
                     RLP.encodeElement(ByteUtil.stripLeadingZeroes(longToBytes(cap.getVersion())))

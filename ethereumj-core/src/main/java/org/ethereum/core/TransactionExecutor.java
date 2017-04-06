@@ -90,15 +90,15 @@ public class TransactionExecutor {
     private VM vm;
     private Program program;
 
-    public TransactionExecutor(Transaction tx, byte[] coinbase, Repository track, BlockStore blockStore,
-                               ProgramInvokeFactory programInvokeFactory, Block currentBlock) {
+    public TransactionExecutor(final Transaction tx, final byte[] coinbase, final Repository track, final BlockStore blockStore,
+                               final ProgramInvokeFactory programInvokeFactory, final Block currentBlock) {
 
         this(tx, coinbase, track, blockStore, programInvokeFactory, currentBlock, new EthereumListenerAdapter(), 0);
     }
 
-    public TransactionExecutor(Transaction tx, byte[] coinbase, Repository track, BlockStore blockStore,
-                               ProgramInvokeFactory programInvokeFactory, Block currentBlock,
-                               EthereumListener listener, long gasUsedInTheBlock) {
+    public TransactionExecutor(final Transaction tx, final byte[] coinbase, final Repository track, final BlockStore blockStore,
+                               final ProgramInvokeFactory programInvokeFactory, final Block currentBlock,
+                               final EthereumListener listener, final long gasUsedInTheBlock) {
 
         this.tx = tx;
         this.coinbase = coinbase;
@@ -113,14 +113,14 @@ public class TransactionExecutor {
         withCommonConfig(CommonConfig.getDefault());
     }
 
-    public TransactionExecutor withCommonConfig(CommonConfig commonConfig) {
+    public TransactionExecutor withCommonConfig(final CommonConfig commonConfig) {
         this.commonConfig = commonConfig;
         this.config = commonConfig.systemProperties();
         this.blockchainConfig = config.getBlockchainConfig().getConfigForBlock(currentBlock.getNumber());
         return this;
     }
 
-    private void execError(String err) {
+    private void execError(final String err) {
         logger.warn(err);
         execError = err;
     }
@@ -138,10 +138,10 @@ public class TransactionExecutor {
             return;
         }
 
-        BigInteger txGasLimit = new BigInteger(1, tx.getGasLimit());
-        BigInteger curBlockGasLimit = new BigInteger(1, currentBlock.getGasLimit());
+        final BigInteger txGasLimit = new BigInteger(1, tx.getGasLimit());
+        final BigInteger curBlockGasLimit = new BigInteger(1, currentBlock.getGasLimit());
 
-        boolean cumulativeGasReached = txGasLimit.add(BigInteger.valueOf(gasUsedInTheBlock)).compareTo(curBlockGasLimit) > 0;
+        final boolean cumulativeGasReached = txGasLimit.add(BigInteger.valueOf(gasUsedInTheBlock)).compareTo(curBlockGasLimit) > 0;
         if (cumulativeGasReached) {
 
             execError(String.format("Too much gas used in this block: Require: %s Got: %s", new BigInteger(1, currentBlock.getGasLimit()).longValue() - toBI(tx.getGasLimit()).longValue(), toBI(tx.getGasLimit()).longValue()));
@@ -156,17 +156,17 @@ public class TransactionExecutor {
             return;
         }
 
-        BigInteger reqNonce = track.getNonce(tx.getSender());
-        BigInteger txNonce = toBI(tx.getNonce());
+        final BigInteger reqNonce = track.getNonce(tx.getSender());
+        final BigInteger txNonce = toBI(tx.getNonce());
         if (isNotEqual(reqNonce, txNonce)) {
             execError(String.format("Invalid nonce: required: %s , tx.nonce: %s", reqNonce, txNonce));
 
             return;
         }
 
-        BigInteger txGasCost = toBI(tx.getGasPrice()).multiply(txGasLimit);
-        BigInteger totalCost = toBI(tx.getValue()).add(txGasCost);
-        BigInteger senderBalance = track.getBalance(tx.getSender());
+        final BigInteger txGasCost = toBI(tx.getGasPrice()).multiply(txGasLimit);
+        final BigInteger totalCost = toBI(tx.getValue()).add(txGasCost);
+        final BigInteger senderBalance = track.getBalance(tx.getSender());
 
         if (!isCovers(senderBalance, totalCost)) {
 
@@ -190,8 +190,8 @@ public class TransactionExecutor {
         if (!localCall) {
             track.increaseNonce(tx.getSender());
 
-            BigInteger txGasLimit = toBI(tx.getGasLimit());
-            BigInteger txGasCost = toBI(tx.getGasPrice()).multiply(txGasLimit);
+            final BigInteger txGasLimit = toBI(tx.getGasLimit());
+            final BigInteger txGasCost = toBI(tx.getGasPrice()).multiply(txGasLimit);
             track.addBalance(tx.getSender(), txGasCost.negate());
 
             if (logger.isInfoEnabled())
@@ -208,11 +208,11 @@ public class TransactionExecutor {
     private void call() {
         if (!readyToExecute) return;
 
-        byte[] targetAddress = tx.getReceiveAddress();
+        final byte[] targetAddress = tx.getReceiveAddress();
         precompiledContract = PrecompiledContracts.getContractForAddress(new DataWord(targetAddress));
 
         if (precompiledContract != null) {
-            long requiredGas = precompiledContract.getGasForData(tx.getData());
+            final long requiredGas = precompiledContract.getGasForData(tx.getData());
 
             if (!localCall && m_endGas.compareTo(BigInteger.valueOf(requiredGas + basicTxCost)) < 0) {
                 // no refund
@@ -226,17 +226,17 @@ public class TransactionExecutor {
                 m_endGas = m_endGas.subtract(BigInteger.valueOf(requiredGas + basicTxCost));
 
                 // FIXME: save return for vm trace
-                byte[] out = precompiledContract.execute(tx.getData());
+                final byte[] out = precompiledContract.execute(tx.getData());
             }
 
         } else {
 
-            byte[] code = track.getCode(targetAddress);
+            final byte[] code = track.getCode(targetAddress);
             if (isEmpty(code)) {
                 m_endGas = m_endGas.subtract(BigInteger.valueOf(basicTxCost));
                 result.spendGas(basicTxCost);
             } else {
-                ProgramInvoke programInvoke =
+                final ProgramInvoke programInvoke =
                         programInvokeFactory.createProgramInvoke(tx, currentBlock, cacheTrack, blockStore);
 
                 this.vm = new VM(config);
@@ -244,17 +244,17 @@ public class TransactionExecutor {
             }
         }
 
-        BigInteger endowment = toBI(tx.getValue());
+        final BigInteger endowment = toBI(tx.getValue());
         transfer(cacheTrack, tx.getSender(), targetAddress, endowment);
 
         touchedAccounts.add(targetAddress);
     }
 
     private void create() {
-        byte[] newContractAddress = tx.getContractAddress();
+        final byte[] newContractAddress = tx.getContractAddress();
 
         //In case of hashing collisions (for TCK tests only), check for any balance before createAccount()
-        BigInteger oldBalance = track.getBalance(newContractAddress);
+        final BigInteger oldBalance = track.getBalance(newContractAddress);
         cacheTrack.createAccount(tx.getContractAddress());
         cacheTrack.addBalance(newContractAddress, oldBalance);
         if (blockchainConfig.eip161()) {
@@ -265,7 +265,7 @@ public class TransactionExecutor {
             m_endGas = m_endGas.subtract(BigInteger.valueOf(basicTxCost));
             result.spendGas(basicTxCost);
         } else {
-            ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(tx, currentBlock, cacheTrack, blockStore);
+            final ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(tx, currentBlock, cacheTrack, blockStore);
 
             this.vm = new VM(config);
             this.program = new Program(tx.getData(), programInvoke, tx, config).withCommonConfig(commonConfig);
@@ -279,7 +279,7 @@ public class TransactionExecutor {
 //            }
         }
 
-        BigInteger endowment = toBI(tx.getValue());
+        final BigInteger endowment = toBI(tx.getValue());
         transfer(cacheTrack, tx.getSender(), newContractAddress, endowment);
 
         touchedAccounts.add(newContractAddress);
@@ -302,7 +302,7 @@ public class TransactionExecutor {
                 m_endGas = toBI(tx.getGasLimit()).subtract(toBI(program.getResult().getGasUsed()));
 
                 if (tx.isContractCreation()) {
-                    int returnDataGasValue = getLength(program.getResult().getHReturn()) *
+                    final int returnDataGasValue = getLength(program.getResult().getHReturn()) *
                             blockchainConfig.getGasCost().getCREATE_DATA();
                     if (m_endGas.compareTo(BigInteger.valueOf(returnDataGasValue)) < 0) {
                         // Not enough gas to return contract code
@@ -325,7 +325,7 @@ public class TransactionExecutor {
                     }
                 }
 
-                String err = config.getBlockchainConfig().getConfigForBlock(currentBlock.getNumber()).
+                final String err = config.getBlockchainConfig().getConfigForBlock(currentBlock.getNumber()).
                         validateTransactionChanges(blockStore, currentBlock, tx, null);
                 if (err != null) {
                     program.setRuntimeFailure(new RuntimeException("Transaction changes validation failed: " + err));
@@ -345,7 +345,7 @@ public class TransactionExecutor {
 
             cacheTrack.commit();
 
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
 
             // TODO: catch whatever they will throw on you !!!
 //            https://github.com/ethereum/cpp-ethereum/blob/develop/libethereum/Executive.cpp#L241
@@ -358,7 +358,7 @@ public class TransactionExecutor {
     public TransactionExecutionSummary finalization() {
         if (!readyToExecute) return null;
 
-        TransactionExecutionSummary.Builder summaryBuilder = TransactionExecutionSummary.builderFor(tx)
+        final TransactionExecutionSummary.Builder summaryBuilder = TransactionExecutionSummary.builderFor(tx)
                 .gasLeftover(m_endGas)
                 .logs(result.getLogInfoList())
                 .result(result.getHReturn());
@@ -367,8 +367,8 @@ public class TransactionExecutor {
             // Accumulate refunds for suicides
             result.addFutureRefund(result.getDeleteAccounts().size() * config.getBlockchainConfig().
                     getConfigForBlock(currentBlock.getNumber()).getGasCost().getSUICIDE_REFUND());
-            long gasRefund = Math.min(result.getFutureRefund(), getGasUsed() / 2);
-            byte[] addr = tx.isContractCreation() ? tx.getContractAddress() : tx.getReceiveAddress();
+            final long gasRefund = Math.min(result.getFutureRefund(), getGasUsed() / 2);
+            final byte[] addr = tx.isContractCreation() ? tx.getContractAddress() : tx.getReceiveAddress();
             m_endGas = m_endGas.add(BigInteger.valueOf(gasRefund));
 
             summaryBuilder
@@ -377,7 +377,7 @@ public class TransactionExecutor {
                     .deletedAccounts(result.getDeleteAccounts())
                     .internalTransactions(result.getInternalTransactions());
 
-            ContractDetails contractDetails = track.getContractDetails(addr);
+            final ContractDetails contractDetails = track.getContractDetails(addr);
             if (contractDetails != null) {
                 // TODO
 //                summaryBuilder.storageDiff(track.getContractDetails(addr).getStorage());
@@ -392,7 +392,7 @@ public class TransactionExecutor {
             }
         }
 
-        TransactionExecutionSummary summary = summaryBuilder.build();
+        final TransactionExecutionSummary summary = summaryBuilder.build();
 
         // Refund for gas leftover
         track.addBalance(tx.getSender(), summary.getLeftover().add(summary.getRefund()));
@@ -406,14 +406,14 @@ public class TransactionExecutor {
         if (result != null) {
             logs = result.getLogInfoList();
             // Traverse list of suicides
-            for (DataWord address : result.getDeleteAccounts()) {
+            for (final DataWord address : result.getDeleteAccounts()) {
                 track.delete(address.getLast20Bytes());
             }
         }
 
         if (blockchainConfig.eip161()) {
-            for (byte[] acctAddr : touchedAccounts) {
-                AccountState state = track.getAccountState(acctAddr);
+            for (final byte[] acctAddr : touchedAccounts) {
+                final AccountState state = track.getAccountState(acctAddr);
                 if (state != null && state.isEmpty()) {
                     track.delete(acctAddr);
                 }
@@ -434,14 +434,14 @@ public class TransactionExecutor {
                 trace = zipAndEncode(trace);
             }
 
-            String txHash = toHexString(tx.getHash());
+            final String txHash = toHexString(tx.getHash());
             saveProgramTraceFile(config, txHash, trace);
             listener.onVMTraceCreated(txHash, trace);
         }
         return summary;
     }
 
-    public TransactionExecutor setLocalCall(boolean localCall) {
+    public TransactionExecutor setLocalCall(final boolean localCall) {
         this.localCall = localCall;
         return this;
     }
@@ -450,7 +450,7 @@ public class TransactionExecutor {
     public TransactionReceipt getReceipt() {
         if (receipt == null) {
             receipt = new TransactionReceipt();
-            long totalGasUsed = gasUsedInTheBlock + getGasUsed();
+            final long totalGasUsed = gasUsedInTheBlock + getGasUsed();
             receipt.setCumulativeGas(totalGasUsed);
             receipt.setTransaction(tx);
             receipt.setLogInfoList(getVMLogs());

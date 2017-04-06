@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.db;
 
 import org.apache.commons.collections4.map.LRUMap;
@@ -36,8 +62,8 @@ public class TransactionStore extends ObjectDataSource<List<TransactionInfo>> {
     private final static Serializer<List<TransactionInfo>, byte[]> serializer =
             new Serializer<List<TransactionInfo>, byte[]>() {
         @Override
-        public byte[] serialize(List<TransactionInfo> object) {
-            byte[][] txsRlp = new byte[object.size()][];
+        public byte[] serialize(final List<TransactionInfo> object) {
+            final byte[][] txsRlp = new byte[object.size()][];
             for (int i = 0; i < txsRlp.length; i++) {
                 txsRlp[i] = object.get(i).getEncoded();
             }
@@ -45,17 +71,17 @@ public class TransactionStore extends ObjectDataSource<List<TransactionInfo>> {
         }
 
         @Override
-        public List<TransactionInfo> deserialize(byte[] stream) {
+        public List<TransactionInfo> deserialize(final byte[] stream) {
             try {
                 if (stream == null) return null;
-                RLPList params = RLP.decode2(stream);
-                RLPList infoList = (RLPList) params.get(0);
-                List<TransactionInfo> ret = new ArrayList<>();
-                for (RLPElement anInfoList : infoList) {
+                final RLPList params = RLP.decode2(stream);
+                final RLPList infoList = (RLPList) params.get(0);
+                final List<TransactionInfo> ret = new ArrayList<>();
+                for (final RLPElement anInfoList : infoList) {
                     ret.add(new TransactionInfo(anInfoList.getRLPData()));
                 }
                 return ret;
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 // fallback to previous DB version
                 return Collections.singletonList(new TransactionInfo(stream));
             }
@@ -64,7 +90,7 @@ public class TransactionStore extends ObjectDataSource<List<TransactionInfo>> {
     private final LRUMap<ByteArrayWrapper, Object> lastSavedTxHash = new LRUMap<>(5000);
     private final Object object = new Object();
 
-    public TransactionStore(Source<byte[], byte[]> src) {
+    public TransactionStore(final Source<byte[], byte[]> src) {
         super(src, serializer, 256);
     }
 
@@ -74,8 +100,8 @@ public class TransactionStore extends ObjectDataSource<List<TransactionInfo>> {
      * if no entry for the same block exists
      * @return true if TransactionInfo was added, false if already exist
      */
-    public boolean put(TransactionInfo tx) {
-        byte[] txHash = tx.getReceipt().getTransaction().getHash();
+    public boolean put(final TransactionInfo tx) {
+        final byte[] txHash = tx.getReceipt().getTransaction().getHash();
 
         List<TransactionInfo> existingInfos = null;
         synchronized (lastSavedTxHash) {
@@ -89,7 +115,7 @@ public class TransactionStore extends ObjectDataSource<List<TransactionInfo>> {
         if (existingInfos == null) {
             existingInfos = new ArrayList<>();
         } else {
-            for (TransactionInfo info : existingInfos) {
+            for (final TransactionInfo info : existingInfos) {
                 if (FastByteComparisons.equal(info.getBlockHash(), tx.getBlockHash())) {
                     return false;
                 }
@@ -101,9 +127,9 @@ public class TransactionStore extends ObjectDataSource<List<TransactionInfo>> {
         return true;
     }
 
-    public TransactionInfo get(byte[] txHash, byte[] blockHash) {
-        List<TransactionInfo> existingInfos = get(txHash);
-        for (TransactionInfo info : existingInfos) {
+    public TransactionInfo get(final byte[] txHash, final byte[] blockHash) {
+        final List<TransactionInfo> existingInfos = get(txHash);
+        for (final TransactionInfo info : existingInfos) {
             if (FastByteComparisons.equal(info.getBlockHash(), blockHash)) {
                 return info;
             }

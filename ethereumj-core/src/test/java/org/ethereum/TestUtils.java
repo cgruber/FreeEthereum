@@ -43,8 +43,8 @@ public final class TestUtils {
     private TestUtils() {
     }
 
-    public static byte[] randomBytes(int length) {
-        byte[] result = new byte[length];
+    public static byte[] randomBytes(final int length) {
+        final byte[] result = new byte[length];
         new Random().nextBytes(result);
         return result;
     }
@@ -57,9 +57,9 @@ public final class TestUtils {
         return randomBytes(20);
     }
 
-    public static List<Block> getRandomChain(byte[] startParentHash, long startNumber, long length){
+    public static List<Block> getRandomChain(final byte[] startParentHash, final long startNumber, final long length) {
 
-        List<Block> result = new ArrayList<>();
+        final List<Block> result = new ArrayList<>();
 
         byte[] lastHash = startParentHash;
         long lastIndex = startNumber;
@@ -67,10 +67,10 @@ public final class TestUtils {
 
         for (int i = 0; i < length; ++i){
 
-            byte[] difficulty = BigIntegers.asUnsignedByteArray(new BigInteger(8, new Random()));
-            byte[] newHash = randomHash();
+            final byte[] difficulty = BigIntegers.asUnsignedByteArray(new BigInteger(8, new Random()));
+            final byte[] newHash = randomHash();
 
-            Block block = new Block(lastHash, newHash,  null, null, difficulty, lastIndex, new byte[] {0}, 0, 0, null, null,
+            final Block block = new Block(lastHash, newHash, null, null, difficulty, lastIndex, new byte[]{0}, 0, 0, null, null,
                     null, null, EMPTY_TRIE_HASH, randomHash(), null, null);
 
             ++lastIndex;
@@ -82,26 +82,26 @@ public final class TestUtils {
     }
 
     // Generates chain with alternative sub-chains, maxHeight blocks on each level
-    public static List<Block> getRandomAltChain(byte[] startParentHash, long startNumber, long length, int maxHeight){
+    public static List<Block> getRandomAltChain(final byte[] startParentHash, final long startNumber, final long length, final int maxHeight) {
 
-        List<Block> result = new ArrayList<>();
+        final List<Block> result = new ArrayList<>();
 
-        List<byte[]> lastHashes = new ArrayList<>();
+        final List<byte[]> lastHashes = new ArrayList<>();
         lastHashes.add(startParentHash);
         long lastIndex = startNumber;
-        Random rnd = new Random();
+        final Random rnd = new Random();
 
         for (int i = 0; i < length; ++i){
-            List<byte[]> currentHashes = new ArrayList<>();
+            final List<byte[]> currentHashes = new ArrayList<>();
             int curMaxHeight = maxHeight;
             if (i == 0) curMaxHeight = 1;
 
             for (int j = 0; j < curMaxHeight; ++j){
-                byte[] parentHash = lastHashes.get(rnd.nextInt(lastHashes.size()));
-                byte[] difficulty = BigIntegers.asUnsignedByteArray(new BigInteger(8, new Random()));
-                byte[] newHash = randomHash();
+                final byte[] parentHash = lastHashes.get(rnd.nextInt(lastHashes.size()));
+                final byte[] difficulty = BigIntegers.asUnsignedByteArray(new BigInteger(8, new Random()));
+                final byte[] newHash = randomHash();
 
-                Block block = new Block(parentHash, newHash, null, null, difficulty, lastIndex, new byte[]{0}, 0, 0, null, null,
+                final Block block = new Block(parentHash, newHash, null, null, difficulty, lastIndex, new byte[]{0}, 0, 0, null, null,
                         null, null, EMPTY_TRIE_HASH, randomHash(), null, null);
                 currentHashes.add(block.getHash());
                 result.add(block);

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.datasource;
 
 import org.ethereum.db.SlowHashMapDb;
@@ -22,15 +48,15 @@ public class AsyncWriteCacheTest {
     @Test
     public void simpleTest1() {
         final SlowHashMapDb<String> db = new SlowHashMapDb<String>().withDelay(100);
-        AsyncWriteCache<byte[], String> cache = new AsyncWriteCache<byte[], String>(db) {
+        final AsyncWriteCache<byte[], String> cache = new AsyncWriteCache<byte[], String>(db) {
             @Override
-            protected WriteCache<byte[], String> createCache(Source<byte[], String> source) {
+            protected WriteCache<byte[], String> createCache(final Source<byte[], String> source) {
                 return new WriteCache.BytesKey<String>(source, WriteCache.CacheType.SIMPLE) {
                     @Override
                     public boolean flush() {
                         flushing = true;
                         System.out.println("Flushing started");
-                        boolean ret = super.flush();
+                        final boolean ret = super.flush();
                         System.out.println("Flushing complete");
                         flushing = false;
                         return ret;
@@ -98,12 +124,12 @@ public class AsyncWriteCacheTest {
     public void highLoadTest1() throws InterruptedException {
         final SlowHashMapDb<byte[]> db = new SlowHashMapDb<byte[]>() {
             @Override
-            public void updateBatch(Map<byte[], byte[]> rows) {
+            public void updateBatch(final Map<byte[], byte[]> rows) {
                 Utils.sleep(10000);
                 super.updateBatch(rows);
             }
         };
-        StateSource stateSource = new StateSource(db, false);
+        final StateSource stateSource = new StateSource(db, false);
         stateSource.getReadCache().withMaxCapacity(1);
 
         stateSource.put(sha3(intToBytes(1)), intToBytes(1));
@@ -115,9 +141,9 @@ public class AsyncWriteCacheTest {
 
         Thread.sleep(100);
         System.out.println("Get...");
-        byte[] bytes1 = stateSource.get(sha3(intToBytes(1)));
+        final byte[] bytes1 = stateSource.get(sha3(intToBytes(1)));
         System.out.println("Get!: " + bytes1);
-        byte[] bytes2 = stateSource.get(sha3(intToBytes(2)));
+        final byte[] bytes2 = stateSource.get(sha3(intToBytes(2)));
         System.out.println("Get!: " + bytes2);
 
 

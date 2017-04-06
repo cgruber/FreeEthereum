@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.core;
 
 import org.ethereum.config.BlockchainNetConfig;
@@ -77,11 +103,11 @@ public class BlockHeader {
 
     private byte[] hashCache;
 
-    public BlockHeader(byte[] encoded) {
+    public BlockHeader(final byte[] encoded) {
         this((RLPList) RLP.decode2(encoded).get(0));
     }
 
-    public BlockHeader(RLPList rlpHeader) {
+    public BlockHeader(final RLPList rlpHeader) {
 
         this.parentHash = rlpHeader.get(0).getRLPData();
         this.unclesHash = rlpHeader.get(1).getRLPData();
@@ -99,10 +125,10 @@ public class BlockHeader {
         this.logsBloom = rlpHeader.get(6).getRLPData();
         this.difficulty = rlpHeader.get(7).getRLPData();
 
-        byte[] nrBytes = rlpHeader.get(8).getRLPData();
-        byte[] glBytes = rlpHeader.get(9).getRLPData();
-        byte[] guBytes = rlpHeader.get(10).getRLPData();
-        byte[] tsBytes = rlpHeader.get(11).getRLPData();
+        final byte[] nrBytes = rlpHeader.get(8).getRLPData();
+        final byte[] glBytes = rlpHeader.get(9).getRLPData();
+        final byte[] guBytes = rlpHeader.get(10).getRLPData();
+        final byte[] tsBytes = rlpHeader.get(11).getRLPData();
 
         this.number = nrBytes == null ? 0 : (new BigInteger(1, nrBytes)).longValue();
 
@@ -115,10 +141,10 @@ public class BlockHeader {
         this.nonce = rlpHeader.get(14).getRLPData();
     }
 
-    public BlockHeader(byte[] parentHash, byte[] unclesHash, byte[] coinbase,
-                       byte[] logsBloom, byte[] difficulty, long number,
-                       byte[] gasLimit, long gasUsed, long timestamp,
-                       byte[] extraData, byte[] mixHash, byte[] nonce) {
+    public BlockHeader(final byte[] parentHash, final byte[] unclesHash, final byte[] coinbase,
+                       final byte[] logsBloom, final byte[] difficulty, final long number,
+                       final byte[] gasLimit, final long gasUsed, final long timestamp,
+                       final byte[] extraData, final byte[] mixHash, final byte[] nonce) {
         this.parentHash = parentHash;
         this.unclesHash = unclesHash;
         this.coinbase = coinbase;
@@ -146,7 +172,7 @@ public class BlockHeader {
         return unclesHash;
     }
 
-    public void setUnclesHash(byte[] unclesHash) {
+    public void setUnclesHash(final byte[] unclesHash) {
         this.unclesHash = unclesHash;
         hashCache = null;
     }
@@ -155,7 +181,7 @@ public class BlockHeader {
         return coinbase;
     }
 
-    public void setCoinbase(byte[] coinbase) {
+    public void setCoinbase(final byte[] coinbase) {
         this.coinbase = coinbase;
         hashCache = null;
     }
@@ -164,7 +190,7 @@ public class BlockHeader {
         return stateRoot;
     }
 
-    public void setStateRoot(byte[] stateRoot) {
+    public void setStateRoot(final byte[] stateRoot) {
         this.stateRoot = stateRoot;
         hashCache = null;
     }
@@ -177,12 +203,12 @@ public class BlockHeader {
         return receiptTrieRoot;
     }
 
-    public void setReceiptsRoot(byte[] receiptTrieRoot) {
+    public void setReceiptsRoot(final byte[] receiptTrieRoot) {
         this.receiptTrieRoot = receiptTrieRoot;
         hashCache = null;
     }
 
-    public void setTransactionsRoot(byte[] stateRoot) {
+    public void setTransactionsRoot(final byte[] stateRoot) {
         this.txTrieRoot = stateRoot;
         hashCache = null;
     }
@@ -192,7 +218,7 @@ public class BlockHeader {
         return logsBloom;
     }
 
-    public void setLogsBloom(byte[] logsBloom) {
+    public void setLogsBloom(final byte[] logsBloom) {
         this.logsBloom = logsBloom;
         hashCache = null;
     }
@@ -201,7 +227,7 @@ public class BlockHeader {
         return difficulty;
     }
 
-    public void setDifficulty(byte[] difficulty) {
+    public void setDifficulty(final byte[] difficulty) {
         this.difficulty = difficulty;
         hashCache = null;
     }
@@ -214,7 +240,7 @@ public class BlockHeader {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(final long timestamp) {
         this.timestamp = timestamp;
         hashCache = null;
     }
@@ -223,7 +249,7 @@ public class BlockHeader {
         return number;
     }
 
-    public void setNumber(long number) {
+    public void setNumber(final long number) {
         this.number = number;
         hashCache = null;
     }
@@ -232,7 +258,7 @@ public class BlockHeader {
         return gasLimit;
     }
 
-    public void setGasLimit(byte[] gasLimit) {
+    public void setGasLimit(final byte[] gasLimit) {
         this.gasLimit = gasLimit;
         hashCache = null;
     }
@@ -241,7 +267,7 @@ public class BlockHeader {
         return gasUsed;
     }
 
-    public void setGasUsed(long gasUsed) {
+    public void setGasUsed(final long gasUsed) {
         this.gasUsed = gasUsed;
         hashCache = null;
     }
@@ -250,7 +276,7 @@ public class BlockHeader {
         return mixHash;
     }
 
-    public void setMixHash(byte[] mixHash) {
+    public void setMixHash(final byte[] mixHash) {
         this.mixHash = mixHash;
         hashCache = null;
     }
@@ -259,7 +285,7 @@ public class BlockHeader {
         return extraData;
     }
 
-    public void setExtraData(byte[] extraData) {
+    public void setExtraData(final byte[] extraData) {
         this.extraData = extraData;
         hashCache = null;
     }
@@ -268,7 +294,7 @@ public class BlockHeader {
         return nonce;
     }
 
-    public void setNonce(byte[] nonce) {
+    public void setNonce(final byte[] nonce) {
         this.nonce = nonce;
         hashCache = null;
     }
@@ -288,31 +314,31 @@ public class BlockHeader {
         return this.getEncoded(false);
     }
 
-    private byte[] getEncoded(boolean withNonce) {
-        byte[] parentHash = RLP.encodeElement(this.parentHash);
+    private byte[] getEncoded(final boolean withNonce) {
+        final byte[] parentHash = RLP.encodeElement(this.parentHash);
 
-        byte[] unclesHash = RLP.encodeElement(this.unclesHash);
-        byte[] coinbase = RLP.encodeElement(this.coinbase);
+        final byte[] unclesHash = RLP.encodeElement(this.unclesHash);
+        final byte[] coinbase = RLP.encodeElement(this.coinbase);
 
-        byte[] stateRoot = RLP.encodeElement(this.stateRoot);
+        final byte[] stateRoot = RLP.encodeElement(this.stateRoot);
 
         if (txTrieRoot == null) this.txTrieRoot = EMPTY_TRIE_HASH;
-        byte[] txTrieRoot = RLP.encodeElement(this.txTrieRoot);
+        final byte[] txTrieRoot = RLP.encodeElement(this.txTrieRoot);
 
         if (receiptTrieRoot == null) this.receiptTrieRoot = EMPTY_TRIE_HASH;
-        byte[] receiptTrieRoot = RLP.encodeElement(this.receiptTrieRoot);
+        final byte[] receiptTrieRoot = RLP.encodeElement(this.receiptTrieRoot);
 
-        byte[] logsBloom = RLP.encodeElement(this.logsBloom);
-        byte[] difficulty = RLP.encodeBigInteger(new BigInteger(1, this.difficulty));
-        byte[] number = RLP.encodeBigInteger(BigInteger.valueOf(this.number));
-        byte[] gasLimit = RLP.encodeElement(this.gasLimit);
-        byte[] gasUsed = RLP.encodeBigInteger(BigInteger.valueOf(this.gasUsed));
-        byte[] timestamp = RLP.encodeBigInteger(BigInteger.valueOf(this.timestamp));
+        final byte[] logsBloom = RLP.encodeElement(this.logsBloom);
+        final byte[] difficulty = RLP.encodeBigInteger(new BigInteger(1, this.difficulty));
+        final byte[] number = RLP.encodeBigInteger(BigInteger.valueOf(this.number));
+        final byte[] gasLimit = RLP.encodeElement(this.gasLimit);
+        final byte[] gasUsed = RLP.encodeBigInteger(BigInteger.valueOf(this.gasUsed));
+        final byte[] timestamp = RLP.encodeBigInteger(BigInteger.valueOf(this.timestamp));
 
-        byte[] extraData = RLP.encodeElement(this.extraData);
+        final byte[] extraData = RLP.encodeElement(this.extraData);
         if (withNonce) {
-            byte[] mixHash = RLP.encodeElement(this.mixHash);
-            byte[] nonce = RLP.encodeElement(this.nonce);
+            final byte[] mixHash = RLP.encodeElement(this.mixHash);
+            final byte[] nonce = RLP.encodeElement(this.nonce);
             return RLP.encodeList(parentHash, unclesHash, coinbase,
                     stateRoot, txTrieRoot, receiptTrieRoot, logsBloom, difficulty, number,
                     gasLimit, gasUsed, timestamp, extraData, mixHash, nonce);
@@ -323,11 +349,11 @@ public class BlockHeader {
         }
     }
 
-    public byte[] getUnclesEncoded(List<BlockHeader> uncleList) {
+    public byte[] getUnclesEncoded(final List<BlockHeader> uncleList) {
 
-        byte[][] unclesEncoded = new byte[uncleList.size()][];
+        final byte[][] unclesEncoded = new byte[uncleList.size()][];
         int i = 0;
-        for (BlockHeader uncle : uncleList) {
+        for (final BlockHeader uncle : uncleList) {
             unclesEncoded[i] = uncle.getEncoded();
             ++i;
         }
@@ -341,17 +367,17 @@ public class BlockHeader {
     public byte[] calcPowValue() {
 
         // nonce bytes are expected in Little Endian order, reverting
-        byte[] nonceReverted = Arrays.reverse(nonce);
-        byte[] hashWithoutNonce = HashUtil.sha3(getEncodedWithoutNonce());
+        final byte[] nonceReverted = Arrays.reverse(nonce);
+        final byte[] hashWithoutNonce = HashUtil.sha3(getEncodedWithoutNonce());
 
-        byte[] seed = Arrays.concatenate(hashWithoutNonce, nonceReverted);
-        byte[] seedHash = HashUtil.sha512(seed);
+        final byte[] seed = Arrays.concatenate(hashWithoutNonce, nonceReverted);
+        final byte[] seedHash = HashUtil.sha512(seed);
 
-        byte[] concat = Arrays.concatenate(seedHash, mixHash);
+        final byte[] concat = Arrays.concatenate(seedHash, mixHash);
         return HashUtil.sha3(concat);
     }
 
-    public BigInteger calcDifficulty(BlockchainNetConfig config, BlockHeader parent) {
+    public BigInteger calcDifficulty(final BlockchainNetConfig config, final BlockHeader parent) {
         return config.getConfigForBlock(getNumber()).
                 calcDifficulty(this, parent);
     }
@@ -388,10 +414,10 @@ public class BlockHeader {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BlockHeader that = (BlockHeader) o;
+        final BlockHeader that = (BlockHeader) o;
         return FastByteComparisons.equal(getHash(), that.getHash());
     }
 

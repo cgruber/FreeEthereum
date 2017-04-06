@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import com.google.common.base.Throwables;
@@ -35,8 +61,8 @@ class Handshaker {
         System.out.println("Node ID " + Hex.toHexString(nodeId));
     }
 
-    public static void main(String[] args) throws IOException, URISyntaxException {
-        URI uri = new URI(args[0]);
+    public static void main(final String[] args) throws IOException, URISyntaxException {
+        final URI uri = new URI(args[0]);
         if (!uri.getScheme().equals("enode"))
             throw new RuntimeException("expecting URL in the format enode://PUBKEY@HOST:PORT");
 
@@ -59,28 +85,28 @@ class Handshaker {
      packet c180
      </pre>
      */
-    private void doHandshake(String host, int port, String remoteIdHex) throws IOException {
-        byte[] remoteId = Hex.decode(remoteIdHex);
-        EncryptionHandshake initiator = new EncryptionHandshake(ECKey.fromNodeId(remoteId).getPubKeyPoint());
-        Socket sock = new Socket(host, port);
-        InputStream inp = sock.getInputStream();
-        OutputStream out = sock.getOutputStream();
-        AuthInitiateMessage initiateMessage = initiator.createAuthInitiate(null, myKey);
-        byte[] initiatePacket = initiator.encryptAuthMessage(initiateMessage);
+    private void doHandshake(final String host, final int port, final String remoteIdHex) throws IOException {
+        final byte[] remoteId = Hex.decode(remoteIdHex);
+        final EncryptionHandshake initiator = new EncryptionHandshake(ECKey.fromNodeId(remoteId).getPubKeyPoint());
+        final Socket sock = new Socket(host, port);
+        final InputStream inp = sock.getInputStream();
+        final OutputStream out = sock.getOutputStream();
+        final AuthInitiateMessage initiateMessage = initiator.createAuthInitiate(null, myKey);
+        final byte[] initiatePacket = initiator.encryptAuthMessage(initiateMessage);
 
         out.write(initiatePacket);
-        byte[] responsePacket = new byte[AuthResponseMessage.getLength() + ECIESCoder.getOverhead()];
-        int n = inp.read(responsePacket);
+        final byte[] responsePacket = new byte[AuthResponseMessage.getLength() + ECIESCoder.getOverhead()];
+        final int n = inp.read(responsePacket);
         if (n < responsePacket.length)
             throw new IOException("could not read, got " + n);
 
         initiator.handleAuthResponse(myKey, initiatePacket, responsePacket);
-        byte[] buf = new byte[initiator.getSecrets().getEgressMac().getDigestSize()];
+        final byte[] buf = new byte[initiator.getSecrets().getEgressMac().getDigestSize()];
         new KeccakDigest(initiator.getSecrets().getEgressMac()).doFinal(buf, 0);
         new KeccakDigest(initiator.getSecrets().getIngressMac()).doFinal(buf, 0);
 
-        RlpxConnection conn =  new RlpxConnection(initiator.getSecrets(), inp, out);
-        HandshakeMessage handshakeMessage = new HandshakeMessage(
+        final RlpxConnection conn = new RlpxConnection(initiator.getSecrets(), inp, out);
+        final HandshakeMessage handshakeMessage = new HandshakeMessage(
                 3,
                 "computronium1",
                 Lists.newArrayList(
@@ -103,7 +129,7 @@ class Handshaker {
         while (true) {
             try {
                 conn.handleNextMessage();
-            } catch (EOFException e) {
+            } catch (final EOFException e) {
                 break;
             }
         }
@@ -118,10 +144,10 @@ class Handshaker {
     }
 
 
-    private void delay(int millis) {
+    private void delay(final int millis) {
         try {
             Thread.sleep(millis);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             Throwables.propagate(e);
         }
     }

@@ -1,4 +1,45 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.core;
+
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.ethereum.solidity.SolidityType;
+import org.ethereum.util.ByteUtil;
+import org.ethereum.util.FastByteComparisons;
+import org.ethereum.vm.LogInfo;
+import org.spongycastle.util.encoders.Hex;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.ArrayUtils.subarray;
@@ -6,22 +47,6 @@ import static org.apache.commons.lang3.StringUtils.stripEnd;
 import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.solidity.SolidityType.IntType;
 import static org.ethereum.util.ByteUtil.longToBytesNoLeadZeroes;
-
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.ethereum.solidity.SolidityType;
-import org.ethereum.util.ByteUtil;
-import org.ethereum.util.FastByteComparisons;
-import org.ethereum.vm.LogInfo;
-import org.spongycastle.util.encoders.Hex;
 
 /**
  * Creates a contract function call transaction.
@@ -35,9 +60,9 @@ public class CallTransaction {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
-    public static Transaction createRawTransaction(long nonce, long gasPrice, long gasLimit, String toAddress,
-                                                    long value, byte[] data) {
-        Transaction tx = new Transaction(longToBytesNoLeadZeroes(nonce),
+    public static Transaction createRawTransaction(final long nonce, final long gasPrice, final long gasLimit, final String toAddress,
+                                                   final long value, final byte[] data) {
+        final Transaction tx = new Transaction(longToBytesNoLeadZeroes(nonce),
                 longToBytesNoLeadZeroes(gasPrice),
                 longToBytesNoLeadZeroes(gasLimit),
                 toAddress == null ? null : Hex.decode(toAddress),
@@ -48,14 +73,20 @@ public class CallTransaction {
     }
 
 
+    public static Transaction createCallTransaction(final long nonce, final long gasPrice, final long gasLimit, final String toAddress,
+                                                    final long value, final Function callFunc, final Object... funcArgs) {
 
-    public static Transaction createCallTransaction(long nonce, long gasPrice, long gasLimit, String toAddress,
-                        long value, Function callFunc, Object ... funcArgs) {
-
-        byte[] callData = callFunc.encode(funcArgs);
+        final byte[] callData = callFunc.encode(funcArgs);
         return createRawTransaction(nonce, gasPrice, gasLimit, toAddress, value, callData);
     }
 
+
+    public enum FunctionType {
+        constructor,
+        function,
+        event,
+        fallback
+    }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Param {
@@ -69,13 +100,6 @@ public class CallTransaction {
         }
     }
 
-    public enum FunctionType {
-        constructor,
-        function,
-        event,
-        fallback
-    }
-
     public static class Function {
         public boolean anonymous;
         public boolean constant;
@@ -87,102 +111,20 @@ public class CallTransaction {
 
         private Function() {}
 
-        public byte[] encode(Object ... args) {
-            return ByteUtil.merge(encodeSignature(), encodeArguments(args));
-        }
-        public byte[] encodeArguments(Object ... args) {
-            if (args.length > inputs.length) throw new RuntimeException("Too many arguments: " + args.length + " > " + inputs.length);
-
-            int staticSize = 0;
-            int dynamicCnt = 0;
-            // calculating static size and number of dynamic params
-            for (int i = 0; i < args.length; i++) {
-                Param param = inputs[i];
-                if (param.type.isDynamicType()) {
-                    dynamicCnt++;
-                }
-                staticSize += param.type.getFixedSize();
-            }
-
-            byte[][] bb = new byte[args.length + dynamicCnt][];
-
-            int curDynamicPtr = staticSize;
-            int curDynamicCnt = 0;
-            for (int i = 0; i < args.length; i++) {
-                if (inputs[i].type.isDynamicType()) {
-                    byte[] dynBB = inputs[i].type.encode(args[i]);
-                    bb[i] = SolidityType.IntType.encodeInt(curDynamicPtr);
-                    bb[args.length + curDynamicCnt] = dynBB;
-                    curDynamicCnt++;
-                    curDynamicPtr += dynBB.length;
-                } else {
-                    bb[i] = inputs[i].type.encode(args[i]);
-                }
-            }
-            return ByteUtil.merge(bb);
-        }
-
-        private Object[] decode(byte[] encoded, Param[] params) {
-            Object[] ret = new Object[params.length];
-
-            int off = 0;
-            for (int i = 0; i < params.length; i++) {
-                if (params[i].type.isDynamicType()) {
-                    ret[i] = params[i].type.decode(encoded, IntType.decodeInt(encoded, off).intValue());
-                } else {
-                    ret[i] = params[i].type.decode(encoded, off);
-                }
-                off += params[i].type.getFixedSize();
-            }
-            return ret;
-        }
-
-        public Object[] decode(byte[] encoded) {
-            return decode(subarray(encoded, 4, encoded.length), inputs);
-        }
-
-        public Object[] decodeResult(byte[] encodedRet) {
-            return decode(encodedRet, outputs);
-        }
-
-        public String formatSignature() {
-            StringBuilder paramsTypes = new StringBuilder();
-            for (Param param : inputs) {
-                paramsTypes.append(param.type.getCanonicalName()).append(",");
-            }
-
-            return format("%s(%s)", name, stripEnd(paramsTypes.toString(), ","));
-        }
-
-        public byte[] encodeSignatureLong() {
-            String signature = formatSignature();
-            byte[] sha3Fingerprint = sha3(signature.getBytes());
-            return sha3Fingerprint;
-        }
-
-        public byte[] encodeSignature() {
-            return Arrays.copyOfRange(encodeSignatureLong(), 0, 4);
-        }
-
-        @Override
-        public String toString() {
-            return formatSignature();
-        }
-
-        public static Function fromJsonInterface(String json) {
+        public static Function fromJsonInterface(final String json) {
             try {
                 return DEFAULT_MAPPER.readValue(json, Function.class);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        public static Function fromSignature(String funcName, String ... paramTypes) {
+        public static Function fromSignature(final String funcName, final String... paramTypes) {
             return fromSignature(funcName, paramTypes, new String[0]);
         }
 
-        public static Function fromSignature(String funcName, String[] paramTypes, String[] resultTypes) {
-            Function ret = new Function();
+        public static Function fromSignature(final String funcName, final String[] paramTypes, final String[] resultTypes) {
+            final Function ret = new Function();
             ret.name = funcName;
             ret.constant = false;
             ret.type = FunctionType.function;
@@ -201,20 +143,105 @@ public class CallTransaction {
             return ret;
         }
 
+        public byte[] encode(final Object... args) {
+            return ByteUtil.merge(encodeSignature(), encodeArguments(args));
+        }
+
+        public byte[] encodeArguments(final Object... args) {
+            if (args.length > inputs.length) throw new RuntimeException("Too many arguments: " + args.length + " > " + inputs.length);
+
+            int staticSize = 0;
+            int dynamicCnt = 0;
+            // calculating static size and number of dynamic params
+            for (int i = 0; i < args.length; i++) {
+                final Param param = inputs[i];
+                if (param.type.isDynamicType()) {
+                    dynamicCnt++;
+                }
+                staticSize += param.type.getFixedSize();
+            }
+
+            final byte[][] bb = new byte[args.length + dynamicCnt][];
+
+            int curDynamicPtr = staticSize;
+            int curDynamicCnt = 0;
+            for (int i = 0; i < args.length; i++) {
+                if (inputs[i].type.isDynamicType()) {
+                    final byte[] dynBB = inputs[i].type.encode(args[i]);
+                    bb[i] = SolidityType.IntType.encodeInt(curDynamicPtr);
+                    bb[args.length + curDynamicCnt] = dynBB;
+                    curDynamicCnt++;
+                    curDynamicPtr += dynBB.length;
+                } else {
+                    bb[i] = inputs[i].type.encode(args[i]);
+                }
+            }
+            return ByteUtil.merge(bb);
+        }
+
+        private Object[] decode(final byte[] encoded, final Param[] params) {
+            final Object[] ret = new Object[params.length];
+
+            int off = 0;
+            for (int i = 0; i < params.length; i++) {
+                if (params[i].type.isDynamicType()) {
+                    ret[i] = params[i].type.decode(encoded, IntType.decodeInt(encoded, off).intValue());
+                } else {
+                    ret[i] = params[i].type.decode(encoded, off);
+                }
+                off += params[i].type.getFixedSize();
+            }
+            return ret;
+        }
+
+        public Object[] decode(final byte[] encoded) {
+            return decode(subarray(encoded, 4, encoded.length), inputs);
+        }
+
+        public Object[] decodeResult(final byte[] encodedRet) {
+            return decode(encodedRet, outputs);
+        }
+
+        public String formatSignature() {
+            final StringBuilder paramsTypes = new StringBuilder();
+            for (final Param param : inputs) {
+                paramsTypes.append(param.type.getCanonicalName()).append(",");
+            }
+
+            return format("%s(%s)", name, stripEnd(paramsTypes.toString(), ","));
+        }
+
+        public byte[] encodeSignatureLong() {
+            final String signature = formatSignature();
+            final byte[] sha3Fingerprint = sha3(signature.getBytes());
+            return sha3Fingerprint;
+        }
+
+        public byte[] encodeSignature() {
+            return Arrays.copyOfRange(encodeSignatureLong(), 0, 4);
+        }
+
+        @Override
+        public String toString() {
+            return formatSignature();
+        }
+
 
     }
 
     public static class Contract {
-        public Contract(String jsonInterface) {
+        public Function[] functions;
+
+        public Contract(final String jsonInterface) {
             try {
                 functions = new ObjectMapper().readValue(jsonInterface, Function[].class);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        public Function getByName(String name) {
-            for (Function function : functions) {
+        public Function getByName(final String name) {
+            for (final Function function : functions) {
                 if (name.equals(function.name)) {
                     return function;
                 }
@@ -223,7 +250,7 @@ public class CallTransaction {
         }
 
         public Function getConstructor() {
-            for (Function function : functions) {
+            for (final Function function : functions) {
                 if (function.type == FunctionType.constructor) {
                     return function;
                 }
@@ -231,15 +258,15 @@ public class CallTransaction {
             return null;
         }
 
-        private Function getBySignatureHash(byte[] hash) {
+        private Function getBySignatureHash(final byte[] hash) {
             if (hash.length == 4 ) {
-                for (Function function : functions) {
+                for (final Function function : functions) {
                     if (FastByteComparisons.equal(function.encodeSignature(), hash)) {
                         return function;
                     }
                 }
             } else if (hash.length == 32 ) {
-                for (Function function : functions) {
+                for (final Function function : functions) {
                     if (FastByteComparisons.equal(function.encodeSignatureLong(), hash)) {
                         return function;
                     }
@@ -253,24 +280,24 @@ public class CallTransaction {
         /**
          * Parses function and its arguments from transaction invocation binary data
          */
-        public Invocation parseInvocation(byte[] data) {
+        public Invocation parseInvocation(final byte[] data) {
             if (data.length < 4) throw new RuntimeException("Invalid data length: " + data.length);
-            Function function = getBySignatureHash(Arrays.copyOfRange(data, 0, 4));
+            final Function function = getBySignatureHash(Arrays.copyOfRange(data, 0, 4));
             if (function == null) throw new RuntimeException("Can't find function/event by it signature");
-            Object[] args = function.decode(data);
+            final Object[] args = function.decode(data);
             return new Invocation(this, function, args);
         }
 
         /**
          * Parses Solidity Event and its data members from transaction receipt LogInfo
          */
-        public Invocation parseEvent(LogInfo eventLog) {
-            CallTransaction.Function event = getBySignatureHash(eventLog.getTopics().get(0).getData());
+        public Invocation parseEvent(final LogInfo eventLog) {
+            final CallTransaction.Function event = getBySignatureHash(eventLog.getTopics().get(0).getData());
             int indexedArg = 1;
             if (event == null) return null;
-            List<Object> indexedArgs = new ArrayList<>();
-            List<Param> unindexed = new ArrayList<>();
-            for (Param input : event.inputs) {
+            final List<Object> indexedArgs = new ArrayList<>();
+            final List<Param> unindexed = new ArrayList<>();
+            for (final Param input : event.inputs) {
                 if (input.indexed) {
                     indexedArgs.add(input.type.decode(eventLog.getTopics().get(indexedArg++).getData()));
                     continue;
@@ -278,8 +305,8 @@ public class CallTransaction {
                 unindexed.add(input);
             }
 
-            Object[] unindexedArgs = event.decode(eventLog.getData(), unindexed.toArray(new Param[unindexed.size()]));
-            Object[] args = new Object[event.inputs.length];
+            final Object[] unindexedArgs = event.decode(eventLog.getData(), unindexed.toArray(new Param[unindexed.size()]));
+            final Object[] args = new Object[event.inputs.length];
             int unindexedIndex = 0;
             int indexedIndex = 0;
             for (int i = 0; i < args.length; i++) {
@@ -291,8 +318,6 @@ public class CallTransaction {
             }
             return new Invocation(this, event, args);
         }
-
-        public Function[] functions;
     }
 
     /**
@@ -304,7 +329,7 @@ public class CallTransaction {
         public final Function function;
         public final Object[] args;
 
-        public Invocation(Contract contract, Function function, Object[] args) {
+        public Invocation(final Contract contract, final Function function, final Object[] args) {
             this.contract = contract;
             this.function = function;
             this.args = args;

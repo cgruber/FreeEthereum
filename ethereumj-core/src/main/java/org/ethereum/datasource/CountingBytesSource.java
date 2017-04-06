@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.datasource;
 
 import org.ethereum.crypto.HashUtil;
@@ -28,13 +54,14 @@ public class CountingBytesSource extends AbstractChainedSource<byte[], byte[], b
     private QuotientFilter filter;
     private boolean dirty = false;
 
-    public CountingBytesSource(Source<byte[], byte[]> src) {
+    public CountingBytesSource(final Source<byte[], byte[]> src) {
         this(src, false);
 
     }
-    public CountingBytesSource(Source<byte[], byte[]> src, boolean bloom) {
+
+    public CountingBytesSource(final Source<byte[], byte[]> src, final boolean bloom) {
         super(src);
-        byte[] filterBytes = src.get(filterKey);
+        final byte[] filterBytes = src.get(filterKey);
         if (bloom) {
             if (filterBytes != null) {
                 filter = QuotientFilter.deserialize(filterBytes);
@@ -45,15 +72,15 @@ public class CountingBytesSource extends AbstractChainedSource<byte[], byte[], b
     }
 
     @Override
-    public void put(byte[] key, byte[] val) {
+    public void put(final byte[] key, final byte[] val) {
         if (val == null) {
             delete(key);
             return;
         }
 
         synchronized (this) {
-            byte[] srcVal = getSource().get(key);
-            int srcCount = decodeCount(srcVal);
+            final byte[] srcVal = getSource().get(key);
+            final int srcCount = decodeCount(srcVal);
             if (srcCount >= 1) {
                 if (filter != null) filter.insert(key);
                 dirty = true;
@@ -63,14 +90,14 @@ public class CountingBytesSource extends AbstractChainedSource<byte[], byte[], b
     }
 
     @Override
-    public byte[] get(byte[] key) {
+    public byte[] get(final byte[] key) {
         return decodeValue(getSource().get(key));
     }
 
     @Override
-    public void delete(byte[] key) {
+    public void delete(final byte[] key) {
         synchronized (this) {
-            int srcCount;
+            final int srcCount;
             byte[] srcVal = null;
             if (filter == null || filter.maybeContains(key)) {
                 srcVal = getSource().get(key);
@@ -89,7 +116,7 @@ public class CountingBytesSource extends AbstractChainedSource<byte[], byte[], b
     @Override
     protected boolean flushImpl() {
         if (filter != null && dirty) {
-            byte[] filterBytes;
+            final byte[] filterBytes;
             synchronized (this) {
                 filterBytes = filter.serialize();
             }
@@ -104,21 +131,21 @@ public class CountingBytesSource extends AbstractChainedSource<byte[], byte[], b
     /**
      * Extracts value from the backing Source counter + value byte array
      */
-    private byte[] decodeValue(byte[] srcVal) {
+    private byte[] decodeValue(final byte[] srcVal) {
         return srcVal == null ? null : Arrays.copyOfRange(srcVal, RLP.decode(srcVal, 0).getPos(), srcVal.length);
     }
 
     /**
      * Extracts counter from the backing Source counter + value byte array
      */
-    private int decodeCount(byte[] srcVal) {
+    private int decodeCount(final byte[] srcVal) {
         return srcVal == null ? 0 : ByteUtil.byteArrayToInt((byte[]) RLP.decode(srcVal, 0).getDecoded());
     }
 
     /**
      * Composes value and counter into backing Source value
      */
-    private byte[] encodeCount(byte[] val, int count) {
+    private byte[] encodeCount(final byte[] val, final int count) {
         return ByteUtil.merge(RLP.encodeInt(count), val);
     }
 }

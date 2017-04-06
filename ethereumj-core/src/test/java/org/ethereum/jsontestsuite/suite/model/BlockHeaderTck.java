@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite.model;
 
 public class BlockHeaderTck {
@@ -27,7 +53,7 @@ public class BlockHeaderTck {
         return bloom;
     }
 
-    public void setBloom(String bloom) {
+    public void setBloom(final String bloom) {
         this.bloom = bloom;
     }
 
@@ -35,7 +61,7 @@ public class BlockHeaderTck {
         return coinbase;
     }
 
-    public void setCoinbase(String coinbase) {
+    public void setCoinbase(final String coinbase) {
         this.coinbase = coinbase;
     }
 
@@ -43,7 +69,7 @@ public class BlockHeaderTck {
         return difficulty;
     }
 
-    public void setDifficulty(String difficulty) {
+    public void setDifficulty(final String difficulty) {
         this.difficulty = difficulty;
     }
 
@@ -51,7 +77,7 @@ public class BlockHeaderTck {
         return extraData;
     }
 
-    public void setExtraData(String extraData) {
+    public void setExtraData(final String extraData) {
         this.extraData = extraData;
     }
 
@@ -59,7 +85,7 @@ public class BlockHeaderTck {
         return gasLimit;
     }
 
-    public void setGasLimit(String gasLimit) {
+    public void setGasLimit(final String gasLimit) {
         this.gasLimit = gasLimit;
     }
 
@@ -67,7 +93,7 @@ public class BlockHeaderTck {
         return gasUsed;
     }
 
-    public void setGasUsed(String gasUsed) {
+    public void setGasUsed(final String gasUsed) {
         this.gasUsed = gasUsed;
     }
 
@@ -75,7 +101,7 @@ public class BlockHeaderTck {
         return hash;
     }
 
-    public void setHash(String hash) {
+    public void setHash(final String hash) {
         this.hash = hash;
     }
 
@@ -83,7 +109,7 @@ public class BlockHeaderTck {
         return mixHash;
     }
 
-    public void setMixHash(String mixHash) {
+    public void setMixHash(final String mixHash) {
         this.mixHash = mixHash;
     }
 
@@ -91,7 +117,7 @@ public class BlockHeaderTck {
         return nonce;
     }
 
-    public void setNonce(String nonce) {
+    public void setNonce(final String nonce) {
         this.nonce = nonce;
     }
 
@@ -99,7 +125,7 @@ public class BlockHeaderTck {
         return number;
     }
 
-    public void setNumber(String number) {
+    public void setNumber(final String number) {
         this.number = number;
     }
 
@@ -107,7 +133,7 @@ public class BlockHeaderTck {
         return parentHash;
     }
 
-    public void setParentHash(String parentHash) {
+    public void setParentHash(final String parentHash) {
         this.parentHash = parentHash;
     }
 
@@ -115,7 +141,7 @@ public class BlockHeaderTck {
         return receiptTrie;
     }
 
-    public void setReceiptTrie(String receiptTrie) {
+    public void setReceiptTrie(final String receiptTrie) {
         this.receiptTrie = receiptTrie;
     }
 
@@ -123,7 +149,7 @@ public class BlockHeaderTck {
         return seedHash;
     }
 
-    public void setSeedHash(String seedHash) {
+    public void setSeedHash(final String seedHash) {
         this.seedHash = seedHash;
     }
 
@@ -131,7 +157,7 @@ public class BlockHeaderTck {
         return stateRoot;
     }
 
-    public void setStateRoot(String stateRoot) {
+    public void setStateRoot(final String stateRoot) {
         this.stateRoot = stateRoot;
     }
 
@@ -139,7 +165,7 @@ public class BlockHeaderTck {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(final String timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -147,7 +173,7 @@ public class BlockHeaderTck {
         return transactionsTrie;
     }
 
-    public void setTransactionsTrie(String transactionsTrie) {
+    public void setTransactionsTrie(final String transactionsTrie) {
         this.transactionsTrie = transactionsTrie;
     }
 
@@ -155,7 +181,7 @@ public class BlockHeaderTck {
         return uncleHash;
     }
 
-    public void setUncleHash(String uncleHash) {
+    public void setUncleHash(final String uncleHash) {
         this.uncleHash = uncleHash;
     }
 

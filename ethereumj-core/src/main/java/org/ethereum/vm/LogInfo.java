@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.vm;
 
 import org.ethereum.core.Bloom;
@@ -21,27 +47,27 @@ public class LogInfo {
     private List<DataWord> topics = new ArrayList<>();
     private byte[] data = new byte[]{};
 
-    public LogInfo(byte[] rlp) {
+    public LogInfo(final byte[] rlp) {
 
-        RLPList params = RLP.decode2(rlp);
-        RLPList logInfo = (RLPList) params.get(0);
+        final RLPList params = RLP.decode2(rlp);
+        final RLPList logInfo = (RLPList) params.get(0);
 
-        RLPItem address = (RLPItem) logInfo.get(0);
-        RLPList topics = (RLPList) logInfo.get(1);
-        RLPItem data = (RLPItem) logInfo.get(2);
+        final RLPItem address = (RLPItem) logInfo.get(0);
+        final RLPList topics = (RLPList) logInfo.get(1);
+        final RLPItem data = (RLPItem) logInfo.get(2);
 
         this.address = address.getRLPData() != null ? address.getRLPData() : new byte[]{};
         this.data = data.getRLPData() != null ? data.getRLPData() : new byte[]{};
 
-        for (RLPElement topic1 : topics) {
-            byte[] topic = topic1.getRLPData();
+        for (final RLPElement topic1 : topics) {
+            final byte[] topic = topic1.getRLPData();
             this.topics.add(new DataWord(topic));
         }
 
-        byte[] rlpEncoded = rlp;
+        final byte[] rlpEncoded = rlp;
     }
 
-    public LogInfo(byte[] address, List<DataWord> topics, byte[] data) {
+    public LogInfo(final byte[] address, final List<DataWord> topics, final byte[] data) {
         this.address = (address != null) ? address : new byte[]{};
         this.topics = (topics != null) ? topics : new ArrayList<>();
         this.data = (data != null) ? data : new byte[]{};
@@ -62,27 +88,27 @@ public class LogInfo {
     /*  [address, [topic, topic ...] data] */
     public byte[] getEncoded() {
 
-        byte[] addressEncoded = RLP.encodeElement(this.address);
+        final byte[] addressEncoded = RLP.encodeElement(this.address);
 
         byte[][] topicsEncoded = null;
         if (topics != null) {
             topicsEncoded = new byte[topics.size()][];
             int i = 0;
-            for (DataWord topic : topics) {
-                byte[] topicData = topic.getData();
+            for (final DataWord topic : topics) {
+                final byte[] topicData = topic.getData();
                 topicsEncoded[i] = RLP.encodeElement(topicData);
                 ++i;
             }
         }
 
-        byte[] dataEncoded = RLP.encodeElement(data);
+        final byte[] dataEncoded = RLP.encodeElement(data);
         return RLP.encodeList(addressEncoded, RLP.encodeList(topicsEncoded), dataEncoded);
     }
 
     public Bloom getBloom() {
-        Bloom ret = Bloom.create(HashUtil.sha3(address));
-        for (DataWord topic : topics) {
-            byte[] topicData = topic.getData();
+        final Bloom ret = Bloom.create(HashUtil.sha3(address));
+        for (final DataWord topic : topics) {
+            final byte[] topicData = topic.getData();
             ret.or(Bloom.create(HashUtil.sha3(topicData)));
         }
         return ret;
@@ -91,11 +117,11 @@ public class LogInfo {
     @Override
     public String toString() {
 
-        StringBuilder topicsStr = new StringBuilder();
+        final StringBuilder topicsStr = new StringBuilder();
         topicsStr.append("[");
 
-        for (DataWord topic : topics) {
-            String topicStr = Hex.toHexString(topic.getData());
+        for (final DataWord topic : topics) {
+            final String topicStr = Hex.toHexString(topic.getData());
             topicsStr.append(topicStr).append(" ");
         }
         topicsStr.append("]");

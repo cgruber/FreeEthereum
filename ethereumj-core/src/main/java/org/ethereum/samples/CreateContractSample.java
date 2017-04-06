@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.samples;
 
 import org.ethereum.core.Block;
@@ -43,7 +69,7 @@ public class CreateContractSample extends TestNetSample {
     private
     SolidityCompiler compiler;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         sLogger.info("Starting EthereumJ!");
 
         class Config extends TestNetConfig {
@@ -64,57 +90,57 @@ public class CreateContractSample extends TestNetSample {
         ethereum.addListener(new EthereumListenerAdapter() {
             // when block arrives look for our included transactions
             @Override
-            public void onBlock(Block block, List<TransactionReceipt> receipts) {
+            public void onBlock(final Block block, final List<TransactionReceipt> receipts) {
                 CreateContractSample.this.onBlock(block, receipts);
             }
         });
 
         logger.info("Compiling contract...");
-        SolidityCompiler.Result result = compiler.compileSrc(contract.getBytes(), true, true,
+        final SolidityCompiler.Result result = compiler.compileSrc(contract.getBytes(), true, true,
                 SolidityCompiler.Options.ABI, SolidityCompiler.Options.BIN);
         if (result.isFailed()) {
             throw new RuntimeException("Contract compilation failed:\n" + result.errors);
         }
-        CompilationResult res = CompilationResult.parse(result.output);
+        final CompilationResult res = CompilationResult.parse(result.output);
         if (res.contracts.isEmpty()) {
             throw new RuntimeException("Compilation failed, no contracts returned:\n" + result.errors);
         }
-        CompilationResult.ContractMetadata metadata = res.contracts.values().iterator().next();
+        final CompilationResult.ContractMetadata metadata = res.contracts.values().iterator().next();
         if (metadata.bin == null || metadata.bin.isEmpty()) {
             throw new RuntimeException("Compilation failed, no binary returned:\n" + result.errors);
         }
 
         logger.info("Sending contract to net and waiting for inclusion");
-        TransactionReceipt receipt = sendTxAndWait(new byte[0], Hex.decode(metadata.bin));
+        final TransactionReceipt receipt = sendTxAndWait(new byte[0], Hex.decode(metadata.bin));
 
         if (!receipt.isSuccessful()) {
             logger.error("Some troubles creating a contract: " + receipt.getError());
             return;
         }
 
-        byte[] contractAddress = receipt.getTransaction().getContractAddress();
+        final byte[] contractAddress = receipt.getTransaction().getContractAddress();
         logger.info("Contract created: " + Hex.toHexString(contractAddress));
 
         logger.info("Calling the contract function 'inc'");
-        CallTransaction.Contract contract = new CallTransaction.Contract(metadata.abi);
-        CallTransaction.Function inc = contract.getByName("inc");
-        byte[] functionCallBytes = inc.encode(777);
-        TransactionReceipt receipt1 = sendTxAndWait(contractAddress, functionCallBytes);
+        final CallTransaction.Contract contract = new CallTransaction.Contract(metadata.abi);
+        final CallTransaction.Function inc = contract.getByName("inc");
+        final byte[] functionCallBytes = inc.encode(777);
+        final TransactionReceipt receipt1 = sendTxAndWait(contractAddress, functionCallBytes);
         if (!receipt1.isSuccessful()) {
             logger.error("Some troubles invoking the contract: " + receipt.getError());
             return;
         }
         logger.info("Contract modified!");
 
-        ProgramResult r = ethereum.callConstantFunction(Hex.toHexString(contractAddress),
+        final ProgramResult r = ethereum.callConstantFunction(Hex.toHexString(contractAddress),
                 contract.getByName("get"));
-        Object[] ret = contract.getByName("get").decodeResult(r.getHReturn());
+        final Object[] ret = contract.getByName("get").decodeResult(r.getHReturn());
         logger.info("Current contract data member value: " + ret[0]);
     }
 
-    private TransactionReceipt sendTxAndWait(byte[] receiveAddress, byte[] data) throws InterruptedException {
-        BigInteger nonce = ethereum.getRepository().getNonce(senderAddress);
-        Transaction tx = new Transaction(
+    private TransactionReceipt sendTxAndWait(final byte[] receiveAddress, final byte[] data) throws InterruptedException {
+        final BigInteger nonce = ethereum.getRepository().getNonce(senderAddress);
+        final Transaction tx = new Transaction(
                 ByteUtil.bigIntegerToBytes(nonce),
                 ByteUtil.longToBytesNoLeadZeroes(ethereum.getGasPrice()),
                 ByteUtil.longToBytesNoLeadZeroes(3_000_000),
@@ -129,9 +155,9 @@ public class CreateContractSample extends TestNetSample {
         return waitForTx(tx.getHash());
     }
 
-    private void onBlock(Block block, List<TransactionReceipt> receipts) {
-        for (TransactionReceipt receipt : receipts) {
-            ByteArrayWrapper txHashW = new ByteArrayWrapper(receipt.getTransaction().getHash());
+    private void onBlock(final Block block, final List<TransactionReceipt> receipts) {
+        for (final TransactionReceipt receipt : receipts) {
+            final ByteArrayWrapper txHashW = new ByteArrayWrapper(receipt.getTransaction().getHash());
             if (txWaiters.containsKey(txHashW)) {
                 txWaiters.put(txHashW, receipt);
                 synchronized (this) {
@@ -141,16 +167,16 @@ public class CreateContractSample extends TestNetSample {
         }
     }
 
-    private TransactionReceipt waitForTx(byte[] txHash) throws InterruptedException {
-        ByteArrayWrapper txHashW = new ByteArrayWrapper(txHash);
+    private TransactionReceipt waitForTx(final byte[] txHash) throws InterruptedException {
+        final ByteArrayWrapper txHashW = new ByteArrayWrapper(txHash);
         txWaiters.put(txHashW, null);
-        long startBlock = ethereum.getBlockchain().getBestBlock().getNumber();
+        final long startBlock = ethereum.getBlockchain().getBestBlock().getNumber();
         while(true) {
-            TransactionReceipt receipt = txWaiters.get(txHashW);
+            final TransactionReceipt receipt = txWaiters.get(txHashW);
             if (receipt != null) {
                 return receipt;
             } else {
-                long curBlock = ethereum.getBlockchain().getBestBlock().getNumber();
+                final long curBlock = ethereum.getBlockchain().getBestBlock().getNumber();
                 if (curBlock > startBlock + 16) {
                     throw new RuntimeException("The transaction was not included during last 16 blocks: " + txHashW.toString().substring(0,8));
                 } else {

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
@@ -17,25 +43,25 @@ public class PingMessage extends Message {
     private int fromPort;
     private long expires;
 
-    public static PingMessage create(Node fromNode, Node toNode, ECKey privKey) {
+    public static PingMessage create(final Node fromNode, final Node toNode, final ECKey privKey) {
         return create(fromNode, toNode, privKey, 4);
     }
 
-    private static PingMessage create(Node fromNode, Node toNode, ECKey privKey, int version) {
+    private static PingMessage create(final Node fromNode, final Node toNode, final ECKey privKey, final int version) {
 
-        long expiration = 90 * 60 + System.currentTimeMillis() / 1000;
+        final long expiration = 90 * 60 + System.currentTimeMillis() / 1000;
 
         /* RLP Encode data */
-        byte[] tmpExp = longToBytes(expiration);
-        byte[] rlpExp = RLP.encodeElement(stripLeadingZeroes(tmpExp));
+        final byte[] tmpExp = longToBytes(expiration);
+        final byte[] rlpExp = RLP.encodeElement(stripLeadingZeroes(tmpExp));
 
-        byte[] type = new byte[]{1};
-        byte[] rlpVer = RLP.encodeInt(version);
-        byte[] rlpFromList = fromNode.getBriefRLP();
-        byte[] rlpToList = toNode.getBriefRLP();
-        byte[] data = RLP.encodeList(rlpVer, rlpFromList, rlpToList, rlpExp);
+        final byte[] type = new byte[]{1};
+        final byte[] rlpVer = RLP.encodeInt(version);
+        final byte[] rlpFromList = fromNode.getBriefRLP();
+        final byte[] rlpToList = toNode.getBriefRLP();
+        final byte[] data = RLP.encodeList(rlpVer, rlpFromList, rlpToList, rlpExp);
 
-        PingMessage ping = new PingMessage();
+        final PingMessage ping = new PingMessage();
         ping.encode(type, data, privKey);
 
         ping.expires = expiration;
@@ -48,21 +74,21 @@ public class PingMessage extends Message {
     }
 
     @Override
-    public void parse(byte[] data) {
+    public void parse(final byte[] data) {
 
-        RLPList dataList = (RLPList) RLP.decode2OneItem(data, 0);
+        final RLPList dataList = (RLPList) RLP.decode2OneItem(data, 0);
 
-        RLPList fromList = (RLPList) dataList.get(1);
-        byte[] ipF = fromList.get(0).getRLPData();
+        final RLPList fromList = (RLPList) dataList.get(1);
+        final byte[] ipF = fromList.get(0).getRLPData();
         this.fromHost = bytesToIp(ipF);
         this.fromPort = ByteUtil.byteArrayToInt(fromList.get(1).getRLPData());
 
-        RLPList toList = (RLPList) dataList.get(2);
-        byte[] ipT = toList.get(0).getRLPData();
+        final RLPList toList = (RLPList) dataList.get(2);
+        final byte[] ipT = toList.get(0).getRLPData();
         this.toHost = bytesToIp(ipT);
         this.toPort = ByteUtil.byteArrayToInt(toList.get(1).getRLPData());
 
-        RLPItem expires = (RLPItem) dataList.get(3);
+        final RLPItem expires = (RLPItem) dataList.get(3);
         this.expires = ByteUtil.byteArrayToLong(expires.getRLPData());
 
         this.version = ByteUtil.byteArrayToInt(dataList.get(0).getRLPData());
@@ -92,9 +118,9 @@ public class PingMessage extends Message {
     @Override
     public String toString() {
 
-        long currTime = System.currentTimeMillis() / 1000;
+        final long currTime = System.currentTimeMillis() / 1000;
 
-        String out = String.format("[PingMessage] \n %s:%d ==> %s:%d \n expires in %d seconds \n %s\n",
+        final String out = String.format("[PingMessage] \n %s:%d ==> %s:%d \n expires in %d seconds \n %s\n",
                 fromHost, fromPort, toHost, toPort, (expires - currTime), super.toString());
 
         return out;

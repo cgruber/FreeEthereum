@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.solidity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -15,12 +41,12 @@ import java.util.List;
 public abstract class SolidityType {
     private final String name;
 
-    SolidityType(String name) {
+    SolidityType(final String name) {
         this.name = name;
     }
 
     @JsonCreator
-    public static SolidityType getType(String typeName) {
+    public static SolidityType getType(final String typeName) {
         if (typeName.contains("[")) return ArrayType.getType(typeName);
         if ("bool".equals(typeName)) return new BoolType();
         if (typeName.startsWith("int") || typeName.startsWith("uint")) return new IntType(typeName);
@@ -57,7 +83,7 @@ public abstract class SolidityType {
 
     public abstract Object decode(byte[] encoded, int offset);
 
-    public Object decode(byte[] encoded) {
+    public Object decode(final byte[] encoded) {
         return decode(encoded, 0);
     }
 
@@ -82,18 +108,18 @@ public abstract class SolidityType {
     public static abstract class ArrayType extends SolidityType {
         final SolidityType elementType;
 
-        public ArrayType(String name) {
+        public ArrayType(final String name) {
             super(name);
-            int idx = name.indexOf("[");
-            String st = name.substring(0, idx);
-            int idx2 = name.indexOf("]", idx);
-            String subDim = idx2 + 1 == name.length() ? "" : name.substring(idx2 + 1);
+            final int idx = name.indexOf("[");
+            final String st = name.substring(0, idx);
+            final int idx2 = name.indexOf("]", idx);
+            final String subDim = idx2 + 1 == name.length() ? "" : name.substring(idx2 + 1);
             elementType = SolidityType.getType(st + subDim);
         }
 
-        public static ArrayType getType(String typeName) {
-            int idx1 = typeName.indexOf("[");
-            int idx2 = typeName.indexOf("]", idx1);
+        public static ArrayType getType(final String typeName) {
+            final int idx1 = typeName.indexOf("[");
+            final int idx2 = typeName.indexOf("]", idx1);
             if (idx1 + 1 == idx2) {
                 return new DynamicArrayType(typeName);
             } else {
@@ -102,9 +128,9 @@ public abstract class SolidityType {
         }
 
         @Override
-        public byte[] encode(Object value) {
+        public byte[] encode(final Object value) {
             if (value.getClass().isArray()) {
-                List<Object> elems = new ArrayList<>();
+                final List<Object> elems = new ArrayList<>();
                 for (int i = 0; i < Array.getLength(value); i++) {
                     elems.add(Array.get(value, i));
                 }
@@ -126,11 +152,11 @@ public abstract class SolidityType {
     public static class StaticArrayType extends ArrayType {
         final int size;
 
-        public StaticArrayType(String name) {
+        public StaticArrayType(final String name) {
             super(name);
-            int idx1 = name.indexOf("[");
-            int idx2 = name.indexOf("]", idx1);
-            String dim = name.substring(idx1 + 1, idx2);
+            final int idx1 = name.indexOf("[");
+            final int idx2 = name.indexOf("]", idx1);
+            final String dim = name.substring(idx1 + 1, idx2);
             size = Integer.parseInt(dim);
         }
 
@@ -140,9 +166,9 @@ public abstract class SolidityType {
         }
 
         @Override
-        public byte[] encodeList(List l) {
+        public byte[] encodeList(final List l) {
             if (l.size() != size) throw new RuntimeException("List size (" + l.size() + ") != " + size + " for type " + getName());
-            byte[][] elems = new byte[size][];
+            final byte[][] elems = new byte[size][];
             for (int i = 0; i < l.size(); i++) {
                 elems[i] = elementType.encode(l.get(i));
             }
@@ -150,8 +176,8 @@ public abstract class SolidityType {
         }
 
         @Override
-        public Object[] decode(byte[] encoded, int offset) {
-            Object[] result = new Object[size];
+        public Object[] decode(final byte[] encoded, final int offset) {
+            final Object[] result = new Object[size];
             for (int i = 0; i < size; i++) {
                 result[i] = elementType.decode(encoded, offset + i * elementType.getFixedSize());
             }
@@ -167,7 +193,7 @@ public abstract class SolidityType {
     }
 
     public static class DynamicArrayType extends ArrayType {
-        public DynamicArrayType(String name) {
+        public DynamicArrayType(final String name) {
             super(name);
         }
 
@@ -177,15 +203,15 @@ public abstract class SolidityType {
         }
 
         @Override
-        public byte[] encodeList(List l) {
-            byte[][] elems;
+        public byte[] encodeList(final List l) {
+            final byte[][] elems;
             if (elementType.isDynamicType()) {
                 elems = new byte[l.size() * 2 + 1][];
                 elems[0] = IntType.encodeInt(l.size());
                 int offset = l.size() * 32;
                 for (int i = 0; i < l.size(); i++) {
                     elems[i + 1] = IntType.encodeInt(offset);
-                    byte[] encoded = elementType.encode(l.get(i));
+                    final byte[] encoded = elementType.encode(l.get(i));
                     elems[l.size() + i + 1] = encoded;
                     offset += 32 * ((encoded.length - 1) / 32 + 1);
                 }
@@ -201,11 +227,11 @@ public abstract class SolidityType {
         }
 
         @Override
-        public Object decode(byte[] encoded, int origOffset) {
-            int len = IntType.decodeInt(encoded, origOffset).intValue();
+        public Object decode(final byte[] encoded, int origOffset) {
+            final int len = IntType.decodeInt(encoded, origOffset).intValue();
             origOffset += 32;
             int offset = origOffset;
-            Object[] ret = new Object[len];
+            final Object[] ret = new Object[len];
 
             for (int i = 0; i < len; i++) {
                 if (elementType.isDynamicType()) {
@@ -225,7 +251,7 @@ public abstract class SolidityType {
     }
 
     public static class BytesType extends SolidityType {
-        BytesType(String name) {
+        BytesType(final String name) {
             super(name);
         }
 
@@ -234,18 +260,18 @@ public abstract class SolidityType {
         }
 
         @Override
-        public byte[] encode(Object value) {
+        public byte[] encode(final Object value) {
             if (!(value instanceof byte[])) throw new RuntimeException("byte[] value expected for type 'bytes'");
-            byte[] bb = (byte[]) value;
-            byte[] ret = new byte[((bb.length - 1) / 32 + 1) * 32]; // padding 32 bytes
+            final byte[] bb = (byte[]) value;
+            final byte[] ret = new byte[((bb.length - 1) / 32 + 1) * 32]; // padding 32 bytes
             System.arraycopy(bb, 0, ret, 0, bb.length);
 
             return ByteUtil.merge(IntType.encodeInt(bb.length), ret);
         }
 
         @Override
-        public Object decode(byte[] encoded, int offset) {
-            int len = IntType.decodeInt(encoded, offset).intValue();
+        public Object decode(final byte[] encoded, int offset) {
+            final int len = IntType.decodeInt(encoded, offset).intValue();
             if (len == 0) return new byte[0];
             offset += 32;
             return Arrays.copyOfRange(encoded, offset, offset + len);
@@ -263,35 +289,35 @@ public abstract class SolidityType {
         }
 
         @Override
-        public byte[] encode(Object value) {
+        public byte[] encode(final Object value) {
             if (!(value instanceof String)) throw new RuntimeException("String value expected for type 'string'");
             return super.encode(((String)value).getBytes(StandardCharsets.UTF_8));
         }
 
         @Override
-        public Object decode(byte[] encoded, int offset) {
+        public Object decode(final byte[] encoded, final int offset) {
             return new String((byte[]) super.decode(encoded, offset), StandardCharsets.UTF_8);
         }
     }
 
     public static class Bytes32Type extends SolidityType {
-        public Bytes32Type(String s) {
+        public Bytes32Type(final String s) {
             super(s);
         }
 
         @Override
-        public byte[] encode(Object value) {
+        public byte[] encode(final Object value) {
             if (value instanceof Number) {
-                BigInteger bigInt = new BigInteger(value.toString());
+                final BigInteger bigInt = new BigInteger(value.toString());
                 return IntType.encodeInt(bigInt);
             } else if (value instanceof String) {
-                byte[] ret = new byte[32];
-                byte[] bytes = ((String) value).getBytes(StandardCharsets.UTF_8);
+                final byte[] ret = new byte[32];
+                final byte[] bytes = ((String) value).getBytes(StandardCharsets.UTF_8);
                 System.arraycopy(bytes, 0, ret, 0, bytes.length);
                 return ret;
             } else if (value instanceof byte[]) {
-                byte[] bytes = (byte[]) value;
-                byte[] ret = new byte[32];
+                final byte[] bytes = (byte[]) value;
+                final byte[] ret = new byte[32];
                 System.arraycopy(bytes, 0, ret, 32 - bytes.length, bytes.length);
                 return ret;
             }
@@ -300,7 +326,7 @@ public abstract class SolidityType {
         }
 
         @Override
-        public Object decode(byte[] encoded, int offset) {
+        public Object decode(final byte[] encoded, final int offset) {
             return Arrays.copyOfRange(encoded, offset, offset + getFixedSize());
         }
     }
@@ -316,7 +342,7 @@ public abstract class SolidityType {
                 // address is supposed to be always in hex
                 value = "0x" + value;
             }
-            byte[] addr = super.encode(value);
+            final byte[] addr = super.encode(value);
             for (int i = 0; i < 12; i++) {
                 if (addr[i] != 0) {
                     throw new RuntimeException("Invalid address (should be 20 bytes length): " + Hex.toHexString(addr));
@@ -326,26 +352,26 @@ public abstract class SolidityType {
         }
 
         @Override
-        public Object decode(byte[] encoded, int offset) {
-            BigInteger bi = (BigInteger) super.decode(encoded, offset);
+        public Object decode(final byte[] encoded, final int offset) {
+            final BigInteger bi = (BigInteger) super.decode(encoded, offset);
             return ByteUtil.bigIntegerToBytes(bi, 20);
         }
     }
 
     public static class IntType extends SolidityType {
-        public IntType(String name) {
+        public IntType(final String name) {
             super(name);
         }
 
-        public static BigInteger decodeInt(byte[] encoded, int offset) {
+        public static BigInteger decodeInt(final byte[] encoded, final int offset) {
             return new BigInteger(Arrays.copyOfRange(encoded, offset, offset + 32));
         }
 
-        public static byte[] encodeInt(int i) {
+        public static byte[] encodeInt(final int i) {
             return encodeInt(new BigInteger("" + i));
         }
 
-        public static byte[] encodeInt(BigInteger bigInt) {
+        public static byte[] encodeInt(final BigInteger bigInt) {
             return ByteUtil.bigIntegerToBytesSigned(bigInt, 32);
         }
 
@@ -357,8 +383,8 @@ public abstract class SolidityType {
         }
 
         @Override
-        public byte[] encode(Object value) {
-            BigInteger bigInt;
+        public byte[] encode(final Object value) {
+            final BigInteger bigInt;
 
             if (value instanceof String) {
                 String s = ((String)value).toLowerCase().trim();
@@ -384,7 +410,7 @@ public abstract class SolidityType {
         }
 
         @Override
-        public Object decode(byte[] encoded, int offset) {
+        public Object decode(final byte[] encoded, final int offset) {
             return decodeInt(encoded, offset);
         }
     }
@@ -395,13 +421,13 @@ public abstract class SolidityType {
         }
 
         @Override
-        public byte[] encode(Object value) {
+        public byte[] encode(final Object value) {
             if (!(value instanceof Boolean)) throw new RuntimeException("Wrong value for bool type: " + value);
             return super.encode(value == Boolean.TRUE ? 1 : 0);
         }
 
         @Override
-        public Object decode(byte[] encoded, int offset) {
+        public Object decode(final byte[] encoded, final int offset) {
             return Boolean.valueOf(((Number) super.decode(encoded, offset)).intValue() != 0);
         }
     }
@@ -412,7 +438,7 @@ public abstract class SolidityType {
         }
 
         @Override
-        public byte[] encode(Object value) {
+        public byte[] encode(final Object value) {
             if (!(value instanceof byte[])) throw new RuntimeException("Expected byte[] value for FunctionType");
             if (((byte[]) value).length != 24) throw new RuntimeException("Expected byte[24] for FunctionType");
             return super.encode(ByteUtil.merge((byte[]) value, new byte[8]));

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
@@ -14,20 +40,20 @@ public class FindNodeMessage extends Message {
     private byte[] target;
     private long expires;
 
-    public static FindNodeMessage create(byte[] target, ECKey privKey) {
+    public static FindNodeMessage create(final byte[] target, final ECKey privKey) {
 
-        long expiration = 90 * 60 + System.currentTimeMillis() / 1000;
+        final long expiration = 90 * 60 + System.currentTimeMillis() / 1000;
 
         /* RLP Encode data */
-        byte[] rlpToken = RLP.encodeElement(target);
+        final byte[] rlpToken = RLP.encodeElement(target);
 
         byte[] rlpExp = longToBytesNoLeadZeroes(expiration);
         rlpExp = RLP.encodeElement(rlpExp);
 
-        byte[] type = new byte[]{3};
-        byte[] data = RLP.encodeList(rlpToken, rlpExp);
+        final byte[] type = new byte[]{3};
+        final byte[] data = RLP.encodeList(rlpToken, rlpExp);
 
-        FindNodeMessage findNode = new FindNodeMessage();
+        final FindNodeMessage findNode = new FindNodeMessage();
         findNode.encode(type, data, privKey);
         findNode.target = target;
         findNode.expires = expiration;
@@ -36,12 +62,12 @@ public class FindNodeMessage extends Message {
     }
 
     @Override
-    public void parse(byte[] data) {
+    public void parse(final byte[] data) {
 
-        RLPList list = (RLPList) RLP.decode2OneItem(data, 0);
+        final RLPList list = (RLPList) RLP.decode2OneItem(data, 0);
 
-        RLPItem target = (RLPItem) list.get(0);
-        RLPItem expires = (RLPItem) list.get(1);
+        final RLPItem target = (RLPItem) list.get(0);
+        final RLPItem expires = (RLPItem) list.get(1);
 
         this.target = target.getRLPData();
         this.expires = ByteUtil.byteArrayToLong(expires.getRLPData());
@@ -58,9 +84,9 @@ public class FindNodeMessage extends Message {
     @Override
     public String toString() {
 
-        long currTime = System.currentTimeMillis() / 1000;
+        final long currTime = System.currentTimeMillis() / 1000;
 
-        String out = String.format("[FindNodeMessage] \n target: %s \n expires in %d seconds \n %s\n",
+        final String out = String.format("[FindNodeMessage] \n target: %s \n expires in %d seconds \n %s\n",
                 Hex.toHexString(target), (expires - currTime), super.toString());
 
         return out;

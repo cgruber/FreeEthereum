@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.shh;
 
 
@@ -24,21 +50,21 @@ public class WhisperImpl extends Whisper {
     public WhisperImpl() {
     }
 
-    public static String toIdentity(ECKey key) {
+    public static String toIdentity(final ECKey key) {
         return Hex.toHexString(key.getNodeId());
     }
 
-    public static ECKey fromIdentityToPub(String identity) {
+    public static ECKey fromIdentityToPub(final String identity) {
         try {
             return identity == null ? null :
                     ECKey.fromPublicOnly(ByteUtil.merge(new byte[]{0x04}, Hex.decode(identity)));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException("Converting identity '" + identity + "'", e);
         }
     }
 
     @Override
-    public void send(String from, String to, byte[] payload, Topic[] topicList, int ttl, int workToProve) {
+    public void send(final String from, final String to, final byte[] payload, final Topic[] topicList, final int ttl, final int workToProve) {
         ECKey fromKey = null;
         if (from != null && !from.isEmpty()) {
             fromKey = getIdentity(from);
@@ -47,7 +73,7 @@ public class WhisperImpl extends Whisper {
             }
         }
 
-        WhisperMessage m = new WhisperMessage()
+        final WhisperMessage m = new WhisperMessage()
                 .setFrom(fromKey)
                 .setTo(to)
                 .setPayload(payload)
@@ -60,41 +86,41 @@ public class WhisperImpl extends Whisper {
         addMessage(m, null);
     }
 
-    public void processEnvelope(ShhEnvelopeMessage e, ShhHandler shhHandler) {
-        for (WhisperMessage message : e.getMessages()) {
+    public void processEnvelope(final ShhEnvelopeMessage e, final ShhHandler shhHandler) {
+        for (final WhisperMessage message : e.getMessages()) {
             message.decrypt(identities.values(), knownTopics);
             logger.info("New Whisper message: " + message);
             addMessage(message, shhHandler);
         }
     }
 
-    void addPeer(ShhHandler peer) {
+    void addPeer(final ShhHandler peer) {
         activePeers.add(peer);
     }
 
-    void removePeer(ShhHandler peer) {
+    void removePeer(final ShhHandler peer) {
         activePeers.remove(peer);
     }
 
-    public void watch(MessageWatcher f) {
+    public void watch(final MessageWatcher f) {
         filters.add(f);
-        for (Topic topic : f.getTopics()) {
+        for (final Topic topic : f.getTopics()) {
             hostBloomFilter.addTopic(topic);
             knownTopics.add(topic);
         }
         notifyBloomFilterChanged();
     }
 
-    public void unwatch(MessageWatcher f) {
+    public void unwatch(final MessageWatcher f) {
         filters.remove(f);
-        for (Topic topic : f.getTopics()) {
+        for (final Topic topic : f.getTopics()) {
             hostBloomFilter.removeTopic(topic);
         }
         notifyBloomFilterChanged();
     }
 
     private void notifyBloomFilterChanged() {
-        for (ShhHandler peer : activePeers) {
+        for (final ShhHandler peer : activePeers) {
             peer.sendHostBloom();
         }
     }
@@ -102,14 +128,14 @@ public class WhisperImpl extends Whisper {
     // Processing both messages:
     // own outgoing messages (shhHandler == null)
     // and inbound messages from peers
-    private void addMessage(WhisperMessage m, ShhHandler inboundPeer) {
+    private void addMessage(final WhisperMessage m, final ShhHandler inboundPeer) {
         if (!known.containsKey(m)) {
             known.put(m, null);
             if (inboundPeer != null) {
                 matchMessage(m);
             }
 
-            for (ShhHandler peer : activePeers) {
+            for (final ShhHandler peer : activePeers) {
                 if (peer != inboundPeer) {
                     peer.sendEnvelope(new ShhEnvelopeMessage(m));
                 }
@@ -117,8 +143,8 @@ public class WhisperImpl extends Whisper {
         }
     }
 
-    private void matchMessage(WhisperMessage m) {
-        for (MessageWatcher f : filters) {
+    private void matchMessage(final WhisperMessage m) {
+        for (final MessageWatcher f : filters) {
             if (f.match(m.getTo(), m.getFrom(), m.getTopics())) {
                 f.newMessage(m);
             }
@@ -126,8 +152,8 @@ public class WhisperImpl extends Whisper {
     }
 
     @Override
-    public String addIdentity(ECKey key) {
-        String identity = toIdentity(key);
+    public String addIdentity(final ECKey key) {
+        final String identity = toIdentity(key);
         identities.put(identity, key);
         return identity;
     }
@@ -137,7 +163,7 @@ public class WhisperImpl extends Whisper {
         return addIdentity(new ECKey());
     }
 
-    private ECKey getIdentity(String identity) {
+    private ECKey getIdentity(final String identity) {
         if (identities.containsKey(identity)) {
             return identities.get(identity);
         }

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.vm.program.invoke;
 
 import org.ethereum.core.Repository;
@@ -39,11 +65,11 @@ public class ProgramInvokeImpl implements ProgramInvoke {
     private boolean byTestingSuite = false;
     private int callDeep = 0;
 
-    public ProgramInvokeImpl(DataWord address, DataWord origin, DataWord caller, DataWord balance,
-                             DataWord gasPrice, DataWord gas, DataWord callValue, byte[] msgData,
-                             DataWord lastHash, DataWord coinbase, DataWord timestamp, DataWord number, DataWord
+    public ProgramInvokeImpl(final DataWord address, final DataWord origin, final DataWord caller, final DataWord balance,
+                             final DataWord gasPrice, final DataWord gas, final DataWord callValue, final byte[] msgData,
+                             final DataWord lastHash, final DataWord coinbase, final DataWord timestamp, final DataWord number, final DataWord
                                      difficulty,
-                             DataWord gaslimit, Repository repository, int callDeep, BlockStore blockStore, boolean byTestingSuite) {
+                             final DataWord gaslimit, final Repository repository, final int callDeep, final BlockStore blockStore, final boolean byTestingSuite) {
 
         // Transaction env
         this.address = address;
@@ -72,21 +98,21 @@ public class ProgramInvokeImpl implements ProgramInvoke {
     }
 
 
-    public ProgramInvokeImpl(byte[] address, byte[] origin, byte[] caller, byte[] balance,
-                             byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
-                             byte[] lastHash, byte[] coinbase, long timestamp, long number, byte[] difficulty,
-                             byte[] gaslimit,
-                             Repository repository, BlockStore blockStore, boolean byTestingSuite) {
+    public ProgramInvokeImpl(final byte[] address, final byte[] origin, final byte[] caller, final byte[] balance,
+                             final byte[] gasPrice, final byte[] gas, final byte[] callValue, final byte[] msgData,
+                             final byte[] lastHash, final byte[] coinbase, final long timestamp, final long number, final byte[] difficulty,
+                             final byte[] gaslimit,
+                             final Repository repository, final BlockStore blockStore, final boolean byTestingSuite) {
         this(address, origin, caller, balance, gasPrice, gas, callValue, msgData, lastHash, coinbase,
                 timestamp, number, difficulty, gaslimit, repository, blockStore);
         this.byTestingSuite = byTestingSuite;
     }
 
-    public ProgramInvokeImpl(byte[] address, byte[] origin, byte[] caller, byte[] balance,
-                             byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
-                             byte[] lastHash, byte[] coinbase, long timestamp, long number, byte[] difficulty,
-                             byte[] gaslimit,
-                             Repository repository, BlockStore blockStore) {
+    public ProgramInvokeImpl(final byte[] address, final byte[] origin, final byte[] caller, final byte[] balance,
+                             final byte[] gasPrice, final byte[] gas, final byte[] callValue, final byte[] msgData,
+                             final byte[] lastHash, final byte[] coinbase, final long timestamp, final long number, final byte[] difficulty,
+                             final byte[] gaslimit,
+                             final Repository repository, final BlockStore blockStore) {
 
         // Transaction env
         this.address = new DataWord(address);
@@ -155,10 +181,10 @@ public class ProgramInvokeImpl implements ProgramInvoke {
     }
 
     /*     CALLDATALOAD  op   */
-    public DataWord getDataValue(DataWord indexData) {
+    public DataWord getDataValue(final DataWord indexData) {
 
-        BigInteger tempIndex = indexData.value();
-        int index = tempIndex.intValue(); // possible overflow is caught below
+        final BigInteger tempIndex = indexData.value();
+        final int index = tempIndex.intValue(); // possible overflow is caught below
         int size = 32; // maximum datavalue size
 
         if (msgData == null || index >= msgData.length
@@ -167,7 +193,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         if (index + size > msgData.length)
             size = msgData.length - index;
 
-        byte[] data = new byte[32];
+        final byte[] data = new byte[32];
         System.arraycopy(msgData, index, data, 0, size);
         return new DataWord(data);
     }
@@ -176,17 +202,17 @@ public class ProgramInvokeImpl implements ProgramInvoke {
     public DataWord getDataSize() {
 
         if (msgData == null || msgData.length == 0) return DataWord.ZERO;
-        int size = msgData.length;
+        final int size = msgData.length;
         return new DataWord(size);
     }
 
     /*  CALLDATACOPY */
-    public byte[] getDataCopy(DataWord offsetData, DataWord lengthData) {
+    public byte[] getDataCopy(final DataWord offsetData, final DataWord lengthData) {
 
-        int offset = offsetData.intValueSafe();
+        final int offset = offsetData.intValueSafe();
         int length = lengthData.intValueSafe();
 
-        byte[] data = new byte[length];
+        final byte[] data = new byte[length];
 
         if (msgData == null) return data;
         if (offset > msgData.length) return data;
@@ -258,11 +284,11 @@ public class ProgramInvokeImpl implements ProgramInvoke {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ProgramInvokeImpl that = (ProgramInvokeImpl) o;
+        final ProgramInvokeImpl that = (ProgramInvokeImpl) o;
 
         if (byTestingSuite != that.byTestingSuite) return false;
         if (byTransaction != that.byTransaction) return false;

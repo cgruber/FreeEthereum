@@ -47,9 +47,9 @@ public class GoPeerTest {
         Thread.sleep(5000);
         System.out.println("Sending a chunk...");
 
-        Key key = new Key(sha3(new byte[]{0x22, 0x33}));
+        final Key key = new Key(sha3(new byte[]{0x22, 0x33}));
 //            stdout.setFilter(Hex.toHexString(key.getBytes()));
-        Chunk chunk = new Chunk(key, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 77, 88});
+        final Chunk chunk = new Chunk(key, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 77, 88});
 
         NetStore.getInstance().put(chunk);
     }

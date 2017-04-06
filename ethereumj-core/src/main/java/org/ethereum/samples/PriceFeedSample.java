@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.samples;
 
 import org.ethereum.core.CallTransaction;
@@ -26,7 +52,7 @@ import java.util.Date;
  */
 public class PriceFeedSample extends BasicSample {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         sLogger.info("Starting EthereumJ!");
 
         // Based on Config class the sample would be created by Spring
@@ -39,7 +65,7 @@ public class PriceFeedSample extends BasicSample {
         try {
             // after all blocks are synced perform the work
 //            worker();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -55,20 +81,20 @@ public class PriceFeedSample extends BasicSample {
      * the result in log.
      */
     private void worker() throws Exception {
-        NameRegContract nameRegContract = new NameRegContract();
+        final NameRegContract nameRegContract = new NameRegContract();
         if (!nameRegContract.isExist()) {
             throw new RuntimeException("Namereg contract not exist on the blockchain");
         }
-        String priceFeedAddress = Hex.toHexString(nameRegContract.addressOf("ether-camp/price-feed"));
+        final String priceFeedAddress = Hex.toHexString(nameRegContract.addressOf("ether-camp/price-feed"));
         logger.info("Got PriceFeed address from name registry: " + priceFeedAddress);
-        PriceFeedContract priceFeedContract = new PriceFeedContract(priceFeedAddress);
+        final PriceFeedContract priceFeedContract = new PriceFeedContract(priceFeedAddress);
 
         logger.info("Polling cryptocurrency exchange rates once a minute (prices are normally updated each 10 mins)...");
-        String[] tickers = {"BTC_ETH", "USDT_BTC", "USDT_ETH"};
+        final String[] tickers = {"BTC_ETH", "USDT_BTC", "USDT_ETH"};
         while (true) {
             if (priceFeedContract.isExist()) {
-                StringBuilder s = new StringBuilder(priceFeedContract.updateTime() + ": ");
-                for (String ticker : tickers) {
+                final StringBuilder s = new StringBuilder(priceFeedContract.updateTime() + ": ");
+                for (final String ticker : tickers) {
                     s.append(ticker).append(" ").append(priceFeedContract.getPrice(ticker)).append(" (").append(priceFeedContract.getTimestamp(ticker)).append("), ");
                 }
                 logger.info(s.toString());
@@ -101,7 +127,7 @@ public class PriceFeedSample extends BasicSample {
         /**
          * @param contractAddr address of the target contract as a hex String
          */
-        EthereumContract(String contractAddr) {
+        EthereumContract(final String contractAddr) {
             this.contractAddr = contractAddr;
         }
 
@@ -109,7 +135,7 @@ public class PriceFeedSample extends BasicSample {
          *  Use this variant if you have the contract ABI then you call the functions
          *  by their names only
          */
-        public EthereumContract(String contractAddr, String contractABI) {
+        public EthereumContract(final String contractAddr, final String contractABI) {
             this.contractAddr = contractAddr;
             this.contractFromABI = new CallTransaction.Contract(contractABI);
         }
@@ -133,21 +159,21 @@ public class PriceFeedSample extends BasicSample {
          *    bytesN, byte[] -> byte[]
          *    Solidity dynamic array -> Java array
          */
-        Object[] callFunction(String name, String[] inParamTypes, String[] outParamTypes, Object... args) {
-            CallTransaction.Function function = CallTransaction.Function.fromSignature(name, inParamTypes, outParamTypes);
-            ProgramResult result = ethereum.callConstantFunction(contractAddr, function, args);
+        Object[] callFunction(final String name, final String[] inParamTypes, final String[] outParamTypes, final Object... args) {
+            final CallTransaction.Function function = CallTransaction.Function.fromSignature(name, inParamTypes, outParamTypes);
+            final ProgramResult result = ethereum.callConstantFunction(contractAddr, function, args);
             return function.decodeResult(result.getHReturn());
         }
 
         /**
          *  Use this method if the contract ABI was passed
          */
-        Object[] callFunction(String functionName, Object... args) {
+        Object[] callFunction(final String functionName, final Object... args) {
             if (contractFromABI == null) {
                 throw new RuntimeException("The contract JSON ABI should be passed to constructor to use this method");
             }
-            CallTransaction.Function function = contractFromABI.getByName(functionName);
-            ProgramResult result = ethereum.callConstantFunction(contractAddr, function, args);
+            final CallTransaction.Function function = contractFromABI.getByName(functionName);
+            final ProgramResult result = ethereum.callConstantFunction(contractAddr, function, args);
             return function.decodeResult(result.getHReturn());
         }
 
@@ -173,12 +199,12 @@ public class PriceFeedSample extends BasicSample {
             super("985509582b2c38010bfaa3c8d2be60022d3d00da");
         }
 
-        public byte[] addressOf(String name) {
-            BigInteger bi = (BigInteger) callFunction("addressOf", new String[] {"bytes32"}, new String[] {"address"}, name)[0];
+        public byte[] addressOf(final String name) {
+            final BigInteger bi = (BigInteger) callFunction("addressOf", new String[]{"bytes32"}, new String[]{"address"}, name)[0];
             return ByteUtil.bigIntegerToBytes(bi, 20);
         }
 
-        public String nameOf(byte[] addr) {
+        public String nameOf(final byte[] addr) {
             return (String) callFunction("nameOf", new String[]{"address"}, new String[]{"bytes32"}, addr)[0];
         }
     }
@@ -232,25 +258,25 @@ public class PriceFeedSample extends BasicSample {
                 "  'type': 'constructor'" +
                 "}]";
 
-        public PriceFeedContract(String contractAddr) {
+        public PriceFeedContract(final String contractAddr) {
             super(contractAddr, contractABI.replace("'", "\"")); //JSON parser doesn't like single quotes :(
         }
 
         public Date updateTime() {
-            BigInteger ret = (BigInteger) callFunction("updateTime")[0];
+            final BigInteger ret = (BigInteger) callFunction("updateTime")[0];
             // All times in Ethereum are Unix times
             return new Date(Utils.fromUnixTime(ret.longValue()));
         }
 
-        public double getPrice(String ticker) {
-            BigInteger ret = (BigInteger) callFunction("getPrice", ticker)[0];
+        public double getPrice(final String ticker) {
+            final BigInteger ret = (BigInteger) callFunction("getPrice", ticker)[0];
             // since Ethereum has no decimal numbers we are storing prices with
             // virtual fixed point
             return ret.longValue() / 1_000_000d;
         }
 
-        public Date getTimestamp(String ticker) {
-            BigInteger ret = (BigInteger) callFunction("getTimestamp", ticker)[0];
+        public Date getTimestamp(final String ticker) {
+            final BigInteger ret = (BigInteger) callFunction("getTimestamp", ticker)[0];
             return new Date(Utils.fromUnixTime(ret.longValue()));
         }
     }

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.longrun;
 
 import org.ethereum.config.CommonConfig;
@@ -54,24 +80,24 @@ class BasicNode implements Runnable {
      */
     private final EthereumListener listener = new EthereumListenerAdapter() {
         @Override
-        public void onSyncDone(SyncState state) {
+        public void onSyncDone(final SyncState state) {
             syncState = state;
             if (state.equals(SyncState.COMPLETE)) syncComplete = true;
             onSyncDoneImpl(state);
         }
 
         @Override
-        public void onEthStatusUpdated(Channel channel, StatusMessage statusMessage) {
+        public void onEthStatusUpdated(final Channel channel, final StatusMessage statusMessage) {
             ethNodes.put(channel.getNode(), statusMessage);
         }
 
         @Override
-        public void onPeerAddedToSyncPool(Channel peer) {
+        public void onPeerAddedToSyncPool(final Channel peer) {
             syncPeers.add(peer.getNode());
         }
 
         @Override
-        public void onBlock(Block block, List<TransactionReceipt> receipts) {
+        public void onBlock(final Block block, final List<TransactionReceipt> receipts) {
             bestBlock = block;
 
             if (syncComplete) {
@@ -89,11 +115,11 @@ class BasicNode implements Runnable {
      * logger name can be passed if more than one EthereumJ instance is created
      * in a single JVM to distinguish logging output from different instances
      */
-    public BasicNode(String loggerName) {
+    public BasicNode(final String loggerName) {
         this.loggerName = loggerName;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         sLogger.info("Starting EthereumJ!");
 
         // Based on Config class the BasicNode would be created by Spring
@@ -133,7 +159,7 @@ class BasicNode implements Runnable {
 
             onSyncDone();
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.error("Error occurred in Sample: ", e);
         }
     }
@@ -159,7 +185,7 @@ class BasicNode implements Runnable {
         logger.info("Monitoring new blocks in real-time...");
     }
 
-    void onSyncDoneImpl(EthereumListener.SyncState state) {
+    void onSyncDoneImpl(final EthereumListener.SyncState state) {
         logger.info("onSyncDone: " + state);
     }
 

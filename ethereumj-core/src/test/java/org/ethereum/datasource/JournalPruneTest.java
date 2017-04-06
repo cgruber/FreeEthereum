@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.datasource;
 
 import org.ethereum.crypto.HashUtil;
@@ -13,22 +39,22 @@ import static org.junit.Assert.assertTrue;
  */
 public class JournalPruneTest {
 
-    private void checkDb(StringJDS db, String ... keys) {
+    private void checkDb(final StringJDS db, final String... keys) {
         assertEquals(keys.length, db.mapDB.keys().size());
-        for (String key : keys) {
+        for (final String key : keys) {
             assertTrue(db.get(key.getBytes()) != null);
         }
     }
 
-    private void putKeys(StringJDS db, String ... keys) {
-        for (String key : keys) {
+    private void putKeys(final StringJDS db, final String... keys) {
+        for (final String key : keys) {
             db.put(key.getBytes(), key.getBytes());
         }
     }
 
     @Test
     public void simpleTest() {
-        StringJDS jds = new StringJDS();
+        final StringJDS jds = new StringJDS();
 
         putKeys(jds, "a1", "a2");
 
@@ -55,7 +81,7 @@ public class JournalPruneTest {
 
     @Test
     public void forkTest1() {
-        StringJDS jds = new StringJDS();
+        final StringJDS jds = new StringJDS();
 
         putKeys(jds, "a1", "a2", "a3");
 
@@ -80,7 +106,7 @@ public class JournalPruneTest {
 
     @Test
     public void forkTest2() {
-        StringJDS jds = new StringJDS();
+        final StringJDS jds = new StringJDS();
 
         putKeys(jds, "a1", "a2", "a3");
 
@@ -117,7 +143,7 @@ public class JournalPruneTest {
 
     @Test
     public void forkTest3() {
-        StringJDS jds = new StringJDS();
+        final StringJDS jds = new StringJDS();
 
         putKeys(jds, "a1");
 
@@ -142,7 +168,7 @@ public class JournalPruneTest {
         assertEquals(0, ((HashMapDB) jds.journal).getStorage().size());
     }
 
-    private byte[] hashInt(int i) {
+    private byte[] hashInt(final int i) {
         return HashUtil.sha3(ByteUtil.intToBytes(i));
     }
 
@@ -154,25 +180,25 @@ public class JournalPruneTest {
             this(new HashMapDB<>());
         }
 
-        private StringJDS(HashMapDB<byte[]> mapDB) {
+        private StringJDS(final HashMapDB<byte[]> mapDB) {
             this(mapDB, new CountingBytesSource(mapDB));
         }
 
-        private StringJDS(HashMapDB<byte[]> mapDB, Source<byte[], byte[]> db) {
+        private StringJDS(final HashMapDB<byte[]> mapDB, final Source<byte[], byte[]> db) {
             super(db);
             this.db = db;
             this.mapDB = mapDB;
         }
 
-        public synchronized void put(String key) {
+        public synchronized void put(final String key) {
             super.put(key.getBytes(), key.getBytes());
         }
 
-        public synchronized void delete(String key) {
+        public synchronized void delete(final String key) {
             super.delete(key.getBytes());
         }
 
-        public String get(String key) {
+        public String get(final String key) {
             return new String(super.get(key.getBytes()));
         }
     }

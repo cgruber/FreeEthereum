@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.util;
 
 import java.util.HashMap;
@@ -31,12 +57,12 @@ public class ExecutorPipeline <In, Out>{
     private long nextOutTaskNumber = 0;
     private String threadPoolName;
 
-    public ExecutorPipeline(int threads, int queueSize, boolean preserveOrder, Functional.Function<In, Out> processor,
-                            Functional.Consumer<Throwable> exceptionHandler) {
+    public ExecutorPipeline(final int threads, final int queueSize, final boolean preserveOrder, final Functional.Function<In, Out> processor,
+                            final Functional.Consumer<Throwable> exceptionHandler) {
         queue = new LimitedQueue<>(queueSize);
         exec = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, queue, new ThreadFactory() {
             @Override
-            public Thread newThread(Runnable r) {
+            public Thread newThread(final Runnable r) {
                 return new Thread(r, threadPoolName + "-" + threadNumber.getAndIncrement());
             }
         });
@@ -46,24 +72,24 @@ public class ExecutorPipeline <In, Out>{
         this.threadPoolName = "pipe-" + pipeNumber.getAndIncrement();
     }
 
-    public ExecutorPipeline<Out, Void> add(int threads, int queueSize, final Functional.Consumer<Out> consumer) {
+    public ExecutorPipeline<Out, Void> add(final int threads, final int queueSize, final Functional.Consumer<Out> consumer) {
         return add(threads, queueSize, false, new Functional.Function<Out, Void>() {
             @Override
-            public Void apply(Out out) {
+            public Void apply(final Out out) {
                 consumer.accept(out);
                 return null;
             }
         });
     }
 
-    private <NextOut> ExecutorPipeline<Out, NextOut> add(int threads, int queueSize, boolean preserveOrder,
-                                                         Functional.Function<Out, NextOut> processor) {
-        ExecutorPipeline<Out, NextOut> ret = new ExecutorPipeline<>(threads, queueSize, preserveOrder, processor, exceptionHandler);
+    private <NextOut> ExecutorPipeline<Out, NextOut> add(final int threads, final int queueSize, final boolean preserveOrder,
+                                                         final Functional.Function<Out, NextOut> processor) {
+        final ExecutorPipeline<Out, NextOut> ret = new ExecutorPipeline<>(threads, queueSize, preserveOrder, processor, exceptionHandler);
         next = ret;
         return ret;
     }
 
-    private void pushNext(long order, Out res) {
+    private void pushNext(final long order, final Out res) {
         if (next != null) {
             if (!preserveOrder) {
                 next.push(res);
@@ -74,7 +100,7 @@ public class ExecutorPipeline <In, Out>{
                         next.push(res);
                         while(true) {
                             nextOutTaskNumber++;
-                            Out out = orderMap.remove(nextOutTaskNumber);
+                            final Out out = orderMap.remove(nextOutTaskNumber);
                             if (out == null) break;
                             next.push(out);
                         }
@@ -95,7 +121,7 @@ public class ExecutorPipeline <In, Out>{
             public void run() {
                 try {
                     pushNext(order, processor.apply(in));
-                } catch (Throwable e) {
+                } catch (final Throwable e) {
                     exceptionHandler.accept(e);
                 }
             }
@@ -103,12 +129,12 @@ public class ExecutorPipeline <In, Out>{
     }
 
     public void pushAll(final List<In> list) {
-        for (In in : list) {
+        for (final In in : list) {
             push(in);
         }
     }
 
-    public ExecutorPipeline<In, Out> setThreadPoolName(String threadPoolName) {
+    public ExecutorPipeline<In, Out> setThreadPoolName(final String threadPoolName) {
         this.threadPoolName = threadPoolName;
         return this;
     }
@@ -124,7 +150,8 @@ public class ExecutorPipeline <In, Out>{
     public void shutdown() {
         try {
             exec.shutdown();
-        } catch (Exception e) {}
+        } catch (final Exception e) {
+        }
         if (next != null) {
             exec.shutdown();
         }
@@ -146,17 +173,17 @@ public class ExecutorPipeline <In, Out>{
     }
 
     private static class LimitedQueue<E> extends LinkedBlockingQueue<E> {
-        public LimitedQueue(int maxSize) {
+        public LimitedQueue(final int maxSize) {
             super(maxSize);
         }
 
         @Override
-        public boolean offer(E e) {
+        public boolean offer(final E e) {
             // turn offer() and add() into a blocking calls (unless interrupted)
             try {
                 put(e);
                 return true;
-            } catch(InterruptedException ie) {
+            } catch (final InterruptedException ie) {
                 Thread.currentThread().interrupt();
             }
             return false;

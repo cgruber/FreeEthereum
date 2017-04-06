@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.util.ByteUtil;
@@ -22,14 +48,14 @@ class AccountState {
     private final Map<DataWord, DataWord> storage = new HashMap<>();
 
 
-    public AccountState(byte[] address, JSONObject accountState) {
+    public AccountState(final byte[] address, final JSONObject accountState) {
 
         this.address = address;
-        String balance = accountState.get("balance").toString();
-        String code = (String) accountState.get("code");
-        String nonce = accountState.get("nonce").toString();
+        final String balance = accountState.get("balance").toString();
+        final String code = (String) accountState.get("code");
+        final String nonce = accountState.get("nonce").toString();
 
-        JSONObject store = (JSONObject) accountState.get("storage");
+        final JSONObject store = (JSONObject) accountState.get("storage");
 
         this.balance = TestCase.toBigInt(balance).toByteArray();
 
@@ -40,15 +66,15 @@ class AccountState {
 
         this.nonce = TestCase.toBigInt(nonce).toByteArray();
 
-        int size = store.keySet().size();
-        Object[] keys = store.keySet().toArray();
+        final int size = store.keySet().size();
+        final Object[] keys = store.keySet().toArray();
         for (int i = 0; i < size; ++i) {
 
-            String keyS = keys[i].toString();
-            String valS = store.get(keys[i]).toString();
+            final String keyS = keys[i].toString();
+            final String valS = store.get(keys[i]).toString();
 
-            byte[] key = Utils.parseData(keyS);
-            byte[] value = Utils.parseData(valS);
+            final byte[] key = Utils.parseData(keyS);
+            final byte[] value = Utils.parseData(valS);
             storage.put(new DataWord(key), new DataWord(value));
         }
     }
@@ -83,45 +109,45 @@ class AccountState {
         return storage;
     }
 
-    public List<String> compareToReal(org.ethereum.core.AccountState state, ContractDetailsImpl details) {
+    public List<String> compareToReal(final org.ethereum.core.AccountState state, final ContractDetailsImpl details) {
 
-        List<String> results = new ArrayList<>();
+        final List<String> results = new ArrayList<>();
 
-        BigInteger expectedBalance = new BigInteger(1, this.getBalance());
+        final BigInteger expectedBalance = new BigInteger(1, this.getBalance());
         if (!state.getBalance().equals(expectedBalance)) {
-            String formattedString = String.format("Account: %s: has unexpected balance, expected balance: %s found balance: %s",
+            final String formattedString = String.format("Account: %s: has unexpected balance, expected balance: %s found balance: %s",
                     Hex.toHexString(this.address), expectedBalance.toString(), state.getBalance().toString());
             results.add(formattedString);
         }
 
-        BigInteger expectedNonce = new BigInteger(1, this.getNonce());
+        final BigInteger expectedNonce = new BigInteger(1, this.getNonce());
         if (!state.getNonce().equals(expectedNonce)) {
             state.getNonce();
             this.getNonce();
-            String formattedString = String.format("Account: %s: has unexpected nonce, expected nonce: %s found nonce: %s",
+            final String formattedString = String.format("Account: %s: has unexpected nonce, expected nonce: %s found nonce: %s",
                     Hex.toHexString(this.address), expectedNonce.toString(), state.getNonce().toString());
             results.add(formattedString);
         }
 
         if (!Arrays.equals(details.getCode(), this.getCode())) {
-            String formattedString = String.format("Account: %s: has unexpected nonce, expected nonce: %s found nonce: %s",
+            final String formattedString = String.format("Account: %s: has unexpected nonce, expected nonce: %s found nonce: %s",
                     Hex.toHexString(this.address), Hex.toHexString(this.getCode()), Hex.toHexString(details.getCode()));
             results.add(formattedString);
         }
 
 
         // compare storage
-        Set<DataWord> keys = details.getStorage().keySet();
-        Set<DataWord> expectedKeys = this.getStorage().keySet();
-        Set<DataWord> checked = new HashSet<>();
+        final Set<DataWord> keys = details.getStorage().keySet();
+        final Set<DataWord> expectedKeys = this.getStorage().keySet();
+        final Set<DataWord> checked = new HashSet<>();
 
-        for (DataWord key : keys) {
+        for (final DataWord key : keys) {
 
-            DataWord value = details.getStorage().get(key);
-            DataWord expectedValue = this.getStorage().get(key);
+            final DataWord value = details.getStorage().get(key);
+            final DataWord expectedValue = this.getStorage().get(key);
             if (expectedValue == null) {
 
-                String formattedString = String.format("Account: %s: has unexpected storage data: %s = %s",
+                final String formattedString = String.format("Account: %s: has unexpected storage data: %s = %s",
                         Hex.toHexString(this.address),
                         key.toString(),
                         value.toString());
@@ -133,7 +159,7 @@ class AccountState {
 
             if (!expectedValue.equals(value)) {
 
-                String formattedString = String.format("Account: %s: has unexpected value, for key: %s , expectedValue: %s real value: %s",
+                final String formattedString = String.format("Account: %s: has unexpected value, for key: %s , expectedValue: %s real value: %s",
                         Hex.toHexString(this.address), key.toString(),
                         expectedValue.toString(), value.toString());
                 results.add(formattedString);
@@ -143,9 +169,9 @@ class AccountState {
             checked.add(key);
         }
 
-        for (DataWord key : expectedKeys) {
+        for (final DataWord key : expectedKeys) {
             if (!checked.contains(key)) {
-                String formattedString = String.format("Account: %s: doesn't exist expected storage key: %s",
+                final String formattedString = String.format("Account: %s: doesn't exist expected storage key: %s",
                         Hex.toHexString(this.address), key.toString());
                 results.add(formattedString);
             }

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.crypto;
 
 import com.google.common.base.Throwables;
@@ -31,22 +57,22 @@ public class ECIESCoder {
 
     private static final int KEY_SIZE = 128;
 
-    public static byte[] decrypt(BigInteger privKey, byte[] cipher) throws IOException, InvalidCipherTextException {
+    public static byte[] decrypt(final BigInteger privKey, final byte[] cipher) throws IOException, InvalidCipherTextException {
         return decrypt(privKey, cipher, null);
     }
 
-    public static byte[] decrypt(BigInteger privKey, byte[] cipher, byte[] macData) throws IOException, InvalidCipherTextException {
+    public static byte[] decrypt(final BigInteger privKey, final byte[] cipher, final byte[] macData) throws IOException, InvalidCipherTextException {
 
-        byte[] plaintext;
+        final byte[] plaintext;
 
-        ByteArrayInputStream is = new ByteArrayInputStream(cipher);
-        byte[] ephemBytes = new byte[2*((CURVE.getCurve().getFieldSize()+7)/8) + 1];
+        final ByteArrayInputStream is = new ByteArrayInputStream(cipher);
+        final byte[] ephemBytes = new byte[2 * ((CURVE.getCurve().getFieldSize() + 7) / 8) + 1];
 
         is.read(ephemBytes);
-        ECPoint ephem = CURVE.getCurve().decodePoint(ephemBytes);
-        byte[] IV = new byte[KEY_SIZE /8];
+        final ECPoint ephem = CURVE.getCurve().decodePoint(ephemBytes);
+        final byte[] IV = new byte[KEY_SIZE / 8];
         is.read(IV);
-        byte[] cipherBody = new byte[is.available()];
+        final byte[] cipherBody = new byte[is.available()];
         is.read(cipherBody);
 
         plaintext = decrypt(ephem, privKey, IV, cipherBody, macData);
@@ -54,10 +80,10 @@ public class ECIESCoder {
         return plaintext;
     }
 
-    private static byte[] decrypt(ECPoint ephem, BigInteger prv, byte[] IV, byte[] cipher, byte[] macData) throws InvalidCipherTextException {
-        AESFastEngine aesFastEngine = new AESFastEngine();
+    private static byte[] decrypt(final ECPoint ephem, final BigInteger prv, final byte[] IV, final byte[] cipher, final byte[] macData) throws InvalidCipherTextException {
+        final AESFastEngine aesFastEngine = new AESFastEngine();
 
-        EthereumIESEngine iesEngine = new EthereumIESEngine(
+        final EthereumIESEngine iesEngine = new EthereumIESEngine(
                 new ECDHBasicAgreement(),
                 new ConcatKDFBytesGenerator(new SHA256Digest()),
                 new HMac(new SHA256Digest()),
@@ -65,11 +91,11 @@ public class ECIESCoder {
                 new BufferedBlockCipher(new SICBlockCipher(aesFastEngine)));
 
 
-        byte[]         d = new byte[] {};
-        byte[]         e = new byte[] {};
+        final byte[] d = new byte[]{};
+        final byte[] e = new byte[]{};
 
-        IESParameters p = new IESWithCipherParameters(d, e, KEY_SIZE, KEY_SIZE);
-        ParametersWithIV parametersWithIV =
+        final IESParameters p = new IESWithCipherParameters(d, e, KEY_SIZE, KEY_SIZE);
+        final ParametersWithIV parametersWithIV =
                 new ParametersWithIV(p, IV);
 
         iesEngine.init(false, new ECPrivateKeyParameters(prv, CURVE), new ECPublicKeyParameters(ephem, CURVE), parametersWithIV);
@@ -88,16 +114,16 @@ public class ECIESCoder {
      *
      *  Used for Whisper V3
      */
-    public static byte[] decryptSimple(BigInteger privKey, byte[] cipher) throws IOException, InvalidCipherTextException {
-        EthereumIESEngine iesEngine = new EthereumIESEngine(
+    public static byte[] decryptSimple(final BigInteger privKey, final byte[] cipher) throws IOException, InvalidCipherTextException {
+        final EthereumIESEngine iesEngine = new EthereumIESEngine(
                 new ECDHBasicAgreement(),
                 new MGF1BytesGeneratorExt(new SHA1Digest(), 1),
                 new HMac(new SHA1Digest()),
                 new SHA1Digest(),
                 null);
 
-        IESParameters p = new IESParameters(null, null, KEY_SIZE);
-        ParametersWithIV parametersWithIV = new ParametersWithIV(p, new byte[0]);
+        final IESParameters p = new IESParameters(null, null, KEY_SIZE);
+        final ParametersWithIV parametersWithIV = new ParametersWithIV(p, new byte[0]);
 
         iesEngine.setHashMacKey(false);
 
@@ -107,38 +133,38 @@ public class ECIESCoder {
         return iesEngine.processBlock(cipher, 0, cipher.length);
     }
 
-    public static byte[] encrypt(ECPoint toPub, byte[] plaintext) {
+    public static byte[] encrypt(final ECPoint toPub, final byte[] plaintext) {
         return encrypt(toPub, plaintext, null);
     }
 
-    public static byte[] encrypt(ECPoint toPub, byte[] plaintext, byte[] macData) {
+    public static byte[] encrypt(final ECPoint toPub, final byte[] plaintext, final byte[] macData) {
 
-        ECKeyPairGenerator eGen = new ECKeyPairGenerator();
-        SecureRandom random = new SecureRandom();
-        KeyGenerationParameters gParam = new ECKeyGenerationParameters(CURVE, random);
+        final ECKeyPairGenerator eGen = new ECKeyPairGenerator();
+        final SecureRandom random = new SecureRandom();
+        final KeyGenerationParameters gParam = new ECKeyGenerationParameters(CURVE, random);
 
         eGen.init(gParam);
 
-        byte[] IV = new byte[KEY_SIZE/8];
+        final byte[] IV = new byte[KEY_SIZE / 8];
         new SecureRandom().nextBytes(IV);
 
-        AsymmetricCipherKeyPair ephemPair = eGen.generateKeyPair();
-        BigInteger prv = ((ECPrivateKeyParameters)ephemPair.getPrivate()).getD();
-        ECPoint pub = ((ECPublicKeyParameters)ephemPair.getPublic()).getQ();
-        EthereumIESEngine iesEngine = makeIESEngine(true, toPub, prv, IV);
+        final AsymmetricCipherKeyPair ephemPair = eGen.generateKeyPair();
+        final BigInteger prv = ((ECPrivateKeyParameters) ephemPair.getPrivate()).getD();
+        final ECPoint pub = ((ECPublicKeyParameters) ephemPair.getPublic()).getQ();
+        final EthereumIESEngine iesEngine = makeIESEngine(true, toPub, prv, IV);
 
 
-        ECKeyGenerationParameters keygenParams = new ECKeyGenerationParameters(CURVE, random);
-        ECKeyPairGenerator generator = new ECKeyPairGenerator();
+        final ECKeyGenerationParameters keygenParams = new ECKeyGenerationParameters(CURVE, random);
+        final ECKeyPairGenerator generator = new ECKeyPairGenerator();
         generator.init(keygenParams);
 
-        ECKeyPairGenerator gen = new ECKeyPairGenerator();
+        final ECKeyPairGenerator gen = new ECKeyPairGenerator();
         gen.init(new ECKeyGenerationParameters(ECKey.CURVE, random));
 
-        byte[] cipher;
+        final byte[] cipher;
         try {
             cipher = iesEngine.processBlock(plaintext, 0, plaintext.length, macData);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             bos.write(pub.getEncoded(false));
             bos.write(IV);
             bos.write(cipher);
@@ -159,22 +185,22 @@ public class ECIESCoder {
      *
      *  Used for Whisper V3
      */
-    public static byte[] encryptSimple(ECPoint pub, byte[] plaintext) throws IOException, InvalidCipherTextException {
-        EthereumIESEngine iesEngine = new EthereumIESEngine(
+    public static byte[] encryptSimple(final ECPoint pub, final byte[] plaintext) throws IOException, InvalidCipherTextException {
+        final EthereumIESEngine iesEngine = new EthereumIESEngine(
                 new ECDHBasicAgreement(),
                 new MGF1BytesGeneratorExt(new SHA1Digest(), 1),
                 new HMac(new SHA1Digest()),
                 new SHA1Digest(),
                 null);
 
-        IESParameters p = new IESParameters(null, null, KEY_SIZE);
-        ParametersWithIV parametersWithIV = new ParametersWithIV(p, new byte[0]);
+        final IESParameters p = new IESParameters(null, null, KEY_SIZE);
+        final ParametersWithIV parametersWithIV = new ParametersWithIV(p, new byte[0]);
 
         iesEngine.setHashMacKey(false);
 
-        ECKeyPairGenerator eGen = new ECKeyPairGenerator();
-        SecureRandom random = new SecureRandom();
-        KeyGenerationParameters gParam = new ECKeyGenerationParameters(CURVE, random);
+        final ECKeyPairGenerator eGen = new ECKeyPairGenerator();
+        final SecureRandom random = new SecureRandom();
+        final KeyGenerationParameters gParam = new ECKeyGenerationParameters(CURVE, random);
         eGen.init(gParam);
 
 //        AsymmetricCipherKeyPairGenerator testGen = new AsymmetricCipherKeyPairGenerator() {
@@ -191,7 +217,7 @@ public class ECIESCoder {
 //            }
 //        };
 
-        EphemeralKeyPairGenerator ephemeralKeyPairGenerator =
+        final EphemeralKeyPairGenerator ephemeralKeyPairGenerator =
                 new EphemeralKeyPairGenerator(/*testGen*/eGen, new ECIESPublicKeyEncoder());
 
         iesEngine.init(new ECPublicKeyParameters(pub, CURVE), parametersWithIV, ephemeralKeyPairGenerator);
@@ -200,10 +226,10 @@ public class ECIESCoder {
     }
 
 
-    private static EthereumIESEngine makeIESEngine(boolean isEncrypt, ECPoint pub, BigInteger prv, byte[] IV) {
-        AESFastEngine aesFastEngine = new AESFastEngine();
+    private static EthereumIESEngine makeIESEngine(final boolean isEncrypt, final ECPoint pub, final BigInteger prv, final byte[] IV) {
+        final AESFastEngine aesFastEngine = new AESFastEngine();
 
-        EthereumIESEngine iesEngine = new EthereumIESEngine(
+        final EthereumIESEngine iesEngine = new EthereumIESEngine(
                 new ECDHBasicAgreement(),
                 new ConcatKDFBytesGenerator(new SHA256Digest()),
                 new HMac(new SHA256Digest()),
@@ -211,11 +237,11 @@ public class ECIESCoder {
                 new BufferedBlockCipher(new SICBlockCipher(aesFastEngine)));
 
 
-        byte[]         d = new byte[] {};
-        byte[]         e = new byte[] {};
+        final byte[] d = new byte[]{};
+        final byte[] e = new byte[]{};
 
-        IESParameters p = new IESWithCipherParameters(d, e, KEY_SIZE, KEY_SIZE);
-        ParametersWithIV parametersWithIV = new ParametersWithIV(p, IV);
+        final IESParameters p = new IESWithCipherParameters(d, e, KEY_SIZE, KEY_SIZE);
+        final ParametersWithIV parametersWithIV = new ParametersWithIV(p, IV);
 
         iesEngine.init(isEncrypt, new ECPrivateKeyParameters(prv, CURVE), new ECPublicKeyParameters(pub, CURVE), parametersWithIV);
         return iesEngine;

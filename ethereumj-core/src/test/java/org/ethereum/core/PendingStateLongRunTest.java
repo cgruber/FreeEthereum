@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.core;
 
 import org.ethereum.config.CommonConfig;
@@ -43,12 +69,12 @@ public class PendingStateLongRunTest {
         blockchain = createBlockchain((Genesis) Genesis.getInstance());
         pendingState = ((BlockchainImpl) blockchain).getPendingState();
 
-        URL blocks = ClassLoader.getSystemResource("state/47250.dmp");
-        File file = new File(blocks.toURI());
+        final URL blocks = ClassLoader.getSystemResource("state/47250.dmp");
+        final File file = new File(blocks.toURI());
         strData = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
 
         for (int i = 0; i < 46000; i++) {
-            Block b = new Block(Hex.decode(strData.get(i)));
+            final Block b = new Block(Hex.decode(strData.get(i)));
             blockchain.tryToConnect(b);
         }
     }
@@ -56,28 +82,28 @@ public class PendingStateLongRunTest {
     @Test // test with real data from the frontier net
     public void test_1() {
 
-        Block b46169 = new Block(Hex.decode(strData.get(46169)));
-        Block b46170 = new Block(Hex.decode(strData.get(46170)));
+        final Block b46169 = new Block(Hex.decode(strData.get(46169)));
+        final Block b46170 = new Block(Hex.decode(strData.get(46170)));
 
-        Transaction tx46169 = b46169.getTransactionsList().get(0);
-        Transaction tx46170 = b46170.getTransactionsList().get(0);
+        final Transaction tx46169 = b46169.getTransactionsList().get(0);
+        final Transaction tx46170 = b46170.getTransactionsList().get(0);
 
         Repository pending = pendingState.getRepository();
 
-        BigInteger balanceBefore46169 = pending.getAccountState(tx46169.getReceiveAddress()).getBalance();
-        BigInteger balanceBefore46170 = pending.getAccountState(tx46170.getReceiveAddress()).getBalance();
+        final BigInteger balanceBefore46169 = pending.getAccountState(tx46169.getReceiveAddress()).getBalance();
+        final BigInteger balanceBefore46170 = pending.getAccountState(tx46170.getReceiveAddress()).getBalance();
 
         pendingState.addPendingTransaction(tx46169);
         pendingState.addPendingTransaction(tx46170);
 
         for (int i = 46000; i < 46169; i++) {
-            Block b = new Block(Hex.decode(strData.get(i)));
+            final Block b = new Block(Hex.decode(strData.get(i)));
             blockchain.tryToConnect(b);
         }
 
         pending = pendingState.getRepository();
 
-        BigInteger balanceAfter46169 = balanceBefore46169.add(toBI(tx46169.getValue()));
+        final BigInteger balanceAfter46169 = balanceBefore46169.add(toBI(tx46169.getValue()));
 
         assertEquals(pendingState.getPendingTransactions().size(), 2);
         assertEquals(balanceAfter46169, pending.getAccountState(tx46169.getReceiveAddress()).getBalance());
@@ -88,7 +114,7 @@ public class PendingStateLongRunTest {
         assertEquals(balanceAfter46169, pending.getAccountState(tx46169.getReceiveAddress()).getBalance());
         assertEquals(pendingState.getPendingTransactions().size(), 1);
 
-        BigInteger balanceAfter46170 = balanceBefore46170.add(toBI(tx46170.getValue()));
+        final BigInteger balanceAfter46170 = balanceBefore46170.add(toBI(tx46170.getValue()));
 
         assertEquals(balanceAfter46170, pending.getAccountState(tx46170.getReceiveAddress()).getBalance());
 
@@ -99,27 +125,27 @@ public class PendingStateLongRunTest {
         assertEquals(pendingState.getPendingTransactions().size(), 0);
     }
 
-    private Blockchain createBlockchain(Genesis genesis) {
-        IndexedBlockStore blockStore = new IndexedBlockStore();
+    private Blockchain createBlockchain(final Genesis genesis) {
+        final IndexedBlockStore blockStore = new IndexedBlockStore();
         blockStore.init(new HashMapDB<>(), new HashMapDB<>());
 
-        Repository repository = new RepositoryRoot(new HashMapDB());
+        final Repository repository = new RepositoryRoot(new HashMapDB());
 
-        ProgramInvokeFactoryImpl programInvokeFactory = new ProgramInvokeFactoryImpl();
+        final ProgramInvokeFactoryImpl programInvokeFactory = new ProgramInvokeFactoryImpl();
 
-        BlockchainImpl blockchain = new BlockchainImpl(blockStore, repository)
+        final BlockchainImpl blockchain = new BlockchainImpl(blockStore, repository)
                 .withParentBlockHeaderValidator(new CommonConfig().parentHeaderValidator());
         blockchain.setParentHeaderValidator(new DependentBlockHeaderRuleAdapter());
         blockchain.setProgramInvokeFactory(programInvokeFactory);
 
         blockchain.byTest = true;
 
-        PendingStateImpl pendingState = new PendingStateImpl(new EthereumListenerAdapter(), blockchain);
+        final PendingStateImpl pendingState = new PendingStateImpl(new EthereumListenerAdapter(), blockchain);
 
         pendingState.setBlockchain(blockchain);
         blockchain.setPendingState(pendingState);
 
-        Repository track = repository.startTracking();
+        final Repository track = repository.startTracking();
         Genesis.populateRepository(track, genesis);
 
         track.commit();

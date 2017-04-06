@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx.discover;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -38,15 +64,15 @@ class PeerConnectionTester {
 
     @Autowired
     public PeerConnectionTester(final SystemProperties config) {
-        SystemProperties config1 = config;
-        int connectThreads = config.peerDiscoveryWorkers();
+        final SystemProperties config1 = config;
+        final int connectThreads = config.peerDiscoveryWorkers();
         ReconnectPeriod = config.peerDiscoveryTouchPeriod() * 1000;
         ReconnectMaxPeers = config.peerDiscoveryTouchMaxNodes();
         peerConnectionPool = new ThreadPoolExecutor(connectThreads,
                 connectThreads, 0L, TimeUnit.SECONDS,
                 new MutablePriorityQueue<>(new Comparator<ConnectTask>() {
                     @Override
-                    public int compare(ConnectTask h1, ConnectTask h2) {
+                    public int compare(final ConnectTask h1, final ConnectTask h2) {
                         return h2.nodeHandler.getNodeStatistics().getReputation() -
                                 h1.nodeHandler.getNodeStatistics().getReputation();
                     }
@@ -57,12 +83,12 @@ class PeerConnectionTester {
         logger.info("Closing PeerConnectionTester...");
         try {
             peerConnectionPool.shutdownNow();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.warn("Problems closing PeerConnectionTester", e);
         }
         try {
             reconnectTimer.cancel();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.warn("Problems cancelling reconnectTimer", e);
         }
     }
@@ -88,7 +114,7 @@ class PeerConnectionTester {
     public static class MutablePriorityQueue<T, C extends T> extends LinkedBlockingQueue<T> {
         final Comparator<C> comparator;
 
-        public MutablePriorityQueue(Comparator<C> comparator) {
+        public MutablePriorityQueue(final Comparator<C> comparator) {
             this.comparator = comparator;
         }
 
@@ -97,18 +123,18 @@ class PeerConnectionTester {
             if (isEmpty()) {
                 return super.take();
             } else {
-                T ret = Collections.min(this, (Comparator<? super T>) comparator);
+                final T ret = Collections.min(this, (Comparator<? super T>) comparator);
                 remove(ret);
                 return ret;
             }
         }
 
         @Override
-        public synchronized T poll(long timeout, TimeUnit unit) throws InterruptedException {
+        public synchronized T poll(final long timeout, final TimeUnit unit) throws InterruptedException {
             if (isEmpty()) {
                 return super.poll(timeout, unit);
             } else {
-                T ret = Collections.min(this, (Comparator<? super T>) comparator);
+                final T ret = Collections.min(this, (Comparator<? super T>) comparator);
                 remove(ret);
                 return ret;
             }
@@ -119,7 +145,7 @@ class PeerConnectionTester {
             if (isEmpty()) {
                 return super.poll();
             } else {
-                T ret = Collections.min(this, (Comparator<? super T>) comparator);
+                final T ret = Collections.min(this, (Comparator<? super T>) comparator);
                 remove(ret);
                 return ret;
             }
@@ -130,7 +156,7 @@ class PeerConnectionTester {
             if (isEmpty()) {
                 return super.peek();
             } else {
-                T ret = Collections.min(this, (Comparator<? super T>) comparator);
+                final T ret = Collections.min(this, (Comparator<? super T>) comparator);
                 return ret;
             }
         }
@@ -139,7 +165,7 @@ class PeerConnectionTester {
     private class ConnectTask implements Runnable {
         final NodeHandler nodeHandler;
 
-        public ConnectTask(NodeHandler nodeHandler) {
+        public ConnectTask(final NodeHandler nodeHandler) {
             this.nodeHandler = nodeHandler;
         }
 
@@ -149,7 +175,7 @@ class PeerConnectionTester {
                 if (nodeHandler != null) {
                     nodeHandler.getNodeStatistics().rlpxConnectionAttempts.add();
                     logger.debug("Trying node connection: " + nodeHandler);
-                    Node node = nodeHandler.getNode();
+                    final Node node = nodeHandler.getNode();
                     peerClient.connect(node.getHost(), node.getPort(),
                             Hex.encodeHexString(node.getId()), true);
                     logger.debug("Terminated node connection: " + nodeHandler);
@@ -168,7 +194,7 @@ class PeerConnectionTester {
                         }, ReconnectPeriod);
                     }
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
             } finally {
                 connectedCandidates.remove(nodeHandler);

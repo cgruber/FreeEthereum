@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.server;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -56,16 +82,16 @@ public class WireTrafficStats  implements Runnable  {
         long lastTime = System.currentTimeMillis();
 
         public String stats() {
-            long out = outSize.getAndSet(0);
-            long outPac = outPackets.getAndSet(0);
-            long in = inSize.getAndSet(0);
-            long inPac = inPackets.getAndSet(0);
+            final long out = outSize.getAndSet(0);
+            final long outPac = outPackets.getAndSet(0);
+            final long in = inSize.getAndSet(0);
+            final long inPac = inPackets.getAndSet(0);
             outSizeTot += out;
             inSizeTot += in;
-            long curTime = System.currentTimeMillis();
-            long d = (curTime - lastTime);
-            long outSpeed = out * 1000 / d;
-            long inSpeed = in * 1000 / d;
+            final long curTime = System.currentTimeMillis();
+            final long d = (curTime - lastTime);
+            final long outSpeed = out * 1000 / d;
+            final long inSpeed = in * 1000 / d;
             lastTime = curTime;
             return "Speed in/out " + sizeToStr(inSpeed) + " / " + sizeToStr(outSpeed) +
                     "(sec), packets in/out " + inPac + "/" + outPac +
@@ -74,7 +100,7 @@ public class WireTrafficStats  implements Runnable  {
 
 
         @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
             inPackets.incrementAndGet();
             if (msg instanceof ByteBuf) {
                 inSize.addAndGet(((ByteBuf) msg).readableBytes());
@@ -85,7 +111,7 @@ public class WireTrafficStats  implements Runnable  {
         }
 
         @Override
-        public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+        public void write(final ChannelHandlerContext ctx, final Object msg, final ChannelPromise promise) throws Exception {
             outPackets.incrementAndGet();
             if (msg instanceof ByteBuf) {
                 outSize.addAndGet(((ByteBuf) msg).readableBytes());

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.datasource;
 
 /**
@@ -15,7 +41,7 @@ public abstract class AbstractCachedSource <Key, Value>
     MemSizeEstimator<Value> valueSizeEstimator;
     private int size = 0;
 
-    AbstractCachedSource(Source<Key, Value> source) {
+    AbstractCachedSource(final Source<Key, Value> source) {
         super(source);
     }
 
@@ -33,7 +59,7 @@ public abstract class AbstractCachedSource <Key, Value>
      * If the value for the key is changed the {@link #cacheRemoved}
      * needs to be called first
      */
-    void cacheAdded(Key key, Value value) {
+    void cacheAdded(final Key key, final Value value) {
         synchronized (lock) {
             if (keySizeEstimator != null) {
                 size += keySizeEstimator.estimateSize(key);
@@ -47,7 +73,7 @@ public abstract class AbstractCachedSource <Key, Value>
     /**
      * Needs to be called by the implementation when cache entry is removed
      */
-    void cacheRemoved(Key key, Value value) {
+    void cacheRemoved(final Key key, final Value value) {
         synchronized (lock) {
             if (keySizeEstimator != null) {
                 size -= keySizeEstimator.estimateSize(key);
@@ -70,7 +96,7 @@ public abstract class AbstractCachedSource <Key, Value>
     /**
      * Sets the key/value size estimators
      */
-    public AbstractCachedSource <Key, Value> withSizeEstimators(MemSizeEstimator<Key> keySizeEstimator, MemSizeEstimator<Value> valueSizeEstimator) {
+    public AbstractCachedSource<Key, Value> withSizeEstimators(final MemSizeEstimator<Key> keySizeEstimator, final MemSizeEstimator<Value> valueSizeEstimator) {
         this.keySizeEstimator = keySizeEstimator;
         this.valueSizeEstimator = valueSizeEstimator;
         return this;
@@ -92,7 +118,7 @@ public abstract class AbstractCachedSource <Key, Value>
     static final class SimpleEntry<V> implements Entry<V> {
         private final V val;
 
-        public SimpleEntry(V val) {
+        public SimpleEntry(final V val) {
             this.val = val;
         }
 

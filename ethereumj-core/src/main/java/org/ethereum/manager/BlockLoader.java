@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.manager;
 
 
@@ -39,15 +65,15 @@ public class BlockLoader {
     @Autowired
     private BlockchainImpl blockchain;
 
-    private void blockWork(Block block) {
+    private void blockWork(final Block block) {
         if (block.getNumber() >= blockchain.getBlockStore().getBestBlock().getNumber() || blockchain.getBlockStore().getBlockByHash(block.getHash()) == null) {
 
             if (block.getNumber() > 0 && !isValid(block.getHeader())) {
                 throw new RuntimeException();
             }
 
-            long s = System.currentTimeMillis();
-            ImportResult result = blockchain.tryToConnect(block);
+            final long s = System.currentTimeMillis();
+            final ImportResult result = blockchain.tryToConnect(block);
 
             if (block.getNumber() % 10 == 0) {
                 System.out.println(df.format(new Date()) + " Imported block " + block.getShortDescr() + ": " + result + " (prework: "
@@ -65,9 +91,9 @@ public class BlockLoader {
     public void loadBlocks() {
         exec1 = new ExecutorPipeline(8, 1000, true, new Functional.Function<Block, Block>() {
             @Override
-            public Block apply(Block b) {
+            public Block apply(final Block b) {
                 if (b.getNumber() >= blockchain.getBlockStore().getBestBlock().getNumber()) {
-                    for (Transaction tx : b.getTransactionsList()) {
+                    for (final Transaction tx : b.getTransactionsList()) {
                         tx.getSender();
                     }
                 }
@@ -75,49 +101,49 @@ public class BlockLoader {
             }
         }, new Functional.Consumer<Throwable>() {
             @Override
-            public void accept(Throwable throwable) {
+            public void accept(final Throwable throwable) {
                 logger.error("Unhandled exception: ", throwable);
             }
         });
 
         exec2 = exec1.add(1, 1000, new Functional.Consumer<Block>() {
             @Override
-            public void accept(Block block) {
+            public void accept(final Block block) {
                 try {
                     blockWork(block);
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     e.printStackTrace();
                 }
             }
         });
 
-        String fileSrc = config.blocksLoader();
+        final String fileSrc = config.blocksLoader();
         try {
             final String blocksFormat = config.getConfig().hasPath("blocks.format") ? config.getConfig().getString("blocks.format") : null;
             System.out.println("Loading blocks: " + fileSrc + ", format: " + blocksFormat);
 
             if ("rlp".equalsIgnoreCase(blocksFormat)) {     // rlp encoded bytes
-                Path path = Paths.get(fileSrc);
+                final Path path = Paths.get(fileSrc);
                 // NOT OPTIMAL, but fine for tests
-                byte[] data = Files.readAllBytes(path);
-                RLPList list = RLP.decode2(data);
-                for (RLPElement item : list) {
-                    Block block = new Block(item.getRLPData());
+                final byte[] data = Files.readAllBytes(path);
+                final RLPList list = RLP.decode2(data);
+                for (final RLPElement item : list) {
+                    final Block block = new Block(item.getRLPData());
                     exec1.push(block);
                 }
             } else {                                        // hex string
-                FileInputStream inputStream = new FileInputStream(fileSrc);
+                final FileInputStream inputStream = new FileInputStream(fileSrc);
                 scanner = new Scanner(inputStream, "UTF-8");
 
                 while (scanner.hasNextLine()) {
 
-                    byte[] blockRLPBytes = Hex.decode(scanner.nextLine());
-                    Block block = new Block(blockRLPBytes);
+                    final byte[] blockRLPBytes = Hex.decode(scanner.nextLine());
+                    final Block block = new Block(blockRLPBytes);
 
                     exec1.push(block);
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
@@ -125,7 +151,7 @@ public class BlockLoader {
 
         try {
             exec1.join();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
 
@@ -135,7 +161,7 @@ public class BlockLoader {
         System.exit(0);
     }
 
-    private boolean isValid(BlockHeader header) {
+    private boolean isValid(final BlockHeader header) {
         return headerValidator.validateAndLog(header, logger);
     }
 }

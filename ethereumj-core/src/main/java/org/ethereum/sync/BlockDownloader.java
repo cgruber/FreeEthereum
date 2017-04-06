@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.sync;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -43,7 +69,7 @@ abstract class BlockDownloader {
     private Thread getBodiesThread;
     private boolean downloadComplete;
 
-    BlockDownloader(BlockHeaderValidator headerValidator) {
+    BlockDownloader(final BlockHeaderValidator headerValidator) {
         this.headerValidator = headerValidator;
     }
 
@@ -58,15 +84,15 @@ abstract class BlockDownloader {
         return downloadComplete;
     }
 
-    void setBlockBodiesDownload(boolean blockBodiesDownload) {
+    void setBlockBodiesDownload(final boolean blockBodiesDownload) {
         this.blockBodiesDownload = blockBodiesDownload;
     }
 
-    void setHeadersDownload(boolean headersDownload) {
+    void setHeadersDownload(final boolean headersDownload) {
         this.headersDownload = headersDownload;
     }
 
-    void init(SyncQueueIfc syncQueue, final SyncPool pool) {
+    void init(final SyncQueueIfc syncQueue, final SyncPool pool) {
         this.syncQueue = syncQueue;
         this.pool = pool;
 
@@ -102,12 +128,12 @@ abstract class BlockDownloader {
     public void waitForStop() {
         try {
             stopLatch.await();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    void setHeaderQueueLimit(int headerQueueLimit) {
+    void setHeaderQueueLimit(final int headerQueueLimit) {
         this.headerQueueLimit = headerQueueLimit;
     }
 
@@ -115,7 +141,7 @@ abstract class BlockDownloader {
         return blockQueueLimit;
     }
 
-    public void setBlockQueueLimit(int blockQueueLimit) {
+    public void setBlockQueueLimit(final int blockQueueLimit) {
         this.blockQueueLimit = blockQueueLimit;
     }
 
@@ -135,16 +161,16 @@ abstract class BlockDownloader {
                                 }
                                 return;
                             }
-                            StringBuilder l = new StringBuilder("##########  New header requests (" + hReq.size() + "):\n");
-                            for (SyncQueueIfc.HeadersRequest request : hReq) {
+                            final StringBuilder l = new StringBuilder("##########  New header requests (" + hReq.size() + "):\n");
+                            for (final SyncQueueIfc.HeadersRequest request : hReq) {
                                 l.append("    ").append(request).append("\n");
                             }
                             logger.debug(l.toString());
                         }
                     }
                     int reqHeadersCounter = 0;
-                    for (Iterator<SyncQueueIfc.HeadersRequest> it = hReq.iterator(); it.hasNext();) {
-                        SyncQueueIfc.HeadersRequest headersRequest = it.next();
+                for (final Iterator<SyncQueueIfc.HeadersRequest> it = hReq.iterator(); it.hasNext(); ) {
+                    final SyncQueueIfc.HeadersRequest headersRequest = it.next();
 
                         final Channel any = getAnyPeer();
 
@@ -153,20 +179,20 @@ abstract class BlockDownloader {
                             break;
                         } else {
                             logger.debug("headerRetrieveLoop: request headers (" + headersRequest.getStart() + ") from " + any.getNode());
-                            ListenableFuture<List<BlockHeader>> futureHeaders = headersRequest.getHash() == null ?
+                            final ListenableFuture<List<BlockHeader>> futureHeaders = headersRequest.getHash() == null ?
                                     any.getEthHandler().sendGetBlockHeaders(headersRequest.getStart(), headersRequest.getCount(), headersRequest.isReverse()) :
                                     any.getEthHandler().sendGetBlockHeaders(headersRequest.getHash(), headersRequest.getCount(), headersRequest.getStep(), headersRequest.isReverse());
                             if (futureHeaders != null) {
                                 Futures.addCallback(futureHeaders, new FutureCallback<List<BlockHeader>>() {
                                     @Override
-                                    public void onSuccess(List<BlockHeader> result) {
+                                    public void onSuccess(final List<BlockHeader> result) {
                                         if (!validateAndAddHeaders(result, any.getNodeId())) {
                                             onFailure(new RuntimeException("Received headers validation failed"));
                                         }
                                     }
 
                                     @Override
-                                    public void onFailure(Throwable t) {
+                                    public void onFailure(final Throwable t) {
                                         logger.debug("Error receiving headers. Dropping the peer.", t);
                                         any.getEthHandler().dropConnection();
                                     }
@@ -180,9 +206,9 @@ abstract class BlockDownloader {
 
                 receivedHeadersLatch.await(isSyncDone() ? 10000 : 500, TimeUnit.MILLISECONDS);
 
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 break;
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 logger.error("Unexpected: ", e);
             }
         }
@@ -192,17 +218,17 @@ abstract class BlockDownloader {
         class BlocksCallback implements FutureCallback<List<Block>> {
             private Channel peer;
 
-            public BlocksCallback(Channel peer) {
+            public BlocksCallback(final Channel peer) {
                 this.peer = peer;
             }
 
             @Override
-            public void onSuccess(List<Block> result) {
+            public void onSuccess(final List<Block> result) {
                 addBlocks(result, peer.getNodeId());
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(final Throwable t) {
                 logger.debug("Error receiving Blocks. Dropping the peer.", t);
                 peer.getEthHandler().dropConnection();
             }
@@ -222,17 +248,17 @@ abstract class BlockDownloader {
                     return;
                 }
 
-                int blocksToAsk = getBlockQueueFreeSize();
+                final int blocksToAsk = getBlockQueueFreeSize();
                 if (blocksToAsk > MAX_IN_REQUEST) {
 //                    SyncQueueIfc.BlocksRequest bReq = syncQueue.requestBlocks(maxBlocks);
 
                     if (bReqs.size() == 1 && bReqs.get(0).getBlockHeaders().size() <= 3) {
                         // new blocks are better to request from the header senders first
                         // to get more chances to receive block body promptly
-                        for (BlockHeaderWrapper blockHeaderWrapper : bReqs.get(0).getBlockHeaders()) {
-                            Channel channel = pool.getByNodeId(blockHeaderWrapper.getNodeId());
+                        for (final BlockHeaderWrapper blockHeaderWrapper : bReqs.get(0).getBlockHeaders()) {
+                            final Channel channel = pool.getByNodeId(blockHeaderWrapper.getNodeId());
                             if (channel != null) {
-                                ListenableFuture<List<Block>> futureBlocks =
+                                final ListenableFuture<List<Block>> futureBlocks =
                                         channel.getEthHandler().sendGetBlockBodies(singletonList(blockHeaderWrapper));
                                 if (futureBlocks != null) {
                                     Futures.addCallback(futureBlocks, new BlocksCallback(channel));
@@ -241,22 +267,22 @@ abstract class BlockDownloader {
                         }
                     }
 
-                    int maxRequests = blocksToAsk / MAX_IN_REQUEST;
-                    int REQUESTS = 32;
-                    int maxBlocks = MAX_IN_REQUEST * Math.min(maxRequests, REQUESTS);
+                    final int maxRequests = blocksToAsk / MAX_IN_REQUEST;
+                    final int REQUESTS = 32;
+                    final int maxBlocks = MAX_IN_REQUEST * Math.min(maxRequests, REQUESTS);
                     int reqBlocksCounter = 0;
                     int blocksRequested = 0;
-                    Iterator<SyncQueueIfc.BlocksRequest> it = bReqs.iterator();
+                    final Iterator<SyncQueueIfc.BlocksRequest> it = bReqs.iterator();
                     while (it.hasNext() && blocksRequested < maxBlocks) {
 //                    for (SyncQueueIfc.BlocksRequest blocksRequest : bReq.split(MAX_IN_REQUEST)) {
-                        SyncQueueIfc.BlocksRequest blocksRequest = it.next();
-                        Channel any = getAnyPeer();
+                        final SyncQueueIfc.BlocksRequest blocksRequest = it.next();
+                        final Channel any = getAnyPeer();
                         if (any == null) {
                             logger.debug("blockRetrieveLoop: No IDLE peers found");
                             break;
                         } else {
                             logger.debug("blockRetrieveLoop: Requesting " + blocksRequest.getBlockHeaders().size() + " blocks from " + any.getNode());
-                            ListenableFuture<List<Block>> futureBlocks =
+                            final ListenableFuture<List<Block>> futureBlocks =
                                     any.getEthHandler().sendGetBlockBodies(blocksRequest.getBlockHeaders());
                             blocksRequested += blocksRequest.getBlockHeaders().size();
                             if (futureBlocks != null) {
@@ -272,9 +298,9 @@ abstract class BlockDownloader {
                     receivedBlocksLatch = new CountDownLatch(1);
                 }
                 receivedBlocksLatch.await(200, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 break;
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 logger.error("Unexpected: ", e);
             }
         }
@@ -286,7 +312,7 @@ abstract class BlockDownloader {
      * @param blocks block list received from remote peer and be added to the queue
      * @param nodeId nodeId of remote peer which these blocks are received from
      */
-    private void addBlocks(List<Block> blocks, byte[] nodeId) {
+    private void addBlocks(final List<Block> blocks, final byte[] nodeId) {
 
         if (blocks.isEmpty()) {
             return;
@@ -296,10 +322,10 @@ abstract class BlockDownloader {
             logger.debug("Adding new " + blocks.size() + " blocks to sync queue: " +
                     blocks.get(0).getShortDescr() + " ... " + blocks.get(blocks.size() - 1).getShortDescr());
 
-            List<Block> newBlocks = syncQueue.addBlocks(blocks);
+            final List<Block> newBlocks = syncQueue.addBlocks(blocks);
 
-            List<BlockWrapper> wrappers = new ArrayList<>();
-            for (Block b : newBlocks) {
+            final List<BlockWrapper> wrappers = new ArrayList<>();
+            for (final Block b : newBlocks) {
                 wrappers.add(new BlockWrapper(b, nodeId));
             }
 
@@ -329,13 +355,13 @@ abstract class BlockDownloader {
      * @return true if blocks passed validation and were added to the queue,
      *          otherwise it returns false
      */
-    private boolean validateAndAddHeaders(List<BlockHeader> headers, byte[] nodeId) {
+    private boolean validateAndAddHeaders(final List<BlockHeader> headers, final byte[] nodeId) {
 
         if (headers.isEmpty()) return true;
 
-        List<BlockHeaderWrapper> wrappers = new ArrayList<>(headers.size());
+        final List<BlockHeaderWrapper> wrappers = new ArrayList<>(headers.size());
 
-        for (BlockHeader header : headers) {
+        for (final BlockHeader header : headers) {
 
             if (!isValid(header)) {
 
@@ -350,7 +376,7 @@ abstract class BlockDownloader {
         }
 
         synchronized (this) {
-            List<BlockHeaderWrapper> headersReady = syncQueue.addHeaders(wrappers);
+            final List<BlockHeaderWrapper> headersReady = syncQueue.addHeaders(wrappers);
             if (headersReady != null && !headersReady.isEmpty()) {
                 pushHeaders(headersReady);
             }
@@ -371,7 +397,7 @@ abstract class BlockDownloader {
      * @param header block header
      * @return true if block is valid, false otherwise
      */
-    boolean isValid(BlockHeader header) {
+    boolean isValid(final BlockHeader header) {
         return headerValidator.validateAndLog(header, logger);
     }
 
@@ -387,7 +413,7 @@ abstract class BlockDownloader {
         try {
             if (pool != null) pool.close();
             stop();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.warn("Problems closing SyncManager", e);
         }
     }

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.sync;
 
 import org.ethereum.config.SystemProperties;
@@ -45,14 +71,14 @@ public class SyncManager extends BlockDownloader {
     // to unload the main block importing cycle
     private final ExecutorPipeline<BlockWrapper, BlockWrapper> exec1 = new ExecutorPipeline<>
             (4, 1000, true, new Functional.Function<BlockWrapper,BlockWrapper>() {
-                public BlockWrapper apply(BlockWrapper blockWrapper) {
-                    for (Transaction tx : blockWrapper.getBlock().getTransactionsList()) {
+                public BlockWrapper apply(final BlockWrapper blockWrapper) {
+                    for (final Transaction tx : blockWrapper.getBlock().getTransactionsList()) {
                         tx.getSender();
                     }
                     return blockWrapper;
                 }
             }, new Functional.Consumer<Throwable>() {
-                public void accept(Throwable throwable) {
+                public void accept(final Throwable throwable) {
                     logger.error("Unexpected exception: ", throwable);
                 }
             });
@@ -65,7 +91,7 @@ public class SyncManager extends BlockDownloader {
     private ChannelManager channelManager;
     private ExecutorPipeline<BlockWrapper, Void> exec2 = exec1.add(1, 1, new Functional.Consumer<BlockWrapper>() {
         @Override
-        public void accept(BlockWrapper blockWrapper) {
+        public void accept(final BlockWrapper blockWrapper) {
             blockQueueByteSize.addAndGet(estimateBlockSize(blockWrapper));
             blockQueue.add(blockWrapper);
         }
@@ -91,7 +117,7 @@ public class SyncManager extends BlockDownloader {
     }
 
     @Autowired
-    public SyncManager(final SystemProperties config, BlockHeaderValidator validator) {
+    public SyncManager(final SystemProperties config, final BlockHeaderValidator validator) {
         super(validator);
         this.config = config;
         blockBytesLimit = config.blockQueueSize();
@@ -108,7 +134,7 @@ public class SyncManager extends BlockDownloader {
                         logger.info("Sync state: " + getSyncStatus() +
                                 (isSyncDone() || importStart == 0 ? "" : "; Import idle time " +
                                 longToTimePeriod(importIdleTime.get()) + " of total " + longToTimePeriod(System.currentTimeMillis() - importStart)));
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         logger.error("Unexpected", e);
                     }
                 }
@@ -133,14 +159,14 @@ public class SyncManager extends BlockDownloader {
         }
     }
 
-    void initRegularSync(EthereumListener.SyncState syncDoneType) {
+    void initRegularSync(final EthereumListener.SyncState syncDoneType) {
         logger.info("Initializing SyncManager regular sync.");
         this.syncDoneType = syncDoneType;
 
         syncQueue = new SyncQueueImpl(blockchain);
         super.init(syncQueue, pool);
 
-        Runnable queueProducer = new Runnable(){
+        final Runnable queueProducer = new Runnable() {
 
             @Override
             public void run() {
@@ -154,7 +180,7 @@ public class SyncManager extends BlockDownloader {
 
     public SyncStatus getSyncStatus() {
         if (config.isFastSyncEnabled()) {
-            SyncStatus syncStatus = fastSyncManager.getSyncState();
+            final SyncStatus syncStatus = fastSyncManager.getSyncState();
             if (syncStatus.getStage() == SyncStatus.SyncStage.Complete) {
                 return getSyncStateImpl();
             } else {
@@ -175,23 +201,24 @@ public class SyncManager extends BlockDownloader {
     }
 
     @Override
-    protected void pushBlocks(List<BlockWrapper> blockWrappers) {
+    protected void pushBlocks(final List<BlockWrapper> blockWrappers) {
         if (!exec1.isShutdown()) {
             exec1.pushAll(blockWrappers);
         }
     }
 
     @Override
-    protected void pushHeaders(List<BlockHeaderWrapper> headers) {}
+    protected void pushHeaders(final List<BlockHeaderWrapper> headers) {
+    }
 
     @Override
     protected int getBlockQueueFreeSize() {
-        int blockQueueSize = blockQueue.size();
-        long blockByteSize = blockQueueByteSize.get();
-        int availableBlockSpace = Math.max(0, getBlockQueueLimit() - blockQueueSize);
-        long availableBytesSpace = Math.max(0, blockBytesLimit - blockByteSize);
+        final int blockQueueSize = blockQueue.size();
+        final long blockByteSize = blockQueueByteSize.get();
+        final int availableBlockSpace = Math.max(0, getBlockQueueLimit() - blockQueueSize);
+        final long availableBytesSpace = Math.max(0, blockBytesLimit - blockByteSize);
 
-        int bytesSpaceInBlocks;
+        final int bytesSpaceInBlocks;
         if (blockByteSize == 0 || blockQueueSize == 0) {
             bytesSpaceInBlocks = Integer.MAX_VALUE;
         } else {
@@ -201,7 +228,7 @@ public class SyncManager extends BlockDownloader {
         return Math.min(bytesSpaceInBlocks, availableBlockSpace);
     }
 
-    private long estimateBlockSize(BlockWrapper blockWrapper) {
+    private long estimateBlockSize(final BlockWrapper blockWrapper) {
         return blockWrapper.getEncoded().length + BLOCK_BYTES_ADDON;
     }
 
@@ -210,7 +237,7 @@ public class SyncManager extends BlockDownloader {
      */
     private void produceQueue() {
 
-        DecimalFormat timeFormat = new DecimalFormat("0.000");
+        final DecimalFormat timeFormat = new DecimalFormat("0.000");
         timeFormat.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
 
         while (!Thread.currentThread().isInterrupted()) {
@@ -218,7 +245,7 @@ public class SyncManager extends BlockDownloader {
             BlockWrapper wrapper = null;
             try {
 
-                long stale = !isSyncDone() && importStart > 0 && blockQueue.isEmpty() ? System.nanoTime() : 0;
+                final long stale = !isSyncDone() && importStart > 0 && blockQueue.isEmpty() ? System.nanoTime() : 0;
                 wrapper = blockQueue.take();
                 blockQueueByteSize.addAndGet(-estimateBlockSize(wrapper));
 
@@ -229,14 +256,14 @@ public class SyncManager extends BlockDownloader {
 
                 logger.debug("BlockQueue size: {}, headers queue size: {}", blockQueue.size(), syncQueue.getHeadersCount());
 
-                long s = System.nanoTime();
-                long sl;
-                ImportResult importResult;
+                final long s = System.nanoTime();
+                final long sl;
+                final ImportResult importResult;
                 synchronized (blockchain) {
                     sl = System.nanoTime();
                     importResult = blockchain.tryToConnect(wrapper.getBlock());
                 }
-                long f = System.nanoTime();
+                final long f = System.nanoTime();
                 long t = (f - s) / 1_000_000;
                 String ts = timeFormat.format(t / 1000d) + "s";
                 t = (sl - s) / 1_000_000;
@@ -272,9 +299,9 @@ public class SyncManager extends BlockDownloader {
                             wrapper.getNumber(), wrapper.getBlock().getShortHash());
                 }
 
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 break;
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 if (wrapper != null) {
                     logger.error("Error processing block {}: ", wrapper.getBlock().getShortDescr(), e);
                     logger.error("Block dump: {}", Hex.toHexString(wrapper.getBlock().getEncoded()));
@@ -294,7 +321,7 @@ public class SyncManager extends BlockDownloader {
      * @return true if block passed validations and was added to the queue,
      *         otherwise it returns false
      */
-    public boolean validateAndAddNewBlock(Block block, byte[] nodeId) {
+    public boolean validateAndAddNewBlock(final Block block, final byte[] nodeId) {
 
         if (syncQueue == null) return true;
 
@@ -309,12 +336,12 @@ public class SyncManager extends BlockDownloader {
         syncQueue.addHeaders(singletonList(new BlockHeaderWrapper(block.getHeader(), nodeId)));
 
         synchronized (this) {
-            List<Block> newBlocks = syncQueue.addBlocks(singletonList(block));
+            final List<Block> newBlocks = syncQueue.addBlocks(singletonList(block));
 
-            List<BlockWrapper> wrappers = new ArrayList<>();
-            for (Block b : newBlocks) {
-                boolean newBlock = Arrays.equals(block.getHash(), b.getHash());
-                BlockWrapper wrapper = new BlockWrapper(b, newBlock, nodeId);
+            final List<BlockWrapper> wrappers = new ArrayList<>();
+            for (final Block b : newBlocks) {
+                final boolean newBlock = Arrays.equals(block.getHash(), b.getHash());
+                final BlockWrapper wrapper = new BlockWrapper(b, newBlock, nodeId);
                 wrapper.setReceivedAt(System.currentTimeMillis());
                 wrappers.add(wrapper);
             }
@@ -341,8 +368,8 @@ public class SyncManager extends BlockDownloader {
 
     public long getLastKnownBlockNumber() {
         long ret = max(blockchain.getBestBlock().getNumber(), lastKnownBlockNumber);
-        for (Channel channel : pool.getActivePeers()) {
-            BlockIdentifier bestKnownBlock = channel.getEthHandler().getBestKnownBlock();
+        for (final Channel channel : pool.getActivePeers()) {
+            final BlockIdentifier bestKnownBlock = channel.getEthHandler().getBestKnownBlock();
             if (bestKnownBlock != null) {
                 ret = max(bestKnownBlock.getNumber(), ret);
             }
@@ -362,7 +389,7 @@ public class SyncManager extends BlockDownloader {
                 syncQueueThread.join(10 * 1000);
             }
             if (config.isFastSyncEnabled()) fastSyncManager.close();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.warn("Problems closing SyncManager", e);
         }
         super.close();

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.db;
 
 import org.ethereum.config.SystemProperties;
@@ -27,22 +53,22 @@ public class TransactionStoreTest {
 
     @Test
     public void simpleTest() {
-        String contractSrc =
+        final String contractSrc =
                 "contract Adder {" +
                 "  function add(int a, int b) returns (int) {return a + b;}" +
                 "}";
-        HashMapDB<byte[]> txDb = new HashMapDB<>();
+        final HashMapDB<byte[]> txDb = new HashMapDB<>();
 
-        StandaloneBlockchain bc = new StandaloneBlockchain();
+        final StandaloneBlockchain bc = new StandaloneBlockchain();
         bc.getBlockchain().withTransactionStore(new TransactionStore(txDb));
-        SolidityContract contract = bc.submitNewContract(contractSrc);
+        final SolidityContract contract = bc.submitNewContract(contractSrc);
         bc.createBlock();
         contract.callFunction("add", 555, 222);
-        Block b2 = bc.createBlock();
+        final Block b2 = bc.createBlock();
         contract.callFunction("add", 333, 333);
-        Block b3 = bc.createBlock();
-        Transaction tx1 = b2.getTransactionsList().get(0);
-        TransactionInfo tx1Info = bc.getBlockchain().getTransactionInfo(tx1.getHash());
+        final Block b3 = bc.createBlock();
+        final Transaction tx1 = b2.getTransactionsList().get(0);
+        final TransactionInfo tx1Info = bc.getBlockchain().getTransactionInfo(tx1.getHash());
         byte[] executionResult = tx1Info.getReceipt().getExecutionResult();
         Assert.assertArrayEquals(new DataWord(777).getData(), executionResult);
 
@@ -50,13 +76,13 @@ public class TransactionStoreTest {
         bc.getBlockchain().flush();
         System.out.println(txDb.keys().size());
 
-        TransactionStore txStore = new TransactionStore(txDb);
-        TransactionInfo tx1Info_ = txStore.get(tx1.getHash()).get(0);
+        final TransactionStore txStore = new TransactionStore(txDb);
+        final TransactionInfo tx1Info_ = txStore.get(tx1.getHash()).get(0);
         executionResult = tx1Info_.getReceipt().getExecutionResult();
         Assert.assertArrayEquals(new DataWord(777).getData(), executionResult);
 
-        TransactionInfo highIndex = new TransactionInfo(tx1Info.getReceipt(), tx1Info.getBlockHash(), 255);
-        TransactionInfo highIndexCopy = new TransactionInfo(highIndex.getEncoded());
+        final TransactionInfo highIndex = new TransactionInfo(tx1Info.getReceipt(), tx1Info.getBlockHash(), 255);
+        final TransactionInfo highIndexCopy = new TransactionInfo(highIndex.getEncoded());
         Assert.assertArrayEquals(highIndex.getBlockHash(), highIndexCopy.getBlockHash());
         Assert.assertEquals(highIndex.getIndex(), highIndexCopy.getIndex());
     }
@@ -66,32 +92,32 @@ public class TransactionStoreTest {
         // check that TransactionInfo is always returned from the main chain for
         // transaction which included into blocks from different forks
 
-        String contractSrc =
+        final String contractSrc =
                 "contract Adder {" +
                 "  int public lastResult;" +
                 "  function add(int a, int b) returns (int) {lastResult = a + b; return lastResult; }" +
                 "}";
-        HashMapDB txDb = new HashMapDB();
+        final HashMapDB txDb = new HashMapDB();
 
-        StandaloneBlockchain bc = new StandaloneBlockchain();
-        TransactionStore transactionStore = new TransactionStore(txDb);
+        final StandaloneBlockchain bc = new StandaloneBlockchain();
+        final TransactionStore transactionStore = new TransactionStore(txDb);
         bc.getBlockchain().withTransactionStore(transactionStore);
-        SolidityContract contract = bc.submitNewContract(contractSrc);
-        Block b1 = bc.createBlock();
+        final SolidityContract contract = bc.submitNewContract(contractSrc);
+        final Block b1 = bc.createBlock();
         contract.callFunction("add", 555, 222);
-        Block b2 = bc.createBlock();
-        Transaction tx1 = b2.getTransactionsList().get(0);
+        final Block b2 = bc.createBlock();
+        final Transaction tx1 = b2.getTransactionsList().get(0);
         TransactionInfo txInfo = bc.getBlockchain().getTransactionInfo(tx1.getHash());
         Assert.assertTrue(Arrays.equals(txInfo.getBlockHash(), b2.getHash()));
 
-        Block b2_ = bc.createForkBlock(b1);
+        final Block b2_ = bc.createForkBlock(b1);
         contract.callFunction("add", 555, 222); // tx with the same hash as before
-        Block b3_ = bc.createForkBlock(b2_);
-        TransactionInfo txInfo_ = bc.getBlockchain().getTransactionInfo(tx1.getHash());
+        final Block b3_ = bc.createForkBlock(b2_);
+        final TransactionInfo txInfo_ = bc.getBlockchain().getTransactionInfo(tx1.getHash());
         Assert.assertTrue(Arrays.equals(txInfo_.getBlockHash(), b3_.getHash()));
 
-        Block b3 = bc.createForkBlock(b2);
-        Block b4 = bc.createForkBlock(b3);
+        final Block b3 = bc.createForkBlock(b2);
+        final Block b4 = bc.createForkBlock(b3);
         txInfo = bc.getBlockchain().getTransactionInfo(tx1.getHash());
         Assert.assertTrue(Arrays.equals(txInfo.getBlockHash(), b2.getHash()));
     }
@@ -100,20 +126,20 @@ public class TransactionStoreTest {
     public void backwardCompatibleDbTest() {
         // check that we can read previously saved entries (saved with legacy code)
 
-        HashMapDB txDb = new HashMapDB();
-        TransactionStore transactionStore = new TransactionStore(txDb);
-        StandaloneBlockchain bc = new StandaloneBlockchain();
+        final HashMapDB txDb = new HashMapDB();
+        final TransactionStore transactionStore = new TransactionStore(txDb);
+        final StandaloneBlockchain bc = new StandaloneBlockchain();
         bc.getBlockchain().withTransactionStore(transactionStore);
 
         bc.sendEther(new byte[20], BigInteger.valueOf(1000));
-        Block b1 = bc.createBlock();
-        Transaction tx = b1.getTransactionsList().get(0);
-        TransactionInfo info = transactionStore.get(tx.getHash()).get(0);
+        final Block b1 = bc.createBlock();
+        final Transaction tx = b1.getTransactionsList().get(0);
+        final TransactionInfo info = transactionStore.get(tx.getHash()).get(0);
 
-        HashMapDB<byte[]> txDb1 = new HashMapDB<>();
+        final HashMapDB<byte[]> txDb1 = new HashMapDB<>();
         txDb1.put(tx.getHash(), info.getEncoded()); // legacy serialization
-        TransactionStore transactionStore1 = new TransactionStore(txDb1);
-        TransactionInfo info1 = transactionStore1.get(tx.getHash()).get(0);
+        final TransactionStore transactionStore1 = new TransactionStore(txDb1);
+        final TransactionInfo info1 = transactionStore1.get(tx.getHash()).get(0);
         Assert.assertArrayEquals(info1.getReceipt().getPostTxState(), info.getReceipt().getPostTxState());
     }
 }

@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.rlpx.discover;
 
 import org.ethereum.net.client.Capability;
@@ -67,7 +93,8 @@ public class NodeStatistics {
     private long lastDisconnectedTime = 0;
     private StatusMessage ethLastInboundStatusMsg = null;
     private BigInteger ethTotalDifficulty = BigInteger.ZERO;
-    public NodeStatistics(Node node) {
+
+    public NodeStatistics(final Node node) {
         this.node = node;
         discoverMessageLatency = (Statter.SimpleStatter) Statter.create(getStatName() + ".discoverMessageLatency");
     }
@@ -129,12 +156,12 @@ public class NodeStatistics {
                 rlpxLastRemoteDisconnectReason == ReasonCode.USELESS_PEER;
     }
 
-    public void nodeDisconnectedRemote(ReasonCode reason) {
+    public void nodeDisconnectedRemote(final ReasonCode reason) {
         lastDisconnectedTime = System.currentTimeMillis();
         rlpxLastRemoteDisconnectReason = reason;
     }
 
-    public void nodeDisconnectedLocal(ReasonCode reason) {
+    public void nodeDisconnectedLocal(final ReasonCode reason) {
         lastDisconnectedTime = System.currentTimeMillis();
         rlpxLastLocalDisconnectReason = reason;
     }
@@ -147,7 +174,7 @@ public class NodeStatistics {
         return lastDisconnectedTime > 0;
     }
 
-    public void ethHandshake(StatusMessage ethInboundStatus) {
+    public void ethHandshake(final StatusMessage ethInboundStatus) {
         this.ethLastInboundStatusMsg = ethInboundStatus;
         this.ethTotalDifficulty = ethInboundStatus.getTotalDifficultyAsBigInt();
         ethHandshake.add();
@@ -157,7 +184,7 @@ public class NodeStatistics {
         return ethTotalDifficulty;
     }
 
-    public void setEthTotalDifficulty(BigInteger ethTotalDifficulty) {
+    public void setEthTotalDifficulty(final BigInteger ethTotalDifficulty) {
         this.ethTotalDifficulty = ethTotalDifficulty;
     }
 
@@ -165,7 +192,7 @@ public class NodeStatistics {
         return clientId;
     }
 
-    public void setClientId(String clientId) {
+    public void setClientId(final String clientId) {
         this.clientId = clientId;
     }
 
@@ -173,7 +200,7 @@ public class NodeStatistics {
         return isPredefined;
     }
 
-    public void setPredefined(boolean isPredefined) {
+    public void setPredefined(final boolean isPredefined) {
         this.isPredefined = isPredefined;
     }
 
@@ -189,7 +216,7 @@ public class NodeStatistics {
         return isReputationPenalized() ? 0 : (persistedReputation + getSessionFairReputation()) / 2;
     }
 
-    public void setPersistedReputation(int persistedReputation) {
+    public void setPersistedReputation(final int persistedReputation) {
         this.persistedReputation = persistedReputation;
     }
 
@@ -218,7 +245,7 @@ public class NodeStatistics {
             count.incrementAndGet();
         }
 
-        public void add(long delta) {
+        public void add(final long delta) {
             count.addAndGet(delta);
         }
 

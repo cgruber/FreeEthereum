@@ -1,3 +1,29 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright 2017 Alexander Orlov <alexander.orlov@loxal.net>. All rights reserved.
+ * Copyright (c) [2016] [ <ether.camp> ]
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
+
 package org.ethereum.net.eth.message;
 
 import org.ethereum.util.ByteUtil;
@@ -30,12 +56,12 @@ public class StatusMessage extends EthMessage {
      */
     private byte[] genesisHash;
 
-    public StatusMessage(byte[] encoded) {
+    public StatusMessage(final byte[] encoded) {
         super(encoded);
     }
 
-    public StatusMessage(byte protocolVersion, int networkId,
-                         byte[] totalDifficulty, byte[] bestHash, byte[] genesisHash) {
+    public StatusMessage(final byte protocolVersion, final int networkId,
+                         final byte[] totalDifficulty, final byte[] bestHash, final byte[] genesisHash) {
         this.protocolVersion = protocolVersion;
         this.networkId = networkId;
         this.totalDifficulty = totalDifficulty;
@@ -46,13 +72,13 @@ public class StatusMessage extends EthMessage {
 
     private synchronized void parse() {
         if (parsed) return;
-        RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
+        final RLPList paramsList = (RLPList) RLP.decode2(encoded).get(0);
 
         this.protocolVersion = paramsList.get(0).getRLPData()[0];
-        byte[] networkIdBytes = paramsList.get(1).getRLPData();
+        final byte[] networkIdBytes = paramsList.get(1).getRLPData();
         this.networkId = networkIdBytes == null ? 0 : ByteUtil.byteArrayToInt(networkIdBytes);
 
-        byte[] diff = paramsList.get(2).getRLPData();
+        final byte[] diff = paramsList.get(2).getRLPData();
         this.totalDifficulty = (diff == null) ? ByteUtil.ZERO_BYTE_ARRAY : diff;
         this.bestHash = paramsList.get(3).getRLPData();
         this.genesisHash = paramsList.get(4).getRLPData();
@@ -61,11 +87,11 @@ public class StatusMessage extends EthMessage {
     }
 
     private void encode() {
-        byte[] protocolVersion = RLP.encodeByte(this.protocolVersion);
-        byte[] networkId = RLP.encodeInt(this.networkId);
-        byte[] totalDifficulty = RLP.encodeElement(this.totalDifficulty);
-        byte[] bestHash = RLP.encodeElement(this.bestHash);
-        byte[] genesisHash = RLP.encodeElement(this.genesisHash);
+        final byte[] protocolVersion = RLP.encodeByte(this.protocolVersion);
+        final byte[] networkId = RLP.encodeInt(this.networkId);
+        final byte[] totalDifficulty = RLP.encodeElement(this.totalDifficulty);
+        final byte[] bestHash = RLP.encodeElement(this.bestHash);
+        final byte[] genesisHash = RLP.encodeElement(this.genesisHash);
 
         this.encoded = RLP.encodeList( protocolVersion, networkId,
                 totalDifficulty, bestHash, genesisHash);
