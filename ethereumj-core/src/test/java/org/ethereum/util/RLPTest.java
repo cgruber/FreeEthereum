@@ -402,7 +402,7 @@ public class RLPTest {
 
         final RLPList rlpList = decode2(payload);
 
-        RLPList.recursivePrint(rlpList);
+        RLPList.Companion.recursivePrint(rlpList);
         // TODO: add some asserts in place of just printing the rlpList
     }
 
@@ -573,7 +573,7 @@ public class RLPTest {
 
         final RLPList rlpList = decode2(payload);
 
-        RLPList.recursivePrint(rlpList);
+        RLPList.Companion.recursivePrint(rlpList);
         // TODO: add some asserts in place of just printing the rlpList
     }
 
@@ -585,7 +585,7 @@ public class RLPTest {
 
         final RLPList rlpList = decode2(payload);
 
-        RLPList.recursivePrint(rlpList);
+        RLPList.Companion.recursivePrint(rlpList);
         // TODO: add some asserts in place of just printing the rlpList
     }
 
@@ -601,7 +601,7 @@ public class RLPTest {
 
         final RLPList rlpList = decode2(payload);
 
-        RLPList.recursivePrint(rlpList);
+        RLPList.Companion.recursivePrint(rlpList);
         // TODO: add some asserts in place of just printing the rlpList
     }
 

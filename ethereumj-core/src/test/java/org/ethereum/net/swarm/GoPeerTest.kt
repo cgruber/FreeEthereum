@@ -24,40 +24,33 @@
  *
  */
 
-package org.ethereum.util;
+package org.ethereum.net.swarm
 
-import java.util.ArrayList;
+import org.ethereum.Start
+import org.ethereum.crypto.HashUtil.sha3
+import org.junit.Ignore
+import org.junit.Test
 
 /**
- * @author Roman Mandeleil
- * @since 21.04.14
+ * Created by Admin on 06.07.2015.
  */
-public class RLPList extends ArrayList<RLPElement> implements RLPElement {
+class GoPeerTest {
 
-    private byte[] rlpData;
+    @Ignore
+    @Test
+    @Throws(Exception::class)
+            // TODO to be done at some point: run Go peer and connect to it
+    fun putTest() {
+        println("Starting Java peer...")
+        Start.main(arrayOf<String>())
+        println("Warming up...")
+        Thread.sleep(5000)
+        println("Sending a chunk...")
 
-    public static void recursivePrint(final RLPElement element) {
+        val key = Key(sha3(byteArrayOf(0x22, 0x33)))
+        //            stdout.setFilter(Hex.toHexString(key.getBytes()));
+        val chunk = Chunk(key, byteArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 77, 88))
 
-        if (element == null)
-            throw new RuntimeException("RLPElement object can't be null");
-        if (element instanceof RLPList) {
-
-            final RLPList rlpList = (RLPList) element;
-            System.out.print("[");
-            for (final RLPElement singleElement : rlpList)
-                recursivePrint(singleElement);
-            System.out.print("]");
-        } else {
-            final String hex = ByteUtil.toHexString(element.getRLPData());
-            System.out.print(hex + ", ");
-        }
-    }
-
-    public byte[] getRLPData() {
-        return rlpData;
-    }
-
-    public void setRLPData(final byte[] rlpData) {
-        this.rlpData = rlpData;
+        NetStore.getInstance().put(chunk)
     }
 }

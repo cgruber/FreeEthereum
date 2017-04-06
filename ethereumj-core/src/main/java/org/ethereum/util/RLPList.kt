@@ -24,33 +24,43 @@
  *
  */
 
-package org.ethereum.net.swarm;
+package org.ethereum.util
 
-import org.ethereum.Start;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import static org.ethereum.crypto.HashUtil.sha3;
+import java.util.*
 
 /**
- * Created by Admin on 06.07.2015.
+ * @author Roman Mandeleil
+ * *
+ * @since 21.04.14
  */
-public class GoPeerTest {
+class RLPList : ArrayList<RLPElement>(), RLPElement {
 
-    @Ignore
-    @Test
-    // TODO to be done at some point: run Go peer and connect to it
-    public void putTest() throws Exception {
-        System.out.println("Starting Java peer...");
-        Start.main(new String[]{});
-        System.out.println("Warming up...");
-        Thread.sleep(5000);
-        System.out.println("Sending a chunk...");
+    private var rlpData: ByteArray? = null
 
-        final Key key = new Key(sha3(new byte[]{0x22, 0x33}));
-//            stdout.setFilter(Hex.toHexString(key.getBytes()));
-        final Chunk chunk = new Chunk(key, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 77, 88});
+    override fun getRLPData(): ByteArray {
+        return rlpData!!
+    }
 
-        NetStore.getInstance().put(chunk);
+    fun setRLPData(rlpData: ByteArray) {
+        this.rlpData = rlpData
+    }
+
+    companion object {
+
+        fun recursivePrint(element: RLPElement?) {
+
+            if (element == null)
+                throw RuntimeException("RLPElement object can't be null")
+            if (element is RLPList) {
+
+                print("[")
+                for (singleElement in element)
+                    recursivePrint(singleElement)
+                print("]")
+            } else {
+                val hex = ByteUtil.toHexString(element.rlpData)
+                print(hex + ", ")
+            }
+        }
     }
 }

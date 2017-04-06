@@ -76,7 +76,7 @@ class ValueTest {
 
         val `val` = Value.fromRlpEncoded(Hex.decode(testRlp))
 
-        assertEquals(testRlp, Hex.toHexString(`val`.encode()))
+        assertEquals(testRlp, Hex.toHexString(`val`?.encode()))
     }
 
 

@@ -39,14 +39,6 @@ vim ethereumj-core/src/main/resources/user.conf # adjust user.conf to your needs
 java -jar ethereumj-core/build/libs/ethereumj-core-*-all.jar
 ```
 
-##### Running from command line:
-
-```
-> git clone https://github.com/ethereum/ethereumj
-> cd ethereumj
-> ./gradlew run [-PmainClass=<sample class>]
-```
-
 ##### Optional samples to try:
 ```
 ./gradlew run -PmainClass=org.ethereum.samples.BasicSample

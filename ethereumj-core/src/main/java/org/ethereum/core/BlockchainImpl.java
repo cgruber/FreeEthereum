@@ -37,10 +37,7 @@ import org.ethereum.manager.AdminInfo;
 import org.ethereum.sync.SyncManager;
 import org.ethereum.trie.Trie;
 import org.ethereum.trie.TrieImpl;
-import org.ethereum.util.AdvancedDeviceUtils;
-import org.ethereum.util.ByteUtil;
-import org.ethereum.util.FastByteComparisons;
-import org.ethereum.util.RLP;
+import org.ethereum.util.*;
 import org.ethereum.validator.DependentBlockHeaderRule;
 import org.ethereum.validator.ParentBlockHeaderValidator;
 import org.ethereum.vm.program.invoke.ProgramInvokeFactory;
@@ -67,7 +64,6 @@ import static java.util.Collections.emptyList;
 import static org.ethereum.core.Denomination.SZABO;
 import static org.ethereum.core.ImportResult.*;
 import static org.ethereum.crypto.HashUtil.sha3;
-import static org.ethereum.util.BIUtil.isMoreThan;
 
 /**
  * The Ethereum blockchain is in many ways similar to the Bitcoin blockchain,
@@ -403,7 +399,7 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
             this.fork = false;
         }
 
-        if (isMoreThan(this.totalDifficulty, savedState.savedTD)) {
+        if (BIUtil.INSTANCE.isMoreThan(this.totalDifficulty, savedState.savedTD)) {
 
             logger.info("Rebranching: {} ~> {}", savedState.savedBest.getShortHash(), block.getShortHash());
 
@@ -464,7 +460,7 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
                 summary = tryConnectAndFork(block);
 
                 ret = summary == null ? INVALID_BLOCK :
-                        (isMoreThan(getTotalDifficulty(), oldTotalDiff) ? IMPORTED_BEST : IMPORTED_NOT_BEST);
+                        (BIUtil.INSTANCE.isMoreThan(getTotalDifficulty(), oldTotalDiff) ? IMPORTED_BEST : IMPORTED_NOT_BEST);
             } else {
                 summary = null;
                 ret = NO_PARENT;

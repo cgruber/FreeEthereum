@@ -93,7 +93,7 @@ public class Serializers {
 
         @Override
         public Value deserialize(final byte[] stream) {
-            return Value.fromRlpEncoded(stream);
+            return Value.Companion.fromRlpEncoded(stream);
         }
     };
     /**

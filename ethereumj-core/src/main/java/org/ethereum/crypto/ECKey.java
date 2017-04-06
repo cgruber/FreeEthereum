@@ -28,6 +28,7 @@ package org.ethereum.crypto;
 
 import org.ethereum.config.Constants;
 import org.ethereum.crypto.jce.*;
+import org.ethereum.util.BIUtil;
 import org.ethereum.util.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,6 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
-import static org.ethereum.util.BIUtil.isLessThan;
 import static org.ethereum.util.ByteUtil.bigIntegerToBytes;
 
 /**
@@ -1047,11 +1047,11 @@ public class ECKey implements Serializable {
 
             if (v != 27 && v != 28) return false;
 
-            if (isLessThan(r, BigInteger.ONE)) return false;
-            if (isLessThan(s, BigInteger.ONE)) return false;
+            if (BIUtil.INSTANCE.isLessThan(r, BigInteger.ONE)) return false;
+            if (BIUtil.INSTANCE.isLessThan(s, BigInteger.ONE)) return false;
 
-            if (!isLessThan(r, Constants.Companion.getSecP256K1N())) return false;
-            return isLessThan(s, Constants.Companion.getSecP256K1N());
+            if (!BIUtil.INSTANCE.isLessThan(r, Constants.Companion.getSecP256K1N())) return false;
+            return BIUtil.INSTANCE.isLessThan(s, Constants.Companion.getSecP256K1N());
         }
 
         public static ECDSASignature decodeFromDER(final byte[] bytes) {

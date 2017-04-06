@@ -33,10 +33,7 @@ import org.ethereum.core.Repository;
 import org.ethereum.core.Transaction;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.ContractDetails;
-import org.ethereum.util.ByteArraySet;
-import org.ethereum.util.ByteUtil;
-import org.ethereum.util.FastByteComparisons;
-import org.ethereum.util.Utils;
+import org.ethereum.util.*;
 import org.ethereum.vm.DataWord;
 import org.ethereum.vm.MessageCall;
 import org.ethereum.vm.MessageCall.MsgType;
@@ -63,7 +60,6 @@ import static java.lang.StrictMath.min;
 import static java.lang.String.format;
 import static java.math.BigInteger.ZERO;
 import static org.apache.commons.lang3.ArrayUtils.*;
-import static org.ethereum.util.BIUtil.*;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 
 /**
@@ -379,16 +375,16 @@ public class Program {
         return pc;
     }
 
-    public void setPC(final DataWord pc) {
-        this.setPC(pc.intValue());
-    }
-
     public void setPC(final int pc) {
         this.pc = pc;
 
         if (this.pc >= ops.length) {
             stop();
         }
+    }
+
+    public void setPC(final DataWord pc) {
+        this.setPC(pc.intValue());
     }
 
     public boolean isStopped() {
@@ -515,7 +511,7 @@ public class Program {
             // if owner == obtainer just zeroing account according to Yellow Paper
             getStorage().addBalance(owner, balance.negate());
         } else {
-            transfer(getStorage(), owner, obtainer, balance);
+            BIUtil.INSTANCE.transfer(getStorage(), owner, obtainer, balance);
         }
 
         getResult().addDeleteAccount(this.getOwnerAddress());
@@ -535,7 +531,7 @@ public class Program {
 
         final byte[] senderAddress = this.getOwnerAddress().getLast20Bytes();
         final BigInteger endowment = value.value();
-        if (isNotCovers(getStorage().getBalance(senderAddress), endowment)) {
+        if (BIUtil.INSTANCE.isNotCovers(getStorage().getBalance(senderAddress), endowment)) {
             stackPushZero();
             return;
         }
@@ -686,7 +682,7 @@ public class Program {
         // 2.1 PERFORM THE VALUE (endowment) PART
         final BigInteger endowment = msg.getEndowment().value();
         final BigInteger senderBalance = track.getBalance(senderAddress);
-        if (isNotCovers(senderBalance, endowment)) {
+        if (BIUtil.INSTANCE.isNotCovers(senderBalance, endowment)) {
             stackPushZero();
             refundGas(msg.getGas().longValue(), "refund gas from message call");
             return;
@@ -760,8 +756,8 @@ public class Program {
 
         // 5. REFUND THE REMAIN GAS
         if (result != null) {
-            final BigInteger refundGas = msg.getGas().value().subtract(toBI(result.getGasUsed()));
-            if (isPositive(refundGas)) {
+            final BigInteger refundGas = msg.getGas().value().subtract(BIUtil.INSTANCE.toBI(result.getGasUsed()));
+            if (BIUtil.INSTANCE.isPositive(refundGas)) {
                 refundGas(refundGas.longValue(), "remaining gas from the internal call");
                 if (logger.isInfoEnabled())
                     logger.info("The remaining gas refunded, account: [{}], gas: [{}] ",
@@ -1069,7 +1065,7 @@ public class Program {
                 msg.getInDataSize().intValue());
 
         // Charge for endowment - is not reversible by rollback
-        transfer(track, senderAddress, contextAddress, msg.getEndowment().value());
+        BIUtil.INSTANCE.transfer(track, senderAddress, contextAddress, msg.getEndowment().value());
 
         if (byTestingSuite()) {
             // This keeps track of the calls created for a test

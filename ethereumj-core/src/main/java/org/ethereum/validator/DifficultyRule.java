@@ -28,10 +28,9 @@ package org.ethereum.validator;
 
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.BlockHeader;
+import org.ethereum.util.BIUtil;
 
 import java.math.BigInteger;
-
-import static org.ethereum.util.BIUtil.isEqual;
 
 /**
  * Checks block's difficulty against calculated difficulty value
@@ -55,7 +54,7 @@ public class DifficultyRule extends DependentBlockHeaderRule {
         final BigInteger calcDifficulty = header.calcDifficulty(config.getBlockchainConfig(), parent);
         final BigInteger difficulty = header.getDifficultyBI();
 
-        if (!isEqual(difficulty, calcDifficulty)) {
+        if (!BIUtil.INSTANCE.isEqual(difficulty, calcDifficulty)) {
 
             errors.add(String.format("#%d: difficulty != calcDifficulty", header.getNumber()));
             return false;

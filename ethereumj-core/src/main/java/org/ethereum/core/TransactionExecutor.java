@@ -33,6 +33,7 @@ import org.ethereum.db.BlockStore;
 import org.ethereum.db.ContractDetails;
 import org.ethereum.listener.EthereumListener;
 import org.ethereum.listener.EthereumListenerAdapter;
+import org.ethereum.util.BIUtil;
 import org.ethereum.util.ByteArraySet;
 import org.ethereum.vm.DataWord;
 import org.ethereum.vm.LogInfo;
@@ -51,7 +52,6 @@ import java.util.List;
 
 import static org.apache.commons.lang3.ArrayUtils.getLength;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
-import static org.ethereum.util.BIUtil.*;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.ethereum.util.ByteUtil.toHexString;
 import static org.ethereum.vm.VMUtils.saveProgramTraceFile;
@@ -109,7 +109,7 @@ public class TransactionExecutor {
         this.currentBlock = currentBlock;
         this.listener = listener;
         this.gasUsedInTheBlock = gasUsedInTheBlock;
-        this.m_endGas = toBI(tx.getGasLimit());
+        this.m_endGas = BIUtil.INSTANCE.toBI(tx.getGasLimit());
         withCommonConfig(CommonConfig.getDefault());
     }
 
@@ -144,7 +144,7 @@ public class TransactionExecutor {
         final boolean cumulativeGasReached = txGasLimit.add(BigInteger.valueOf(gasUsedInTheBlock)).compareTo(curBlockGasLimit) > 0;
         if (cumulativeGasReached) {
 
-            execError(String.format("Too much gas used in this block: Require: %s Got: %s", new BigInteger(1, currentBlock.getGasLimit()).longValue() - toBI(tx.getGasLimit()).longValue(), toBI(tx.getGasLimit()).longValue()));
+            execError(String.format("Too much gas used in this block: Require: %s Got: %s", new BigInteger(1, currentBlock.getGasLimit()).longValue() - BIUtil.INSTANCE.toBI(tx.getGasLimit()).longValue(), BIUtil.INSTANCE.toBI(tx.getGasLimit()).longValue()));
 
             return;
         }
@@ -157,18 +157,18 @@ public class TransactionExecutor {
         }
 
         final BigInteger reqNonce = track.getNonce(tx.getSender());
-        final BigInteger txNonce = toBI(tx.getNonce());
-        if (isNotEqual(reqNonce, txNonce)) {
+        final BigInteger txNonce = BIUtil.INSTANCE.toBI(tx.getNonce());
+        if (BIUtil.INSTANCE.isNotEqual(reqNonce, txNonce)) {
             execError(String.format("Invalid nonce: required: %s , tx.nonce: %s", reqNonce, txNonce));
 
             return;
         }
 
-        final BigInteger txGasCost = toBI(tx.getGasPrice()).multiply(txGasLimit);
-        final BigInteger totalCost = toBI(tx.getValue()).add(txGasCost);
+        final BigInteger txGasCost = BIUtil.INSTANCE.toBI(tx.getGasPrice()).multiply(txGasLimit);
+        final BigInteger totalCost = BIUtil.INSTANCE.toBI(tx.getValue()).add(txGasCost);
         final BigInteger senderBalance = track.getBalance(tx.getSender());
 
-        if (!isCovers(senderBalance, totalCost)) {
+        if (!BIUtil.INSTANCE.isCovers(senderBalance, totalCost)) {
 
             execError(String.format("Not enough cash: Require: %s, Sender cash: %s", totalCost, senderBalance));
 
@@ -190,12 +190,12 @@ public class TransactionExecutor {
         if (!localCall) {
             track.increaseNonce(tx.getSender());
 
-            final BigInteger txGasLimit = toBI(tx.getGasLimit());
-            final BigInteger txGasCost = toBI(tx.getGasPrice()).multiply(txGasLimit);
+            final BigInteger txGasLimit = BIUtil.INSTANCE.toBI(tx.getGasLimit());
+            final BigInteger txGasCost = BIUtil.INSTANCE.toBI(tx.getGasPrice()).multiply(txGasLimit);
             track.addBalance(tx.getSender(), txGasCost.negate());
 
             if (logger.isInfoEnabled())
-                logger.info("Paying: txGasCost: [{}], gasPrice: [{}], gasLimit: [{}]", txGasCost, toBI(tx.getGasPrice()), txGasLimit);
+                logger.info("Paying: txGasCost: [{}], gasPrice: [{}], gasLimit: [{}]", txGasCost, BIUtil.INSTANCE.toBI(tx.getGasPrice()), txGasLimit);
         }
 
         if (tx.isContractCreation()) {
@@ -244,8 +244,8 @@ public class TransactionExecutor {
             }
         }
 
-        final BigInteger endowment = toBI(tx.getValue());
-        transfer(cacheTrack, tx.getSender(), targetAddress, endowment);
+        final BigInteger endowment = BIUtil.INSTANCE.toBI(tx.getValue());
+        BIUtil.INSTANCE.transfer(cacheTrack, tx.getSender(), targetAddress, endowment);
 
         touchedAccounts.add(targetAddress);
     }
@@ -279,8 +279,8 @@ public class TransactionExecutor {
 //            }
         }
 
-        final BigInteger endowment = toBI(tx.getValue());
-        transfer(cacheTrack, tx.getSender(), newContractAddress, endowment);
+        final BigInteger endowment = BIUtil.INSTANCE.toBI(tx.getValue());
+        BIUtil.INSTANCE.transfer(cacheTrack, tx.getSender(), newContractAddress, endowment);
 
         touchedAccounts.add(newContractAddress);
     }
@@ -299,7 +299,7 @@ public class TransactionExecutor {
                     vm.play(program);
 
                 result = program.getResult();
-                m_endGas = toBI(tx.getGasLimit()).subtract(toBI(program.getResult().getGasUsed()));
+                m_endGas = BIUtil.INSTANCE.toBI(tx.getGasLimit()).subtract(BIUtil.INSTANCE.toBI(program.getResult().getGasUsed()));
 
                 if (tx.isContractCreation()) {
                     final int returnDataGasValue = getLength(program.getResult().getHReturn()) *
@@ -372,8 +372,8 @@ public class TransactionExecutor {
             m_endGas = m_endGas.add(BigInteger.valueOf(gasRefund));
 
             summaryBuilder
-                    .gasUsed(toBI(result.getGasUsed()))
-                    .gasRefund(toBI(gasRefund))
+                    .gasUsed(BIUtil.INSTANCE.toBI(result.getGasUsed()))
+                    .gasRefund(BIUtil.INSTANCE.toBI(gasRefund))
                     .deletedAccounts(result.getDeleteAccounts())
                     .internalTransactions(result.getInternalTransactions());
 
@@ -471,7 +471,7 @@ public class TransactionExecutor {
     }
 
     public long getGasUsed() {
-        return toBI(tx.getGasLimit()).subtract(m_endGas).longValue();
+        return BIUtil.INSTANCE.toBI(tx.getGasLimit()).subtract(m_endGas).longValue();
     }
 
 }

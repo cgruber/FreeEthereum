@@ -59,7 +59,7 @@ public class NodeDataMessage extends EthMessage {
         dataList = new ArrayList<>();
         for (final RLPElement aParamsList : paramsList) {
             // Need it AS IS
-            dataList.add(Value.fromRlpEncoded(aParamsList.getRLPData()));
+            dataList.add(Value.Companion.fromRlpEncoded(aParamsList.getRLPData()));
         }
         parsed = true;
     }

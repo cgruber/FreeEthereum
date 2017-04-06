@@ -789,7 +789,7 @@ public class FastSyncManager {
                 return Collections.emptyList();
             }
 
-            final List<Object> node = Value.fromRlpEncoded(response).asList();
+            final List<Object> node = Value.Companion.fromRlpEncoded(response).asList();
             final List<TrieNodeRequest> ret = new ArrayList<>();
             if (type == TrieNodeType.STATE) {
                 if (node.size() == 2 && hasTerminator((byte[]) node.get(0))) {

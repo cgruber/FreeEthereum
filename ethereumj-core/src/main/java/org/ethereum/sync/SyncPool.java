@@ -34,6 +34,7 @@ import org.ethereum.net.rlpx.discover.NodeHandler;
 import org.ethereum.net.rlpx.discover.NodeManager;
 import org.ethereum.net.server.Channel;
 import org.ethereum.net.server.ChannelManager;
+import org.ethereum.util.BIUtil;
 import org.ethereum.util.Functional;
 import org.ethereum.util.Utils;
 import org.slf4j.Logger;
@@ -50,7 +51,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.min;
-import static org.ethereum.util.BIUtil.isIn20PercentRange;
 
 /**
  * <p>Encapsulates logic which manages peers involved in blockchain sync</p>
@@ -281,7 +281,7 @@ public class SyncPool {
         int thresholdIdx = min(config.syncPeerCount(), active.size()) - 1;
 
         for (int i = thresholdIdx; i >= 0; i--) {
-            if (isIn20PercentRange(active.get(i).getTotalDifficulty(), highestDifficulty)) {
+            if (BIUtil.INSTANCE.isIn20PercentRange(active.get(i).getTotalDifficulty(), highestDifficulty)) {
                 thresholdIdx = i;
                 break;
             }

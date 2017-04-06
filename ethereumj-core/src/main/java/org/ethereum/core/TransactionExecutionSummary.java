@@ -26,6 +26,7 @@
 
 package org.ethereum.core;
 
+import org.ethereum.util.BIUtil;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPElement;
 import org.ethereum.util.RLPList;
@@ -40,7 +41,6 @@ import java.util.*;
 import static java.util.Collections.*;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
-import static org.ethereum.util.BIUtil.toBI;
 
 public class TransactionExecutionSummary {
 
@@ -69,9 +69,9 @@ public class TransactionExecutionSummary {
 
     private TransactionExecutionSummary(final Transaction transaction) {
         this.tx = transaction;
-        this.gasLimit = toBI(transaction.getGasLimit());
-        this.gasPrice = toBI(transaction.getGasPrice());
-        this.value = toBI(transaction.getValue());
+        this.gasLimit = BIUtil.INSTANCE.toBI(transaction.getGasLimit());
+        this.gasPrice = BIUtil.INSTANCE.toBI(transaction.getGasPrice());
+        this.value = BIUtil.INSTANCE.toBI(transaction.getValue());
     }
 
     public TransactionExecutionSummary(final byte[] rlpEncoded) {

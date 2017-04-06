@@ -28,10 +28,9 @@ package org.ethereum.config.blockchain;
 
 import org.ethereum.config.BlockchainConfig;
 import org.ethereum.core.BlockHeader;
+import org.ethereum.util.BIUtil;
 
 import java.math.BigInteger;
-
-import static org.ethereum.util.BIUtil.max;
 
 /**
  * Ethereum Classic HF on Block #3_000_000:
@@ -64,12 +63,12 @@ public class ETCFork3M extends Eip160HFConfig {
         final BigInteger sign = getCalcDifficultyMultiplier(curBlock, parent);
 
         final BigInteger fromParent = pd.add(quotient.multiply(sign));
-        BigInteger difficulty = max(getConstants().getMinimumDifficulty(), fromParent);
+        BigInteger difficulty = BIUtil.INSTANCE.max(getConstants().getMinimumDifficulty(), fromParent);
 
         final int explosion = getExplosion(curBlock, parent);
 
         if (explosion >= 0) {
-            difficulty = max(getConstants().getMinimumDifficulty(), difficulty.add(BigInteger.ONE.shiftLeft(explosion)));
+            difficulty = BIUtil.INSTANCE.max(getConstants().getMinimumDifficulty(), difficulty.add(BigInteger.ONE.shiftLeft(explosion)));
         }
 
         return difficulty;

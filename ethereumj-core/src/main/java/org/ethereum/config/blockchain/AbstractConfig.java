@@ -38,6 +38,7 @@ import org.ethereum.core.Transaction;
 import org.ethereum.db.BlockStore;
 import org.ethereum.mine.EthashMiner;
 import org.ethereum.mine.MinerIfc;
+import org.ethereum.util.BIUtil;
 import org.ethereum.validator.BlockHeaderValidator;
 import org.ethereum.vm.DataWord;
 import org.ethereum.vm.GasCost;
@@ -48,8 +49,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import static org.ethereum.util.BIUtil.max;
 
 /**
  * BlockchainForkConfig is also implemented by this class - its (mostly testing) purpose to represent
@@ -100,12 +99,12 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
         final BigInteger sign = getCalcDifficultyMultiplier(curBlock, parent);
 
         final BigInteger fromParent = pd.add(quotient.multiply(sign));
-        BigInteger difficulty = max(getConstants().getMinimumDifficulty(), fromParent);
+        BigInteger difficulty = BIUtil.INSTANCE.max(getConstants().getMinimumDifficulty(), fromParent);
 
         final int explosion = getExplosion(curBlock, parent);
 
         if (explosion >= 0) {
-            difficulty = max(getConstants().getMinimumDifficulty(), difficulty.add(BigInteger.ONE.shiftLeft(explosion)));
+            difficulty = BIUtil.INSTANCE.max(getConstants().getMinimumDifficulty(), difficulty.add(BigInteger.ONE.shiftLeft(explosion)));
         }
 
         return difficulty;

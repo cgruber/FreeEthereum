@@ -31,6 +31,7 @@ import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.db.IndexedBlockStore;
 import org.ethereum.db.RepositoryRoot;
 import org.ethereum.listener.EthereumListenerAdapter;
+import org.ethereum.util.BIUtil;
 import org.ethereum.validator.DependentBlockHeaderRuleAdapter;
 import org.ethereum.vm.program.invoke.ProgramInvokeFactoryImpl;
 import org.junit.Before;
@@ -47,7 +48,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 
-import static org.ethereum.util.BIUtil.toBI;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -103,7 +103,7 @@ public class PendingStateLongRunTest {
 
         pending = pendingState.getRepository();
 
-        final BigInteger balanceAfter46169 = balanceBefore46169.add(toBI(tx46169.getValue()));
+        final BigInteger balanceAfter46169 = balanceBefore46169.add(BIUtil.INSTANCE.toBI(tx46169.getValue()));
 
         assertEquals(pendingState.getPendingTransactions().size(), 2);
         assertEquals(balanceAfter46169, pending.getAccountState(tx46169.getReceiveAddress()).getBalance());
@@ -114,7 +114,7 @@ public class PendingStateLongRunTest {
         assertEquals(balanceAfter46169, pending.getAccountState(tx46169.getReceiveAddress()).getBalance());
         assertEquals(pendingState.getPendingTransactions().size(), 1);
 
-        final BigInteger balanceAfter46170 = balanceBefore46170.add(toBI(tx46170.getValue()));
+        final BigInteger balanceAfter46170 = balanceBefore46170.add(BIUtil.INSTANCE.toBI(tx46170.getValue()));
 
         assertEquals(balanceAfter46170, pending.getAccountState(tx46170.getReceiveAddress()).getBalance());
 
