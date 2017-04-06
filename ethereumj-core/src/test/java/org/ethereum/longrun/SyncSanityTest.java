@@ -114,7 +114,7 @@ public class SyncSanityTest {
 
     private static void fullSanityCheck(final Ethereum ethereum, final CommonConfig commonConfig) {
 
-        BlockchainValidation.fullCheck(ethereum, commonConfig, fatalErrors);
+        BlockchainValidation.INSTANCE.fullCheck(ethereum, commonConfig, fatalErrors);
         logStats();
 
         if (!firstRun.get()) {
@@ -202,14 +202,14 @@ public class SyncSanityTest {
             while (true) {
                 sleep(10000);
 
-                if (syncComplete) {
-                    testLogger.info("[v] Sync complete! The best block: " + bestBlock.getShortDescr());
+                if (getSyncComplete()) {
+                    testLogger.info("[v] Sync complete! The best block: " + getBestBlock().getShortDescr());
 
                     // Stop syncing
-                    config.setSyncEnabled(false);
-                    config.setDiscoveryEnabled(false);
-                    ethereum.getChannelManager().close();
-                    syncPool.close();
+                    getConfig().setSyncEnabled(false);
+                    getConfig().setDiscoveryEnabled(false);
+                    getEthereum().getChannelManager().close();
+                    getSyncPool().close();
 
                     return;
                 }
@@ -219,7 +219,7 @@ public class SyncSanityTest {
         @Override
         public void onSyncDone() throws Exception {
             // Full sanity check
-            fullSanityCheck(ethereum, commonConfig);
+            fullSanityCheck(getEthereum(), getCommonConfig());
         }
     }
 }

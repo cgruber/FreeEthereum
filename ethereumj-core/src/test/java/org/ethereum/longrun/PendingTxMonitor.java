@@ -112,7 +112,7 @@ public class PendingTxMonitor extends BasicNode {
         if (remoteTxs == null) {
             remoteTxs = new ByteArrayMap<>();
             System.out.println("Sync Done!!!");
-            ethereum.addListener(new EthereumListenerAdapter() {
+            getEthereum().addListener(new EthereumListenerAdapter() {
                 @Override
                 public void onPendingTransactionUpdate(final TransactionReceipt txReceipt, final PendingTransactionState state, final Block block) {
                     PendingTxMonitor.this.onPendingTransactionUpdate(txReceipt, state, block);
