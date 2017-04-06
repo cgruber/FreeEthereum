@@ -73,7 +73,7 @@ public class GitHubTransactionTest {
             });
         }});
         final String json = JSONReader.loadJSONFromCommit("TransactionTests/EIP155/ttTransactionTest.json", shacommit);
-        GitHubJSONTestSuite.runGitHubJsonTransactionTest(json, excluded);
+        GitHubJSONTestSuite.INSTANCE.runGitHubJsonTransactionTest(json, excluded);
     }
 
     @Ignore
@@ -89,16 +89,16 @@ public class GitHubTransactionTest {
     public void testHomesteadTestsFromGitHub() throws ParseException, IOException {
         final Set<String> excluded = new HashSet<>();
         final String json1 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/tt10mbDataField.json", shacommit);
-        GitHubJSONTestSuite.runGitHubJsonTransactionTest(json1, excluded);
+        GitHubJSONTestSuite.INSTANCE.runGitHubJsonTransactionTest(json1, excluded);
 
         final String json2 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttTransactionTest.json", shacommit);
-        GitHubJSONTestSuite.runGitHubJsonTransactionTest(json2, excluded);
+        GitHubJSONTestSuite.INSTANCE.runGitHubJsonTransactionTest(json2, excluded);
 
         final String json3 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttTransactionTestEip155VitaliksTests.json", shacommit);
-        GitHubJSONTestSuite.runGitHubJsonTransactionTest(json3, excluded);
+        GitHubJSONTestSuite.INSTANCE.runGitHubJsonTransactionTest(json3, excluded);
 
         final String json4 = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttWrongRLPTransaction.json", shacommit);
-        GitHubJSONTestSuite.runGitHubJsonTransactionTest(json4, excluded);
+        GitHubJSONTestSuite.INSTANCE.runGitHubJsonTransactionTest(json4, excluded);
     }
 
     @Test
@@ -106,17 +106,17 @@ public class GitHubTransactionTest {
         final Set<String> excluded = new HashSet<>();
         // pre-EIP155 wrong chain id (negative)
         final String json = JSONReader.loadJSONFromCommit("TransactionTests/RandomTests/tr201506052141PYTHON.json", shacommit);
-        GitHubJSONTestSuite.runGitHubJsonTransactionTest(json, excluded);
+        GitHubJSONTestSuite.INSTANCE.runGitHubJsonTransactionTest(json, excluded);
     }
 
     @Test
     public void testGeneralTestsFromGitHub() throws ParseException, IOException {
         final Set<String> excluded = new HashSet<>();
         final String json1 = JSONReader.loadJSONFromCommit("TransactionTests/tt10mbDataField.json", shacommit);
-        GitHubJSONTestSuite.runGitHubJsonTransactionTest(json1, excluded);
+        GitHubJSONTestSuite.INSTANCE.runGitHubJsonTransactionTest(json1, excluded);
 
         final String json2 = JSONReader.loadJSONFromCommit("TransactionTests/ttTransactionTest.json", shacommit);
-        GitHubJSONTestSuite.runGitHubJsonTransactionTest(json2, excluded);
+        GitHubJSONTestSuite.INSTANCE.runGitHubJsonTransactionTest(json2, excluded);
     }
 
     @Ignore // Few tests fails, RLPWrongByteEncoding and RLPLength preceding 0s errors left
@@ -125,20 +125,20 @@ public class GitHubTransactionTest {
         final Set<String> excluded = new HashSet<>();
 
         final String json = JSONReader.loadJSONFromCommit("TransactionTests/ttWrongRLPTransaction.json", shacommit);
-        GitHubJSONTestSuite.runGitHubJsonTransactionTest(json, excluded);
+        GitHubJSONTestSuite.INSTANCE.runGitHubJsonTransactionTest(json, excluded);
     }
 
     @Test
     public void testEip155VitaliksTestFromGitHub() throws ParseException, IOException {
         final Set<String> excluded = new HashSet<>();
         final String json = JSONReader.loadJSONFromCommit("TransactionTests/EIP155/ttTransactionTestEip155VitaliksTests.json", shacommit);
-        GitHubJSONTestSuite.runGitHubJsonTransactionTest(json, excluded);
+        GitHubJSONTestSuite.INSTANCE.runGitHubJsonTransactionTest(json, excluded);
     }
 
     @Test
     public void testEip155VRuleTestFromGitHub() throws ParseException, IOException {
         final Set<String> excluded = new HashSet<>();
         final String json = JSONReader.loadJSONFromCommit("TransactionTests/EIP155/ttTransactionTestVRule.json", shacommit);
-        GitHubJSONTestSuite.runGitHubJsonTransactionTest(json, excluded);
+        GitHubJSONTestSuite.INSTANCE.runGitHubJsonTransactionTest(json, excluded);
     }
 }

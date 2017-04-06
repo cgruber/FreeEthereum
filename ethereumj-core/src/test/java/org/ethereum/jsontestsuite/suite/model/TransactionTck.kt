@@ -24,75 +24,39 @@
  *
  */
 
-package org.ethereum.jsontestsuite.suite.model;
+package org.ethereum.jsontestsuite.suite.model
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Roman Mandeleil
+ * *
  * @since 28.06.2014
  */
-public class AccountTck {
+class TransactionTck {
 
-    private String balance;
-    private String code;
-    private String nonce;
+    var data: String? = null
+    var gasLimit: String? = null
+    var gasPrice: String? = null
+    var nonce: String? = null
+    var r: String? = null
+    var s: String? = null
+    var to: String? = null
+    var v: String? = null
+    var value: String? = null
+    var secretKey: String? = null
 
-    private Map<String, String> storage = new HashMap<>();
-
-    private String privateKey;
-
-    public AccountTck() {
-    }
-
-    public String getPrivateKey() {
-        return privateKey;
-    }
-
-    public void setPrivateKey(final String privateKey) {
-        this.privateKey = privateKey;
-    }
-
-    public String getBalance() {
-        return balance;
-    }
-
-    public void setBalance(final String balance) {
-        this.balance = balance;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(final String code) {
-        this.code = code;
-    }
-
-    public String getNonce() {
-        return nonce;
-    }
-
-    public void setNonce(final String nonce) {
-        this.nonce = nonce;
-    }
-
-    public Map<String, String> getStorage() {
-        return storage;
-    }
-
-    public void setStorage(final Map<String, String> storage) {
-        this.storage = storage;
-    }
-
-    @Override
-    public String toString() {
-        return "AccountState2{" +
-                "balance='" + balance + '\'' +
-                ", code='" + code + '\'' +
+    override fun toString(): String {
+        return "TransactionTck{" +
+                "data='" + data + '\'' +
+                ", gasLimit='" + gasLimit + '\'' +
+                ", gasPrice='" + gasPrice + '\'' +
                 ", nonce='" + nonce + '\'' +
-                ", storage=" + storage +
-                '}';
+                ", r='" + r + '\'' +
+                ", s='" + s + '\'' +
+                ", to='" + to + '\'' +
+                ", v='" + v + '\'' +
+                ", value='" + value + '\'' +
+                ", secretKey='" + secretKey + '\'' +
+                '}'
     }
 }

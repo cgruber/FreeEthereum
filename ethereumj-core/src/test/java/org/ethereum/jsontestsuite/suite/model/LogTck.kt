@@ -24,49 +24,12 @@
  *
  */
 
-package org.ethereum.jsontestsuite.suite.model;
+package org.ethereum.jsontestsuite.suite.model
 
-import java.util.List;
+class LogTck {
 
-public class LogTck {
-
-    private String address;
-    private String bloom;
-    private String data;
-    private List<String> topics;
-
-    public LogTck() {
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(final String address) {
-        this.address = address;
-    }
-
-    public String getBloom() {
-        return bloom;
-    }
-
-    public void setBloom(final String bloom) {
-        this.bloom = bloom;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(final String data) {
-        this.data = data;
-    }
-
-    public List<String> getTopics() {
-        return topics;
-    }
-
-    public void setTopics(final List<String> topics) {
-        this.topics = topics;
-    }
+    var address: String? = null
+    var bloom: String? = null
+    var data: String? = null
+    var topics: List<String>? = null
 }

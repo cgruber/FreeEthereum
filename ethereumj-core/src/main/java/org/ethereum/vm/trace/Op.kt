@@ -24,57 +24,17 @@
  *
  */
 
-package org.ethereum.vm.trace;
+package org.ethereum.vm.trace
 
-import org.ethereum.vm.OpCode;
+import org.ethereum.vm.OpCode
 
-import java.math.BigInteger;
+import java.math.BigInteger
 
-public class Op {
+class Op {
 
-    private OpCode code;
-    private int deep;
-    private int pc;
-    private BigInteger gas;
-    private OpActions actions;
-
-    public OpCode getCode() {
-        return code;
-    }
-
-    public void setCode(final OpCode code) {
-        this.code = code;
-    }
-
-    public int getDeep() {
-        return deep;
-    }
-
-    public void setDeep(final int deep) {
-        this.deep = deep;
-    }
-
-    public int getPc() {
-        return pc;
-    }
-
-    public void setPc(final int pc) {
-        this.pc = pc;
-    }
-
-    public BigInteger getGas() {
-        return gas;
-    }
-
-    public void setGas(final BigInteger gas) {
-        this.gas = gas;
-    }
-
-    public OpActions getActions() {
-        return actions;
-    }
-
-    public void setActions(final OpActions actions) {
-        this.actions = actions;
-    }
+    var code: OpCode? = null
+    var deep: Int = 0
+    var pc: Int = 0
+    var gas: BigInteger? = null
+    var actions: OpActions? = null
 }

@@ -578,7 +578,7 @@ public class TransactionTest {
         System.out.println(res.errors);
         final CompilationResult cres = CompilationResult.parse(res.output);
 
-        final BlockchainImpl blockchain = ImportLightTestBroken.Companion.createBlockchain(GenesisLoader.loadGenesis(
+        final BlockchainImpl blockchain = ImportLightTest.createBlockchain(GenesisLoader.loadGenesis(
                 getClass().getResourceAsStream("/genesis/genesis-light.json")));
 
         final ECKey sender = ECKey.fromPrivate(Hex.decode("3ec771c31cac8c0dba77a69e503765701d3c2bb62435888d4ffa38fed60c445c")).compress();
@@ -606,7 +606,7 @@ public class TransactionTest {
 
     @Test
     public void receiptErrorTest() throws Exception {
-        final BlockchainImpl blockchain = ImportLightTestBroken.Companion.createBlockchain(GenesisLoader.loadGenesis(
+        final BlockchainImpl blockchain = ImportLightTest.createBlockchain(GenesisLoader.loadGenesis(
                 getClass().getResourceAsStream("/genesis/genesis-light.json")));
 
         final ECKey sender = ECKey.fromPrivate(Hex.decode("3ec771c31cac8c0dba77a69e503765701d3c2bb62435888d4ffa38fed60c445c"));
