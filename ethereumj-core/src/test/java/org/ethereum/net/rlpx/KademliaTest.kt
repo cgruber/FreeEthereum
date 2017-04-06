@@ -44,7 +44,7 @@ class KademliaTest {
         }
 
     private fun getNode(id: ByteArray, i: Int): Node {
-        id[0] += i.toByte()
+        id[0] = id[0].plus(i).toByte()
         val n = node
         n.id = id
         return n
