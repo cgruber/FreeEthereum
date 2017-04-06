@@ -53,7 +53,7 @@ import java.util.*
 /**
  * Created by Anton Nashatyrev on 29.12.2015.
  */
-class ImportLightTest {
+class ImportLightTestBroken {
 
     @Test
     fun simpleFork() {
