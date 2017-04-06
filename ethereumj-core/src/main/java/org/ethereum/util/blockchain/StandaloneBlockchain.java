@@ -223,7 +223,7 @@ public class StandaloneBlockchain implements LocalBlockchain {
             Map<PendingTx, Transaction> txes = createTransactions(parent);
 
             time += timeIncrement;
-            Block b = getBlockchain().createNewBlock(parent, new ArrayList<>(txes.values()), Collections.EMPTY_LIST, time);
+            Block b = getBlockchain().createNewBlock(parent, new ArrayList<>(txes.values()), Collections.emptyList(), time);
 
             int GAS_LIMIT_BOUND_DIVISOR = SystemProperties.getDefault().getBlockchainConfig().
                     getCommonConstants().getGasLimitBoundDivisor();
