@@ -81,7 +81,7 @@ public class GitHubTransactionTest {
     public void runsingleTest() throws Exception {
         final String json = JSONReader.loadJSONFromCommit("TransactionTests/Homestead/ttTransactionTest.json", shacommit);
         final TransactionTestSuite testSuite = new TransactionTestSuite(json);
-        final List<String> res = TransactionTestRunner.run(testSuite.getTestCases().get("V_overflow64bitPlus28"));
+        final List<String> res = TransactionTestRunner.Companion.run(testSuite.getTestCases().get("V_overflow64bitPlus28"));
         System.out.println(res);
     }
 

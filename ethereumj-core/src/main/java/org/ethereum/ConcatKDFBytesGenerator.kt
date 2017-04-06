@@ -89,7 +89,7 @@ private constructor(private val counterStart: Int, private val digest: Digest) :
      */
     @Throws(DataLengthException::class, IllegalArgumentException::class)
     override fun generateBytes(out: ByteArray, outOff: Int, len: Int): Int {
-        var outOff = outOff
+        var outOffDynamic = outOff
         var len = len
         if (out.size - len < outOff) {
             throw DataLengthException("output buffer too small")
@@ -129,7 +129,7 @@ private constructor(private val counterStart: Int, private val digest: Digest) :
 
             if (len > outLen) {
                 System.arraycopy(dig, 0, out, outOff, outLen)
-                outOff += outLen
+                outOffDynamic += outLen
                 len -= outLen
             } else {
                 System.arraycopy(dig, 0, out, outOff, len)

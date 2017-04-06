@@ -237,7 +237,7 @@ internal object GitHubJSONTestSuite {
             logger.info(line)
             logger.info(output)
             logger.info(line)
-            val fails = StateTestRunner.run(testCases[testName])
+            val fails = StateTestRunner.run(testCases[testName]!!)
 
             Assert.assertTrue(fails.isEmpty())
 
@@ -272,7 +272,7 @@ internal object GitHubJSONTestSuite {
             logger.info(output)
             logger.info(line)
 
-            val result = StateTestRunner.run(testCases[testName])
+            val result = StateTestRunner.run(testCases[testName]!!)
             if (!result.isEmpty())
                 summary.put(testName, false)
             else
@@ -323,7 +323,7 @@ internal object GitHubJSONTestSuite {
             logger.info(line)
 
             logger.info("==> Running test case: {}", testName)
-            val result = TransactionTestRunner.run(testCases[testName])
+            val result = TransactionTestRunner.run(testCases[testName]!!)
             if (!result.isEmpty())
                 summary.put(testName, false)
             else

@@ -75,7 +75,7 @@ internal object RunTck {
             logger.info(" Test case: {}", testName)
 
             val stateTestCase = testCases[testName]
-            val result = StateTestRunner.run(stateTestCase)
+            val result = StateTestRunner.run(stateTestCase!!)
 
             if (!result.isEmpty())
                 summary.put(testName, false)

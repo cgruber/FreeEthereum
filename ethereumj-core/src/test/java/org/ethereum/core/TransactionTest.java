@@ -437,17 +437,17 @@ public class TransactionTest {
                 // to ensure it doesn't affect the final state
 
                 {
-                    final Repository track = repository.startTracking();
+                    final Repository track = getRepository().startTracking();
 
                     final Transaction txConst = CallTransaction.createCallTransaction(0, 0, 100000000000000L,
                             "095e7baea6a6c7c4c2dfeb977efac326af552d87", 0, CallTransaction.Function.fromSignature("get"));
                     txConst.sign(ECKey.fromPrivate(new byte[32]));
 
-                    final Block bestBlock = block;
+                    final Block bestBlock = getBlock();
 
                     final TransactionExecutor executor = new TransactionExecutor
                             (txConst, bestBlock.getCoinbase(), track, new BlockStoreDummy(),
-                                    invokeFactory, bestBlock)
+                                    getInvokeFactory(), bestBlock)
                             .setLocalCall(true);
 
                     executor.init();

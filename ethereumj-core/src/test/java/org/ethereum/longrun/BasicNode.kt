@@ -50,7 +50,7 @@ import javax.annotation.PostConstruct
 /**
  * BasicNode of ethereum instance
  */
-internal open class BasicNode
+open class BasicNode
 /**
  * logger name can be passed if more than one EthereumJ instance is created
  * in a single JVM to distinguish logging output from different instances
