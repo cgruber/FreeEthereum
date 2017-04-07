@@ -215,16 +215,16 @@ class ShhLongRun : Thread() {
 
             @Synchronized override fun newMessage(msg: WhisperMessage) {
                 println("=== Msg received: " + msg)
-                for (awaitedMsg in awaitedMsgs) {
-                    if (Arrays.equals(msg.payload, awaitedMsg.right.payload)) {
-                        if (!match(msg, awaitedMsg.right)) {
-                            throw RuntimeException("Messages not matched: \n" + awaitedMsg + "\n" + msg)
-                        } else {
-                            awaitedMsgs.remove(awaitedMsg)
-                            break
+                awaitedMsgs
+                        .filter { Arrays.equals(msg.payload, it.right.payload) }
+                        .forEach {
+                            if (!match(msg, it.right)) {
+                                throw RuntimeException("Messages not matched: \n" + it + "\n" + msg)
+                            } else {
+                                awaitedMsgs.remove(it)
+                                return
+                            }
                         }
-                    }
-                }
                 checkForMissingMessages()
             }
 
@@ -239,9 +239,9 @@ class ShhLongRun : Thread() {
                 if (!equal(m1.to, m2.to)) return false
                 if (m1.topics != null) {
                     if (m1.topics.size != m2.topics.size) return false
-                    for (i in 0..m1.topics.size - 1) {
-                        if (m1.topics[i] != m2.topics[i]) return false
-                    }
+                    (0..m1.topics.size - 1)
+                            .filter { m1.topics[it] != m2.topics[it] }
+                            .forEach { return false }
                 } else if (m2.topics != null) return false
                 return true
             }
@@ -252,11 +252,9 @@ class ShhLongRun : Thread() {
             }
 
             private fun checkForMissingMessages() {
-                for (msg in awaitedMsgs) {
-                    if (System.currentTimeMillis() > msg.left.time + 10 * 1000) {
-                        throw RuntimeException("Message was not delivered: " + msg)
-                    }
-                }
+                awaitedMsgs
+                        .filter { System.currentTimeMillis() > it.left.time + 10 * 1000 }
+                        .forEach { throw RuntimeException("Message was not delivered: " + it) }
             }
         }
     }

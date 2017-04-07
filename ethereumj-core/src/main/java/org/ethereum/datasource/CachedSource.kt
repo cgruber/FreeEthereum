@@ -24,43 +24,39 @@
  *
  */
 
-package org.ethereum.util;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.ethereum.datasource
 
 /**
- * Created by Anton Nashatyrev on 21.07.2016.
+ * Source which internally caches underlying Source key-value pairs
+
+ * Created by Anton Nashatyrev on 21.10.2016.
  */
-public class ExecutorPipelineTest {
+interface CachedSource<Key, Value> : Source<Key, Value> {
 
-    @Test
-    public void joinTest() throws InterruptedException {
-        final ExecutorPipeline<Integer, Integer> exec1 = new ExecutorPipeline<>(8, 100, true, new Functional.Function<Integer, Integer>() {
-            @Override
-            public Integer apply(final Integer integer) {
-                try {
-                    Thread.sleep(2);
-                } catch (final InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                return integer;
-            }
-        }, Throwable::printStackTrace);
+    /**
+     * @return The underlying Source
+     */
+    val source: Source<Key, Value>
 
-        final List<Integer> consumed = new ArrayList<>();
+    /**
+     * @return Modified entry keys if this is a write cache
+     */
+    val modified: Collection<Key>
 
-        final ExecutorPipeline<Integer, Void> exec2 = exec1.add(1, 100, consumed::add);
+    /**
+     * @return indicates the cache has modified entries
+     */
+    fun hasModified(): Boolean
 
-        final int cnt = 1000;
-        for (int i = 0; i < cnt; i++) {
-            exec1.push(i);
-        }
-        exec1.join();
+    /**
+     * Estimates the size of cached entries in bytes.
+     * This value shouldn't be precise size of Java objects
+     * @return cache size in bytes
+     */
+    fun estimateCacheSize(): Long
 
-        Assert.assertEquals(cnt, consumed.size());
-    }
+    /**
+     * Just a convenient shortcut to the most popular Sources with byte[] key
+     */
+    interface BytesKey<Value> : CachedSource<ByteArray, Value>
 }

@@ -572,9 +572,7 @@ class LongSyncTest {
             val strData = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8)
 
             val blocks = ArrayList<Block>(strData.size)
-            for (rlp in strData) {
-                blocks.add(Block(decode(rlp)))
-            }
+            strData.mapTo(blocks) { Block(decode(it)) }
 
             return blocks
         }

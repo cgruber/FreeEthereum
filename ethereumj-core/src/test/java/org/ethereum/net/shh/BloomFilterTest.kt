@@ -47,10 +47,7 @@ class BloomFilterTest {
             assertTrue("Topic #" + i, filter.hasTopic(Topic("Topic" + i)))
         }
 
-        var falsePositiveCnt = 0
-        for (i in 0..9999) {
-            falsePositiveCnt += if (filter.hasTopic(Topic("Topic_" + i))) 1 else 0
-        }
+        val falsePositiveCnt = (0..9999).sumBy { if (filter.hasTopic(Topic("Topic_" + it))) 1 else 0 }
         logger.info("falsePositiveCnt: " + falsePositiveCnt)
         assertTrue(falsePositiveCnt < 1000) // false positive probability ~8.7%
     }

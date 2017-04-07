@@ -92,12 +92,7 @@ public class TransactionTouchedStorage {
     }
 
     public Map<DataWord, DataWord> getChanged() {
-        return keyValues(new Functional.Function<Entry, Boolean>() {
-            @Override
-            public Boolean apply(final Entry entry) {
-                return entry.isChanged();
-            }
-        });
+        return keyValues(Entry::isChanged);
     }
 
     public Map<DataWord, DataWord> getReadOnly() {

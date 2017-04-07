@@ -39,17 +39,11 @@ class NodeFilter {
     }
 
     fun accept(node: Node): Boolean {
-        for (entry in entries) {
-            if (entry.accept(node)) return true
-        }
-        return false
+        return entries.any { it.accept(node) }
     }
 
     fun accept(nodeAddr: InetAddress): Boolean {
-        for (entry in entries) {
-            if (entry.accept(nodeAddr)) return true
-        }
-        return false
+        return entries.any { it.accept(nodeAddr) }
     }
 
     private inner class Entry(internal val nodeId: ByteArray?, hostIpPattern: String?) {

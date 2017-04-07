@@ -24,43 +24,40 @@
  *
  */
 
-package org.ethereum.util;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.ethereum.datasource
 
 /**
- * Created by Anton Nashatyrev on 21.07.2016.
+ * Base interface for all data source classes
+
+ * Created by Anton Nashatyrev on 05.10.2016.
  */
-public class ExecutorPipelineTest {
+interface Source<K, V> {
 
-    @Test
-    public void joinTest() throws InterruptedException {
-        final ExecutorPipeline<Integer, Integer> exec1 = new ExecutorPipeline<>(8, 100, true, new Functional.Function<Integer, Integer>() {
-            @Override
-            public Integer apply(final Integer integer) {
-                try {
-                    Thread.sleep(2);
-                } catch (final InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                return integer;
-            }
-        }, Throwable::printStackTrace);
+    /**
+     * Puts key-value pair into source
+     */
+    fun put(key: K, `val`: V)
 
-        final List<Integer> consumed = new ArrayList<>();
+    /**
+     * Gets a value by its key
+     * @return value or <null></null> if no such key in the source
+     */
+    operator fun get(key: K): V
 
-        final ExecutorPipeline<Integer, Void> exec2 = exec1.add(1, 100, consumed::add);
+    /**
+     * Deletes the key-value pair from the source
+     */
+    fun delete(key: K)
 
-        final int cnt = 1000;
-        for (int i = 0; i < cnt; i++) {
-            exec1.push(i);
-        }
-        exec1.join();
+    /**
+     * If this source has underlying level source then all
+     * changes collected in this source are flushed into the
+     * underlying source.
+     * The implementation may do 'cascading' flush, i.e. call
+     * flush() on the underlying Source
+     * @return true if any changes we flushed, false if the underlying
+     * * Source didn't change
+     */
+    fun flush(): Boolean
 
-        Assert.assertEquals(cnt, consumed.size());
-    }
 }

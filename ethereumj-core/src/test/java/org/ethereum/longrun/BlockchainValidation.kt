@@ -31,7 +31,6 @@ import org.ethereum.core.AccountState
 import org.ethereum.core.BlockchainImpl
 import org.ethereum.core.BlockchainImpl.calcReceiptsTrie
 import org.ethereum.core.Bloom
-import org.ethereum.core.TransactionReceipt
 import org.ethereum.crypto.HashUtil
 import org.ethereum.datasource.Source
 import org.ethereum.facade.Ethereum
@@ -40,7 +39,6 @@ import org.ethereum.trie.TrieImpl
 import org.ethereum.util.FastByteComparisons
 import org.junit.Assert
 import org.slf4j.LoggerFactory
-import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -53,26 +51,27 @@ internal object BlockchainValidation {
     private fun getReferencedTrieNodes(stateDS: Source<ByteArray, ByteArray>, includeAccounts: Boolean,
                                        vararg roots: ByteArray): Int {
         val ret = AtomicInteger(0)
-        for (root in roots) {
-            val trie = SecureTrie(stateDS, root)
-            trie.scanTree(object : TrieImpl.ScanAction {
-                override fun doOnNode(hash: ByteArray, node: TrieImpl.Node) {
-                    ret.incrementAndGet()
-                }
-
-                override fun doOnValue(nodeHash: ByteArray, node: TrieImpl.Node, key: ByteArray, value: ByteArray) {
-                    if (includeAccounts) {
-                        val accountState = AccountState(value)
-                        if (!FastByteComparisons.equal(accountState.codeHash, HashUtil.EMPTY_DATA_HASH)) {
+        roots
+                .map { SecureTrie(stateDS, it) }
+                .forEach {
+                    it.scanTree(object : TrieImpl.ScanAction {
+                        override fun doOnNode(hash: ByteArray, node: TrieImpl.Node) {
                             ret.incrementAndGet()
                         }
-                        if (!FastByteComparisons.equal(accountState.stateRoot, HashUtil.EMPTY_TRIE_HASH)) {
-                            ret.addAndGet(getReferencedTrieNodes(stateDS, false, accountState.stateRoot))
+
+                        override fun doOnValue(nodeHash: ByteArray, node: TrieImpl.Node, key: ByteArray, value: ByteArray) {
+                            if (includeAccounts) {
+                                val accountState = AccountState(value)
+                                if (!FastByteComparisons.equal(accountState.codeHash, HashUtil.EMPTY_DATA_HASH)) {
+                                    ret.incrementAndGet()
+                                }
+                                if (!FastByteComparisons.equal(accountState.stateRoot, HashUtil.EMPTY_TRIE_HASH)) {
+                                    ret.addAndGet(getReferencedTrieNodes(stateDS, false, accountState.stateRoot))
+                                }
+                            }
                         }
-                    }
+                    })
                 }
-            })
-        }
         return ret.get()
     }
 
@@ -202,11 +201,9 @@ internal object BlockchainValidation {
             while (blockNumber > 0) {
                 val currentBlock = ethereum.blockchain.getBlockByNumber(blockNumber.toLong())
 
-                val receipts = ArrayList<TransactionReceipt>()
-                for (tx in currentBlock.transactionsList) {
-                    val txInfo = (ethereum.blockchain as BlockchainImpl).getTransactionInfo(tx.hash)!!
-                    receipts.add(txInfo.receipt)
-                }
+                val receipts = currentBlock.transactionsList
+                        .map { (ethereum.blockchain as BlockchainImpl).getTransactionInfo(it.hash)!! }
+                        .map { it.receipt }
 
                 val logBloom = Bloom()
                 for (receipt in receipts) {

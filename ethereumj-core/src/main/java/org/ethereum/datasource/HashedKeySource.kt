@@ -24,43 +24,15 @@
  *
  */
 
-package org.ethereum.util;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.ethereum.datasource
 
 /**
- * Created by Anton Nashatyrev on 21.07.2016.
+ * Indicator interface which narrows the Source contract:
+ * the same Key always maps to the same Value,
+ * there could be no put() with the same Key and different Value
+ * Normally the Key is the hash of the Value
+ * Usually such kind of sources are Merkle Trie backing stores
+
+ * Created by Anton Nashatyrev on 08.11.2016.
  */
-public class ExecutorPipelineTest {
-
-    @Test
-    public void joinTest() throws InterruptedException {
-        final ExecutorPipeline<Integer, Integer> exec1 = new ExecutorPipeline<>(8, 100, true, new Functional.Function<Integer, Integer>() {
-            @Override
-            public Integer apply(final Integer integer) {
-                try {
-                    Thread.sleep(2);
-                } catch (final InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                return integer;
-            }
-        }, Throwable::printStackTrace);
-
-        final List<Integer> consumed = new ArrayList<>();
-
-        final ExecutorPipeline<Integer, Void> exec2 = exec1.add(1, 100, consumed::add);
-
-        final int cnt = 1000;
-        for (int i = 0; i < cnt; i++) {
-            exec1.push(i);
-        }
-        exec1.join();
-
-        Assert.assertEquals(cnt, consumed.size());
-    }
-}
+interface HashedKeySource<Key, Value> : Source<Key, Value>

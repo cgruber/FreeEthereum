@@ -573,7 +573,7 @@ class TrieTest {
         val massiveUpdateTestEnabled = false
 
         if (massiveUpdateTestEnabled) {
-            val randomWords = Arrays.asList(*randomDictionary.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
+            val randomWords = Arrays.asList(*randomDictionary.split(",".toRegex()).dropLastWhile(String::isEmpty).toTypedArray())
             val testerMap = HashMap<String, String>()
 
             val trie = StringTrie(mockDb)
@@ -630,15 +630,14 @@ class TrieTest {
         // 1. load the data from massive-upload.dmp
         //    which includes deletes/upadtes (5000 operations)
         val trieSingle = StringTrie(mockDb_2)
-        for (aStrData in strData) {
-
-            val keyVal = aStrData.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-
-            if (keyVal[0] == "*")
-                trieSingle.delete(keyVal[1].trim { it <= ' ' })
-            else
-                trieSingle.put(keyVal[0].trim { it <= ' ' }, keyVal[1].trim { it <= ' ' })
-        }
+        strData
+                .map { it.split("=".toRegex()).dropLastWhile(String::isEmpty).toTypedArray() }
+                .forEach { keyVal ->
+                    if (keyVal[0] == "*")
+                        trieSingle.delete(keyVal[1].trim { it <= ' ' })
+                    else
+                        trieSingle.put(keyVal[0].trim { it <= ' ' }, keyVal[1].trim { it <= ' ' })
+                }
 
 
         println("root_1:  => " + Hex.toHexString(trieSingle.rootHash))
@@ -651,27 +650,25 @@ class TrieTest {
         // 3. the rest of the data loaded with part of the trie not in the cache
         val trie = StringTrie(mockDb)
 
-        for (i in 0..1999) {
-
-            val keyVal = strData[i].split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-
-            if (keyVal[0] == "*")
-                trie.delete(keyVal[1].trim { it <= ' ' })
-            else
-                trie.put(keyVal[0].trim { it <= ' ' }, keyVal[1].trim { it <= ' ' })
-        }
+        (0..1999)
+                .map { strData[it].split("=".toRegex()).dropLastWhile(String::isEmpty).toTypedArray() }
+                .forEach { keyVal ->
+                    if (keyVal[0] == "*")
+                        trie.delete(keyVal[1].trim { it <= ' ' })
+                    else
+                        trie.put(keyVal[0].trim { it <= ' ' }, keyVal[1].trim { it <= ' ' })
+                }
 
         val trie2 = StringTrie(mockDb, trie.rootHash)
 
-        for (i in 2000..strData.size - 1) {
-
-            val keyVal = strData[i].split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-
-            if (keyVal[0] == "*")
-                trie2.delete(keyVal[1].trim { it <= ' ' })
-            else
-                trie2.put(keyVal[0].trim { it <= ' ' }, keyVal[1].trim { it <= ' ' })
-        }
+        (2000..strData.size - 1)
+                .map { strData[it].split("=".toRegex()).dropLastWhile(String::isEmpty).toTypedArray() }
+                .forEach { keyVal ->
+                    if (keyVal[0] == "*")
+                        trie2.delete(keyVal[1].trim { it <= ' ' })
+                    else
+                        trie2.put(keyVal[0].trim { it <= ' ' }, keyVal[1].trim { it <= ' ' })
+                }
 
         println("root_2:  => " + Hex.toHexString(trie2.rootHash))
 
@@ -684,7 +681,7 @@ class TrieTest {
         val massiveUpdateFromDBEnabled = false
 
         if (massiveUpdateFromDBEnabled) {
-            val randomWords = Arrays.asList(*randomDictionary.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
+            val randomWords = Arrays.asList(*randomDictionary.split(",".toRegex()).dropLastWhile(String::isEmpty).toTypedArray())
             val testerMap = HashMap<String, String>()
 
             val trie = StringTrie(mockDb)
@@ -749,7 +746,7 @@ class TrieTest {
 
         for (i in 0..99) {
 
-            val keyVal = strData[i].split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val keyVal = strData[i].split("=".toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
 
             if (keyVal[0] == "*")
                 trieSingle.delete(keyVal[1].trim { it <= ' ' })
@@ -1010,7 +1007,7 @@ class TrieTest {
                     for (i in 0..999) {
                         val trie1 = TrieImpl(trieCache.db, trie.rootHash)
                         //                        Trie trie1 = new TrieImpl(trieCache, trie.getRootHash());
-                        trie1.get(keys[k * 100 + i])
+                        trie1.get(keys[k * 100 + i]!!)
                     }
                 }
             }
@@ -1032,10 +1029,9 @@ class TrieTest {
 
             //            System.out.println("Filling trie...");
             val s = System.nanoTime()
-            for (i in 0..199999) {
-                val k = sha3(intToBytes(i))
-                trie.put(k, ByteArray(512))
-            }
+            (0..199999)
+                    .map { sha3(intToBytes(it)) }
+                    .forEach { trie.put(it, ByteArray(512)) }
             val s1 = System.nanoTime()
             //            System.out.println("Calculating root...");
             println(Hex.toHexString(trie.rootHash))

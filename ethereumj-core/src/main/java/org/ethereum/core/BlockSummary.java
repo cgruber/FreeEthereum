@@ -111,21 +111,11 @@ public class BlockSummary {
     }
 
     private static byte[] encodeSummaries(final List<TransactionExecutionSummary> summaries) {
-        return encodeList(summaries, new Functional.Function<TransactionExecutionSummary, byte[]>() {
-            @Override
-            public byte[] apply(final TransactionExecutionSummary summary) {
-                return summary.getEncoded();
-            }
-        });
+        return encodeList(summaries, TransactionExecutionSummary::getEncoded);
     }
 
     private static List<TransactionExecutionSummary> decodeSummaries(final RLPList summaries) {
-        return decodeList(summaries, new Functional.Function<byte[], TransactionExecutionSummary>() {
-            @Override
-            public TransactionExecutionSummary apply(final byte[] encoded) {
-                return new TransactionExecutionSummary(encoded);
-            }
-        });
+        return decodeList(summaries, TransactionExecutionSummary::new);
     }
 
     private static byte[] encodeReceipts(final List<TransactionReceipt> receipts) {
@@ -134,45 +124,15 @@ public class BlockSummary {
             receiptByTxHash.put(toHexString(receipt.getTransaction().getHash()), receipt);
         }
 
-        return encodeMap(receiptByTxHash, new Functional.Function<String, byte[]>() {
-            @Override
-            public byte[] apply(final String txHash) {
-                return RLP.encodeString(txHash);
-            }
-        }, new Functional.Function<TransactionReceipt, byte[]>() {
-            @Override
-            public byte[] apply(final TransactionReceipt receipt) {
-                return receipt.getEncoded();
-            }
-        });
+        return encodeMap(receiptByTxHash, RLP::encodeString, TransactionReceipt::getEncoded);
     }
 
     private static Map<String, TransactionReceipt> decodeReceipts(final RLPList receipts) {
-        return decodeMap(receipts, new Functional.Function<byte[], String>() {
-            @Override
-            public String apply(final byte[] bytes) {
-                return new String(bytes);
-            }
-        }, new Functional.Function<byte[], TransactionReceipt>() {
-            @Override
-            public TransactionReceipt apply(final byte[] encoded) {
-                return new TransactionReceipt(encoded);
-            }
-        });
+        return decodeMap(receipts, String::new, TransactionReceipt::new);
     }
 
     private static byte[] encodeRewards(final Map<byte[], BigInteger> rewards) {
-        return encodeMap(rewards, new Functional.Function<byte[], byte[]>() {
-            @Override
-            public byte[] apply(final byte[] bytes) {
-                return RLP.encodeElement(bytes);
-            }
-        }, new Functional.Function<BigInteger, byte[]>() {
-            @Override
-            public byte[] apply(final BigInteger reward) {
-                return RLP.encodeBigInteger(reward);
-            }
-        });
+        return encodeMap(rewards, RLP::encodeElement, RLP::encodeBigInteger);
     }
 
     private static Map<byte[], BigInteger> decodeRewards(final RLPList rewards) {

@@ -529,10 +529,7 @@ class ShortSyncTest {
                     return
                 }
 
-                val headers = ArrayList<BlockHeader>()
-                for (i in 7..mainB1B10!!.size - 1) {
-                    headers.add(mainB1B10!![i].header)
-                }
+                val headers = (7..mainB1B10!!.size - 1).map { mainB1B10!![it].header }
 
                 val response = BlockHeadersMessage(headers)
                 sendMessage(response)
@@ -633,10 +630,7 @@ class ShortSyncTest {
                     return
                 }
 
-                val headers = ArrayList<BlockHeader>()
-                for (i in 0..forkB1B5B8_!!.size - 1 - 1) {
-                    headers.add(forkB1B5B8_!![i].header)
-                }
+                val headers = (0..forkB1B5B8_!!.size - 1 - 1).map { forkB1B5B8_!![it].header }
 
                 val response = BlockHeadersMessage(headers)
                 sendMessage(response)
@@ -1074,9 +1068,7 @@ class ShortSyncTest {
             val strData = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8)
 
             val blocks = ArrayList<Block>(strData.size)
-            for (rlp in strData) {
-                blocks.add(Block(decode(rlp)))
-            }
+            strData.mapTo(blocks) { Block(decode(it)) }
 
             return blocks
         }
