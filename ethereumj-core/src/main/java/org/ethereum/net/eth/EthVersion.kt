@@ -26,8 +26,6 @@
 
 package org.ethereum.net.eth
 
-import java.util.*
-
 /**
  * Represents supported Eth versions
 
@@ -55,13 +53,8 @@ enum class EthVersion constructor(val code: Byte) {
         private val LOWER = V62.code
 
         fun fromCode(code: Int): EthVersion? {
-            for (v in values()) {
-                if (v.code.toInt() == code) {
-                    return v
-                }
-            }
 
-            return null
+            return values().firstOrNull { it.code.toInt() == code }
         }
 
         private fun isSupported(code: Byte): Boolean {
@@ -69,12 +62,7 @@ enum class EthVersion constructor(val code: Byte) {
         }
 
         fun supported(): List<EthVersion> {
-            val supported = ArrayList<EthVersion>()
-            for (v in values()) {
-                if (isSupported(v.code)) {
-                    supported.add(v)
-                }
-            }
+            val supported = values().filter { isSupported(it.code) }
 
             return supported
         }

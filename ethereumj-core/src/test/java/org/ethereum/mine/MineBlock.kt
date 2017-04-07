@@ -28,7 +28,7 @@ package org.ethereum.mine
 
 import org.ethereum.config.SystemProperties
 import org.ethereum.core.BlockHeader
-import org.ethereum.core.ImportLightTest
+import org.ethereum.core.ImportLightTest1
 import org.ethereum.core.ImportResult
 import org.ethereum.core.Transaction
 import org.ethereum.core.genesis.GenesisLoader
@@ -54,7 +54,7 @@ class MineBlock {
 
     @InjectMocks
     @Resource
-    private val blockchain = ImportLightTest.createBlockchain(GenesisLoader.loadGenesis(
+    private val blockchain = ImportLightTest1.createBlockchain(GenesisLoader.loadGenesis(
             javaClass.getResourceAsStream("/genesis/genesis-light.json")))
 
     @Before

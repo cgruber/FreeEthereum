@@ -83,11 +83,10 @@ class PendingTxMonitor : BasicNode("sampleNode") {
             try {
                 while (java.lang.Boolean.TRUE) {
                     val changes = jsonRpc.eth_getFilterChanges(pTxFilterId)
-                    if (changes.size > 0) {
-                        for (change in changes) {
-                            val tx = jsonRpc.eth_getTransactionByHash(change as String)
-                            newRemotePendingTx(tx)
-                        }
+                    if (changes.isNotEmpty()) {
+                        changes
+                                .map { jsonRpc.eth_getTransactionByHash(it as String) }
+                                .forEach { newRemotePendingTx(it) }
                     }
                     Thread.sleep(100)
                 }

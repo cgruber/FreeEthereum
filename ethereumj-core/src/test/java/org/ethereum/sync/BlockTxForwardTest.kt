@@ -73,15 +73,9 @@ class BlockTxForwardTest {
 
     private fun logStats(): Boolean {
         testLogger.info("---------====---------")
-        var arrivedBlocks = 0
-        for (arrived in blocks.values) {
-            if (arrived!!) arrivedBlocks++
-        }
+        val arrivedBlocks = blocks.values.count { it!! }
         testLogger.info("Arrived blocks / Total: {}/{}", arrivedBlocks, blocks.size)
-        var arrivedTxs = 0
-        for (arrived in txs.values) {
-            if (arrived!!) arrivedTxs++
-        }
+        val arrivedTxs = txs.values.count { it!! }
         testLogger.info("Arrived txs / Total: {}/{}", arrivedTxs, txs.size)
         testLogger.info("fatalErrors: {}", fatalErrors)
         testLogger.info("---------====---------")
@@ -190,10 +184,9 @@ class BlockTxForwardTest {
                 if (message !is EthMessage) return
                 if (message.command == EthMessageCodes.TRANSACTIONS) {
                     val msgCopy = TransactionsMessage(message.getEncoded())
-                    for (transaction in msgCopy.transactions) {
-                        val copyTransaction = Transaction(transaction.encoded)
-                        txs.put(Hex.toHexString(copyTransaction.hash), java.lang.Boolean.FALSE)
-                    }
+                    msgCopy.transactions
+                            .map { Transaction(it.encoded) }
+                            .forEach { txs.put(Hex.toHexString(it.hash), java.lang.Boolean.FALSE) }
                 }
             }
         })

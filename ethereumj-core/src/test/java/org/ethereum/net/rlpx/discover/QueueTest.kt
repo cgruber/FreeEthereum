@@ -40,7 +40,7 @@ class QueueTest {
     @Test
     @Throws(Exception::class)
     fun simple() {
-        val queue = PeerConnectionTester.MutablePriorityQueue(Comparator<String> { o1, o2 -> o1.compareTo(o2) })
+        val queue = PeerConnectionTester.MutablePriorityQueue(Comparator<String>(String::compareTo))
 
         val threadCnt = 8
         val elemCnt = 1000

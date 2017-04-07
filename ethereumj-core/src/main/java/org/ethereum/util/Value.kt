@@ -224,16 +224,13 @@ class Value {
         get() {
 
             decode()
-            var readableChars = 0
             val data = value as ByteArray?
 
             if (data!!.size == 1 && data[0] > 31 && data[0] < 126) {
                 return true
             }
 
-            for (aData in data) {
-                if (aData > 32 && aData < 126) ++readableChars
-            }
+            val readableChars = data.count { it > 32 && it < 126 }
 
             return readableChars.toDouble() / data.size.toDouble() > 0.55
         }
@@ -243,14 +240,9 @@ class Value {
         get() {
 
             decode()
-            var hexChars = 0
             val data = value as ByteArray?
 
-            for (aData in data!!) {
-
-                if (aData >= 48 && aData <= 57 || aData >= 97 && aData <= 102)
-                    ++hexChars
-            }
+            val hexChars = data!!.count { it >= 48 && it <= 57 || it >= 97 && it <= 102 }
 
             return hexChars.toDouble() / data.size.toDouble() > 0.9
         }
@@ -271,7 +263,7 @@ class Value {
         get() {
             decode()
             if (isNull) return true
-            if (isBytes && asBytes().size == 0) return true
+            if (isBytes && asBytes().isEmpty()) return true
             if (isList && asList().isEmpty()) return true
             return isString && asString() == ""
 
@@ -362,10 +354,7 @@ class Value {
         decode()
         if (this.isList) {
             val objList = this.asList()
-            var i = 0
-            for (obj in objList) {
-                i += Value(obj).countBranchNodes()
-            }
+            val i = objList.sumBy { Value(it).countBranchNodes() }
             return i
         } else if (this.isBytes) {
             this.asBytes()
@@ -377,7 +366,7 @@ class Value {
 
         fun fromRlpEncoded(data: ByteArray?): Value? {
 
-            if (data != null && data.size != 0) {
+            if (data != null && data.isNotEmpty()) {
                 val v = Value()
                 v.init(data)
                 return v

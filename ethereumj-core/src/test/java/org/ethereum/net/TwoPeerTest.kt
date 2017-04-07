@@ -123,10 +123,7 @@ class TwoPeerTest {
                                 endIdx = min(alternativeFork.size - 1, i + msg.maxHeaders)
                             }
 
-                            val headers = ArrayList<BlockHeader>()
-                            for (j in startIdx..endIdx) {
-                                headers.add(alternativeFork[j].header)
-                            }
+                            val headers = (startIdx..endIdx).map { alternativeFork[it].header }
 
                             if (msg.isReverse) {
                                 Collections.reverse(headers)
@@ -146,13 +143,7 @@ class TwoPeerTest {
                 val bodies = ArrayList<ByteArray>(msg.blockHashes.size)
 
                 for (hash in msg.blockHashes) {
-                    var block: Block? = null
-                    for (b in alternativeFork) {
-                        if (Arrays.equals(b.hash, hash)) {
-                            block = b
-                            break
-                        }
-                    }
+                    var block: Block? = alternativeFork.firstOrNull { Arrays.equals(it.hash, hash) }
                     if (block == null) {
                         block = blockchain.getBlockByHash(hash)
                     }

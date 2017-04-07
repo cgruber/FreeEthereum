@@ -166,13 +166,7 @@ public class SyncManager extends BlockDownloader {
         syncQueue = new SyncQueueImpl(blockchain);
         super.init(syncQueue, pool);
 
-        final Runnable queueProducer = new Runnable() {
-
-            @Override
-            public void run() {
-                produceQueue();
-            }
-        };
+        final Runnable queueProducer = this::produceQueue;
 
         syncQueueThread = new Thread (queueProducer, "SyncQueueThread");
         syncQueueThread.start();

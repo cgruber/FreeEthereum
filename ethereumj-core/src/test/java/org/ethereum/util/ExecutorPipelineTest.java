@@ -49,21 +49,11 @@ public class ExecutorPipelineTest {
                 }
                 return integer;
             }
-        }, new Functional.Consumer<Throwable>() {
-            @Override
-            public void accept(final Throwable throwable) {
-                throwable.printStackTrace();
-            }
-        });
+        }, Throwable::printStackTrace);
 
         final List<Integer> consumed = new ArrayList<>();
 
-        final ExecutorPipeline<Integer, Void> exec2 = exec1.add(1, 100, new Functional.Consumer<Integer>() {
-            @Override
-            public void accept(final Integer integer) {
-                consumed.add(integer);
-            }
-        });
+        final ExecutorPipeline<Integer, Void> exec2 = exec1.add(1, 100, consumed::add);
 
         final int cnt = 1000;
         for (int i = 0; i < cnt; i++) {

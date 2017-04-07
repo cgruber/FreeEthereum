@@ -479,11 +479,9 @@ class PruneTest {
 
         println("Trie nodes closure size: " + allRefs.size)
         if (allRefs.size != stateDS.storage.size) {
-            for (hash in stateDS.storage.keys) {
-                if (!allRefs.contains(ByteArrayWrapper(hash))) {
-                    println("Extra node: " + Hex.toHexString(hash))
-                }
-            }
+            stateDS.storage.keys
+                    .filterNot { allRefs.contains(ByteArrayWrapper(it)) }
+                    .forEach { println("Extra node: " + Hex.toHexString(it)) }
             //            Assert.assertEquals(allRefs.size(), stateDS.getStorage().size());
         }
 
@@ -495,26 +493,27 @@ class PruneTest {
     private fun getReferencedTrieNodes(stateDS: Source<ByteArray, ByteArray>, includeAccounts: Boolean,
                                        vararg roots: ByteArray?): Set<ByteArrayWrapper> {
         val ret = HashSet<ByteArrayWrapper>()
-        for (root in roots) {
-            val trie = SecureTrie(stateDS, root)
-            trie.scanTree(object : TrieImpl.ScanAction {
-                override fun doOnNode(hash: ByteArray, node: TrieImpl.Node) {
-                    ret.add(ByteArrayWrapper(hash))
-                }
+        roots
+                .map { SecureTrie(stateDS, it) }
+                .forEach {
+                    it.scanTree(object : TrieImpl.ScanAction {
+                        override fun doOnNode(hash: ByteArray, node: TrieImpl.Node) {
+                            ret.add(ByteArrayWrapper(hash))
+                        }
 
-                override fun doOnValue(nodeHash: ByteArray, node: TrieImpl.Node, key: ByteArray, value: ByteArray) {
-                    if (includeAccounts) {
-                        val accountState = AccountState(value)
-                        if (!FastByteComparisons.equal(accountState.codeHash, HashUtil.EMPTY_DATA_HASH)) {
-                            ret.add(ByteArrayWrapper(accountState.codeHash))
+                        override fun doOnValue(nodeHash: ByteArray, node: TrieImpl.Node, key: ByteArray, value: ByteArray) {
+                            if (includeAccounts) {
+                                val accountState = AccountState(value)
+                                if (!FastByteComparisons.equal(accountState.codeHash, HashUtil.EMPTY_DATA_HASH)) {
+                                    ret.add(ByteArrayWrapper(accountState.codeHash))
+                                }
+                                if (!FastByteComparisons.equal(accountState.stateRoot, HashUtil.EMPTY_TRIE_HASH)) {
+                                    ret.addAll(getReferencedTrieNodes(stateDS, false, accountState.stateRoot))
+                                }
+                            }
                         }
-                        if (!FastByteComparisons.equal(accountState.stateRoot, HashUtil.EMPTY_TRIE_HASH)) {
-                            ret.addAll(getReferencedTrieNodes(stateDS, false, accountState.stateRoot))
-                        }
-                    }
+                    })
                 }
-            })
-        }
         return ret
     }
 

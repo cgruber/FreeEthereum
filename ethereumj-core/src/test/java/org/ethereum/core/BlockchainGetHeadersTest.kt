@@ -142,13 +142,8 @@ class BlockchainGetHeadersTest {
         }
 
         override fun getBlockByHash(hash: ByteArray): Block? {
-            for (block in dummyBlocks) {
-                if (Arrays.equals(block.hash, hash)) {
-                    return block
-                }
-            }
 
-            return null
+            return dummyBlocks.firstOrNull { Arrays.equals(it.hash, hash) }
         }
 
         override fun getChainBlockByNumber(blockNumber: Long): Block? {
