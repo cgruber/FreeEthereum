@@ -399,7 +399,7 @@ public class Eth62 extends EthHandler {
         final List<Transaction> newPending = pendingState.addPendingTransactions(txSet);
         if (!newPending.isEmpty()) {
             final TransactionTask transactionTask = new TransactionTask(newPending, channel.getChannelManager(), channel);
-            TransactionExecutor.instance.submitTransaction(transactionTask);
+            TransactionExecutor.Companion.getInstance().submitTransaction(transactionTask);
         }
     }
 

@@ -596,7 +596,7 @@ class ShortSyncTest {
                 semaphoreConnect.countDown()
             }
         })
-        ethereumB!!.connect(nodeA)
+        ethereumB!!.connect(nodeA!!)
 
         // await connection
         semaphoreConnect.await(10, SECONDS)
@@ -693,7 +693,7 @@ class ShortSyncTest {
                 semaphoreConnect.countDown()
             }
         })
-        ethereumB!!.connect(nodeA)
+        ethereumB!!.connect(nodeA!!)
 
         // await connection
         semaphoreConnect.await(10, SECONDS)
@@ -977,7 +977,7 @@ class ShortSyncTest {
             }
         })
 
-        ethereumB!!.connect(nodeA)
+        ethereumB!!.connect(nodeA!!)
 
         semaphore.await(10, SECONDS)
         if (semaphore.count > 0) {

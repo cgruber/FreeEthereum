@@ -324,7 +324,7 @@ class LongSyncTest {
 
         ethereumB = EthereumFactory.createEthereum(SysPropConfigB.props, SysPropConfigB::class.java)
 
-        ethereumB!!.connect(nodeA)
+        ethereumB!!.connect(nodeA!!)
 
         // A == b10, B == genesis
 
@@ -472,7 +472,7 @@ class LongSyncTest {
             }
         })
 
-        ethereumB!!.connect(nodeA)
+        ethereumB!!.connect(nodeA!!)
 
         semaphore.await(10, SECONDS)
         if (semaphore.count > 0) {

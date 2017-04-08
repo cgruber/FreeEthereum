@@ -24,30 +24,25 @@
  *
  */
 
-package org.ethereum.net.submit;
+package org.ethereum.net.submit
 
-import org.ethereum.core.Transaction;
-
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import org.ethereum.core.Transaction
 
 /**
  * @author Roman Mandeleil
+ * *
  * @since 23.05.2014
  */
-public class TransactionExecutor {
+internal class WalletTransaction(tx: Transaction) {
 
-    public static final TransactionExecutor instance;
+    var approved = 0
+        private set // each time the tx got from the wire this value increased
 
-    static {
-        instance = new TransactionExecutor();
+    init {
+        val tx1 = tx
     }
 
-    private final ExecutorService executor = Executors.newFixedThreadPool(1);
-
-    public Future<List<Transaction>> submitTransaction(final TransactionTask task) {
-        return executor.submit(task);
+    fun incApproved() {
+        approved++
     }
 }

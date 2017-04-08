@@ -214,7 +214,7 @@ public class EthereumImpl implements Ethereum, SmartLifecycle {
         final TransactionTask transactionTask = new TransactionTask(transaction, channelManager);
 
         final Future<List<Transaction>> listFuture =
-                TransactionExecutor.instance.submitTransaction(transactionTask);
+                TransactionExecutor.Companion.getInstance().submitTransaction(transactionTask);
 
         pendingState.addPendingTransaction(transaction);
 
