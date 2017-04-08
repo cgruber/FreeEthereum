@@ -24,45 +24,33 @@
  *
  */
 
-package org.ethereum.config.blockchain;
+package org.ethereum.config.blockchain
 
-import org.ethereum.config.Constants;
-import org.ethereum.core.Transaction;
+import org.ethereum.config.Constants
+import org.ethereum.core.Transaction
 
-import java.math.BigInteger;
+import java.math.BigInteger
 
-public class FrontierConfig extends OlympicConfig {
+open class FrontierConfig @JvmOverloads constructor(constants: Constants = FrontierConfig.FrontierConstants()) : OlympicConfig(constants) {
 
-    public FrontierConfig() {
-        this(new FrontierConstants());
+    override fun acceptTransactionSignature(tx: Transaction): Boolean {
+        if (!super.acceptTransactionSignature(tx)) return false
+        return tx.signature.validateComponents()
     }
 
-    public FrontierConfig(final Constants constants) {
-        super(constants);
-    }
+    open class FrontierConstants : Constants() {
 
-    @Override
-    public boolean acceptTransactionSignature(final Transaction tx) {
-        if (!super.acceptTransactionSignature(tx)) return false;
-        return tx.getSignature().validateComponents();
-    }
+        override val durationLimit: Int
+            get() = 13
 
-    public static class FrontierConstants extends Constants {
-        private static final BigInteger BLOCK_REWARD = new BigInteger("5000000000000000000");
+        override val blockReward: BigInteger
+            get() = BLOCK_REWARD
 
-        @Override
-        public int getDurationLimit() {
-            return 13;
-        }
+        override val minGasLimit: Int
+            get() = 5000
 
-        @Override
-        public BigInteger getBlockReward() {
-            return BLOCK_REWARD;
-        }
-
-        @Override
-        public int getMinGasLimit() {
-            return 5000;
+        companion object {
+            private val BLOCK_REWARD = BigInteger("5000000000000000000")
         }
     }
 

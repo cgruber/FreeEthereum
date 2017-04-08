@@ -24,24 +24,23 @@
  *
  */
 
-package org.ethereum.jsontestsuite.suite.builder;
+package org.ethereum.jsontestsuite.suite.builder
 
-import org.ethereum.jsontestsuite.suite.Env;
-import org.ethereum.jsontestsuite.suite.model.EnvTck;
+import org.ethereum.jsontestsuite.suite.Env
+import org.ethereum.jsontestsuite.suite.Utils.*
+import org.ethereum.jsontestsuite.suite.model.EnvTck
 
-import static org.ethereum.jsontestsuite.suite.Utils.*;
+object EnvBuilder {
 
-public class EnvBuilder {
+    fun build(envTck: EnvTck): Env {
+        val coinbase = parseData(envTck.currentCoinbase)
+        val difficulty = parseVarData(envTck.currentDifficulty)
+        val gasLimit = parseVarData(envTck.currentGasLimit)
+        val number = parseNumericData(envTck.currentNumber)
+        val timestamp = parseNumericData(envTck.currentTimestamp)
+        val hash = parseData(envTck.previousHash)
 
-    public static Env build(final EnvTck envTck) {
-        final byte[] coinbase = parseData(envTck.getCurrentCoinbase());
-        final byte[] difficulty = parseVarData(envTck.getCurrentDifficulty());
-        final byte[] gasLimit = parseVarData(envTck.getCurrentGasLimit());
-        final byte[] number = parseNumericData(envTck.getCurrentNumber());
-        final byte[] timestamp = parseNumericData(envTck.getCurrentTimestamp());
-        final byte[] hash = parseData(envTck.getPreviousHash());
-
-        return new Env(coinbase, difficulty, gasLimit, number, timestamp, hash);
+        return Env(coinbase, difficulty, gasLimit, number, timestamp, hash)
     }
 
 }

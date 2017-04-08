@@ -24,29 +24,28 @@
  *
  */
 
-package org.ethereum.config.blockchain;
+package org.ethereum.config.blockchain
 
-import org.ethereum.config.BlockchainConfig;
+import org.ethereum.config.BlockchainConfig
 
 /**
  * Created by Anton Nashatyrev on 18.07.2016.
  */
-public class DaoNoHFConfig extends AbstractDaoConfig {
+class DaoNoHFConfig : AbstractDaoConfig {
 
-    {
-        supportFork = false;
+    init {
+        supportFork = false
     }
 
-    public DaoNoHFConfig() {
-        initDaoConfig(new HomesteadConfig(), ETH_FORK_BLOCK_NUMBER);
+    constructor() {
+        initDaoConfig(HomesteadConfig(), AbstractDaoConfig.ETH_FORK_BLOCK_NUMBER)
     }
 
-    public DaoNoHFConfig(final BlockchainConfig parent, final long forkBlockNumber) {
-        initDaoConfig(parent, forkBlockNumber);
+    constructor(parent: BlockchainConfig, forkBlockNumber: Long) {
+        initDaoConfig(parent, forkBlockNumber)
     }
 
-    @Override
-    public String toString() {
-        return super.toString() + "(forkBlock:" + forkBlockNumber + ")";
+    override fun toString(): String {
+        return super.toString() + "(forkBlock:" + forkBlockNumber + ")"
     }
 }
