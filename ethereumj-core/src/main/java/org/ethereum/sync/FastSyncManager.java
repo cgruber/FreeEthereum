@@ -44,11 +44,9 @@ import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.net.client.Capability;
 import org.ethereum.net.eth.handler.Eth63;
 import org.ethereum.net.message.ReasonCode;
-import org.ethereum.net.rlpx.discover.NodeHandler;
 import org.ethereum.net.server.Channel;
 import org.ethereum.util.ByteArrayMap;
 import org.ethereum.util.FastByteComparisons;
-import org.ethereum.util.Functional;
 import org.ethereum.util.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -512,12 +510,7 @@ public class FastSyncManager {
             // or we have incomplete headers/blocks/receipts download
 
             fastSyncInProgress = true;
-            pool.setNodesSelector(new Functional.Predicate<NodeHandler>() {
-                @Override
-                public boolean test(final NodeHandler handler) {
-                    return handler.getNodeStatistics().capabilities.contains(ETH63_CAPABILITY);
-                }
-            });
+            pool.setNodesSelector(handler -> handler.getNodeStatistics().capabilities.contains(ETH63_CAPABILITY));
 
             try {
                 final EthereumListener.SyncState origSyncStage = getSyncStage();

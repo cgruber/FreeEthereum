@@ -66,16 +66,13 @@ public class FlushDbManagerTest {
             try {
                 for (int i = 0; i < 300; i++) {
                     final int i_ = i;
-                    dbFlushManager.commit(new Runnable() {
-                        @Override
-                        public void run() {
-                            cache1.put(intToBytes(i_), intToBytes(i_));
-                            try {
-                                Thread.sleep(5);
-                            } catch (final InterruptedException e) {
-                            }
-                            cache2.put(intToBytes(i_), intToBytes(i_));
+                    dbFlushManager.commit(() -> {
+                        cache1.put(intToBytes(i_), intToBytes(i_));
+                        try {
+                            Thread.sleep(5);
+                        } catch (final InterruptedException e) {
                         }
+                        cache2.put(intToBytes(i_), intToBytes(i_));
                     });
                 }
             } catch (Throwable e) {

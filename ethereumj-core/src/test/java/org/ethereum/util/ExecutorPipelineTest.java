@@ -39,16 +39,13 @@ public class ExecutorPipelineTest {
 
     @Test
     public void joinTest() throws InterruptedException {
-        final ExecutorPipeline<Integer, Integer> exec1 = new ExecutorPipeline<>(8, 100, true, new Functional.Function<Integer, Integer>() {
-            @Override
-            public Integer apply(final Integer integer) {
-                try {
-                    Thread.sleep(2);
-                } catch (final InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                return integer;
+        final ExecutorPipeline<Integer, Integer> exec1 = new ExecutorPipeline<>(8, 100, true, integer -> {
+            try {
+                Thread.sleep(2);
+            } catch (final InterruptedException e) {
+                throw new RuntimeException(e);
             }
+            return integer;
         }, Throwable::printStackTrace);
 
         final List<Integer> consumed = new ArrayList<>();

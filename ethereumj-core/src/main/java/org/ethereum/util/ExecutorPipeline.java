@@ -29,7 +29,10 @@ package org.ethereum.util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
@@ -60,12 +63,7 @@ public class ExecutorPipeline <In, Out>{
     public ExecutorPipeline(final int threads, final int queueSize, final boolean preserveOrder, final Functional.Function<In, Out> processor,
                             final Functional.Consumer<Throwable> exceptionHandler) {
         queue = new LimitedQueue<>(queueSize);
-        exec = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, queue, new ThreadFactory() {
-            @Override
-            public Thread newThread(final Runnable r) {
-                return new Thread(r, threadPoolName + "-" + threadNumber.getAndIncrement());
-            }
-        });
+        exec = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, queue, r -> new Thread(r, threadPoolName + "-" + threadNumber.getAndIncrement()));
         this.preserveOrder = preserveOrder;
         this.processor = processor;
         this.exceptionHandler = exceptionHandler;
@@ -73,12 +71,9 @@ public class ExecutorPipeline <In, Out>{
     }
 
     public ExecutorPipeline<Out, Void> add(final int threads, final int queueSize, final Functional.Consumer<Out> consumer) {
-        return add(threads, queueSize, false, new Functional.Function<Out, Void>() {
-            @Override
-            public Void apply(final Out out) {
-                consumer.accept(out);
-                return null;
-            }
+        return add(threads, queueSize, false, out -> {
+            consumer.accept(out);
+            return null;
         });
     }
 
@@ -116,14 +111,11 @@ public class ExecutorPipeline <In, Out>{
 
     public void push(final In in) {
         final long order = orderCounter.getAndIncrement();
-        exec.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    pushNext(order, processor.apply(in));
-                } catch (final Throwable e) {
-                    exceptionHandler.accept(e);
-                }
+        exec.execute(() -> {
+            try {
+                pushNext(order, processor.apply(in));
+            } catch (final Throwable e) {
+                exceptionHandler.accept(e);
             }
         });
     }
