@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -132,15 +131,12 @@ public abstract class AsyncWriteCache<Key, Value> extends AbstractCachedSource<K
 
     public synchronized ListenableFuture<Boolean> flushAsync() throws InterruptedException {
         logger.debug("AsyncWriteCache (" + name + "): flush submitted");
-        lastFlush = flushExecutor.submit(new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                logger.debug("AsyncWriteCache (" + name + "): flush started");
-                final long s = System.currentTimeMillis();
-                final boolean ret = flushingCache.flush();
-                logger.debug("AsyncWriteCache (" + name + "): flush completed in " + (System.currentTimeMillis() - s) + " ms");
-                return ret;
-            }
+        lastFlush = flushExecutor.submit(() -> {
+            logger.debug("AsyncWriteCache (" + name + "): flush started");
+            final long s = System.currentTimeMillis();
+            final boolean ret = flushingCache.flush();
+            logger.debug("AsyncWriteCache (" + name + "): flush completed in " + (System.currentTimeMillis() - s) + " ms");
+            return ret;
         });
         return lastFlush;
     }

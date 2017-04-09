@@ -955,54 +955,48 @@ public class RepositoryTest {
         final CountDownLatch failSema = new CountDownLatch(1);
 
         for (int i = 0; i < 10; ++i) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        int cnt = 1;
-                        while (running) {
-                            final Repository snap = repository.getSnapshotTo(repository.getRoot()).startTracking();
-                            snap.addBalance(cow, BigInteger.TEN);
-                            snap.addStorageRow(cow, cowKey1, new DataWord(cnt));
-                            snap.rollback();
-                            cnt++;
-                        }
-                    } catch (final Throwable e) {
-                        e.printStackTrace();
-                        failSema.countDown();
-                    }
-                }
-            }).start();
-        }
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int cnt = 1;
+            new Thread(() -> {
                 try {
-                    while(running) {
-                        final Repository track2 = repository.startTracking(); //track
-                        final DataWord cVal = new DataWord(cnt);
-                        track2.addStorageRow(cow, cowKey1, cVal);
-                        track2.addBalance(cow, BigInteger.ONE);
-                        track2.commit();
-
-                        repository.flush();
-
-                        assertEquals(BigInteger.valueOf(cnt), repository.getBalance(cow));
-                        assertEquals(cVal, repository.getStorageValue(cow, cowKey1));
-                        assertEquals(cowVal0, repository.getStorageValue(cow, cowKey2));
+                    int cnt = 1;
+                    while (running) {
+                        final Repository snap = repository.getSnapshotTo(repository.getRoot()).startTracking();
+                        snap.addBalance(cow, BigInteger.TEN);
+                        snap.addStorageRow(cow, cowKey1, new DataWord(cnt));
+                        snap.rollback();
                         cnt++;
                     }
                 } catch (final Throwable e) {
                     e.printStackTrace();
-                    try {
-                        repository.addStorageRow(cow, cowKey1, new DataWord(123));
-                    } catch (final Exception e1) {
-                        e1.printStackTrace();
-                    }
                     failSema.countDown();
                 }
+            }).start();
+        }
+
+        new Thread(() -> {
+            int cnt = 1;
+            try {
+                while (running) {
+                    final Repository track21 = repository.startTracking(); //track
+                    final DataWord cVal = new DataWord(cnt);
+                    track21.addStorageRow(cow, cowKey1, cVal);
+                    track21.addBalance(cow, BigInteger.ONE);
+                    track21.commit();
+
+                    repository.flush();
+
+                    assertEquals(BigInteger.valueOf(cnt), repository.getBalance(cow));
+                    assertEquals(cVal, repository.getStorageValue(cow, cowKey1));
+                    assertEquals(cowVal0, repository.getStorageValue(cow, cowKey2));
+                    cnt++;
+                }
+            } catch (final Throwable e) {
+                e.printStackTrace();
+                try {
+                    repository.addStorageRow(cow, cowKey1, new DataWord(123));
+                } catch (final Exception e1) {
+                    e1.printStackTrace();
+                }
+                failSema.countDown();
             }
         }).start();
 

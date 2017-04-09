@@ -40,7 +40,6 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -72,11 +71,7 @@ public class SyncSanityTest {
     private final static AtomicInteger fatalErrors = new AtomicInteger(0);
     private final static long MAX_RUN_MINUTES = 180L;
     private static final ScheduledExecutorService statTimer =
-            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                public Thread newThread(final Runnable r) {
-                    return new Thread(r, "StatTimer");
-                }
-            });
+            Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "StatTimer"));
     private Ethereum regularNode;
 
     public SyncSanityTest() throws Exception {
@@ -90,16 +85,13 @@ public class SyncSanityTest {
         }
         if (overrideConfigPath != null) configPath.setValue(overrideConfigPath);
 
-        statTimer.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (fatalErrors.get() > 0) {
-                        statTimer.shutdownNow();
-                    }
-                } catch (final Throwable t) {
-                    SyncSanityTest.testLogger.error("Unhandled exception", t);
+        statTimer.scheduleAtFixedRate(() -> {
+            try {
+                if (fatalErrors.get() > 0) {
+                    statTimer.shutdownNow();
                 }
+            } catch (final Throwable t) {
+                SyncSanityTest.testLogger.error("Unhandled exception", t);
             }
         }, 0, 15, TimeUnit.SECONDS);
     }
@@ -130,11 +122,9 @@ public class SyncSanityTest {
 
         runEthereum();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+        new Thread(() -> {
             try {
-                while(firstRun.get()) {
+                while (firstRun.get()) {
                     sleep(1000);
                 }
                 testLogger.info("Stopping first run");
@@ -145,7 +135,6 @@ public class SyncSanityTest {
                 runEthereum();
             } catch (final Throwable e) {
                 e.printStackTrace();
-            }
             }
         }).start();
 

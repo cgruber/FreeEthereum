@@ -95,31 +95,25 @@ public class SyncPool {
         updateLowerUsefulDifficulty();
 
         poolLoopExecutor.scheduleWithFixedDelay(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            heartBeat();
-                            updateLowerUsefulDifficulty();
-                            fillUp();
-                            prepareActive();
-                            cleanupActive();
-                        } catch (final Throwable t) {
-                            logger.error("Unhandled exception", t);
-                        }
+                () -> {
+                    try {
+                        heartBeat();
+                        updateLowerUsefulDifficulty();
+                        fillUp();
+                        prepareActive();
+                        cleanupActive();
+                    } catch (final Throwable t) {
+                        logger.error("Unhandled exception", t);
                     }
                 }, WORKER_TIMEOUT, WORKER_TIMEOUT, TimeUnit.SECONDS
         );
-        logExecutor.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    logActivePeers();
-                    logger.info("\n");
-                } catch (final Throwable t) {
-                    t.printStackTrace();
-                    logger.error("Exception in log worker", t);
-                }
+        logExecutor.scheduleWithFixedDelay(() -> {
+            try {
+                logActivePeers();
+                logger.info("\n");
+            } catch (final Throwable t) {
+                t.printStackTrace();
+                logger.error("Exception in log worker", t);
             }
         }, 30, 30, TimeUnit.SECONDS);
     }
@@ -270,12 +264,7 @@ public class SyncPool {
         if (active.isEmpty()) return;
 
         // filtering by 20% from top difficulty
-        active.sort(new Comparator<Channel>() {
-            @Override
-            public int compare(final Channel c1, final Channel c2) {
-                return c2.getTotalDifficulty().compareTo(c1.getTotalDifficulty());
-            }
-        });
+        active.sort((c1, c2) -> c2.getTotalDifficulty().compareTo(c1.getTotalDifficulty()));
 
         final BigInteger highestDifficulty = active.get(0).getTotalDifficulty();
         int thresholdIdx = min(config.syncPeerCount(), active.size()) - 1;
@@ -290,12 +279,7 @@ public class SyncPool {
         final List<Channel> filtered = active.subList(0, thresholdIdx + 1);
 
         // sorting by latency in asc order
-        filtered.sort(new Comparator<Channel>() {
-            @Override
-            public int compare(final Channel c1, final Channel c2) {
-                return Double.valueOf(c1.getPeerStats().getAvgLatency()).compareTo(c2.getPeerStats().getAvgLatency());
-            }
-        });
+        filtered.sort((c1, c2) -> Double.valueOf(c1.getPeerStats().getAvgLatency()).compareTo(c2.getPeerStats().getAvgLatency()));
 
         for (final Channel channel : filtered) {
             if (!activePeers.contains(channel)) {

@@ -34,7 +34,6 @@ import org.ethereum.listener.EthereumListener;
 import org.ethereum.net.server.Channel;
 import org.ethereum.net.server.ChannelManager;
 import org.ethereum.util.ExecutorPipeline;
-import org.ethereum.util.Functional;
 import org.ethereum.validator.BlockHeaderValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,18 +69,12 @@ public class SyncManager extends BlockDownloader {
     // Transaction.getSender() is quite heavy operation so we are prefetching this value on several threads
     // to unload the main block importing cycle
     private final ExecutorPipeline<BlockWrapper, BlockWrapper> exec1 = new ExecutorPipeline<>
-            (4, 1000, true, new Functional.Function<BlockWrapper,BlockWrapper>() {
-                public BlockWrapper apply(final BlockWrapper blockWrapper) {
-                    for (final Transaction tx : blockWrapper.getBlock().getTransactionsList()) {
-                        tx.getSender();
-                    }
-                    return blockWrapper;
+            (4, 1000, true, blockWrapper -> {
+                for (final Transaction tx : blockWrapper.getBlock().getTransactionsList()) {
+                    tx.getSender();
                 }
-            }, new Functional.Consumer<Throwable>() {
-                public void accept(final Throwable throwable) {
-                    logger.error("Unexpected exception: ", throwable);
-                }
-            });
+                return blockWrapper;
+            }, throwable -> logger.error("Unexpected exception: ", throwable));
     /**
      * Queue with validated blocks to be added to the blockchain
      */
@@ -89,12 +82,9 @@ public class SyncManager extends BlockDownloader {
     private final AtomicLong importIdleTime = new AtomicLong();
     private final ScheduledExecutorService logExecutor = Executors.newSingleThreadScheduledExecutor();
     private ChannelManager channelManager;
-    private ExecutorPipeline<BlockWrapper, Void> exec2 = exec1.add(1, 1, new Functional.Consumer<BlockWrapper>() {
-        @Override
-        public void accept(final BlockWrapper blockWrapper) {
-            blockQueueByteSize.addAndGet(estimateBlockSize(blockWrapper));
-            blockQueue.add(blockWrapper);
-        }
+    private ExecutorPipeline<BlockWrapper, Void> exec2 = exec1.add(1, 1, blockWrapper -> {
+        blockQueueByteSize.addAndGet(estimateBlockSize(blockWrapper));
+        blockQueue.add(blockWrapper);
     });
     @Autowired
     private Blockchain blockchain;
@@ -128,15 +118,13 @@ public class SyncManager extends BlockDownloader {
         if (this.channelManager == null) {  // First init
             this.pool = pool;
             this.channelManager = channelManager;
-            logExecutor.scheduleAtFixedRate(new Runnable() {
-                public void run() {
-                    try {
-                        logger.info("Sync state: " + getSyncStatus() +
-                                (isSyncDone() || importStart == 0 ? "" : "; Import idle time " +
-                                longToTimePeriod(importIdleTime.get()) + " of total " + longToTimePeriod(System.currentTimeMillis() - importStart)));
-                    } catch (final Exception e) {
-                        logger.error("Unexpected", e);
-                    }
+            logExecutor.scheduleAtFixedRate(() -> {
+                try {
+                    logger.info("Sync state: " + getSyncStatus() +
+                            (isSyncDone() || importStart == 0 ? "" : "; Import idle time " +
+                                    longToTimePeriod(importIdleTime.get()) + " of total " + longToTimePeriod(System.currentTimeMillis() - importStart)));
+                } catch (final Exception e) {
+                    logger.error("Unexpected", e);
                 }
             }, 10, 10, TimeUnit.SECONDS);
         }
