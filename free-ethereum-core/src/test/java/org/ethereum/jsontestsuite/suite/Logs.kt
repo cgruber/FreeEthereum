@@ -65,8 +65,7 @@ class Logs(jLogs: JSONArray) {
 
         val results = ArrayList<String>()
 
-        var i = 0
-        for (postLog in this.logs) {
+        for ((i, postLog) in this.logs.withIndex()) {
 
             val realLog = logs[i]
 
@@ -103,8 +102,7 @@ class Logs(jLogs: JSONArray) {
             val postTopics = postLog.topics
             val realTopics = realLog.topics
 
-            var j = 0
-            for (postTopic in postTopics) {
+            for ((j, postTopic) in postTopics.withIndex()) {
 
                 val realTopic = realTopics[j]
 
@@ -114,10 +112,8 @@ class Logs(jLogs: JSONArray) {
                             i, j, postTopic, realTopic)
                     results.add(formattedString)
                 }
-                ++j
             }
 
-            ++i
         }
 
         return results

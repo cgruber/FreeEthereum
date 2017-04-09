@@ -126,7 +126,7 @@ public class JsonRpcImpl implements JsonRpc {
     @Autowired
     public JsonRpcImpl(final BlockchainImpl blockchain, final CompositeEthereumListener compositeEthereumListener) {
         this.blockchain = blockchain;
-        CompositeEthereumListener compositeEthereumListener1 = compositeEthereumListener;
+        final CompositeEthereumListener compositeEthereumListener1 = compositeEthereumListener;
         initialBlockNumber = blockchain.getBestBlock().getNumber();
 
         compositeEthereumListener.addListener(new EthereumListenerAdapter() {

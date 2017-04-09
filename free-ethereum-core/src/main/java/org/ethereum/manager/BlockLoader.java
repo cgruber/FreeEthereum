@@ -132,7 +132,7 @@ public class BlockLoader {
                 }
             } else {                                        // hex string
                 final FileInputStream inputStream = new FileInputStream(fileSrc);
-                Scanner scanner = new Scanner(inputStream, "UTF-8");
+                final Scanner scanner = new Scanner(inputStream, "UTF-8");
 
                 while (scanner.hasNextLine()) {
 

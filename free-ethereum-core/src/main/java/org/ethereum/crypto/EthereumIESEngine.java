@@ -82,7 +82,7 @@ class EthereumIESEngine
         this.kdf = kdf;
         this.mac = mac;
         this.hash = hash;
-        byte[] macBuf = new byte[mac.getMacSize()];
+        final byte[] macBuf = new byte[mac.getMacSize()];
         this.cipher = cipher;
     }
 

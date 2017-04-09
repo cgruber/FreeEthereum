@@ -33,7 +33,7 @@ import java.util.*
  */
 class SimpleDPA : DPA(null) {
     private val rnd = Random(0)
-    private val store: HashMap<Key, SectionReader> = HashMap<Key, SectionReader>()
+    private val store: HashMap<Key, SectionReader> = HashMap()
 
     override fun retrieve(key: Key): SectionReader {
         return store[key]!!

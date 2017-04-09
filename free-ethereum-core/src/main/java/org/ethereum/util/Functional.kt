@@ -36,7 +36,7 @@ interface Functional {
 
      * @param <T> the type of the input to the operation
     </T> */
-    interface Consumer<T> {
+    interface Consumer<in T> {
 
         /**
          * Performs this operation on the given argument.
@@ -59,7 +59,7 @@ interface Functional {
      * *
      * @see org.ethereum.util.Functional.Consumer
     </U></T> */
-    interface BiConsumer<T, U> {
+    interface BiConsumer<in T, in U> {
 
         /**
          * Performs this operation on the given arguments.
@@ -79,7 +79,7 @@ interface Functional {
      * *
      * @param <R> the type of the result of the function
     </R></T> */
-    interface Function<T, R> {
+    interface Function<in T, out R> {
 
         /**
          * Applies this function to the given argument.
@@ -91,7 +91,7 @@ interface Functional {
         fun apply(t: T): R
     }
 
-    interface Supplier<T> {
+    interface Supplier<out T> {
 
         /**
          * Gets a result.
@@ -106,12 +106,12 @@ interface Functional {
         operator fun invoke()
     }
 
-    interface InvokeWrapperWithResult<R> {
+    interface InvokeWrapperWithResult<out R> {
 
         operator fun invoke(): R
     }
 
-    interface Predicate<T> {
+    interface Predicate<in T> {
         fun test(t: T): Boolean
     }
 

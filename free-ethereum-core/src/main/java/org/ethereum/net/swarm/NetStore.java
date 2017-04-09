@@ -157,7 +157,7 @@ public class NetStore implements ChunkStore {
                 chunkRequest.requesters.entrySet()) {
             final BzzStoreReqMessage msg = new BzzStoreReqMessage(e.getKey(), chunk.getKey(), chunk.getData());
 
-            int requesterCount = 3;
+            final int requesterCount = 3;
             int counter = requesterCount;
             for (final BzzRetrieveReqMessage r : e.getValue()) {
                 r.getPeer().sendMessage(msg);

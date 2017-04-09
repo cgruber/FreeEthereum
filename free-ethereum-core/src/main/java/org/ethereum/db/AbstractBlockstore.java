@@ -28,9 +28,6 @@ package org.ethereum.db;
 
 import org.ethereum.core.Block;
 
-/**
- * Created by Anton Nashatyrev on 29.10.2015.
- */
 public abstract class AbstractBlockstore implements BlockStore {
 
     @Override

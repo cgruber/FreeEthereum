@@ -86,7 +86,7 @@ public class CreateContractSample extends TestNetSample {
         });
 
         logger.info("Compiling contract...");
-        String contract1 = "contract Sample {" +
+        final String contract1 = "contract Sample {" +
                 "  int i;" +
                 "  function inc(int n) {" +
                 "    i = i + n;" +

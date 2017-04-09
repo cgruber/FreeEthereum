@@ -31,7 +31,7 @@ package org.ethereum.datasource
 
  * Created by Anton Nashatyrev on 05.10.2016.
  */
-interface Source<K, V> {
+interface Source<in K, V> {
 
     /**
      * Puts key-value pair into source

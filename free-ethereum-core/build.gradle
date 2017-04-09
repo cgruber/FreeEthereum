@@ -57,7 +57,7 @@ mainClassName = 'org.ethereum.Start'
 applicationDefaultJvmArgs = ["-server", "-Xss4m", "-Xmx2G", "-XX:-OmitStackTraceInFastThrow"]
 
 if ( project.hasProperty('jvmArgs') ) {
-    applicationDefaultJvmArgs = applicationDefaultJvmArgs + project.jvmArgs.split('\\s+').toList()
+    applicationDefaultJvmArgs = applicationDefaultJvmArgs + project.jvmArgs.split('\\s+' as Closure).toList()
 }
 if (project.hasProperty("mainClass")) {
     mainClassName = mainClass

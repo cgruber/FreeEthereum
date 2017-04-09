@@ -63,7 +63,7 @@ public class JsonRpcWhisper extends Whisper {
     public JsonRpcWhisper(final URL rpcUrl) {
         this.rpcUrl = rpcUrl;
 
-        ScheduledExecutorService poller = Executors.newSingleThreadScheduledExecutor();
+        final ScheduledExecutorService poller = Executors.newSingleThreadScheduledExecutor();
         poller.scheduleAtFixedRate(() -> {
             try {
                 pollFilters();

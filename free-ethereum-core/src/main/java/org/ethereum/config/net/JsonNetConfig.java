@@ -53,7 +53,7 @@ public class JsonNetConfig extends BaseNetConfig {
         final List<Pair<Integer, ? extends BlockchainConfig>> candidates = new ArrayList<>();
 
         {
-            BlockchainConfig initialBlockConfig = new FrontierConfig();
+            final BlockchainConfig initialBlockConfig = new FrontierConfig();
             Pair<Integer, ? extends BlockchainConfig> lastCandidate = Pair.of(0, initialBlockConfig);
             candidates.add(lastCandidate);
 

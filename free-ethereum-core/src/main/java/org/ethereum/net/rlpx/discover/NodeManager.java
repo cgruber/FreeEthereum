@@ -213,7 +213,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
 
             final List<NodeHandler> sorted = new ArrayList<>(nodeHandlerMap.values());
             // reverse sort by reputation
-            sorted.sort((o1, o2) -> o1.getNodeStatistics().getReputation() - o2.getNodeStatistics().getReputation());
+            sorted.sort(Comparator.comparingInt(o -> o.getNodeStatistics().getReputation()));
 
             for (final NodeHandler handler : sorted) {
                 nodeHandlerMap.remove(getKey(handler.getNode()));
@@ -246,7 +246,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
 
         final Node n = new Node(m.getNodeId(), sender.getHostString(), sender.getPort());
 
-        boolean inboundOnlyFromKnownNodes = false;
+        final boolean inboundOnlyFromKnownNodes = false;
         if (inboundOnlyFromKnownNodes && !hasNodeHandler(n)) {
             logger.debug("=/=> (" + sender + "): inbound packet from unknown peer rejected due to config option.");
             return;
