@@ -215,12 +215,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
 
             final List<NodeHandler> sorted = new ArrayList<>(nodeHandlerMap.values());
             // reverse sort by reputation
-            sorted.sort(new Comparator<NodeHandler>() {
-                @Override
-                public int compare(final NodeHandler o1, final NodeHandler o2) {
-                    return o1.getNodeStatistics().getReputation() - o2.getNodeStatistics().getReputation();
-                }
-            });
+            sorted.sort((o1, o2) -> o1.getNodeStatistics().getReputation() - o2.getNodeStatistics().getReputation());
 
             for (final NodeHandler handler : sorted) {
                 nodeHandlerMap.remove(getKey(handler.getNode()));
@@ -322,13 +317,8 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
                 }
             }
         }
-        filtered.sort(new Comparator<NodeHandler>() {
-            @Override
-            public int compare(final NodeHandler o1, final NodeHandler o2) {
-                return o2.getNodeStatistics().getEthTotalDifficulty().compareTo(
-                        o1.getNodeStatistics().getEthTotalDifficulty());
-            }
-        });
+        filtered.sort((o1, o2) -> o2.getNodeStatistics().getEthTotalDifficulty().compareTo(
+                o1.getNodeStatistics().getEthTotalDifficulty()));
         return CollectionUtils.truncate(filtered, limit);
     }
 
@@ -356,11 +346,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
 
     private synchronized String dumpAllStatistics() {
         final List<NodeHandler> l = new ArrayList<>(nodeHandlerMap.values());
-        l.sort(new Comparator<NodeHandler>() {
-            public int compare(final NodeHandler o1, final NodeHandler o2) {
-                return -(o1.getNodeStatistics().getReputation() - o2.getNodeStatistics().getReputation());
-            }
-        });
+        l.sort((o1, o2) -> -(o1.getNodeStatistics().getReputation() - o2.getNodeStatistics().getReputation()));
 
         final StringBuilder sb = new StringBuilder();
         int zeroReputCount = 0;

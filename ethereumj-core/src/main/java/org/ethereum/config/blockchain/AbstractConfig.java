@@ -44,6 +44,7 @@ import org.ethereum.vm.DataWord;
 import org.ethereum.vm.GasCost;
 import org.ethereum.vm.OpCode;
 import org.ethereum.vm.program.Program;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -75,6 +76,7 @@ public abstract class AbstractConfig implements BlockchainConfig, BlockchainNetC
         return constants;
     }
 
+    @NotNull
     @Override
     public BlockchainConfig getConfigForBlock(final long blockHeader) {
         return this;

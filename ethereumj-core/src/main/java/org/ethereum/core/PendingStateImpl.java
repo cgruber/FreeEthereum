@@ -426,17 +426,13 @@ public class PendingStateImpl implements PendingState {
 
     public static class TransactionSortedSet extends TreeSet<Transaction> {
         public TransactionSortedSet() {
-            super(new Comparator<Transaction>() {
-
-                @Override
-                public int compare(final Transaction tx1, final Transaction tx2) {
-                    final long nonceDiff = ByteUtil.byteArrayToLong(tx1.getNonce()) -
-                            ByteUtil.byteArrayToLong(tx2.getNonce());
-                    if (nonceDiff != 0) {
-                        return nonceDiff > 0 ? 1 : -1;
-                    }
-                    return FastByteComparisons.compareTo(tx1.getHash(), 0, 32, tx2.getHash(), 0, 32);
+            super((tx1, tx2) -> {
+                final long nonceDiff = ByteUtil.byteArrayToLong(tx1.getNonce()) -
+                        ByteUtil.byteArrayToLong(tx2.getNonce());
+                if (nonceDiff != 0) {
+                    return nonceDiff > 0 ? 1 : -1;
                 }
+                return FastByteComparisons.compareTo(tx1.getHash(), 0, 32, tx2.getHash(), 0, 32);
             });
         }
     }

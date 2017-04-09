@@ -52,7 +52,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import static org.ethereum.net.message.StaticMessages.PING_MESSAGE;
 import static org.ethereum.net.message.StaticMessages.PONG_MESSAGE;
@@ -81,11 +84,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
     private final static Logger logger = LoggerFactory.getLogger("net");
 
     private static final ScheduledExecutorService pingTimer =
-            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                public Thread newThread(final Runnable r) {
-                    return new Thread(r, "P2pPingTimer");
-                }
-            });
+            Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "P2pPingTimer"));
     @Autowired
     private
     EthereumListener ethereumListener;
@@ -285,14 +284,11 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
 
     private void startTimers() {
         // sample for pinging in background
-        pingTask = pingTimer.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    msgQueue.sendMessage(PING_MESSAGE);
-                } catch (final Throwable t) {
-                    logger.error("Unhandled exception", t);
-                }
+        pingTask = pingTimer.scheduleAtFixedRate(() -> {
+            try {
+                msgQueue.sendMessage(PING_MESSAGE);
+            } catch (final Throwable t) {
+                logger.error("Unhandled exception", t);
             }
         }, 2, config.getProperty("peer.p2p.pingInterval", 5L), TimeUnit.SECONDS);
     }

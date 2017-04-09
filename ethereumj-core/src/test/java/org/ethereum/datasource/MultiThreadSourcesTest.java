@@ -287,45 +287,39 @@ public class MultiThreadSourcesTest {
         }
 
         public void run(final long timeout) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while(running) {
-                            final int curCnt = putCnt.get();
-                            cache.put(intToKey(curCnt), intToValue(curCnt));
-                            if (isCounting) {
-                                for (int i = 0; i < (curCnt % 5); ++i) {
-                                    cache.put(intToKey(curCnt), intToValue(curCnt));
-                                }
-                            }
-                            putCnt.getAndIncrement();
-                            if (curCnt == 1) {
-                                readThread.start();
-                                if (!noDelete) {
-                                    delThread.start();
-                                }
+            new Thread(() -> {
+                try {
+                    while (running) {
+                        final int curCnt = putCnt.get();
+                        cache.put(intToKey(curCnt), intToValue(curCnt));
+                        if (isCounting) {
+                            for (int i = 0; i < (curCnt % 5); ++i) {
+                                cache.put(intToKey(curCnt), intToValue(curCnt));
                             }
                         }
-                    } catch (final Throwable e) {
-                        e.printStackTrace();
-                        failSema.countDown();
+                        putCnt.getAndIncrement();
+                        if (curCnt == 1) {
+                            readThread.start();
+                            if (!noDelete) {
+                                delThread.start();
+                            }
+                        }
                     }
+                } catch (final Throwable e) {
+                    e.printStackTrace();
+                    failSema.countDown();
                 }
             }).start();
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while(running) {
-                            sleep(10);
-                            cache.flush();
-                        }
-                    } catch (final Throwable e) {
-                        e.printStackTrace();
-                        failSema.countDown();
+            new Thread(() -> {
+                try {
+                    while (running) {
+                        sleep(10);
+                        cache.flush();
                     }
+                } catch (final Throwable e) {
+                    e.printStackTrace();
+                    failSema.countDown();
                 }
             }).start();
 
