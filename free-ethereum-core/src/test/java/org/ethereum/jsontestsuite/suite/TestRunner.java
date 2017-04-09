@@ -91,7 +91,7 @@ public class TestRunner {
 
         /* 1 */ // Create genesis + init pre state
         final Block genesis = BlockBuilder.INSTANCE.build(testCase.getGenesisBlockHeader(), null, null);
-        Repository repository = RepositoryBuilder.build(testCase.getPre());
+        Repository repository = RepositoryBuilder.INSTANCE.build(testCase.getPre());
 
         final IndexedBlockStore blockStore = new IndexedBlockStore();
         blockStore.init(new HashMapDB<>(), new HashMapDB<>());
@@ -166,7 +166,7 @@ public class TestRunner {
             results.add(formattedString);
         }
 
-        final Repository postRepository = RepositoryBuilder.build(testCase.getPostState());
+        final Repository postRepository = RepositoryBuilder.INSTANCE.build(testCase.getPostState());
         final List<String> repoResults = RepositoryValidator.valid(repository, postRepository);
         results.addAll(repoResults);
 

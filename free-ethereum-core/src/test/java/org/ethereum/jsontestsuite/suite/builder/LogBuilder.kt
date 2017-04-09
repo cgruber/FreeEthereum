@@ -24,38 +24,35 @@
  *
  */
 
-package org.ethereum.jsontestsuite.suite.builder;
+package org.ethereum.jsontestsuite.suite.builder
 
-import org.ethereum.jsontestsuite.suite.model.LogTck;
-import org.ethereum.vm.DataWord;
-import org.ethereum.vm.LogInfo;
+import org.ethereum.jsontestsuite.suite.Utils.parseData
+import org.ethereum.jsontestsuite.suite.model.LogTck
+import org.ethereum.vm.DataWord
+import org.ethereum.vm.LogInfo
+import java.util.*
 
-import java.util.ArrayList;
-import java.util.List;
+object LogBuilder {
 
-import static org.ethereum.jsontestsuite.suite.Utils.parseData;
+    private fun build(logTck: LogTck): LogInfo {
 
-public class LogBuilder {
+        val address = parseData(logTck.address)
+        val data = parseData(logTck.data)
 
-    private static LogInfo build(final LogTck logTck) {
+        val topics = ArrayList<DataWord>()
+        for (topicTck in logTck.topics!!)
+            topics.add(DataWord(parseData(topicTck)))
 
-        final byte[] address = parseData(logTck.getAddress());
-        final byte[] data = parseData(logTck.getData());
-
-        final List<DataWord> topics = new ArrayList<>();
-        for (final String topicTck : logTck.getTopics())
-            topics.add(new DataWord(parseData(topicTck)));
-
-        return new LogInfo(address, topics, data);
+        return LogInfo(address, topics, data)
     }
 
-    public static List<LogInfo> build(final List<LogTck> logs) {
+    fun build(logs: List<LogTck>): List<LogInfo> {
 
-        final List<LogInfo> outLogs = new ArrayList<>();
+        val outLogs = ArrayList<LogInfo>()
 
-        for (final LogTck log : logs)
-            outLogs.add(build(log));
+        for (log in logs)
+            outLogs.add(build(log))
 
-        return outLogs;
+        return outLogs
     }
 }
