@@ -145,7 +145,7 @@ public class ECKey implements Serializable {
     public ECKey(final Provider provider, final SecureRandom secureRandom) {
         this.provider = provider;
 
-        final KeyPairGenerator keyPairGen = ECKeyPairGenerator.getInstance(provider, secureRandom);
+        final KeyPairGenerator keyPairGen = ECKeyPairGenerator.INSTANCE.getInstance(provider, secureRandom);
         final KeyPair keyPair = keyPairGen.generateKeyPair();
 
         this.privKey = keyPair.getPrivate();
@@ -170,7 +170,7 @@ public class ECKey implements Serializable {
      * @param secureRandom -
      */
     public ECKey(final SecureRandom secureRandom) {
-        this(SpongyCastleProvider.getInstance(), secureRandom);
+        this(SpongyCastleProvider.INSTANCE.getInstance(), secureRandom);
     }
 
     /**
@@ -204,7 +204,7 @@ public class ECKey implements Serializable {
      */
     public ECKey(@Nullable final BigInteger priv, final ECPoint pub) {
         this(
-                SpongyCastleProvider.getInstance(),
+                SpongyCastleProvider.INSTANCE.getInstance(),
                 privateKeyFromBigInteger(priv),
                 pub
         );
@@ -237,8 +237,8 @@ public class ECKey implements Serializable {
             return null;
         } else {
             try {
-                return ECKeyFactory
-                    .getInstance(SpongyCastleProvider.getInstance())
+                return ECKeyFactory.INSTANCE
+                        .getInstance(SpongyCastleProvider.INSTANCE.getInstance())
                     .generatePrivate(new ECPrivateKeySpec(priv, CURVE_SPEC));
             } catch (final InvalidKeySpecException ex) {
                 throw new AssertionError("Assumed correct key spec statically");
@@ -831,7 +831,7 @@ public class ECKey implements Serializable {
             return new ECDSASignature(components[0], components[1]).toCanonicalised();
         } else {
             try {
-                final Signature ecSig = ECSignatureFactory.getRawInstance(provider);
+                final Signature ecSig = ECSignatureFactory.INSTANCE.getRawInstance(provider);
                 ecSig.initSign(privKey);
                 ecSig.update(input);
                 final byte[] derSignature = ecSig.sign();
@@ -876,10 +876,10 @@ public class ECKey implements Serializable {
             return agreement.calculateAgreement(new ECPublicKeyParameters(otherParty, CURVE));
         } else {
             try {
-                final KeyAgreement agreement = ECKeyAgreement.getInstance(this.provider);
+                final KeyAgreement agreement = ECKeyAgreement.INSTANCE.getInstance(this.provider);
                 agreement.init(this.privKey);
                 agreement.doPhase(
-                        ECKeyFactory.getInstance(this.provider)
+                        ECKeyFactory.INSTANCE.getInstance(this.provider)
                                 .generatePublic(new ECPublicKeySpec(otherParty, CURVE_SPEC)),
                         /* lastPhase */ true);
                 return new BigInteger(1, agreement.generateSecret());

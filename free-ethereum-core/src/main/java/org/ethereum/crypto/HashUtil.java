@@ -61,7 +61,7 @@ public class HashUtil {
 
     static {
         final SystemProperties props = SystemProperties.getDefault();
-        Security.addProvider(SpongyCastleProvider.getInstance());
+        Security.addProvider(SpongyCastleProvider.INSTANCE.getInstance());
         CRYPTO_PROVIDER = Security.getProvider(props.getCryptoProviderName());
         HASH_256_ALGORITHM_NAME = props.getHash256AlgName();
         HASH_512_ALGORITHM_NAME = props.getHash512AlgName();

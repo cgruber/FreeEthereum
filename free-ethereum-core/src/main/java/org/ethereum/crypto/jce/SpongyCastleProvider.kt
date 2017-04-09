@@ -24,43 +24,28 @@
  *
  */
 
-package org.ethereum.crypto.jce;
+package org.ethereum.crypto.jce
 
-import javax.crypto.KeyAgreement;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Provider;
+import org.spongycastle.jce.provider.BouncyCastleProvider
 
-public final class ECKeyAgreement {
+import java.security.Provider
+import java.security.Security
 
-    private static final String ALGORITHM = "ECDH";
+object SpongyCastleProvider {
 
-  private static final String algorithmAssertionMsg =
-      "Assumed the JRE supports EC key agreement";
+    val instance: Provider
+        get() = Holder.INSTANCE
 
-  private ECKeyAgreement() { }
+    private object Holder {
+        val INSTANCE: Provider
 
-  public static KeyAgreement getInstance() {
-    try {
-      return KeyAgreement.getInstance(ALGORITHM);
-    } catch (final NoSuchAlgorithmException ex) {
-      throw new AssertionError(algorithmAssertionMsg, ex);
+        init {
+            val p = Security.getProvider("SC")
+
+            INSTANCE = p ?: BouncyCastleProvider()
+
+            INSTANCE.put("MessageDigest.ETH-KECCAK-256", "org.ethereum.crypto.cryptohash.Keccak256")
+            INSTANCE.put("MessageDigest.ETH-KECCAK-512", "org.ethereum.crypto.cryptohash.Keccak512")
+        }
     }
-  }
-
-  public static KeyAgreement getInstance(final String provider) throws NoSuchProviderException {
-    try {
-      return KeyAgreement.getInstance(ALGORITHM, provider);
-    } catch (final NoSuchAlgorithmException ex) {
-      throw new AssertionError(algorithmAssertionMsg, ex);
-    }
-  }
-
-  public static KeyAgreement getInstance(final Provider provider) {
-    try {
-      return KeyAgreement.getInstance(ALGORITHM, provider);
-    } catch (final NoSuchAlgorithmException ex) {
-      throw new AssertionError(algorithmAssertionMsg, ex);
-    }
-  }
 }

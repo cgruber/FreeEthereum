@@ -24,51 +24,51 @@
  *
  */
 
-package org.ethereum.crypto.jce;
+package org.ethereum.crypto.jce
 
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Provider;
+import java.security.KeyFactory
+import java.security.NoSuchAlgorithmException
+import java.security.NoSuchProviderException
+import java.security.Provider
 
-public final class ECKeyFactory {
+object ECKeyFactory {
 
-    private static final String ALGORITHM = "EC";
+    private val ALGORITHM = "EC"
 
-  private static final String algorithmAssertionMsg =
-      "Assumed the JRE supports EC key factories";
+    private val algorithmAssertionMsg = "Assumed the JRE supports EC key factories"
 
-  private ECKeyFactory() { }
+    val instance: KeyFactory
+        get() = Holder.INSTANCE
 
-  public static KeyFactory getInstance() {
-    return Holder.INSTANCE;
-  }
+    @Throws(NoSuchProviderException::class)
+    fun getInstance(provider: String): KeyFactory {
+        try {
+            return KeyFactory.getInstance(ALGORITHM, provider)
+        } catch (ex: NoSuchAlgorithmException) {
+            throw AssertionError(algorithmAssertionMsg, ex)
+        }
 
-  public static KeyFactory getInstance(final String provider) throws NoSuchProviderException {
-    try {
-      return KeyFactory.getInstance(ALGORITHM, provider);
-    } catch (final NoSuchAlgorithmException ex) {
-      throw new AssertionError(algorithmAssertionMsg, ex);
     }
-  }
 
-  public static KeyFactory getInstance(final Provider provider) {
-    try {
-      return KeyFactory.getInstance(ALGORITHM, provider);
-    } catch (final NoSuchAlgorithmException ex) {
-      throw new AssertionError(algorithmAssertionMsg, ex);
+    fun getInstance(provider: Provider): KeyFactory {
+        try {
+            return KeyFactory.getInstance(ALGORITHM, provider)
+        } catch (ex: NoSuchAlgorithmException) {
+            throw AssertionError(algorithmAssertionMsg, ex)
+        }
+
     }
-  }
 
-    private static class Holder {
-        private static final KeyFactory INSTANCE;
+    private object Holder {
+        val INSTANCE: KeyFactory
 
-        static {
+        init {
             try {
-                INSTANCE = KeyFactory.getInstance(ALGORITHM);
-            } catch (final NoSuchAlgorithmException ex) {
-                throw new AssertionError(algorithmAssertionMsg, ex);
+                INSTANCE = KeyFactory.getInstance(ALGORITHM)
+            } catch (ex: NoSuchAlgorithmException) {
+                throw AssertionError(algorithmAssertionMsg, ex)
             }
+
         }
     }
 }

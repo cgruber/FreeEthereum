@@ -24,43 +24,45 @@
  *
  */
 
-package org.ethereum.crypto.jce;
+package org.ethereum.crypto.jce
 
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Provider;
-import java.security.Signature;
+import java.security.NoSuchAlgorithmException
+import java.security.NoSuchProviderException
+import java.security.Provider
+import java.security.Signature
 
-public final class ECSignatureFactory {
+object ECSignatureFactory {
 
-    private static final String RAW_ALGORITHM = "NONEwithECDSA";
+    private val RAW_ALGORITHM = "NONEwithECDSA"
 
-  private static final String rawAlgorithmAssertionMsg =
-      "Assumed the JRE supports NONEwithECDSA signatures";
+    private val rawAlgorithmAssertionMsg = "Assumed the JRE supports NONEwithECDSA signatures"
 
-  private ECSignatureFactory() { }
+    val rawInstance: Signature
+        get() {
+            try {
+                return Signature.getInstance(RAW_ALGORITHM)
+            } catch (ex: NoSuchAlgorithmException) {
+                throw AssertionError(rawAlgorithmAssertionMsg, ex)
+            }
 
-  public static Signature getRawInstance() {
-    try {
-      return Signature.getInstance(RAW_ALGORITHM);
-    } catch (final NoSuchAlgorithmException ex) {
-      throw new AssertionError(rawAlgorithmAssertionMsg, ex);
+        }
+
+    @Throws(NoSuchProviderException::class)
+    fun getRawInstance(provider: String): Signature {
+        try {
+            return Signature.getInstance(RAW_ALGORITHM, provider)
+        } catch (ex: NoSuchAlgorithmException) {
+            throw AssertionError(rawAlgorithmAssertionMsg, ex)
+        }
+
     }
-  }
 
-  public static Signature getRawInstance(final String provider) throws NoSuchProviderException {
-    try {
-      return Signature.getInstance(RAW_ALGORITHM, provider);
-    } catch (final NoSuchAlgorithmException ex) {
-      throw new AssertionError(rawAlgorithmAssertionMsg, ex);
-    }
-  }
+    fun getRawInstance(provider: Provider): Signature {
+        try {
+            return Signature.getInstance(RAW_ALGORITHM, provider)
+        } catch (ex: NoSuchAlgorithmException) {
+            throw AssertionError(rawAlgorithmAssertionMsg, ex)
+        }
 
-  public static Signature getRawInstance(final Provider provider) {
-    try {
-      return Signature.getInstance(RAW_ALGORITHM, provider);
-    } catch (final NoSuchAlgorithmException ex) {
-      throw new AssertionError(rawAlgorithmAssertionMsg, ex);
     }
-  }
 }

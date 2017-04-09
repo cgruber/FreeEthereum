@@ -304,7 +304,7 @@ class ECKeyTest {
     @Test
     @Throws(Exception::class)
     fun testSpongyCastleRoundTrip() {
-        testProviderRoundTrip(SpongyCastleProvider.getInstance())
+        testProviderRoundTrip(SpongyCastleProvider.instance)
     }
 
     @Test
