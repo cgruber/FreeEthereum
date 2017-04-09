@@ -130,7 +130,7 @@ public class TestRunner {
                 tBlock = new Block(rlp);
 
                 final ArrayList<String> outputSummary =
-                        BlockHeaderValidator.valid(tBlock.getHeader(), block.getHeader());
+                        BlockHeaderValidator.INSTANCE.valid(tBlock.getHeader(), block.getHeader());
 
                 if (!outputSummary.isEmpty()){
                     for (final String output : outputSummary)
@@ -167,7 +167,7 @@ public class TestRunner {
         }
 
         final Repository postRepository = RepositoryBuilder.INSTANCE.build(testCase.getPostState());
-        final List<String> repoResults = RepositoryValidator.valid(repository, postRepository);
+        final List<String> repoResults = RepositoryValidator.INSTANCE.valid(repository, postRepository);
         results.addAll(repoResults);
 
         return results;

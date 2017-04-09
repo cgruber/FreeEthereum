@@ -99,7 +99,7 @@ open class StateTestRunner(private val stateTestCase: StateTestCase) {
         val logsResult = LogsValidator.valid(origLogs, postLogs)
 
         val postRepository = RepositoryBuilder.build(stateTestCase.post)
-        val repoResults = RepositoryValidator.valid(repository, postRepository)
+        val repoResults = RepositoryValidator.valid(repository!!, postRepository)
 
         logger.info("--------- POST Validation---------")
         val outputResults = OutputValidator.valid(Hex.toHexString(programResult.hReturn), stateTestCase.out)

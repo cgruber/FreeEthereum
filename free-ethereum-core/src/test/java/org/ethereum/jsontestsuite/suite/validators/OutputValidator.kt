@@ -24,37 +24,36 @@
  *
  */
 
-package org.ethereum.jsontestsuite.suite.validators;
+package org.ethereum.jsontestsuite.suite.validators
 
-import org.spongycastle.util.encoders.Hex;
+import org.spongycastle.util.encoders.Hex
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayList
 
-import static org.ethereum.jsontestsuite.suite.Utils.parseData;
+import org.ethereum.jsontestsuite.suite.Utils.parseData
 
-public class OutputValidator {
+object OutputValidator {
 
-    public static List<String> valid(final String origOutput, final String postOutput) {
+    fun valid(origOutput: String, postOutput: String): List<String> {
 
-        final List<String> results = new ArrayList<>();
+        val results = ArrayList<String>()
 
         if (postOutput.startsWith("#")) {
-            final int postLen = Integer.parseInt(postOutput.substring(1));
-            if (postLen != origOutput.length() / 2) {
-                results.add("Expected output length: " + postLen + ", actual: " + origOutput.length() / 2);
+            val postLen = Integer.parseInt(postOutput.substring(1))
+            if (postLen != origOutput.length / 2) {
+                results.add("Expected output length: " + postLen + ", actual: " + origOutput.length / 2)
             }
         } else {
-            final String postOutputFormated = Hex.toHexString(parseData(postOutput));
+            val postOutputFormated = Hex.toHexString(parseData(postOutput))
 
-            if (!origOutput.equals(postOutputFormated)) {
-                final String formattedString = String.format("HReturn: wrong expected: %s, current: %s",
-                        postOutputFormated, origOutput);
-                results.add(formattedString);
+            if (origOutput != postOutputFormated) {
+                val formattedString = String.format("HReturn: wrong expected: %s, current: %s",
+                        postOutputFormated, origOutput)
+                results.add(formattedString)
             }
         }
 
-        return results;
+        return results
     }
 
 }

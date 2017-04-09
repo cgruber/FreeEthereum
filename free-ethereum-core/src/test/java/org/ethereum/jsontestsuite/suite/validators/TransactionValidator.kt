@@ -24,53 +24,51 @@
  *
  */
 
-package org.ethereum.jsontestsuite.suite.validators;
+package org.ethereum.jsontestsuite.suite.validators
 
-import org.ethereum.core.Transaction;
+import org.ethereum.core.Transaction
 
-import java.util.ArrayList;
+import java.util.ArrayList
 
-import static org.ethereum.util.ByteUtil.toHexString;
+import org.ethereum.util.ByteUtil.toHexString
 
-public class TransactionValidator {
+object TransactionValidator {
 
 
-    public static ArrayList<String> valid(final Transaction orig, final Transaction valid) {
+    fun valid(orig: Transaction?, valid: Transaction?): ArrayList<String> {
 
-        final ArrayList<String> outputSummary = new ArrayList<>();
+        val outputSummary = ArrayList<String>()
 
         if (orig == null && valid == null) {
-            return outputSummary;
+            return outputSummary
         }
 
         if (orig != null && valid == null) {
 
-            final String output = "Transaction expected to be not valid";
+            val output = "Transaction expected to be not valid"
 
-            outputSummary.add(output);
-            return outputSummary;
+            outputSummary.add(output)
+            return outputSummary
         }
 
         if (orig == null && valid != null) {
 
-            final String output = "Transaction expected to be valid";
+            val output = "Transaction expected to be valid"
 
-            outputSummary.add(output);
-            return outputSummary;
+            outputSummary.add(output)
+            return outputSummary
         }
 
-        if (!toHexString(orig.getEncoded())
-                .equals(toHexString(valid.getEncoded()))) {
+        if (toHexString(orig!!.encoded) != toHexString(valid!!.encoded)) {
 
-            final String output =
-                    String.format("Wrong transaction.encoded: \n expected: %s \n got: %s",
-                            toHexString(valid.getEncoded()),
-                            toHexString(orig.getEncoded())
-                    );
+            val output = String.format("Wrong transaction.encoded: \n expected: %s \n got: %s",
+                    toHexString(valid.encoded),
+                    toHexString(orig.encoded)
+            )
 
-            outputSummary.add(output);
+            outputSummary.add(output)
         }
 
-        return outputSummary;
+        return outputSummary
     }
 }
