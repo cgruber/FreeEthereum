@@ -90,7 +90,7 @@ public class TestRunner {
 
 
         /* 1 */ // Create genesis + init pre state
-        final Block genesis = BlockBuilder.build(testCase.getGenesisBlockHeader(), null, null);
+        final Block genesis = BlockBuilder.INSTANCE.build(testCase.getGenesisBlockHeader(), null, null);
         Repository repository = RepositoryBuilder.build(testCase.getPre());
 
         final IndexedBlockStore blockStore = new IndexedBlockStore();
@@ -116,7 +116,7 @@ public class TestRunner {
         /* 2 */ // Create block traffic list
         final List<Block> blockTraffic = new ArrayList<>();
         for (final BlockTck blockTck : testCase.getBlocks()) {
-            final Block block = BlockBuilder.build(blockTck.getBlockHeader(),
+            final Block block = BlockBuilder.INSTANCE.build(blockTck.getBlockHeader(),
                     blockTck.getTransactions(),
                     blockTck.getUncleHeaders());
 

@@ -84,7 +84,7 @@ open class StateTestRunner(private val stateTestCase: StateTestCase) {
         env = EnvBuilder.build(stateTestCase.env)
         invokeFactory = TestProgramInvokeFactory(env)
 
-        block = BlockBuilder.build(env)
+        block = BlockBuilder.build(env!!)
 
         blockchain!!.bestBlock = block
         blockchain!!.programInvokeFactory = invokeFactory
