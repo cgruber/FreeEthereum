@@ -93,7 +93,7 @@ public class BzzProtocolTest {
             final SortedMap<Long, Node> sort = new TreeMap<>();
             for (final Node node : entries.keySet()) {
                 final int dist = getDistance(node.getId(), key.getBytes());
-                sort.put(0xFFFFFFFFl & dist, node);
+                sort.put(0xFFFFFFFFL & dist, node);
             }
             for (final Node node : sort.values()) {
                 s.append("  ").append(entries.get(node) == null ? " " : "*").append(" ").append(node.getHost()).append(", dist: ").append(hex(getDistance(peer.peerAddress.getId(), node.getId()))).append(key != null ? ", keyDist: " + hex(getDistance(node.getId(), key.getBytes())) : "").append("\n");
@@ -138,12 +138,7 @@ public class BzzProtocolTest {
         System.out.println("Waiting for net idle ");
         TestAsyncPipe.waitForCompletion();
         TestPeer.MessageOut = true;
-        stdout.setFilter(new Predicate<String>() {
-            @Override
-            public boolean test(final String s) {
-                return s.startsWith("+") && s.contains("BzzStoreReqMessage");
-            }
-        });
+        stdout.setFilter(s -> s.startsWith("+") && s.contains("BzzStoreReqMessage"));
 //        System.out.println("==== Storage statistics:\n" + dumpPeers(allPeers, null));
 //        System.out.println("Sleeping...");
 
@@ -327,12 +322,7 @@ public class BzzProtocolTest {
         }
 
         public void setFilter(final String filter) {
-            pFilter = new Predicate<String>() {
-                @Override
-                public boolean test(final String s) {
-                    return s.contains(filter);
-                }
-            };
+            pFilter = s -> s.contains(filter);
         }
 
         public void setFilter(final Predicate<String> pFilter) {
@@ -355,28 +345,22 @@ public class BzzProtocolTest {
         }
 
         Functional.Consumer<BzzMessage> createIn1() {
-            return new Functional.Consumer<BzzMessage>() {
-                @Override
-                public void accept(final BzzMessage bzzMessage) {
-                    final BzzMessage smsg = serialize(bzzMessage);
-                    if (TestPeer.MessageOut) {
-                        stdout.println("+ " + name1 + " => " + name2 + ": " + smsg);
-                    }
-                    out2.accept(smsg);
+            return bzzMessage -> {
+                final BzzMessage smsg = serialize(bzzMessage);
+                if (TestPeer.MessageOut) {
+                    stdout.println("+ " + name1 + " => " + name2 + ": " + smsg);
                 }
+                out2.accept(smsg);
             };
         }
 
         Functional.Consumer<BzzMessage> createIn2() {
-            return new Functional.Consumer<BzzMessage>() {
-                @Override
-                public void accept(final BzzMessage bzzMessage) {
-                    final BzzMessage smsg = serialize(bzzMessage);
-                    if (TestPeer.MessageOut) {
-                        stdout.println("+ " + name2 + " => " + name1 + ": " + smsg);
-                    }
-                    out1.accept(smsg);
+            return bzzMessage -> {
+                final BzzMessage smsg = serialize(bzzMessage);
+                if (TestPeer.MessageOut) {
+                    stdout.println("+ " + name2 + " => " + name1 + ": " + smsg);
                 }
+                out1.accept(smsg);
             };
         }
 
@@ -435,23 +419,20 @@ public class BzzProtocolTest {
 
             @Override
             public void accept(final BzzMessage bzzMessage) {
-                final ScheduledFuture<?> future = exec.schedule(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (!rev) {
-                                if (TestPeer.MessageOut) {
-                                    stdout.println("- " + name1 + " => " + name2 + ": " + bzzMessage);
-                                }
-                            } else {
-                                if (TestPeer.MessageOut) {
-                                    stdout.println("- " + name2 + " => " + name1 + ": " + bzzMessage);
-                                }
+                final ScheduledFuture<?> future = exec.schedule(() -> {
+                    try {
+                        if (!rev) {
+                            if (TestPeer.MessageOut) {
+                                stdout.println("- " + name1 + " => " + name2 + ": " + bzzMessage);
                             }
-                            delegate.accept(bzzMessage);
-                        } catch (final Exception e) {
-                            e.printStackTrace();
+                        } else {
+                            if (TestPeer.MessageOut) {
+                                stdout.println("- " + name2 + " => " + name1 + ": " + bzzMessage);
+                            }
                         }
+                        delegate.accept(bzzMessage);
+                    } catch (final Exception e) {
+                        e.printStackTrace();
                     }
                 }, channelLatencyMs, TimeUnit.MILLISECONDS);
                 tasks.add(future);

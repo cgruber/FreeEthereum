@@ -136,17 +136,7 @@ public class BlockSummary {
     }
 
     private static Map<byte[], BigInteger> decodeRewards(final RLPList rewards) {
-        return decodeMap(rewards, new Functional.Function<byte[], byte[]>() {
-            @Override
-            public byte[] apply(final byte[] bytes) {
-                return bytes;
-            }
-        }, new Functional.Function<byte[], BigInteger>() {
-            @Override
-            public BigInteger apply(final byte[] bytes) {
-                return isEmpty(bytes) ? BigInteger.ZERO : new BigInteger(1, bytes);
-            }
-        });
+        return decodeMap(rewards, bytes -> bytes, bytes -> isEmpty(bytes) ? BigInteger.ZERO : new BigInteger(1, bytes));
     }
 
     public Block getBlock() {

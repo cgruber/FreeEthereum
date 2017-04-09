@@ -108,11 +108,7 @@ public class ChannelManager {
         }, 0, 1, TimeUnit.SECONDS);
 
         if (config.listenPort() > 0) {
-            new Thread(new Runnable() {
-                        public void run() {
-                            peerServer.start(config.listenPort());
-                        }
-                    },
+            new Thread(() -> peerServer.start(config.listenPort()),
             "PeerServerThread").start();
         }
 

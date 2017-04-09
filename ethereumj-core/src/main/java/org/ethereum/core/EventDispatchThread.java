@@ -50,12 +50,7 @@ public class EventDispatchThread {
     private static EventDispatchThread eventDispatchThread;
     private final BlockingQueue<Runnable> executorQueue = new LinkedBlockingQueue<>();
     private final ExecutorService executor = new ThreadPoolExecutor(1, 1,
-            0L, TimeUnit.MILLISECONDS, executorQueue, new ThreadFactory() {
-        @Override
-        public Thread newThread(final Runnable r) {
-            return new Thread(r, "EDT");
-        }
-    });
+            0L, TimeUnit.MILLISECONDS, executorQueue, r -> new Thread(r, "EDT"));
 
     private long taskStart;
     private Runnable lastTask;
@@ -87,23 +82,20 @@ public class EventDispatchThread {
         if (executor.isShutdown()) return;
         if (counter++ % 1000 == 0) logStatus();
 
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastTask = r;
-                    taskStart = System.nanoTime();
-                    r.run();
-                    final long t = (System.nanoTime() - taskStart) / 1_000_000;
-                    taskStart = 0;
-                    if (t > 1000) {
-                        logger.warn("EDT task executed in more than 1 sec: " + t + "ms, " +
-                        "Executor queue size: " + executorQueue.size());
+        executor.submit(() -> {
+            try {
+                lastTask = r;
+                taskStart = System.nanoTime();
+                r.run();
+                final long t = (System.nanoTime() - taskStart) / 1_000_000;
+                taskStart = 0;
+                if (t > 1000) {
+                    logger.warn("EDT task executed in more than 1 sec: " + t + "ms, " +
+                            "Executor queue size: " + executorQueue.size());
 
-                    }
-                } catch (final Exception e) {
-                    logger.error("EDT task exception", e);
                 }
+            } catch (final Exception e) {
+                logger.error("EDT task exception", e);
             }
         });
     }

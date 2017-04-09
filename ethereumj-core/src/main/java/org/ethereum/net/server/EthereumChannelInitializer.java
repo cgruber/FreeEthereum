@@ -26,7 +26,10 @@
 
 package org.ethereum.net.server;
 
-import io.netty.channel.*;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.FixedRecvByteBufAllocator;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,12 +86,9 @@ public class EthereumChannelInitializer extends ChannelInitializer<NioSocketChan
             ch.config().setOption(ChannelOption.SO_BACKLOG, 1024);
 
             // be aware of channel closing
-            ch.closeFuture().addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(final ChannelFuture future) throws Exception {
-                    if (!peerDiscoveryMode) {
-                        channelManager.notifyDisconnect(channel);
-                    }
+            ch.closeFuture().addListener((ChannelFutureListener) future -> {
+                if (!peerDiscoveryMode) {
+                    channelManager.notifyDisconnect(channel);
                 }
             });
 

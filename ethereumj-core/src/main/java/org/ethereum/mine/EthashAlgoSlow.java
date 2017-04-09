@@ -166,22 +166,12 @@ public class EthashAlgoSlow {
 
     private Pair<byte[], byte[]> hashimotoLight(final long fullSize, final byte[][] cache, final byte[] blockHeaderTruncHash,
                                                 final byte[] nonce) {
-        return hashimoto(blockHeaderTruncHash, nonce, fullSize, new DatasetLookup() {
-            @Override
-            public byte[] lookup(final int idx) {
-                return calcDatasetItem(cache, idx);
-            }
-        });
+        return hashimoto(blockHeaderTruncHash, nonce, fullSize, idx -> calcDatasetItem(cache, idx));
     }
 
     private Pair<byte[], byte[]> hashimotoFull(final long fullSize, final byte[][] dataset, final byte[] blockHeaderTruncHash,
                                                final byte[] nonce) {
-        return hashimoto(blockHeaderTruncHash, nonce, fullSize, new DatasetLookup() {
-            @Override
-            public byte[] lookup(final int idx) {
-                return dataset[idx];
-            }
-        });
+        return hashimoto(blockHeaderTruncHash, nonce, fullSize, idx -> dataset[idx]);
     }
 
     public long mine(final long fullSize, final byte[][] dataset, final byte[] blockHeaderTruncHash, final long difficulty) {

@@ -594,7 +594,7 @@ public class TransactionTest {
             final CallTransaction.Contract contract1 = new CallTransaction.Contract(cres.contracts.get("PsychoKiller").abi);
             final byte[] callData = contract1.getByName("multipleHomocide").encode();
 
-            final Transaction tx1 = createTx(blockchain, sender, contractAddress, callData, 0l);
+            final Transaction tx1 = createTx(blockchain, sender, contractAddress, callData, 0L);
             final ProgramResult programResult = executeTransaction(blockchain, tx1).getResult();
 
             // suicide of a single account should be counted only once
