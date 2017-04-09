@@ -257,10 +257,10 @@ class ECKeyTest {
         val executor = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(ITERATIONS))
         val sigFutures = Lists.newArrayList<ListenableFuture<ECKey.ECDSASignature>>()
         val key = ECKey()
-        for (i in 0..ITERATIONS - 1) {
-            val hash = HashUtil.sha3(byteArrayOf(i.toByte()))
-            sigFutures.add(executor.submit(Callable { key.doSign(hash) }))
-        }
+        (0..ITERATIONS - 1)
+                .asSequence()
+                .map { HashUtil.sha3(byteArrayOf(it.toByte())) }
+                .mapTo(sigFutures) { executor.submit(Callable { key.doSign(it) }) }
         val sigs = Futures.allAsList(sigFutures).get()
         for (signature in sigs) {
             assertTrue(signature.s.compareTo(ECKey.HALF_CURVE_ORDER) <= 0)

@@ -77,7 +77,7 @@ public class AnyFuture<V> extends AbstractFuture<V> {
             if (future != besidesThis) {
                 try {
                     future.cancel(true);
-                } catch (final Exception e) {
+                } catch (final Exception ignored) {
                 }
             }
         }

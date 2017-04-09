@@ -46,7 +46,7 @@ public class SlowHashMapDb<V> extends HashMapDB<V> {
     public void put(final byte[] key, final V val) {
         try {
             Thread.sleep(delay);
-        } catch (final InterruptedException e) {
+        } catch (final InterruptedException ignored) {
         }
         super.put(key, val);
     }
@@ -55,7 +55,7 @@ public class SlowHashMapDb<V> extends HashMapDB<V> {
     public V get(final byte[] key) {
         try {
             Thread.sleep(delay);
-        } catch (final InterruptedException e) {
+        } catch (final InterruptedException ignored) {
         }
         return super.get(key);
     }
@@ -64,7 +64,7 @@ public class SlowHashMapDb<V> extends HashMapDB<V> {
     public void delete(final byte[] key) {
         try {
             Thread.sleep(delay);
-        } catch (final InterruptedException e) {
+        } catch (final InterruptedException ignored) {
         }
         super.delete(key);
     }
@@ -73,7 +73,7 @@ public class SlowHashMapDb<V> extends HashMapDB<V> {
     public boolean flush() {
         try {
             Thread.sleep(delay);
-        } catch (final InterruptedException e) {
+        } catch (final InterruptedException ignored) {
         }
         return super.flush();
     }
@@ -82,7 +82,7 @@ public class SlowHashMapDb<V> extends HashMapDB<V> {
     public void updateBatch(final Map<byte[], V> rows) {
         try {
             Thread.sleep(delay);
-        } catch (final InterruptedException e) {
+        } catch (final InterruptedException ignored) {
         }
         super.updateBatch(rows);
     }

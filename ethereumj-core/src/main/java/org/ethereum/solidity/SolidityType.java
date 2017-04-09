@@ -428,7 +428,7 @@ public abstract class SolidityType {
 
         @Override
         public Object decode(final byte[] encoded, final int offset) {
-            return Boolean.valueOf(((Number) super.decode(encoded, offset)).intValue() != 0);
+            return ((Number) super.decode(encoded, offset)).intValue() != 0;
         }
     }
 

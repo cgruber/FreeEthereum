@@ -96,12 +96,7 @@ public class TransactionTouchedStorage {
     }
 
     public Map<DataWord, DataWord> getReadOnly() {
-        return keyValues(new Functional.Function<Entry, Boolean>() {
-            @Override
-            public Boolean apply(final Entry entry) {
-                return !entry.isChanged();
-            }
-        });
+        return keyValues(entry -> !entry.isChanged());
     }
 
     public Map<DataWord, DataWord> getAll() {

@@ -63,12 +63,6 @@ if (project.hasProperty("mainClass")) {
     mainClassName = mainClass
 }
 
-
-//ext.generatedSrcDir = file('src/gen/java')
-
-//sourceSets.main.java.srcDirs += generatedSrcDir
-
-
 tasks.withType(JavaCompile){
     options.warnings = false
 }
@@ -180,10 +174,6 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
 
-//def bintrayUsername = project.hasProperty('bintrayUser') ? project.bintrayUser : ''
-//def bintrayPassword = project.hasProperty('bintrayKey') ? project.bintrayKey : ''
-//def pullRequest = System.getenv('TRAVIS_PULL_REQUEST')
-//def branchName = System.getenv('TRAVIS_BRANCH')
 repositories {
     mavenCentral()
 }

@@ -175,7 +175,7 @@ public class FastSyncManager {
                             logger.debug("FastSyncDBWriter: commit: dbWriteQueue.size = " + dbWriteQueue.size());
                         }
                     }
-                } catch (final InterruptedException e) {
+                } catch (final InterruptedException ignored) {
                 } catch (final Exception e) {
                     logger.error("Fatal FastSync error while writing data", e);
                 }

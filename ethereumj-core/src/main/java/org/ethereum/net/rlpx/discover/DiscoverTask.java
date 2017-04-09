@@ -76,7 +76,7 @@ class DiscoverTask implements Runnable {
                         nodeManager.getNodeHandler(n).sendFindNode(nodeId);
                         tried.add(n);
                         Thread.sleep(50);
-                    } catch (final InterruptedException e) {
+                    } catch (final InterruptedException ignored) {
                     } catch (final Exception ex) {
                         logger.error("Unexpected Exception " + ex, ex);
                     }

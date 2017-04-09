@@ -1078,7 +1078,7 @@ public class ECKey implements Serializable {
                 if (decoder != null)
                     try {
                         decoder.close();
-                    } catch (final IOException x) {
+                    } catch (final IOException ignored) {
                     }
             }
         }

@@ -47,13 +47,11 @@ object BlockBuilder {
 
         val uncles = ArrayList<BlockHeader>()
         if (unclesTck != null)
-            for (uncle in unclesTck)
-                uncles.add(BlockHeaderBuilder.build(uncle))
+            unclesTck.mapTo(uncles) { BlockHeaderBuilder.build(it) }
 
         val transactions = ArrayList<Transaction>()
         if (transactionsTck != null)
-            for (tx in transactionsTck)
-                transactions.add(TransactionBuilder.build(tx))
+            transactionsTck.mapTo(transactions) { TransactionBuilder.build(it) }
 
         val blockHeader = BlockHeaderBuilder.build(header)
         val block = Block(

@@ -44,13 +44,12 @@ class Logs(jLogs: JSONArray) {
             val address = Hex.decode(jLog["address"] as String)
             val data = Hex.decode((jLog["data"] as String).substring(2))
 
-            val topics = ArrayList<DataWord>()
-
             val jTopics = jLog["topics"] as JSONArray
-            for (t in jTopics.toTypedArray()) {
-                val topic = Hex.decode(t as String)
-                topics.add(DataWord(topic))
-            }
+            val topics = jTopics.toTypedArray()
+                    .asSequence()
+                    .map { Hex.decode(it as String) }
+                    .map { DataWord(it) }
+                    .toList()
 
             val li = LogInfo(address, topics, data)
             logs.add(li)

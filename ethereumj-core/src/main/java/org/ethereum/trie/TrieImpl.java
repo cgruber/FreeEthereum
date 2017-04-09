@@ -37,7 +37,10 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.apache.commons.lang3.concurrent.ConcurrentUtils.constantFuture;
 import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
@@ -456,12 +459,7 @@ public class TrieImpl implements Trie<byte[]> {
                             if (encoded[i] == null) {
                                 final Node child = branchNodeGetChild(i);
                                 if (encodeCnt >= MIN_BRANCHES_CONCURRENTLY) {
-                                    encoded[i] = getExecutor().submit(new Callable<byte[]>() {
-                                        @Override
-                                        public byte[] call() throws Exception {
-                                            return child.encode(depth + 1, false);
-                                        }
-                                    });
+                                    encoded[i] = getExecutor().submit(() -> child.encode(depth + 1, false));
                                 } else {
                                     encoded[i] = child.encode(depth + 1, false);
                                 }

@@ -48,7 +48,10 @@ import org.springframework.context.annotation.Bean;
 
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -85,11 +88,7 @@ public class SyncWithLoadTest {
     private static final AtomicBoolean isRunning = new AtomicBoolean(true);
     private static final AtomicBoolean firstRun = new AtomicBoolean(true);
     private static final ScheduledExecutorService statTimer =
-            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                public Thread newThread(final Runnable r) {
-                    return new Thread(r, "StatTimer");
-                }
-            });
+            Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "StatTimer"));
     private Ethereum regularNode;
 
     public SyncWithLoadTest() throws Exception {
@@ -103,28 +102,25 @@ public class SyncWithLoadTest {
         }
         if (overrideConfigPath != null) configPath.setValue(overrideConfigPath);
 
-        statTimer.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                // Adds error if no successfully imported blocks for LAST_IMPORT_TIMEOUT
-                final long currentMillis = System.currentTimeMillis();
-                if (lastImport.get() != 0 && currentMillis - lastImport.get() > LAST_IMPORT_TIMEOUT) {
-                    testLogger.error("No imported block for {} seconds", LAST_IMPORT_TIMEOUT / 1000);
-                    fatalErrors.incrementAndGet();
-                }
-
-                try {
-                    if (fatalErrors.get() > 0) {
-                        statTimer.shutdownNow();
-                        errorLatch.countDown();
-                    }
-                } catch (final Throwable t) {
-                    SyncWithLoadTest.testLogger.error("Unhandled exception", t);
-                }
-
-                if (lastImport.get() == 0 && isRunning.get()) lastImport.set(currentMillis);
-                if (lastImport.get() != 0 && !isRunning.get()) lastImport.set(0);
+        statTimer.scheduleAtFixedRate(() -> {
+            // Adds error if no successfully imported blocks for LAST_IMPORT_TIMEOUT
+            final long currentMillis = System.currentTimeMillis();
+            if (lastImport.get() != 0 && currentMillis - lastImport.get() > LAST_IMPORT_TIMEOUT) {
+                testLogger.error("No imported block for {} seconds", LAST_IMPORT_TIMEOUT / 1000);
+                fatalErrors.incrementAndGet();
             }
+
+            try {
+                if (fatalErrors.get() > 0) {
+                    statTimer.shutdownNow();
+                    errorLatch.countDown();
+                }
+            } catch (final Throwable t) {
+                SyncWithLoadTest.testLogger.error("Unhandled exception", t);
+            }
+
+            if (lastImport.get() == 0 && isRunning.get()) lastImport.set(currentMillis);
+            if (lastImport.get() != 0 && !isRunning.get()) lastImport.set(0);
         }, 0, 15, TimeUnit.SECONDS);
     }
 
@@ -149,29 +145,26 @@ public class SyncWithLoadTest {
 
         runEthereum();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (firstRun.get()) {
+        new Thread(() -> {
+            try {
+                while (firstRun.get()) {
+                    sleep(1000);
+                }
+                testLogger.info("Stopping first run");
+
+                while (true) {
+                    while (isRunning.get()) {
                         sleep(1000);
                     }
-                    testLogger.info("Stopping first run");
-
-                    while (true) {
-                        while (isRunning.get()) {
-                            sleep(1000);
-                        }
-                        regularNode.close();
-                        testLogger.info("Run stopped");
-                        sleep(10_000);
-                        testLogger.info("Starting next run");
-                        runEthereum();
-                        isRunning.set(true);
-                    }
-                } catch (final Throwable e) {
-                    e.printStackTrace();
+                    regularNode.close();
+                    testLogger.info("Run stopped");
+                    sleep(10_000);
+                    testLogger.info("Starting next run");
+                    runEthereum();
+                    isRunning.set(true);
                 }
+            } catch (final Throwable e) {
+                e.printStackTrace();
             }
         }).start();
 

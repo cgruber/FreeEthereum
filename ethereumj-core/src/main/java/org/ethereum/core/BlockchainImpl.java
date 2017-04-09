@@ -547,7 +547,7 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
             stateLogger.warn("Trying to reimport the block for debug...");
             try {
                 Thread.sleep(50);
-            } catch (final InterruptedException e) {
+            } catch (final InterruptedException ignored) {
             }
             final BlockSummary summary1 = addImpl(repo.getSnapshotTo(getBestBlock().getStateRoot()), block);
             stateLogger.warn("Second import trial " + (summary1 == null ? "FAILED" : "OK"));

@@ -105,9 +105,7 @@ class TransactionExecutionSummaryTest {
     private fun randomInternalTransactions(parent: Transaction, nestedLevelCount: Int, countByLevel: Int): List<InternalTransaction> {
         val result = ArrayList<InternalTransaction>()
         if (nestedLevelCount > 0) {
-            for (index in 0..countByLevel - 1) {
-                result.add(randomInternalTransaction(parent, nestedLevelCount, index))
-            }
+            (0..countByLevel - 1).mapTo(result) { randomInternalTransaction(parent, nestedLevelCount, it) }
             result.addAll(0, randomInternalTransactions(result[result.size - 1], nestedLevelCount - 1, countByLevel))
         }
 

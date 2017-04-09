@@ -33,6 +33,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.intToBytes;
@@ -67,29 +68,29 @@ public class AsyncWriteCacheTest {
 
         cache.put(decode("1111"), "1111");
         cache.flush();
-        assert cache.get(decode("1111")) == "1111";
+        assert Objects.equals(cache.get(decode("1111")), "1111");
 
         while (!flushing);
 
         System.out.println("get");
-        assert cache.get(decode("1111")) == "1111";
+        assert Objects.equals(cache.get(decode("1111")), "1111");
         System.out.println("put");
         cache.put(decode("2222"), "2222");
         System.out.println("get");
         assert flushing;
 
         while (flushing) {
-            assert cache.get(decode("2222")) == "2222";
-            assert cache.get(decode("1111")) == "1111";
+            assert Objects.equals(cache.get(decode("2222")), "2222");
+            assert Objects.equals(cache.get(decode("1111")), "1111");
         }
-        assert cache.get(decode("2222")) == "2222";
-        assert cache.get(decode("1111")) == "1111";
+        assert Objects.equals(cache.get(decode("2222")), "2222");
+        assert Objects.equals(cache.get(decode("1111")), "1111");
 
         cache.put(decode("1111"), "1112");
 
         cache.flush();
-        assert cache.get(decode("1111")) == "1112";
-        assert cache.get(decode("2222")) == "2222";
+        assert Objects.equals(cache.get(decode("1111")), "1112");
+        assert Objects.equals(cache.get(decode("2222")), "2222");
 
         while (!flushing);
 
@@ -97,26 +98,26 @@ public class AsyncWriteCacheTest {
         cache.flush();
         System.out.println("Second flush complete");
 
-        assert cache.get(decode("1111")) == "1112";
-        assert cache.get(decode("2222")) == "2222";
+        assert Objects.equals(cache.get(decode("1111")), "1112");
+        assert Objects.equals(cache.get(decode("2222")), "2222");
 
         System.out.println("put");
         cache.put(decode("3333"), "3333");
 
-        assert cache.get(decode("1111")) == "1112";
-        assert cache.get(decode("2222")) == "2222";
-        assert cache.get(decode("3333")) == "3333";
+        assert Objects.equals(cache.get(decode("1111")), "1112");
+        assert Objects.equals(cache.get(decode("2222")), "2222");
+        assert Objects.equals(cache.get(decode("3333")), "3333");
 
         System.out.println("Second flush");
         cache.flush();
         System.out.println("Second flush complete");
 
-        assert cache.get(decode("1111")) == "1112";
-        assert cache.get(decode("2222")) == "2222";
-        assert cache.get(decode("3333")) == "3333";
-        assert db.get(decode("1111")) == "1112";
-        assert db.get(decode("2222")) == "2222";
-        assert db.get(decode("3333")) == "3333";
+        assert Objects.equals(cache.get(decode("1111")), "1112");
+        assert Objects.equals(cache.get(decode("2222")), "2222");
+        assert Objects.equals(cache.get(decode("3333")), "3333");
+        assert Objects.equals(db.get(decode("1111")), "1112");
+        assert Objects.equals(db.get(decode("2222")), "2222");
+        assert Objects.equals(db.get(decode("3333")), "3333");
     }
 
     @Ignore
