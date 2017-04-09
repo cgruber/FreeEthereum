@@ -35,7 +35,7 @@ allprojects {
     }
 }
 
-def gitCurBranch() {
+static def gitCurBranch() {
     def branchName = System.getenv('TRAVIS_BRANCH')
 
     if (branchName) return branchName

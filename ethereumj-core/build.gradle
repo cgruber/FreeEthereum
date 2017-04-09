@@ -188,18 +188,18 @@ repositories {
     mavenCentral()
 }
 
- def gitCommitHash() {
+static def gitCommitHash() {
     def process = "git rev-parse --short HEAD".execute()
     return process.text.trim()
  }
 
-def buildTime() {
+static def buildTime() {
     def df = new SimpleDateFormat("[dd/MMM/yyyy]-[HH:mm]")
     df.setTimeZone(TimeZone.getTimeZone("GMT"))
     return '[GMT]-' + df.format(new Date())
 }
 
-def gitCurBranch() {
+static def gitCurBranch() {
     def branchName = System.getenv('TRAVIS_BRANCH')
     if (branchName) return branchName
     def process = "git rev-parse --abbrev-ref HEAD".execute()
