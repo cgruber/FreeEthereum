@@ -551,7 +551,7 @@ public class TransactionTest {
             final List<String> res = new StateTestRunner(stateTestSuite.getTestCases().get("test1")).runImpl();
             if (!res.isEmpty()) throw new RuntimeException("Test failed: " + res);
         } finally {
-            SystemProperties.getDefault().setBlockchainConfig(MainNetConfig.INSTANCE);
+            SystemProperties.getDefault().setBlockchainConfig(MainNetConfig.Companion.getINSTANCE());
         }
     }
 

@@ -24,18 +24,20 @@
  *
  */
 
-package org.ethereum.config.net;
+package org.ethereum.config.net
 
-import org.ethereum.config.blockchain.*;
+import org.ethereum.config.blockchain.*
 
-public class MainNetConfig extends BaseNetConfig {
-    public static final MainNetConfig INSTANCE = new MainNetConfig();
+class MainNetConfig : BaseNetConfig() {
+    init {
+        add(0, FrontierConfig())
+        add(1150000, HomesteadConfig())
+        add(1920000, DaoHFConfig())
+        add(2463000, Eip150HFConfig(DaoHFConfig()))
+        add(2675000, Eip160HFConfig(DaoHFConfig()))
+    }
 
-    public MainNetConfig() {
-        add(0, new FrontierConfig());
-        add(1_150_000, new HomesteadConfig());
-        add(1_920_000, new DaoHFConfig());
-        add(2_463_000, new Eip150HFConfig(new DaoHFConfig()));
-        add(2_675_000, new Eip160HFConfig(new DaoHFConfig()));
+    companion object {
+        val INSTANCE = MainNetConfig()
     }
 }

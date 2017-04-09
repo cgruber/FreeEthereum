@@ -24,49 +24,44 @@
  *
  */
 
-package org.ethereum.config.net;
+package org.ethereum.config.net
 
-import org.ethereum.config.BlockchainConfig;
-import org.ethereum.config.BlockchainNetConfig;
-import org.ethereum.config.Constants;
+import org.ethereum.config.BlockchainConfig
+import org.ethereum.config.BlockchainNetConfig
+import org.ethereum.config.Constants
+import java.util.*
 
-import java.util.Arrays;
+open class BaseNetConfig : BlockchainNetConfig {
+    private val blockNumbers = LongArray(64)
+    private val configs = arrayOfNulls<BlockchainConfig>(64)
+    private var count: Int = 0
 
-public class BaseNetConfig implements BlockchainNetConfig {
-    private final long[] blockNumbers = new long[64];
-    private final BlockchainConfig[] configs = new BlockchainConfig[64];
-    private int count;
-
-    public void add(final long startBlockNumber, final BlockchainConfig config) {
-        if (count >= blockNumbers.length) throw new RuntimeException();
+    fun add(startBlockNumber: Long, config: BlockchainConfig) {
+        if (count >= blockNumbers.size) throw RuntimeException()
         if (count > 0 && blockNumbers[count] >= startBlockNumber)
-            throw new RuntimeException("Block numbers should increase");
-        if (count == 0 && startBlockNumber > 0) throw new RuntimeException("First config should start from block 0");
-        blockNumbers[count] = startBlockNumber;
-        configs[count] = config;
-        count++;
+            throw RuntimeException("Block numbers should increase")
+        if (count == 0 && startBlockNumber > 0) throw RuntimeException("First config should start from block 0")
+        blockNumbers[count] = startBlockNumber
+        configs[count] = config
+        count++
     }
 
-    @Override
-    public BlockchainConfig getConfigForBlock(final long blockNumber) {
-        for (int i = 0; i < count; i++) {
-            if (blockNumber < blockNumbers[i]) return configs[i - 1];
+    override fun getConfigForBlock(blockNumber: Long): BlockchainConfig {
+        for (i in 0..count - 1) {
+            if (blockNumber < blockNumbers[i]) return configs[i - 1]!!
         }
-        return configs[count - 1];
+        return configs[count - 1]!!
     }
 
-    @Override
-    public Constants getCommonConstants() {
-        // TODO make a guard wrapper which throws exception if the requested constant differs among configs
-        return configs[0].getConstants();
-    }
+    override // TODO make a guard wrapper which throws exception if the requested constant differs among configs
+    val commonConstants: Constants
+        get() = configs[0]?.constants!!
 
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "BaseNetConfig{" +
                 "blockNumbers=" + Arrays.toString(Arrays.copyOfRange(blockNumbers, 0, count)) +
-                ", configs=" + Arrays.toString(Arrays.copyOfRange(configs, 0, count)) +
+                ", configs=" + Arrays.toString(Arrays.copyOfRange<BlockchainConfig>(configs, 0, count)) +
                 ", count=" + count +
-                '}';
+                '}'
     }
 }

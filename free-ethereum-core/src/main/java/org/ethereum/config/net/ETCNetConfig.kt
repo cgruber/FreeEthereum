@@ -24,18 +24,21 @@
  *
  */
 
-package org.ethereum.config.net;
+package org.ethereum.config.net
 
-import org.ethereum.config.blockchain.*;
+import org.ethereum.config.blockchain.*
 
-public class ETCNetConfig extends BaseNetConfig {
-    public static final ETCNetConfig INSTANCE = new ETCNetConfig();
+class ETCNetConfig private constructor() : BaseNetConfig() {
 
-    private ETCNetConfig() {
-        add(0, new FrontierConfig());
-        add(1_150_000, new HomesteadConfig());
-        add(1_920_000, new DaoNoHFConfig());
-        add(2_500_000, new Eip150HFConfig(new DaoNoHFConfig()));
-        add(3_000_000, new ETCFork3M(new DaoNoHFConfig()));
+    init {
+        add(0, FrontierConfig())
+        add(1150000, HomesteadConfig())
+        add(1920000, DaoNoHFConfig())
+        add(2500000, Eip150HFConfig(DaoNoHFConfig()))
+        add(3000000, ETCFork3M(DaoNoHFConfig()))
+    }
+
+    companion object {
+        val INSTANCE = ETCNetConfig()
     }
 }
