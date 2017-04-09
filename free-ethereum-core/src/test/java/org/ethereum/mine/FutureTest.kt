@@ -30,9 +30,6 @@ import com.google.common.util.concurrent.MoreExecutors
 import org.junit.Test
 import java.util.concurrent.*
 
-/**
- * Created by Anton Nashatyrev on 17.12.2015.
- */
 class FutureTest {
 
     @Test

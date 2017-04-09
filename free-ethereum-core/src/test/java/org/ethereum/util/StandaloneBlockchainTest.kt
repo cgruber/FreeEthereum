@@ -37,9 +37,6 @@ import org.junit.Test
 import org.spongycastle.util.encoders.Hex
 import java.math.BigInteger
 
-/**
- * Created by Anton Nashatyrev on 06.07.2016.
- */
 class StandaloneBlockchainTest {
 
     @Test

@@ -42,9 +42,6 @@ import java.security.SecureRandom;
 
 import static org.ethereum.crypto.HashUtil.sha3;
 
-/**
- * Created by devrandom on 2015-04-08.
- */
 public class EncryptionHandshake {
     private static final int NONCE_SIZE = 32;
     private static final int MAC_SIZE = 256;

@@ -45,9 +45,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.ethereum.util.Utils.sizeToStr;
 
-/**
- * Created by Anton Nashatyrev on 27.02.2017.
- */
 @Component
 public class WireTrafficStats  implements Runnable  {
     private final static Logger logger = LoggerFactory.getLogger("net");

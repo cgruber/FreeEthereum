@@ -36,9 +36,6 @@ import java.util.List;
 
 import static org.ethereum.crypto.HashUtil.sha3;
 
-/**
- * Created by Anton Nashatyrev on 12.04.2016.
- */
 public class LogFilter {
 
     private final List<byte[][]> topics = new ArrayList<>();  //  [[addr1, addr2], null, [A, B], [C]]

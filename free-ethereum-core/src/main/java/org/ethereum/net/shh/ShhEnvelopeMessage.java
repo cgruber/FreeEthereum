@@ -37,9 +37,6 @@ import java.util.List;
 
 import static org.ethereum.net.shh.ShhMessageCodes.MESSAGE;
 
-/**
- * Created by Anton Nashatyrev on 25.09.2015.
- */
 public class ShhEnvelopeMessage extends ShhMessage {
 
     private final List<WhisperMessage> messages = new ArrayList<>();

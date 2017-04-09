@@ -30,9 +30,6 @@ import org.ethereum.datasource.inmem.HashMapDB;
 
 import java.util.Map;
 
-/**
- * Created by Anton Nashatyrev on 29.12.2016.
- */
 public class SlowHashMapDb<V> extends HashMapDB<V> {
 
     private long delay = 1;

@@ -47,9 +47,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
-/**
- * Created by devrandom on 2015-04-09.
- */
 class Handshaker {
     private final ECKey myKey;
     private final byte[] nodeId;

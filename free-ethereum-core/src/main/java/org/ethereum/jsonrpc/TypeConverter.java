@@ -31,9 +31,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 
-/**
- * Created by Ruben on 19/11/2015.
- */
 class TypeConverter {
 
     public static byte[] StringNumberAsBytes(final String input) {

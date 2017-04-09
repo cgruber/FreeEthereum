@@ -33,9 +33,6 @@ import org.junit.Assert
 import org.junit.Test
 import java.io.File
 
-/**
- * Created by Anton Nashatyrev on 13.07.2015.
- */
 class ConfigTest {
 
     @Test

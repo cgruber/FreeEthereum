@@ -34,9 +34,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- * Created by Anton Nashatyrev on 27.07.2016.
- */
 public class JournalPruneTest {
 
     private void checkDb(final StringJDS db, final String... keys) {

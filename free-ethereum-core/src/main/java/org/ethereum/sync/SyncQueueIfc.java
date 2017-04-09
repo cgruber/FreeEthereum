@@ -32,37 +32,7 @@ import org.ethereum.core.BlockHeaderWrapper;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Created by Anton Nashatyrev on 27.05.2016.
- */
 public interface SyncQueueIfc {
-
-    /**
-     * Wanted headers
-     */
-    interface HeadersRequest {
-
-        long getStart();
-
-        byte[] getHash();
-
-        int getCount();
-
-        boolean isReverse();
-
-        List<HeadersRequest> split(int maxCount);
-
-        int getStep();
-    }
-
-    /**
-     * Wanted blocks
-     */
-    interface BlocksRequest {
-        List<BlocksRequest> split(int count);
-
-        List<BlockHeaderWrapper> getBlockHeaders();
-    }
 
     /**
      * Returns wanted headers requests
@@ -102,4 +72,31 @@ public interface SyncQueueIfc {
      * Returns approximate header count waiting for their blocks
      */
     int getHeadersCount();
+
+    /**
+     * Wanted headers
+     */
+    interface HeadersRequest {
+
+        long getStart();
+
+        byte[] getHash();
+
+        int getCount();
+
+        boolean isReverse();
+
+        List<HeadersRequest> split(int maxCount);
+
+        int getStep();
+    }
+
+    /**
+     * Wanted blocks
+     */
+    interface BlocksRequest {
+        List<BlocksRequest> split(int count);
+
+        List<BlockHeaderWrapper> getBlockHeaders();
+    }
 }

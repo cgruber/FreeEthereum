@@ -34,9 +34,6 @@ import org.ethereum.db.IndexedBlockStore;
 
 import java.util.List;
 
-/**
- * Created by Anton Nashatyrev on 21.07.2016.
- */
 class CheckFork {
     public static void main(final String[] args) throws Exception {
         SystemProperties.getDefault().overrideParams("database.dir", "");

@@ -39,9 +39,6 @@ import java.util.*;
 
 import static java.lang.Math.min;
 
-/**
- * Created by Anton Nashatyrev on 27.05.2016.
- */
 public class SyncQueueImpl implements SyncQueueIfc {
     private static final int MAX_CHAIN_LEN = 192;
     private final Map<Long, Map<ByteArrayWrapper, HeaderElement>> headers = new HashMap<>();

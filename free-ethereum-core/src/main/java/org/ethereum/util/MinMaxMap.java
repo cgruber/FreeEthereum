@@ -28,9 +28,6 @@ package org.ethereum.util;
 
 import java.util.TreeMap;
 
-/**
- * Created by Anton Nashatyrev on 08.12.2016.
- */
 public class MinMaxMap<V> extends TreeMap<Long, V> {
 
     public void clearAllAfter(final long key) {

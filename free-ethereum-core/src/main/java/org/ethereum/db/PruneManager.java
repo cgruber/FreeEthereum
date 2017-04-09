@@ -34,9 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-/**
- * Created by Anton Nashatyrev on 10.11.2016.
- */
 public class PruneManager {
 
     private final int pruneBlocksCnt;

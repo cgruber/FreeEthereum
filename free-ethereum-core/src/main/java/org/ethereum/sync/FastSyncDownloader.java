@@ -39,9 +39,6 @@ import org.springframework.stereotype.Component;
 import java.math.BigInteger;
 import java.util.List;
 
-/**
- * Created by Anton Nashatyrev on 27.10.2016.
- */
 @Component
 @Lazy
 public class FastSyncDownloader extends BlockDownloader {

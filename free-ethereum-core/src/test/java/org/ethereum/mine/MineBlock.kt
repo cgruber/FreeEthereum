@@ -44,9 +44,6 @@ import org.spongycastle.util.encoders.Hex
 import java.util.*
 import javax.annotation.Resource
 
-/**
- * Created by Anton Nashatyrev on 10.12.2015.
- */
 class MineBlock {
 
     @Mock

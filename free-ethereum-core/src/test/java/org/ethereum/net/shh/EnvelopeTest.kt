@@ -33,9 +33,6 @@ import org.junit.Test
 import org.spongycastle.util.encoders.Hex
 import java.util.*
 
-/**
- * Created by Anton Nashatyrev on 25.09.2015.
- */
 class EnvelopeTest {
 
     @Test

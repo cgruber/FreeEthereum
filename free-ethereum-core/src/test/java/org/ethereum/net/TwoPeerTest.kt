@@ -52,9 +52,6 @@ import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-/**
- * Created by Anton Nashatyrev on 13.10.2015.
- */
 @Ignore
 open class TwoPeerTest {
 

@@ -38,9 +38,6 @@ import java.util.concurrent.CountDownLatch;
 import static org.ethereum.datasource.MemSizeEstimator.ByteArrayEstimator;
 import static org.ethereum.util.ByteUtil.intToBytes;
 
-/**
- * Created by Anton Nashatyrev on 23.12.2016.
- */
 public class FlushDbManagerTest {
 
     @Test

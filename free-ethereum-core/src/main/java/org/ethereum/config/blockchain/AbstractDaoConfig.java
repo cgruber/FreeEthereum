@@ -37,9 +37,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 
-/**
- * Created by Stan Reshetnyk on 26.12.16.
- */
 public abstract class AbstractDaoConfig extends FrontierConfig {
 
     // "dao-hard-fork" encoded message

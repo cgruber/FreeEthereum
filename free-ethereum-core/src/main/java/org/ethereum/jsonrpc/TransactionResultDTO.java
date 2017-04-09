@@ -29,9 +29,6 @@ package org.ethereum.jsonrpc;
 import org.ethereum.core.Block;
 import org.ethereum.core.Transaction;
 
-/**
- * Created by Ruben on 8/1/2016.
- */
 public class TransactionResultDTO {
 
     public String hash;

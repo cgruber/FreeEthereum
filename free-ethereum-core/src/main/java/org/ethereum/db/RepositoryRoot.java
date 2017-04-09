@@ -34,9 +34,6 @@ import org.ethereum.trie.Trie;
 import org.ethereum.trie.TrieImpl;
 import org.ethereum.vm.DataWord;
 
-/**
- * Created by Anton Nashatyrev on 07.10.2016.
- */
 public class RepositoryRoot extends RepositoryImpl {
 
     private final Source<byte[], byte[]> stateDS;

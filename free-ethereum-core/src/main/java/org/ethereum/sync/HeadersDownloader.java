@@ -45,9 +45,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/**
- * Created by Anton Nashatyrev on 27.10.2016.
- */
 @Component
 @Lazy
 public class HeadersDownloader extends BlockDownloader {

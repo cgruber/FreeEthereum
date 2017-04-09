@@ -47,9 +47,6 @@ import org.ethereum.vm.program.Program;
 import java.math.BigInteger;
 import java.util.List;
 
-/**
- * Created by Anton Nashatyrev on 14.10.2016.
- */
 public class Eip150HFConfig implements BlockchainConfig, BlockchainNetConfig {
     private static final GasCost NEW_GAS_COST = new GasCostEip150HF();
     private final BlockchainConfig parent;

@@ -36,9 +36,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.lang.Math.min;
 
-/**
- * Created by Admin on 17.06.2015.
- */
 public class Util {
 
     // for testing purposes when the timer might be changed

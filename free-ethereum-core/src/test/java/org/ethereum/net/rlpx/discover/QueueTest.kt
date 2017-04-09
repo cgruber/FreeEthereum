@@ -30,9 +30,6 @@ import org.junit.Test
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-/**
- * Created by Anton Nashatyrev on 03.08.2015.
- */
 class QueueTest {
 
     private var exception = false

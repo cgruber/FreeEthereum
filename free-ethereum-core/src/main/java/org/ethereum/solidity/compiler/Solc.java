@@ -35,9 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Scanner;
 
-/**
- * Created by Anton Nashatyrev on 03.03.2016.
- */
 class Solc {
 
     private File solc = null;

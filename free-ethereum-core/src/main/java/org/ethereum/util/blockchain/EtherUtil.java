@@ -28,9 +28,6 @@ package org.ethereum.util.blockchain;
 
 import java.math.BigInteger;
 
-/**
- * Created by Anton Nashatyrev on 22.06.2016.
- */
 public class EtherUtil {
     public static BigInteger convert(final long amount, final Unit unit) {
         return BigInteger.valueOf(amount).multiply(unit.i);

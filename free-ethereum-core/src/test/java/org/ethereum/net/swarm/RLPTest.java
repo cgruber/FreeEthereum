@@ -33,9 +33,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.util.Arrays;
 
-/**
- * Created by Admin on 06.07.2015.
- */
 public class RLPTest {
     @Test
     public void simpleTest() {

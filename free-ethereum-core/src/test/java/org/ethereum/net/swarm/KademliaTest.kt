@@ -33,9 +33,6 @@ import org.junit.Test
 
 import java.util.*
 
-/**
- * Created by Admin on 01.07.2015.
- */
 class KademliaTest {
 
     @Ignore

@@ -30,9 +30,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
-/**
- * Created by Anton Nashatyrev on 08.12.2016.
- */
 class MinMaxMapTest {
 
     @Test

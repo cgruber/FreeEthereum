@@ -49,9 +49,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Created by Anton Nashatyrev on 27.10.2016.
- */
 @Component
 @Scope("prototype")
 public class BlockBodiesDownloader extends BlockDownloader {

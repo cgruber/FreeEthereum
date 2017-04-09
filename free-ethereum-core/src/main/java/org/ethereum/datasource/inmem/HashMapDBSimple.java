@@ -32,9 +32,6 @@ import org.ethereum.util.ByteArrayMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by Anton Nashatyrev on 12.10.2016.
- */
 public class HashMapDBSimple<V> implements DbSource<V> {
 
     private final Map<byte[], V> storage;

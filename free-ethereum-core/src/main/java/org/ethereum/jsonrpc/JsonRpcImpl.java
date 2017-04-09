@@ -69,9 +69,6 @@ import static org.ethereum.jsonrpc.TypeConverter.*;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.ethereum.util.ByteUtil.bigIntegerToBytes;
 
-/**
- * Created by Anton Nashatyrev on 25.11.2015.
- */
 @Component
 @Lazy
 public class JsonRpcImpl implements JsonRpc {

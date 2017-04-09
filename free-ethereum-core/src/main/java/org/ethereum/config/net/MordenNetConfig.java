@@ -30,9 +30,6 @@ import org.ethereum.config.blockchain.Eip150HFConfig;
 import org.ethereum.config.blockchain.Eip160HFConfig;
 import org.ethereum.config.blockchain.MordenConfig;
 
-/**
- * Created by Anton Nashatyrev on 25.02.2016.
- */
 public class MordenNetConfig extends BaseNetConfig {
 
     public MordenNetConfig() {

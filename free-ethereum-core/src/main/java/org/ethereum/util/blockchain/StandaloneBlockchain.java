@@ -65,9 +65,6 @@ import java.util.concurrent.ExecutionException;
 
 import static org.ethereum.util.ByteUtil.wrap;
 
-/**
- * Created by Anton Nashatyrev on 23.03.2016.
- */
 public class StandaloneBlockchain implements LocalBlockchain {
 
     private final List<PendingTx> submittedTxes = new CopyOnWriteArrayList<>();

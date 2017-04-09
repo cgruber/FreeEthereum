@@ -26,9 +26,6 @@
 
 package org.ethereum.mine;
 
-/**
- * Created by Anton Nashatyrev on 27.11.2015.
- */
 public class EthashParams {
 
     // bytes in dataset at genesis

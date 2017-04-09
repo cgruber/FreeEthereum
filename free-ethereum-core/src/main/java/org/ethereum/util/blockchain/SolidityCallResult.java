@@ -31,9 +31,6 @@ import org.ethereum.core.CallTransaction;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Anton Nashatyrev on 26.07.2016.
- */
 public abstract class SolidityCallResult extends TransactionResult {
     public Object getReturnValue() {
         final Object[] returnValues = getReturnValues();

@@ -39,9 +39,6 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.*;
 
-/**
- * Created by Anton Nashatyrev on 01.12.2016.
- */
 public class IterableTestRepository implements Repository {
     final Repository src;
     boolean environmental;

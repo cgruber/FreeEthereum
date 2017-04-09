@@ -28,9 +28,6 @@ package org.ethereum.net.swarm
 
 import java.util.*
 
-/**
- * Created by Admin on 11.06.2015.
- */
 class SimpleDPA : DPA(null) {
     private val rnd = Random(0)
     private val store: HashMap<Key, SectionReader> = HashMap()

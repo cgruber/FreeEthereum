@@ -48,9 +48,6 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
-/**
- * Created by Anton Nashatyrev on 27.10.2016.
- */
 @Component
 @Scope("prototype")
 class ReceiptsDownloader {

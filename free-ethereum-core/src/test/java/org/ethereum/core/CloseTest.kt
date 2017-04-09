@@ -33,9 +33,6 @@ import org.junit.Ignore
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-/**
- * Created by Anton Nashatyrev on 24.06.2016.
- */
 class CloseTest {
 
     @Ignore

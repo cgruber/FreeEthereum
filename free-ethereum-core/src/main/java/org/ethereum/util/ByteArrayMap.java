@@ -30,9 +30,6 @@ import org.ethereum.db.ByteArrayWrapper;
 
 import java.util.*;
 
-/**
- * Created by Anton Nashatyrev on 06.10.2016.
- */
 public class ByteArrayMap<V> implements Map<byte[], V> {
     private final Map<ByteArrayWrapper, V> delegate;
 

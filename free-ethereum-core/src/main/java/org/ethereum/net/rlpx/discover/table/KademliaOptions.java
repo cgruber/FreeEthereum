@@ -26,9 +26,6 @@
 
 package org.ethereum.net.rlpx.discover.table;
 
-/**
- * Created by kest on 5/25/15.
- */
 public class KademliaOptions {
     public static final int BUCKET_SIZE = 16;
     public static final int ALPHA = 3;

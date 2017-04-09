@@ -37,9 +37,6 @@ import org.junit.Test
 import java.io.File
 import java.io.IOException
 
-/**
- * Created by Anton Nashatyrev on 03.03.2016.
- */
 class CompilerTest {
 
     @Test

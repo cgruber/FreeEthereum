@@ -36,9 +36,6 @@ import org.junit.Test;
 
 import java.util.*;
 
-/**
- * Created by Anton Nashatyrev on 30.05.2016.
- */
 public class SyncQueueImplTest {
     private static final int DEFAULT_REQUEST_LEN = 192;
     private final byte[] peer0 = new byte[32];

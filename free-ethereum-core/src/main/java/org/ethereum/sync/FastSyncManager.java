@@ -63,9 +63,6 @@ import java.util.concurrent.*;
 import static org.ethereum.listener.EthereumListener.SyncState.*;
 import static org.ethereum.util.CompactEncoder.hasTerminator;
 
-/**
- * Created by Anton Nashatyrev on 24.10.2016.
- */
 @Component
 public class FastSyncManager {
     public static final byte[] FASTSYNC_DB_KEY_SYNC_STAGE = HashUtil.sha3("Key in state DB indicating fastsync stage in progress".getBytes());

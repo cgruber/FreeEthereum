@@ -39,9 +39,6 @@ import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.intToBytes;
 import static org.spongycastle.util.encoders.Hex.decode;
 
-/**
- * Created by Anton Nashatyrev on 19.01.2017.
- */
 public class AsyncWriteCacheTest {
 
     private volatile boolean flushing;

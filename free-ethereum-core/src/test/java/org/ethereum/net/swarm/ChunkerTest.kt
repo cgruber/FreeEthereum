@@ -29,9 +29,6 @@ package org.ethereum.net.swarm
 import org.junit.Test
 import java.util.*
 
-/**
- * Created by Admin on 19.06.2015.
- */
 class ChunkerTest {
 
     @Test

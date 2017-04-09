@@ -48,9 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Anton Nashatyrev on 03.03.2016.
- */
 public class CreateContractSample extends TestNetSample {
 
     private final Map<ByteArrayWrapper, TransactionReceipt> txWaiters =

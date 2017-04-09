@@ -28,9 +28,6 @@ package org.ethereum.net.rlpx.discover.table;
 
 import java.util.Comparator;
 
-/**
- * Created by kest on 5/26/15.
- */
 class DistanceComparator implements Comparator<NodeEntry> {
     private final byte[] targetId;
 

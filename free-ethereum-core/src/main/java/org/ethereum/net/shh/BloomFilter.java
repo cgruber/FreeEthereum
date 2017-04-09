@@ -28,9 +28,6 @@ package org.ethereum.net.shh;
 
 import java.util.BitSet;
 
-/**
- * Created by Anton Nashatyrev on 24.09.2015.
- */
 public class BloomFilter implements Cloneable {
     private static final int BITS_PER_BLOOM = 3;
     private static final int BLOOM_BYTES = 64;

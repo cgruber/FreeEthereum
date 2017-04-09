@@ -50,9 +50,6 @@ import org.spongycastle.util.encoders.Hex
 import java.math.BigInteger
 import java.util.*
 
-/**
- * Created by Anton Nashatyrev on 05.07.2016.
- */
 class PruneTest {
 
     @Test

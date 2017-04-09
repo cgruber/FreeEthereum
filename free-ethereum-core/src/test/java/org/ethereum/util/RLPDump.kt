@@ -30,9 +30,6 @@ import org.ethereum.crypto.ECKey
 import org.junit.Test
 import org.spongycastle.util.encoders.Hex
 
-/**
- * Created by Anton Nashatyrev on 29.09.2015.
- */
 class RLPDump {
     private fun dump(el: RLPElement, indent: Int): String {
         var ret = StringBuilder()

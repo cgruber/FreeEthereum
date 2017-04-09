@@ -31,9 +31,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by Anton Nashatyrev on 06.10.2016.
- */
 class SetAdapter<E> implements Set<E> {
     private static final Object DummyValue = new Object();
     private final Map<E, Object> delegate;

@@ -31,9 +31,6 @@ import org.ethereum.crypto.HashUtil.sha3
 import org.junit.Ignore
 import org.junit.Test
 
-/**
- * Created by Admin on 06.07.2015.
- */
 class GoPeerTest {
 
     @Ignore

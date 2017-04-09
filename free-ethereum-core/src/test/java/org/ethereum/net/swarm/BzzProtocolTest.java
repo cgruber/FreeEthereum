@@ -44,9 +44,6 @@ import java.util.concurrent.*;
 
 import static org.ethereum.crypto.HashUtil.sha3;
 
-/**
- * Created by Admin on 24.06.2015.
- */
 public class BzzProtocolTest {
 
     private static final FilterPrinter stdout = new FilterPrinter(System.out);

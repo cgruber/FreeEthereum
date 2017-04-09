@@ -31,9 +31,6 @@ import org.ethereum.core.TransactionInfo;
 
 import static org.ethereum.jsonrpc.TypeConverter.toJsonHex;
 
-/**
- * Created by Anton Nashatyrev on 05.08.2016.
- */
 public class TransactionReceiptDTOExt extends TransactionReceiptDTO {
 
     public TransactionReceiptDTOExt(final Block block, final TransactionInfo txInfo) {

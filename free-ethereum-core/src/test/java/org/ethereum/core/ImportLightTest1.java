@@ -53,9 +53,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
 
-/**
- * Created by Anton Nashatyrev on 29.12.2015.
- */
 public class ImportLightTest1 {
 
     @BeforeClass

@@ -30,9 +30,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.slf4j.LoggerFactory
 
-/**
- * Created by Anton Nashatyrev on 24.09.2015.
- */
 class BloomFilterTest {
 
     @Test

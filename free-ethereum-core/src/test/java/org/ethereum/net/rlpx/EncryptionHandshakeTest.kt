@@ -32,9 +32,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
-/**
- * Created by android on 4/8/15.
- */
 class EncryptionHandshakeTest {
     private var myKey: ECKey? = null
     private var remoteKey: ECKey? = null

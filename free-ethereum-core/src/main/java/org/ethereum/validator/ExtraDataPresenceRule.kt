@@ -31,9 +31,6 @@ import org.ethereum.util.ByteUtil
 import org.ethereum.util.FastByteComparisons
 import org.spongycastle.util.encoders.Hex
 
-/**
- * Created by Stan Reshetnyk on 26.12.16.
- */
 class ExtraDataPresenceRule(private val data: ByteArray, private val required: Boolean) : BlockHeaderRule() {
 
     public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {

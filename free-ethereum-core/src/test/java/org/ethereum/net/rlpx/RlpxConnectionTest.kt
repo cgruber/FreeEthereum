@@ -35,9 +35,6 @@ import org.junit.Test
 import java.io.*
 import java.security.SecureRandom
 
-/**
- * Created by devrandom on 2015-04-11.
- */
 class RlpxConnectionTest {
     private var iCodec: FrameCodec? = null
     private var rCodec: FrameCodec? = null

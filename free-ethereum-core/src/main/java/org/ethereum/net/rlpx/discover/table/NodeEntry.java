@@ -28,9 +28,6 @@ package org.ethereum.net.rlpx.discover.table;
 
 import org.ethereum.net.rlpx.Node;
 
-/**
- * Created by kest on 5/25/15.
- */
 public class NodeEntry {
     private final Node node;
     private final byte[] ownerId;

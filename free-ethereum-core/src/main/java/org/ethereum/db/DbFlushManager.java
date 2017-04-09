@@ -44,9 +44,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
 
-/**
- * Created by Anton Nashatyrev on 01.12.2016.
- */
 public class DbFlushManager {
     private static final Logger logger = LoggerFactory.getLogger("db");
     private final BlockingQueue<Runnable> executorQueue = new ArrayBlockingQueue<>(1);

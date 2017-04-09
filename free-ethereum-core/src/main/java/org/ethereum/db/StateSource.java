@@ -33,9 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Created by Anton Nashatyrev on 29.11.2016.
- */
 public class StateSource extends SourceChainBox<byte[], byte[], byte[], byte[]>
         implements HashedKeySource<byte[], byte[]> {
     private static final Logger logger = LoggerFactory.getLogger("db");

@@ -35,9 +35,6 @@ import java.util.Arrays;
 
 import static org.ethereum.jsonrpc.TypeConverter.toJsonHex;
 
-/**
- * Created by Anton Nashatyrev on 25.11.2015.
- */
 public interface JsonRpc {
 
     String web3_clientVersion();

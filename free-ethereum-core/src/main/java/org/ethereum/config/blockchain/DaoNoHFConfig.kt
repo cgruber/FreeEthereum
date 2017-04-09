@@ -28,9 +28,6 @@ package org.ethereum.config.blockchain
 
 import org.ethereum.config.BlockchainConfig
 
-/**
- * Created by Anton Nashatyrev on 18.07.2016.
- */
 class DaoNoHFConfig : AbstractDaoConfig {
 
     init {

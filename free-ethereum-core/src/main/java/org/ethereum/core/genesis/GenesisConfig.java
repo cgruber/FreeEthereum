@@ -28,9 +28,6 @@ package org.ethereum.core.genesis;
 
 import java.util.List;
 
-/**
- * Created by Anton on 03.03.2017.
- */
 public class GenesisConfig {
     public Integer homesteadBlock;
     public Integer daoForkBlock;
@@ -41,16 +38,15 @@ public class GenesisConfig {
     public Integer chainId;
 
     // EthereumJ private options
-
-    public static class HashValidator {
-        public long number;
-        public String hash;
-    }
-
     public List<HashValidator> headerValidators;
 
     public boolean isCustomConfig() {
         return homesteadBlock != null || daoForkBlock != null || eip150Block != null ||
                 eip155Block != null || eip158Block != null;
+    }
+
+    public static class HashValidator {
+        public long number;
+        public String hash;
     }
 }

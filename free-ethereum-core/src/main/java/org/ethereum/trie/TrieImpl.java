@@ -47,9 +47,6 @@ import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.ethereum.util.RLP.*;
 
-/**
- * Created by Anton Nashatyrev on 07.02.2017.
- */
 public class TrieImpl implements Trie<byte[]> {
     private final static Object NULL_NODE = new Object();
     private final static int MIN_BRANCHES_CONCURRENTLY = 3;

@@ -36,9 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Created by devrandom on 2015-04-12.
- */
 class RlpxConnection {
     private static final Logger logger = LoggerFactory.getLogger("discover");
 

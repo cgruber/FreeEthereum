@@ -34,9 +34,6 @@ import org.ethereum.vm.LogInfo;
 
 import static org.ethereum.jsonrpc.TypeConverter.toJsonHex;
 
-/**
- * Created by Ruben on 5/1/2016.
- */
 public class TransactionReceiptDTO {
 
     public final long gasUsed;             //The amount of gas used by this specific transaction alone.

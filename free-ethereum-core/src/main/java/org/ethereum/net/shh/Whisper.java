@@ -29,9 +29,6 @@ package org.ethereum.net.shh;
 import org.ethereum.crypto.ECKey;
 import org.springframework.stereotype.Component;
 
-/**
- * Created by Anton Nashatyrev on 25.09.2015.
- */
 @Component
 public abstract class Whisper {
 

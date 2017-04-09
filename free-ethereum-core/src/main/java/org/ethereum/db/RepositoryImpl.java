@@ -44,9 +44,6 @@ import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.*;
 
-/**
- * Created by Anton Nashatyrev on 07.10.2016.
- */
 public class RepositoryImpl implements Repository, org.ethereum.facade.Repository {
 
     Source<byte[], AccountState> accountStateCache;

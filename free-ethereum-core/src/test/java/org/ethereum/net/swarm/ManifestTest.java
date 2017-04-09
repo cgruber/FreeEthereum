@@ -28,9 +28,6 @@ package org.ethereum.net.swarm;
 
 import org.junit.Test;
 
-/**
- * Created by Admin on 11.06.2015.
- */
 public class ManifestTest {
 
     private static final String testManifest = "{\"entries\":[\n" +

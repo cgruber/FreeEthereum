@@ -34,9 +34,6 @@ import org.ethereum.vm.OpCode;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by Anton Nashatyrev on 06.02.2017.
- */
 public class ProgramPrecompile {
     private static final int version = 1;
 

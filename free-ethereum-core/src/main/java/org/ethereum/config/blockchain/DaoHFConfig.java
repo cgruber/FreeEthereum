@@ -37,9 +37,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Anton Nashatyrev on 18.07.2016.
- */
 public class DaoHFConfig extends AbstractDaoConfig {
 
     private static final String accountsJson = "" +

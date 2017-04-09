@@ -32,9 +32,6 @@ import org.ethereum.validator.BlockCustomHashRule;
 import org.ethereum.validator.BlockHeaderValidator;
 import org.spongycastle.util.encoders.Hex;
 
-/**
- * Created by Anton Nashatyrev on 21.11.2016.
- */
 public class RopstenConfig extends Eip160HFConfig {
 
     // Check for 1 known block to exclude fake peers

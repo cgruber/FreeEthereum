@@ -30,9 +30,6 @@ import org.ethereum.core.BlockHeader;
 import org.ethereum.util.FastByteComparisons;
 import org.spongycastle.util.encoders.Hex;
 
-/**
- * Created by Stan Reshetnyk on 26.12.16.
- */
 public class BlockCustomHashRule extends BlockHeaderRule {
 
     private final byte[] blockHash;

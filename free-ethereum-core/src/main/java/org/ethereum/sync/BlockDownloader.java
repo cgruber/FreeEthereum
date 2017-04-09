@@ -46,9 +46,6 @@ import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-/**
- * Created by Anton Nashatyrev on 27.10.2016.
- */
 abstract class BlockDownloader {
 
     private final static Logger logger = LoggerFactory.getLogger("sync");

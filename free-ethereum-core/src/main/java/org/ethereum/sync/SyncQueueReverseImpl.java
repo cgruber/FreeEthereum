@@ -34,9 +34,6 @@ import org.ethereum.util.MinMaxMap;
 
 import java.util.*;
 
-/**
- * Created by Anton Nashatyrev on 27.10.2016.
- */
 public class SyncQueueReverseImpl implements SyncQueueIfc {
 
     private final byte[] curHeaderHash;

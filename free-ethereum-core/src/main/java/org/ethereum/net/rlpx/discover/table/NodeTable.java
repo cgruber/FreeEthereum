@@ -30,9 +30,6 @@ import org.ethereum.net.rlpx.Node;
 
 import java.util.*;
 
-/**
- * Created by kest on 5/25/15.
- */
 public class NodeTable {
 
     private final Node node;  // our node

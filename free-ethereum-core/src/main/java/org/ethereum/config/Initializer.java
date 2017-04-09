@@ -40,9 +40,6 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import java.io.*;
 import java.util.Properties;
 
-/**
- * Created by Anton Nashatyrev on 13.05.2016.
- */
 class Initializer implements BeanPostProcessor {
 
     private static final Logger logger = LoggerFactory.getLogger("general");

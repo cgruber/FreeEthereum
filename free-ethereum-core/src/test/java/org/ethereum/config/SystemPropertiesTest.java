@@ -29,9 +29,6 @@ package org.ethereum.config;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Created by Anton Nashatyrev on 26.08.2015.
- */
 public class SystemPropertiesTest {
     @Test
     public void punchBindIpTest() {

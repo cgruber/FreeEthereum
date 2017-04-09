@@ -33,9 +33,6 @@ import org.ethereum.util.blockchain.StandaloneBlockchain
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-/**
- * Created by Stan Reshetnyk on 29.12.16.
- */
 class DaoLightMiningTest {
 
     // configure

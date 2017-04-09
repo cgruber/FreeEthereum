@@ -41,9 +41,6 @@ import org.junit.Test;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-/**
- * Created by Anton Nashatyrev on 08.04.2016.
- */
 public class TransactionStoreTest {
 
     @AfterClass

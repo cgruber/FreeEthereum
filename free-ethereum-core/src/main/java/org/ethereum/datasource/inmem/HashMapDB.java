@@ -35,9 +35,6 @@ import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/**
- * Created by Anton Nashatyrev on 12.10.2016.
- */
 public class HashMapDB<V> implements DbSource<V> {
 
     protected final Map<byte[], V> storage;

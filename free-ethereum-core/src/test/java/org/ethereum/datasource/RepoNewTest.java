@@ -41,9 +41,6 @@ import static java.math.BigInteger.valueOf;
 import static org.spongycastle.util.encoders.Hex.decode;
 import static org.spongycastle.util.encoders.Hex.toHexString;
 
-/**
- * Created by Anton Nashatyrev on 12.10.2016.
- */
 public class RepoNewTest {
 
     @Test

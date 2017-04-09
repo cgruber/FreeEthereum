@@ -34,9 +34,6 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-/**
- * Created by Admin on 25.06.2015.
- */
 public class MessageTest {
 
     @Test

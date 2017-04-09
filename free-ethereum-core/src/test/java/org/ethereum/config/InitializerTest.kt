@@ -40,9 +40,6 @@ import org.junit.Test
 import java.io.File
 import java.io.IOException
 
-/**
- * Created by Stan Reshetnyk on 11.09.16.
- */
 class InitializerTest {
 
     private val resetHelper = Initializer.DatabaseVersionHandler()

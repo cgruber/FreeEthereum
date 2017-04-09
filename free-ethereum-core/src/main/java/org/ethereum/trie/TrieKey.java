@@ -30,9 +30,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 
-/**
- * Created by Anton Nashatyrev on 13.02.2017.
- */
 public final class TrieKey {
     private static final int ODD_OFFSET_FLAG = 0x1;
     private static final int TERMINATOR_FLAG = 0x2;

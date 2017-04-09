@@ -39,9 +39,6 @@ import java.util.List;
 
 import static org.ethereum.util.ByteUtil.longToBytes;
 
-/**
- * Created by devrandom on 2015-04-12.
- */
 public class HandshakeMessage {
     public static final int HANDSHAKE_MESSAGE_TYPE = 0x00;
     public static final int NODE_ID_BITS = 512;

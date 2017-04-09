@@ -32,10 +32,7 @@ import org.ethereum.config.Constants;
 
 import java.util.Arrays;
 
-/**
- * Created by Anton Nashatyrev on 25.02.2016.
- */
-    public class BaseNetConfig implements BlockchainNetConfig {
+public class BaseNetConfig implements BlockchainNetConfig {
     private final long[] blockNumbers = new long[64];
     private final BlockchainConfig[] configs = new BlockchainConfig[64];
     private int count;

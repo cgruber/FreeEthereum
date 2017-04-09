@@ -37,9 +37,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/**
- * Created by Anton Nashatyrev on 18.01.2017.
- */
 public abstract class AsyncWriteCache<Key, Value> extends AbstractCachedSource<Key, Value> implements AsyncFlushable {
     private static final Logger logger = LoggerFactory.getLogger("db");
 

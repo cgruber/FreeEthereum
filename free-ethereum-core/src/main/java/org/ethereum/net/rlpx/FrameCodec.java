@@ -46,9 +46,6 @@ import java.util.List;
 
 import static org.ethereum.util.RLP.decode2OneItem;
 
-/**
- * Created by devrandom on 2015-04-11.
- */
 public class FrameCodec {
     private final StreamCipher enc;
     private final StreamCipher dec;
