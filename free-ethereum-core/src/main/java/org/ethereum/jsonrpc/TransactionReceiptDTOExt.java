@@ -24,6 +24,21 @@
  *
  */
 
-rootProject.name = "free-ethereum"
-include "free-ethereum-core"
+package org.ethereum.jsonrpc;
 
+import org.ethereum.core.Block;
+import org.ethereum.core.TransactionInfo;
+
+import static org.ethereum.jsonrpc.TypeConverter.toJsonHex;
+
+/**
+ * Created by Anton Nashatyrev on 05.08.2016.
+ */
+public class TransactionReceiptDTOExt extends TransactionReceiptDTO {
+
+    public TransactionReceiptDTOExt(final Block block, final TransactionInfo txInfo) {
+        super(block, txInfo);
+        String returnData = toJsonHex(txInfo.getReceipt().getExecutionResult());
+        String error = txInfo.getReceipt().getError();
+    }
+}

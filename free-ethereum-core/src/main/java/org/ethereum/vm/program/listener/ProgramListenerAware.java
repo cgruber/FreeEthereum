@@ -24,6 +24,9 @@
  *
  */
 
-rootProject.name = "free-ethereum"
-include "free-ethereum-core"
+package org.ethereum.vm.program.listener;
 
+public interface ProgramListenerAware {
+    
+    void setProgramListener(ProgramListener listener);
+}
