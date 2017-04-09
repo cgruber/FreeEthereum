@@ -61,7 +61,7 @@ import java.util.concurrent.TimeUnit
  * Created by Anton Nashatyrev on 13.10.2015.
  */
 @Ignore
-class MinerTest {
+open class MinerTest {
 
     private val submittedTxs = Collections.synchronizedMap(
             HashMap<ByteArrayWrapper, Pair<Transaction, Long>>())
@@ -305,10 +305,10 @@ class MinerTest {
 
     @Configuration
     @NoAutoscan
-    class SysPropConfig1 {
+    open class SysPropConfig1 {
 
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             return props
         }
 
@@ -320,10 +320,10 @@ class MinerTest {
 
     @Configuration
     @NoAutoscan
-    class SysPropConfig2 {
+    open class SysPropConfig2 {
 
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             return props
         }
 

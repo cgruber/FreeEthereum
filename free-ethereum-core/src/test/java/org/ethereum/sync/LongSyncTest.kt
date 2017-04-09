@@ -63,7 +63,7 @@ import java.util.concurrent.TimeUnit.SECONDS
  * @since 14.12.2015
  */
 @Ignore("Long network tests")
-class LongSyncTest {
+open class LongSyncTest {
 
     private var ethereumA: Ethereum? = null
     private var ethereumB: Ethereum? = null
@@ -482,17 +482,17 @@ class LongSyncTest {
 
     @Configuration
     @NoAutoscan
-    class SysPropConfigA {
+    open class SysPropConfigA {
 
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             return props
         }
 
         @Bean
         @Scope("prototype")
         @Throws(IllegalAccessException::class, InstantiationException::class)
-        fun eth62(): Eth62 {
+        open fun eth62(): Eth62 {
             if (eth62 != null) return eth62!!
             return Eth62()
         }
@@ -505,10 +505,10 @@ class LongSyncTest {
 
     @Configuration
     @NoAutoscan
-    class SysPropConfigB {
+    open class SysPropConfigB {
 
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             return props
         }
 

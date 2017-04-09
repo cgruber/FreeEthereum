@@ -188,7 +188,7 @@ public class GenesisLoader {
         }
         final byte[] nonce = new byte[NONCE_LENGTH];
         final int diff = NONCE_LENGTH - nonceUnchecked.length;
-        System.arraycopy(nonceUnchecked, diff - diff, nonce, diff, NONCE_LENGTH - diff);
+        System.arraycopy(nonceUnchecked, 0, nonce, diff, NONCE_LENGTH - diff);
         return nonce;
     }
 

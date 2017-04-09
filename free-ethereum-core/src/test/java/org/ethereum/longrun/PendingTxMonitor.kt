@@ -175,10 +175,10 @@ class PendingTxMonitor : BasicNode("sampleNode") {
     /**
      * Spring configuration class for the Regular peer
      */
-    private class RegularConfig {
+    private open class RegularConfig {
 
         @Bean
-        fun node(): PendingTxMonitor {
+        open fun node(): PendingTxMonitor {
             return PendingTxMonitor()
         }
 
@@ -188,7 +188,7 @@ class PendingTxMonitor : BasicNode("sampleNode") {
          * config for this instance.
          */
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             val props = SystemProperties()
             props.overrideParams(ConfigFactory.parseString(
                     "peer.discovery.enabled = true\n" +

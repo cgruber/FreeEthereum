@@ -43,7 +43,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 @Ignore
-class FramingTest {
+open class FramingTest {
 
     @Test
     @Throws(FileNotFoundException::class, InterruptedException::class)
@@ -98,16 +98,16 @@ class FramingTest {
 
     @Configuration
     @NoAutoscan
-    class SysPropConfig1 {
+    open class SysPropConfig1 {
 
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             return props!!
         }
 
         @Bean
         @Scope("prototype")
-        fun messageCodec(): MessageCodec {
+        open fun messageCodec(): MessageCodec {
             val codec = MessageCodec()
             codec.setMaxFramePayloadSize(16)
             println("SysPropConfig1.messageCodec")
@@ -121,11 +121,11 @@ class FramingTest {
 
     @Configuration
     @NoAutoscan
-    class SysPropConfig2 {
+    open class SysPropConfig2 {
 
         @Bean
         @Scope("prototype")
-        fun messageCodec(): MessageCodec {
+        open fun messageCodec(): MessageCodec {
             val codec = MessageCodec()
             codec.setMaxFramePayloadSize(16)
             println("SysPropConfig2.messageCodec")
@@ -133,7 +133,7 @@ class FramingTest {
         }
 
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             return props!!
         }
 

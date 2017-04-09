@@ -213,7 +213,7 @@ public class PendingStateTest {
         final StandaloneBlockchain bc = new StandaloneBlockchain();
         final PendingListener l = new PendingListener();
         bc.addEthereumListener(l);
-        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd = null;
+        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd;
         final PendingStateImpl pendingState = (PendingStateImpl) bc.getBlockchain().getPendingState();
 
         final ECKey alice = new ECKey();
@@ -299,7 +299,7 @@ public class PendingStateTest {
         final StandaloneBlockchain bc = new StandaloneBlockchain();
         final PendingListener l = new PendingListener();
         bc.addEthereumListener(l);
-        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd = null;
+        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd;
         final PendingStateImpl pendingState = (PendingStateImpl) bc.getBlockchain().getPendingState();
 
         final ECKey alice = new ECKey();
@@ -348,7 +348,7 @@ public class PendingStateTest {
         final StandaloneBlockchain bc = new StandaloneBlockchain();
         final PendingListener l = new PendingListener();
         bc.addEthereumListener(l);
-        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd = null;
+        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd;
         final PendingStateImpl pendingState = (PendingStateImpl) bc.getBlockchain().getPendingState();
 
         final ECKey alice = new ECKey();
@@ -383,7 +383,7 @@ public class PendingStateTest {
         final StandaloneBlockchain bc = new StandaloneBlockchain();
         final PendingListener l = new PendingListener();
         bc.addEthereumListener(l);
-        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd = null;
+        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd;
         final PendingStateImpl pendingState = (PendingStateImpl) bc.getBlockchain().getPendingState();
 
         final ECKey alice = new ECKey();
@@ -409,7 +409,7 @@ public class PendingStateTest {
         final StandaloneBlockchain bc = new StandaloneBlockchain();
         final PendingListener l = new PendingListener();
         bc.addEthereumListener(l);
-        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd = null;
+        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd;
         final PendingStateImpl pendingState = (PendingStateImpl) bc.getBlockchain().getPendingState();
 
         final ECKey alice = new ECKey();
@@ -473,7 +473,7 @@ public class PendingStateTest {
         final StandaloneBlockchain bc = new StandaloneBlockchain();
         final PendingListener l = new PendingListener();
         bc.addEthereumListener(l);
-        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd = null;
+        Triple<TransactionReceipt, EthereumListener.PendingTransactionState, Block> txUpd;
         final PendingStateImpl pendingState = (PendingStateImpl) bc.getBlockchain().getPendingState();
 
         final ECKey alice = new ECKey();

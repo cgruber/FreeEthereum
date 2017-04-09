@@ -56,7 +56,7 @@ class JsonRpcTest {
         println("Test complete.")
     }
 
-    private class TestConfig {
+    private open class TestConfig {
 
         private val config =
                 // no need for discovery in that small network
@@ -84,7 +84,7 @@ class JsonRpcTest {
          * config for this instance.
          */
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             val props = SystemProperties()
             props.overrideParams(ConfigFactory.parseString(config.replace("'".toRegex(), "\"")))
             val config = FrontierConfig(object : FrontierConfig.FrontierConstants() {
@@ -97,7 +97,7 @@ class JsonRpcTest {
         }
 
         @Bean
-        fun test(): TestRunner {
+        open fun test(): TestRunner {
             return TestRunner()
         }
     }
