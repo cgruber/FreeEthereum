@@ -52,7 +52,7 @@ public class RepositoryBuilder {
         for (final String address : accounts.keySet()) {
 
             final AccountTck accountTCK = accounts.get(address);
-            final AccountBuilder.StateWrap stateWrap = AccountBuilder.build(accountTCK);
+            final AccountBuilder.StateWrap stateWrap = AccountBuilder.INSTANCE.build(accountTCK);
 
             final AccountState state = stateWrap.getAccountState();
             final ContractDetails details = stateWrap.getContractDetails();
