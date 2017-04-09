@@ -72,7 +72,7 @@ object BIUtil {
      * @return true - if the valueA is less than valueB is zero
      */
     fun isLessThan(valueA: BigInteger, valueB: BigInteger): Boolean {
-        return valueA.compareTo(valueB) < 0
+        return valueA < valueB
     }
 
     /**
@@ -83,7 +83,7 @@ object BIUtil {
      * @return true - if the valueA is more than valueB is zero
      */
     fun isMoreThan(valueA: BigInteger, valueB: BigInteger): Boolean {
-        return valueA.compareTo(valueB) > 0
+        return valueA > valueB
     }
 
 
@@ -127,7 +127,7 @@ object BIUtil {
     }
 
     fun isNotCovers(covers: BigInteger, value: BigInteger): Boolean {
-        return covers.compareTo(value) < 0
+        return covers < value
     }
 
 
@@ -148,6 +148,6 @@ object BIUtil {
     }
 
     fun max(first: BigInteger, second: BigInteger): BigInteger {
-        return if (first.compareTo(second) < 0) second else first
+        return if (first < second) second else first
     }
 }

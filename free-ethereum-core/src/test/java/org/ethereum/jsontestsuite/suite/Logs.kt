@@ -48,7 +48,7 @@ class Logs(jLogs: JSONArray) {
             val topics = jTopics.toTypedArray()
                     .asSequence()
                     .map { Hex.decode(it as String) }
-                    .map { DataWord(it) }
+                    .map(::DataWord)
                     .toList()
 
             val li = LogInfo(address, topics, data)

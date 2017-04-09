@@ -74,7 +74,7 @@ class TransactionTestRunner private constructor(private val transactionTestCase:
         // Not enough GAS
         if (transaction != null) {
             val basicTxCost = blockchainConfig!!.getTransactionCost(transaction!!)
-            if (BigInteger(1, transaction!!.gasLimit).compareTo(BigInteger.valueOf(basicTxCost)) < 0) {
+            if (BigInteger(1, transaction!!.gasLimit) < BigInteger.valueOf(basicTxCost)) {
                 transaction = null
             }
         }

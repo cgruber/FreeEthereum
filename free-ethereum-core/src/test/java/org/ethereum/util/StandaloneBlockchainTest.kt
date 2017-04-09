@@ -157,7 +157,7 @@ class StandaloneBlockchainTest {
 
         sb.createBlock()
 
-        assert(convert(123, ETHER).compareTo(sb.blockchain.repository.getBalance(bob.address)) > 0)
+        assert(convert(123, ETHER) > sb.blockchain.repository.getBalance(bob.address))
         assert(aliceInitBal.add(BigInteger.ONE) == sb.blockchain.repository.getBalance(alice.address))
     }
 

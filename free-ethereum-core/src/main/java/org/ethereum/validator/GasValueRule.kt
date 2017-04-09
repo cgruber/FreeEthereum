@@ -40,7 +40,7 @@ import java.math.BigInteger
 class GasValueRule : BlockHeaderRule() {
 
     public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
-        if (BigInteger(1, header.gasLimit).compareTo(BigInteger.valueOf(header.gasUsed)) < 0) {
+        if (BigInteger(1, header.gasLimit) < BigInteger.valueOf(header.gasUsed)) {
             return fault("header.getGasLimit() < header.getGasUsed()")
         }
 

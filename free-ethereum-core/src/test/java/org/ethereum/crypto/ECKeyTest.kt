@@ -263,7 +263,7 @@ class ECKeyTest {
                 .mapTo(sigFutures) { executor.submit(Callable { key.doSign(it) }) }
         val sigs = Futures.allAsList(sigFutures).get()
         for (signature in sigs) {
-            assertTrue(signature.s.compareTo(ECKey.HALF_CURVE_ORDER) <= 0)
+            assertTrue(signature.s <= ECKey.HALF_CURVE_ORDER)
         }
         val duplicate = ECKey.ECDSASignature(sigs[0].r, sigs[0].s)
         assertEquals(sigs[0], duplicate)

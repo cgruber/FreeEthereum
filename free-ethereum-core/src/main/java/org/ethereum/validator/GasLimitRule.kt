@@ -51,7 +51,7 @@ class GasLimitRule(config: SystemProperties) : BlockHeaderRule() {
 
     public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
 
-        if (BigInteger(1, header.gasLimit).compareTo(BigInteger.valueOf(MIN_GAS_LIMIT.toLong())) < 0) {
+        if (BigInteger(1, header.gasLimit) < BigInteger.valueOf(MIN_GAS_LIMIT.toLong())) {
             return fault("header.getGasLimit() < MIN_GAS_LIMIT")
         }
 

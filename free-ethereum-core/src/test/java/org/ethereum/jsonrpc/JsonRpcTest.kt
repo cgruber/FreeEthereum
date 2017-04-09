@@ -115,7 +115,7 @@ class JsonRpcTest {
             val cowAcct = jsonRpc!!.personal_newAccount("cow")
             val bal0 = jsonRpc!!.eth_getBalance(cowAcct)
             println("Balance: " + bal0)
-            assertTrue(TypeConverter.StringHexToBigInteger(bal0).compareTo(BigInteger.ZERO) > 0)
+            assertTrue(TypeConverter.StringHexToBigInteger(bal0) > BigInteger.ZERO)
 
             val pendingTxFilterId = jsonRpc!!.eth_newPendingTransactionFilter()
             var changes = jsonRpc!!.eth_getFilterChanges(pendingTxFilterId)
@@ -133,7 +133,7 @@ class JsonRpcTest {
             val txHash1 = jsonRpc!!.eth_sendTransaction(cowAcct, "0x0000000000000000000000000000000000001234", "0x300000",
                     "0x10000000000", "0x7777", "0x", "0x00")
             println("Tx hash: " + txHash1)
-            assertTrue(TypeConverter.StringHexToBigInteger(txHash1).compareTo(BigInteger.ZERO) > 0)
+            assertTrue(TypeConverter.StringHexToBigInteger(txHash1) > BigInteger.ZERO)
 
             var i = 0
             while (i < 50 && changes.isEmpty()) {
@@ -161,7 +161,7 @@ class JsonRpcTest {
 
             val bal1 = jsonRpc!!.eth_getBalance(cowAcct)
             println("Balance: " + bal0)
-            assertTrue(TypeConverter.StringHexToBigInteger(bal0).compareTo(TypeConverter.StringHexToBigInteger(bal1)) > 0)
+            assertTrue(TypeConverter.StringHexToBigInteger(bal0) > TypeConverter.StringHexToBigInteger(bal1))
 
             val compRes = jsonRpc!!.eth_compileSolidity(
                     "contract A { " +

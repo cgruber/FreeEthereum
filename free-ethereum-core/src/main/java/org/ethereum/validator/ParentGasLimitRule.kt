@@ -54,7 +54,7 @@ class ParentGasLimitRule(config: SystemProperties) : DependentBlockHeaderRule() 
         val headerGasLimit = BigInteger(1, header.gasLimit)
         val parentGasLimit = BigInteger(1, parent.gasLimit)
 
-        if (headerGasLimit.compareTo(parentGasLimit.multiply(BigInteger.valueOf((GAS_LIMIT_BOUND_DIVISOR - 1).toLong())).divide(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR.toLong()))) < 0 || headerGasLimit.compareTo(parentGasLimit.multiply(BigInteger.valueOf((GAS_LIMIT_BOUND_DIVISOR + 1).toLong())).divide(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR.toLong()))) > 0) {
+        if (headerGasLimit < parentGasLimit.multiply(BigInteger.valueOf((GAS_LIMIT_BOUND_DIVISOR - 1).toLong())).divide(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR.toLong())) || headerGasLimit > parentGasLimit.multiply(BigInteger.valueOf((GAS_LIMIT_BOUND_DIVISOR + 1).toLong())).divide(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR.toLong()))) {
 
             errors.add(String.format(
                     "#%d: gas limit exceeds parentBlock.getGasLimit() (+-) GAS_LIMIT_BOUND_DIVISOR",
