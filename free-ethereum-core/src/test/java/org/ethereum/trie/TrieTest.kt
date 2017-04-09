@@ -80,7 +80,7 @@ class TrieTest {
         val trie = StringTrie(mockDb, null)
 
         trie.put("", dog)
-        assertEquals(dog, trie.get(""))
+        assertEquals(dog, trie[""])
     }
 
     @Test
@@ -88,7 +88,7 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(cat, dog)
-        assertEquals(dog, trie.get(cat))
+        assertEquals(dog, trie[cat])
     }
 
     @Test
@@ -96,33 +96,33 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(cat, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(cat))
+        assertEquals(LONG_STRING, trie[cat])
     }
 
     @Test
     fun testInsertMultipleItems1() {
         val trie = StringTrie(mockDb)
         trie.put(ca, dude)
-        assertEquals(dude, trie.get(ca))
+        assertEquals(dude, trie[ca])
 
         trie.put(cat, dog)
-        assertEquals(dog, trie.get(cat))
+        assertEquals(dog, trie[cat])
 
         trie.put(dog, test)
-        assertEquals(test, trie.get(dog))
+        assertEquals(test, trie[dog])
 
         trie.put(doge, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(doge))
+        assertEquals(LONG_STRING, trie[doge])
 
         trie.put(test, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(test))
+        assertEquals(LONG_STRING, trie[test])
 
         // Test if everything is still there
-        assertEquals(dude, trie.get(ca))
-        assertEquals(dog, trie.get(cat))
-        assertEquals(test, trie.get(dog))
-        assertEquals(LONG_STRING, trie.get(doge))
-        assertEquals(LONG_STRING, trie.get(test))
+        assertEquals(dude, trie[ca])
+        assertEquals(dog, trie[cat])
+        assertEquals(test, trie[dog])
+        assertEquals(LONG_STRING, trie[doge])
+        assertEquals(LONG_STRING, trie[test])
     }
 
     @Test
@@ -130,41 +130,41 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(cat, dog)
-        assertEquals(dog, trie.get(cat))
+        assertEquals(dog, trie[cat])
 
         println(trie.trieDump)
 
         trie.put(ca, dude)
-        assertEquals(dude, trie.get(ca))
+        assertEquals(dude, trie[ca])
 
         println(trie.trieDump)
 
         trie.put(doge, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(doge))
+        assertEquals(LONG_STRING, trie[doge])
 
         println(trie.trieDump)
 
         trie.put(dog, test)
-        assertEquals(test, trie.get(dog))
+        assertEquals(test, trie[dog])
 
         trie.put(test, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(test))
+        assertEquals(LONG_STRING, trie[test])
 
         // Test if everything is still there
-        assertEquals(dog, trie.get(cat))
-        assertEquals(dude, trie.get(ca))
-        assertEquals(LONG_STRING, trie.get(doge))
-        assertEquals(test, trie.get(dog))
-        assertEquals(LONG_STRING, trie.get(test))
+        assertEquals(dog, trie[cat])
+        assertEquals(dude, trie[ca])
+        assertEquals(LONG_STRING, trie[doge])
+        assertEquals(test, trie[dog])
+        assertEquals(LONG_STRING, trie[test])
 
         println(trie.trieDump)
 
         val trieNew = TrieImpl(mockDb.db, trie.rootHash)
-        assertEquals(dog, String(trieNew.get(cat.toByteArray())))
-        assertEquals(dude, String(trieNew.get(ca.toByteArray())))
-        assertEquals(LONG_STRING, String(trieNew.get(doge.toByteArray())))
-        assertEquals(test, String(trieNew.get(dog.toByteArray())))
-        assertEquals(LONG_STRING, String(trieNew.get(test.toByteArray())))
+        assertEquals(dog, String(trieNew[cat.toByteArray()]))
+        assertEquals(dude, String(trieNew[ca.toByteArray()]))
+        assertEquals(LONG_STRING, String(trieNew[doge.toByteArray()]))
+        assertEquals(test, String(trieNew[dog.toByteArray()]))
+        assertEquals(LONG_STRING, String(trieNew[test.toByteArray()]))
     }
 
     @Test
@@ -176,33 +176,33 @@ class TrieTest {
         trie.put("cat", "dog")
         trie.put("ca", "dude")
 
-        assertEquals(trie.get("cat"), "dog")
-        assertEquals(trie.get("ca"), "dude")
+        assertEquals(trie["cat"], "dog")
+        assertEquals(trie["ca"], "dude")
 
         trie.put(doge, LONG_STRING)
 
         println(btrie.dumpStructure())
         println(btrie.dumpTrie())
 
-        assertEquals(LONG_STRING, trie.get(doge))
-        assertEquals(dog, trie.get(cat))
+        assertEquals(LONG_STRING, trie[doge])
+        assertEquals(dog, trie[cat])
 
 
         trie.put(dog, test)
-        assertEquals(test, trie.get(dog))
-        assertEquals(dog, trie.get(cat))
+        assertEquals(test, trie[dog])
+        assertEquals(dog, trie[cat])
 
         trie.put(test, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(test))
+        assertEquals(LONG_STRING, trie[test])
 
         println(btrie.dumpStructure())
         println(btrie.dumpTrie())
 
-        assertEquals(dog, trie.get(cat))
-        assertEquals(dude, trie.get(ca))
-        assertEquals(LONG_STRING, trie.get(doge))
-        assertEquals(test, trie.get(dog))
-        assertEquals(LONG_STRING, trie.get(test))
+        assertEquals(dog, trie[cat])
+        assertEquals(dude, trie[ca])
+        assertEquals(LONG_STRING, trie[doge])
+        assertEquals(test, trie[dog])
+        assertEquals(LONG_STRING, trie[test])
     }
 
     @Test
@@ -210,19 +210,19 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(cat, dog)
-        assertEquals(dog, trie.get(cat))
+        assertEquals(dog, trie[cat])
 
         trie.put(cat, dog + "1")
-        assertEquals(dog + "1", trie.get(cat))
+        assertEquals(dog + "1", trie[cat])
     }
 
     @Test
     fun testUpdateLongToLongString() {
         val trie = StringTrie(mockDb)
         trie.put(cat, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(cat))
+        assertEquals(LONG_STRING, trie[cat])
         trie.put(cat, LONG_STRING + "1")
-        assertEquals(LONG_STRING + "1", trie.get(cat))
+        assertEquals(LONG_STRING + "1", trie[cat])
     }
 
     @Test
@@ -230,10 +230,10 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(cat, dog)
-        assertEquals(dog, trie.get(cat))
+        assertEquals(dog, trie[cat])
 
         trie.put(cat, LONG_STRING + "1")
-        assertEquals(LONG_STRING + "1", trie.get(cat))
+        assertEquals(LONG_STRING + "1", trie[cat])
     }
 
     @Test
@@ -241,10 +241,10 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(cat, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(cat))
+        assertEquals(LONG_STRING, trie[cat])
 
         trie.put(cat, dog + "1")
-        assertEquals(dog + "1", trie.get(cat))
+        assertEquals(dog + "1", trie[cat])
     }
 
     @Test
@@ -254,14 +254,14 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(cat, dog)
-        assertEquals(dog, trie.get(cat))
+        assertEquals(dog, trie[cat])
 
         trie.put(ca, dude)
-        assertEquals(dude, trie.get(ca))
+        assertEquals(dude, trie[ca])
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.rootHash))
 
         trie.delete(ca)
-        assertEquals("", trie.get(ca))
+        assertEquals("", trie[ca])
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.rootHash))
     }
 
@@ -272,14 +272,14 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(ca, dude)
-        assertEquals(dude, trie.get(ca))
+        assertEquals(dude, trie[ca])
 
         trie.put(cat, dog)
-        assertEquals(dog, trie.get(cat))
+        assertEquals(dog, trie[cat])
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.rootHash))
 
         trie.delete(cat)
-        assertEquals("", trie.get(cat))
+        assertEquals("", trie[cat])
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.rootHash))
     }
 
@@ -290,14 +290,14 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(cat, dude)
-        assertEquals(dude, trie.get(cat))
+        assertEquals(dude, trie[cat])
 
         trie.put(dog, test)
-        assertEquals(test, trie.get(dog))
+        assertEquals(test, trie[dog])
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.rootHash))
 
         trie.delete(dog)
-        assertEquals("", trie.get(dog))
+        assertEquals("", trie[dog])
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.rootHash))
     }
 
@@ -308,14 +308,14 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(cat, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(cat))
+        assertEquals(LONG_STRING, trie[cat])
 
         trie.put(dog, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(dog))
+        assertEquals(LONG_STRING, trie[dog])
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.rootHash))
 
         trie.delete(dog)
-        assertEquals("", trie.get(dog))
+        assertEquals("", trie[dog])
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.rootHash))
     }
 
@@ -326,14 +326,14 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(ca, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(ca))
+        assertEquals(LONG_STRING, trie[ca])
 
         trie.put(cat, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(cat))
+        assertEquals(LONG_STRING, trie[cat])
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.rootHash))
 
         trie.delete(cat)
-        assertEquals("", trie.get(cat))
+        assertEquals("", trie[cat])
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.rootHash))
     }
 
@@ -344,14 +344,14 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(cat, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(cat))
+        assertEquals(LONG_STRING, trie[cat])
 
         trie.put(ca, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(ca))
+        assertEquals(LONG_STRING, trie[ca])
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.rootHash))
 
         trie.delete(ca)
-        assertEquals("", trie.get(ca))
+        assertEquals("", trie[ca])
         assertEquals(ROOT_HASH_AFTER, Hex.toHexString(trie.rootHash))
     }
 
@@ -383,30 +383,30 @@ class TrieTest {
         val trie = StringTrie(mockDb)
 
         trie.put(cat, dog)
-        assertEquals(dog, trie.get(cat))
+        assertEquals(dog, trie[cat])
 
         trie.put(ca, dude)
-        assertEquals(dude, trie.get(ca))
+        assertEquals(dude, trie[ca])
 
         trie.put(doge, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(doge))
+        assertEquals(LONG_STRING, trie[doge])
 
         trie.put(dog, test)
-        assertEquals(test, trie.get(dog))
+        assertEquals(test, trie[dog])
 
         trie.put(test, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(test))
+        assertEquals(LONG_STRING, trie[test])
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.rootHash))
 
         println(trie.dumpStructure())
         trie.delete(dog)
         println(trie.dumpStructure())
-        assertEquals("", trie.get(dog))
+        assertEquals("", trie[dog])
         assertEquals(ROOT_HASH_AFTER1, Hex.toHexString(trie.rootHash))
 
         trie.delete(test)
         println(trie.dumpStructure())
-        assertEquals("", trie.get(test))
+        assertEquals("", trie[test])
         assertEquals(ROOT_HASH_AFTER2, Hex.toHexString(trie.rootHash))
     }
 
@@ -419,21 +419,21 @@ class TrieTest {
         val trie = StringTrie(mockDb)
         val c = "c"
         trie.put(c, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(c))
+        assertEquals(LONG_STRING, trie[c])
 
         trie.put(ca, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(ca))
+        assertEquals(LONG_STRING, trie[ca])
 
         trie.put(cat, LONG_STRING)
-        assertEquals(LONG_STRING, trie.get(cat))
+        assertEquals(LONG_STRING, trie[cat])
         assertEquals(ROOT_HASH_BEFORE, Hex.toHexString(trie.rootHash))
 
         trie.delete(ca)
-        assertEquals("", trie.get(ca))
+        assertEquals("", trie[ca])
         assertEquals(ROOT_HASH_AFTER1, Hex.toHexString(trie.rootHash))
 
         trie.delete(cat)
-        assertEquals("", trie.get(cat))
+        assertEquals("", trie[cat])
         assertEquals(ROOT_HASH_AFTER2, Hex.toHexString(trie.rootHash))
     }
 
@@ -606,7 +606,7 @@ class TrieTest {
             for (mapWord1 in testerMap.keys) {
 
                 val mapWord2 = testerMap[mapWord1]
-                val treeWord2 = trie.get(mapWord1)
+                val treeWord2 = trie[mapWord1]
 
                 Assert.assertEquals(mapWord2, treeWord2)
             }
@@ -709,7 +709,7 @@ class TrieTest {
 
                 val mapWord1 = keys.next()
                 val mapWord2 = testerMap[mapWord1]
-                val treeWord2 = trie.get(mapWord1)
+                val treeWord2 = trie[mapWord1]
 
                 Assert.assertEquals(mapWord2, treeWord2)
             }
@@ -722,7 +722,7 @@ class TrieTest {
 
                 val mapWord1 = keys.next()
                 val mapWord2 = testerMap[mapWord1]
-                val treeWord2 = String(trie2.get(mapWord1.toByteArray()))
+                val treeWord2 = String(trie2[mapWord1.toByteArray()])
 
                 Assert.assertEquals(mapWord2, treeWord2)
             }
@@ -781,7 +781,7 @@ class TrieTest {
         val trie1 = StringTrie(mockDb)
         trie1.put(cat, LONG_STRING)
         val trie2 = TrieImpl(mockDb, trie1.rootHash)
-        assertEquals(LONG_STRING, String(trie2.get(cat.toByteArray())))
+        assertEquals(LONG_STRING, String(trie2[cat.toByteArray()]))
     }
 
     @Test
@@ -844,7 +844,7 @@ class TrieTest {
         val trie = TrieImpl(dataSource, rootNode)
 
         // first key added in genesis
-        val val1 = trie.get(Hex.decode("51ba59315b3a95761d0863b05ccc7a7f54703d99"))
+        val val1 = trie[Hex.decode("51ba59315b3a95761d0863b05ccc7a7f54703d99")]
         val accountState1 = AccountState(val1)
 
         assertEquals(BigInteger.valueOf(2).pow(200), accountState1.balance)
@@ -853,7 +853,7 @@ class TrieTest {
         assertEquals(null, accountState1.stateRoot)
 
         // last key added up to block#33
-        val val2 = trie.get(Hex.decode("a39c2067eb45bc878818946d0f05a836b3da44fa"))
+        val val2 = trie[Hex.decode("a39c2067eb45bc878818946d0f05a836b3da44fa")]
         val accountState2 = AccountState(val2)
 
         assertEquals(BigInteger("1500000000000000000"), accountState2.balance)
@@ -960,18 +960,18 @@ class TrieTest {
             trie.put(Hex.decode(key), Hex.decode(value))
         }
 
-        assertArrayEquals(trie.get(Hex.decode("6e929251b981389774af84a07585724c432e2db487381810719c3dd913192ae2")),
+        assertArrayEquals(trie[Hex.decode("6e929251b981389774af84a07585724c432e2db487381810719c3dd913192ae2")],
                 Hex.decode("00000000000000000000000000000000000000000000000000000000000000be"))
 
-        assertArrayEquals(trie.get(Hex.decode("6e92718d00dae27b2a96f6853a0bf11ded08bc658b2e75904ca0344df5aff9ae")),
+        assertArrayEquals(trie[Hex.decode("6e92718d00dae27b2a96f6853a0bf11ded08bc658b2e75904ca0344df5aff9ae")],
                 Hex.decode("00000000000000000000000000000000000000000000002f0000000000000000"))
 
         trie.delete(Hex.decode("6e9286c946c6dd1f5d97f35683732dc8a70dc511133a43d416892f527dfcd243"))
 
-        assertArrayEquals(trie.get(Hex.decode("6e929251b981389774af84a07585724c432e2db487381810719c3dd913192ae2")),
+        assertArrayEquals(trie[Hex.decode("6e929251b981389774af84a07585724c432e2db487381810719c3dd913192ae2")],
                 Hex.decode("00000000000000000000000000000000000000000000000000000000000000be"))
 
-        assertArrayEquals(trie.get(Hex.decode("6e92718d00dae27b2a96f6853a0bf11ded08bc658b2e75904ca0344df5aff9ae")),
+        assertArrayEquals(trie[Hex.decode("6e92718d00dae27b2a96f6853a0bf11ded08bc658b2e75904ca0344df5aff9ae")],
                 Hex.decode("00000000000000000000000000000000000000000000002f0000000000000000"))
     }
 
@@ -1007,7 +1007,7 @@ class TrieTest {
                     for (i in 0..999) {
                         val trie1 = TrieImpl(trieCache.db, trie.rootHash)
                         //                        Trie trie1 = new TrieImpl(trieCache, trie.getRootHash());
-                        trie1.get(keys[k * 100 + i]!!)
+                        trie1[keys[k * 100 + i]!!]
                     }
                 }
             }

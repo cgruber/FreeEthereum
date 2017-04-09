@@ -134,8 +134,6 @@ public class EncryptionHandshake {
             final byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext, prefix);
 
             return AuthInitiateMessageV4.decode(plaintext);
-        } catch (final InvalidCipherTextException e) {
-            throw e;
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }
@@ -258,8 +256,6 @@ public class EncryptionHandshake {
         try {
             final byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext);
             return AuthInitiateMessage.decode(plaintext);
-        } catch (final InvalidCipherTextException e) {
-            throw e;
         } catch (final IOException e) {
             throw Throwables.propagate(e);
         }

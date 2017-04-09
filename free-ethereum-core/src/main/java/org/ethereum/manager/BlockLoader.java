@@ -98,21 +98,13 @@ public class BlockLoader {
                 }
                 return b;
             }
-        }, new Functional.Consumer<Throwable>() {
-            @Override
-            public void accept(final Throwable throwable) {
-                logger.error("Unhandled exception: ", throwable);
-            }
-        });
+        }, throwable -> logger.error("Unhandled exception: ", throwable));
 
-        exec2 = exec1.add(1, 1000, new Functional.Consumer<Block>() {
-            @Override
-            public void accept(final Block block) {
-                try {
-                    blockWork(block);
-                } catch (final Exception e) {
-                    e.printStackTrace();
-                }
+        exec2 = exec1.add(1, 1000, block -> {
+            try {
+                blockWork(block);
+            } catch (final Exception e) {
+                e.printStackTrace();
             }
         });
 

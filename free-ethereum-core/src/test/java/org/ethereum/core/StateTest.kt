@@ -64,7 +64,7 @@ class StateTest {
 
         // Get and update sender in world state
         val cowAddress = Hex.decode("cd2a3d9f938e13cd947ec05abc7fe734df8dd826")
-        val rlpEncodedState: ByteArray = trie.get(cowAddress)
+        val rlpEncodedState: ByteArray = trie[cowAddress]
         val account_1: AccountState = AccountState(rlpEncodedState)
                 .withBalanceIncrement(BigInteger("-6260000000001000"))
                 .withIncrementedNonce()

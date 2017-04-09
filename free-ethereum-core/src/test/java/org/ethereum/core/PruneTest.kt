@@ -564,7 +564,7 @@ class PruneTest {
         }
 
         internal fun getCount(hash: String): String {
-            val bytes = stateDS!!.get(Hex.decode(hash))
+            val bytes = stateDS!![Hex.decode(hash)]
             return if (bytes == null) "0" else "" + bytes[3]
         }
     }
