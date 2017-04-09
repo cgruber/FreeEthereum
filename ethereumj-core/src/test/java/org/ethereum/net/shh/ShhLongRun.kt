@@ -58,7 +58,7 @@ import javax.annotation.PostConstruct
  * Created by Anton Nashatyrev on 05.10.2015.
  */
 @Ignore
-class ShhLongRun : Thread() {
+open class ShhLongRun : Thread() {
 
     @Test
     @Throws(Exception::class)
@@ -80,17 +80,17 @@ class ShhLongRun : Thread() {
 
     @Configuration
     @NoAutoscan
-    private class Config {
+    private open class Config {
 
         @Bean
-        fun testBean(): TestComponent {
+        open fun testBean(): TestComponent {
             return TestComponent()
         }
     }
 
     @Component
     @NoAutoscan
-    class TestComponent : Thread() {
+    open class TestComponent : Thread() {
 
         @Autowired
         internal var worldManager: WorldManager? = null

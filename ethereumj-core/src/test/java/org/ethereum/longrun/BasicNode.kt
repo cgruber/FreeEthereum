@@ -166,9 +166,9 @@ open class BasicNode
 
     // Spring config class which add this sample class as a bean to the components collections
     // and make it possible for autowiring other components
-    private class Config {
+    private open class Config {
         @Bean
-        fun basicSample(): BasicNode {
+        open fun basicSample(): BasicNode {
             return BasicNode()
         }
     }

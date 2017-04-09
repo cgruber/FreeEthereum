@@ -39,6 +39,8 @@ vim ethereumj-core/src/main/resources/user.conf # adjust user.conf to your needs
 java -jar ethereumj-core/build/libs/ethereumj-core-*-all.jar
 ```
 
+- build a standalone executable jar with `../gradlew shadow` and execute the `-all` jar in `build/libs` using `java -jar [jarfile]`.
+
 ##### Optional samples to try:
 ```
 ./gradlew run -PmainClass=org.ethereum.samples.BasicSample

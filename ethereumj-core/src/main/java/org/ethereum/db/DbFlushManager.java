@@ -56,7 +56,6 @@ public class DbFlushManager {
     private final AbstractCachedSource<byte[], byte[]> stateDbCache;
     private final int commitsCountThreshold;
     private final boolean flushAfterSyncDone;
-    private final SystemProperties config;
     private Set<DbSource> dbSources = new HashSet<>();
     private long sizeThreshold;
     private boolean syncDone = false;
@@ -64,7 +63,7 @@ public class DbFlushManager {
     private Future<Boolean> lastFlush = Futures.immediateFuture(false);
 
     public DbFlushManager(final SystemProperties config, final Set<DbSource> dbSources, final AbstractCachedSource<byte[], byte[]> stateDbCache) {
-        this.config = config;
+        SystemProperties config1 = config;
         this.dbSources = dbSources;
         sizeThreshold = config.getConfig().getInt("cache.flush.writeCacheSize") * 1024 * 1024;
         commitsCountThreshold = config.getConfig().getInt("cache.flush.blocks");

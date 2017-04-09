@@ -52,7 +52,6 @@ class EthereumIESEngine
     private final DerivationFunction kdf;
     private final Mac mac;
     private final BufferedBlockCipher cipher;
-    private final byte[] macBuf;
 
     private boolean forEncryption;
     private CipherParameters privParam;
@@ -83,7 +82,7 @@ class EthereumIESEngine
         this.kdf = kdf;
         this.mac = mac;
         this.hash = hash;
-        this.macBuf = new byte[mac.getMacSize()];
+        byte[] macBuf = new byte[mac.getMacSize()];
         this.cipher = cipher;
     }
 

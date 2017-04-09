@@ -53,16 +53,6 @@ import java.util.Map;
  */
 public class CreateContractSample extends TestNetSample {
 
-    private final String contract =
-            "contract Sample {" +
-            "  int i;" +
-            "  function inc(int n) {" +
-            "    i = i + n;" +
-            "  }" +
-            "  function get() returns (int) {" +
-            "    return i;" +
-            "  }" +
-            "}";
     private final Map<ByteArrayWrapper, TransactionReceipt> txWaiters =
             Collections.synchronizedMap(new HashMap<ByteArrayWrapper, TransactionReceipt>());
     @Autowired
@@ -96,7 +86,16 @@ public class CreateContractSample extends TestNetSample {
         });
 
         logger.info("Compiling contract...");
-        final SolidityCompiler.Result result = compiler.compileSrc(contract.getBytes(), true, true,
+        String contract1 = "contract Sample {" +
+                "  int i;" +
+                "  function inc(int n) {" +
+                "    i = i + n;" +
+                "  }" +
+                "  function get() returns (int) {" +
+                "    return i;" +
+                "  }" +
+                "}";
+        final SolidityCompiler.Result result = compiler.compileSrc(contract1.getBytes(), true, true,
                 SolidityCompiler.Options.ABI, SolidityCompiler.Options.BIN);
         if (result.isFailed()) {
             throw new RuntimeException("Contract compilation failed:\n" + result.errors);

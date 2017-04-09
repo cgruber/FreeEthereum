@@ -39,7 +39,7 @@ import java.util.*
  */
 @Component
 @Scope("prototype")
-class Account {
+open class Account {
 
     private val pendingTransactions = Collections.synchronizedSet(HashSet<Transaction>())
     @Autowired

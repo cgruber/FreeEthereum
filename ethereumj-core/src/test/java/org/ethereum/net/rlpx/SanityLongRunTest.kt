@@ -54,7 +54,7 @@ import java.util.concurrent.TimeUnit
  * Created by Anton Nashatyrev on 13.10.2015.
  */
 @Ignore
-class SanityLongRunTest {
+open class SanityLongRunTest {
 
     private val config1 =
             "peer.discovery.enabled = true \n" +
@@ -185,10 +185,10 @@ class SanityLongRunTest {
 
     @Configuration
     @NoAutoscan
-    class SysPropConfig1 {
+    open class SysPropConfig1 {
 
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             return props!!
         }
 
@@ -199,10 +199,10 @@ class SanityLongRunTest {
 
     @Configuration
     @NoAutoscan
-    class SysPropConfig2 {
+    open class SysPropConfig2 {
 
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             return props!!
         }
 

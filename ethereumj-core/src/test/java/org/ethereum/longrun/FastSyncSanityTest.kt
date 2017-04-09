@@ -139,10 +139,10 @@ constructor() {
     /**
      * Spring configuration class for the Regular peer
      */
-    private class RegularConfig {
+    private open class RegularConfig {
 
         @Bean
-        fun node(): RegularNode {
+        open fun node(): RegularNode {
             return RegularNode()
         }
 
@@ -152,7 +152,7 @@ constructor() {
          * config for this instance.
          */
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             val props = SystemProperties()
             props.overrideParams(ConfigFactory.parseResources(configPath.value))
             if (firstRun.get() && resetDBOnFirstRun.value != null) {

@@ -311,9 +311,9 @@ class BlockTxForwardTest {
 
         // Spring config class which add this sample class as a bean to the components collections
         // and make it possible for autowiring other components
-        private class Config {
+        private open class Config {
             @Bean
-            fun basicSample(): BasicSample {
+            open fun basicSample(): BasicSample {
                 return BasicSample()
             }
         }
@@ -335,7 +335,7 @@ class BlockTxForwardTest {
     /**
      * Spring configuration class for the Miner peer (A)
      */
-    private class MinerConfig {
+    private open class MinerConfig {
 
         private val config =
                 // no need for discovery in that small network
@@ -358,7 +358,7 @@ class BlockTxForwardTest {
                         "cache.flush.blocks = 1"
 
         @Bean
-        fun node(): MinerNode {
+        open fun node(): MinerNode {
             return MinerNode()
         }
 
@@ -368,7 +368,7 @@ class BlockTxForwardTest {
          * config for this instance.
          */
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             val props = SystemProperties()
             props.overrideParams(ConfigFactory.parseString(config.replace("'".toRegex(), "\"")))
             return props
@@ -421,7 +421,7 @@ class BlockTxForwardTest {
      * It will see nodes A and C, which is not connected directly and proves that tx's from (C) reaches miner (A)
      * and new blocks both A and C
      */
-    private class RegularConfig {
+    private open class RegularConfig {
         private val config =
                 // no discovery: we are connecting directly to the generator and miner peers
                 "peer.discovery.enabled = false \n" +
@@ -443,7 +443,7 @@ class BlockTxForwardTest {
                         "keyvalue.datasource = leveldb \n"
 
         @Bean
-        fun node(): RegularNode {
+        open fun node(): RegularNode {
             return RegularNode()
         }
 
@@ -453,7 +453,7 @@ class BlockTxForwardTest {
          * config for this instance.
          */
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             val props = SystemProperties()
             props.overrideParams(ConfigFactory.parseString(config.replace("'".toRegex(), "\"")))
             return props
@@ -468,7 +468,7 @@ class BlockTxForwardTest {
     /**
      * Spring configuration class for the TX-sender peer (C)
      */
-    private class GeneratorConfig {
+    private open class GeneratorConfig {
         private val config =
                 // no discovery: forwarder will connect to us
                 "peer.discovery.enabled = false \n" +
@@ -483,7 +483,7 @@ class BlockTxForwardTest {
                         "keyvalue.datasource = leveldb \n"
 
         @Bean
-        fun node(): GeneratorNode {
+        open fun node(): GeneratorNode {
             return GeneratorNode()
         }
 
@@ -493,7 +493,7 @@ class BlockTxForwardTest {
          * config for this instance.
          */
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             val props = SystemProperties()
             props.overrideParams(ConfigFactory.parseString(config.replace("'".toRegex(), "\"")))
             return props

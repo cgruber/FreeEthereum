@@ -56,7 +56,7 @@ import java.util.concurrent.TimeUnit
  * Created by Anton Nashatyrev on 13.10.2015.
  */
 @Ignore
-class TwoPeerTest {
+open class TwoPeerTest {
 
     private fun createNextBlock(parent: Block, stateRoot: String, extraData: String?): Block {
         val b = Block(parent.hash, sha3(RLP.encodeList()), parent.coinbase, parent.logBloom,
@@ -229,17 +229,17 @@ class TwoPeerTest {
 
     @Configuration
     @NoAutoscan
-    class SysPropConfig1 {
+    open class SysPropConfig1 {
 
         @Bean
         @Scope("prototype")
-        fun eth62(): Eth62 {
+        open fun eth62(): Eth62 {
             return testHandler!!
             //            return new Eth62();
         }
 
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             return props
         }
 
@@ -251,10 +251,10 @@ class TwoPeerTest {
 
     @Configuration
     @NoAutoscan
-    class SysPropConfig2 {
+    open class SysPropConfig2 {
 
         @Bean
-        fun systemProperties(): SystemProperties {
+        open fun systemProperties(): SystemProperties {
             return props
         }
 

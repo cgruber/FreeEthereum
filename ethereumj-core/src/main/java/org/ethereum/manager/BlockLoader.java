@@ -57,7 +57,6 @@ public class BlockLoader {
     @Autowired
     private
     DbFlushManager dbFlushManager;
-    private Scanner scanner = null;
     private ExecutorPipeline<Block, Block> exec1;
     private ExecutorPipeline<Block, ?> exec2;
     @Autowired
@@ -133,7 +132,7 @@ public class BlockLoader {
                 }
             } else {                                        // hex string
                 final FileInputStream inputStream = new FileInputStream(fileSrc);
-                scanner = new Scanner(inputStream, "UTF-8");
+                Scanner scanner = new Scanner(inputStream, "UTF-8");
 
                 while (scanner.hasNextLine()) {
 

@@ -40,8 +40,6 @@ import java.util.List;
  */
 public class JsonNetConfig extends BaseNetConfig {
 
-    private final BlockchainConfig initialBlockConfig = new FrontierConfig();
-
     /**
      * We convert all string keys to lowercase before processing.
      *
@@ -55,6 +53,7 @@ public class JsonNetConfig extends BaseNetConfig {
         final List<Pair<Integer, ? extends BlockchainConfig>> candidates = new ArrayList<>();
 
         {
+            BlockchainConfig initialBlockConfig = new FrontierConfig();
             Pair<Integer, ? extends BlockchainConfig> lastCandidate = Pair.of(0, initialBlockConfig);
             candidates.add(lastCandidate);
 
