@@ -42,11 +42,7 @@ import java.math.BigInteger
  */
 class ParentGasLimitRule(config: SystemProperties) : DependentBlockHeaderRule() {
 
-    private val GAS_LIMIT_BOUND_DIVISOR: Int
-
-    init {
-        GAS_LIMIT_BOUND_DIVISOR = config.blockchainConfig.commonConstants.gasLimitBoundDivisor
-    }
+    private val GAS_LIMIT_BOUND_DIVISOR: Int = config.blockchainConfig.commonConstants.gasLimitBoundDivisor
 
     override fun validate(header: BlockHeader, parent: BlockHeader): Boolean {
 

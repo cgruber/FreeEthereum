@@ -90,15 +90,4 @@ open class Account {
         return this.pendingTransactions
     }
 
-    fun addPendingTransaction(transaction: Transaction) {
-        synchronized(pendingTransactions) {
-            pendingTransactions.add(transaction)
-        }
-    }
-
-    fun clearAllPendingTransactions() {
-        synchronized(pendingTransactions) {
-            pendingTransactions.clear()
-        }
-    }
 }

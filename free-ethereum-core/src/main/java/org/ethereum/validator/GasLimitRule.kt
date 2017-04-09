@@ -43,11 +43,7 @@ import java.math.BigInteger
  */
 class GasLimitRule(config: SystemProperties) : BlockHeaderRule() {
 
-    private val MIN_GAS_LIMIT: Int
-
-    init {
-        MIN_GAS_LIMIT = config.blockchainConfig.commonConstants.minGasLimit
-    }
+    private val MIN_GAS_LIMIT: Int = config.blockchainConfig.commonConstants.minGasLimit
 
     public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
 

@@ -35,4 +35,4 @@ package org.ethereum.datasource
 
  * Created by Anton Nashatyrev on 08.11.2016.
  */
-interface HashedKeySource<Key, Value> : Source<Key, Value>
+interface HashedKeySource<in Key, Value> : Source<Key, Value>

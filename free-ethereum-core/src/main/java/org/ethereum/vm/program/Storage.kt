@@ -41,11 +41,10 @@ import java.util.*
 class Storage(programInvoke: ProgramInvoke) : Repository, ProgramListenerAware {
 
     private val repository: Repository
-    private val address: DataWord
+    private val address: DataWord = programInvoke.ownerAddress
     private var programListener: ProgramListener? = null
 
     init {
-        this.address = programInvoke.ownerAddress
         this.repository = programInvoke.repository
     }
 

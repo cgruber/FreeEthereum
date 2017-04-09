@@ -46,12 +46,10 @@ object BlockBuilder {
         if (header == null) return null
 
         val uncles = ArrayList<BlockHeader>()
-        if (unclesTck != null)
-            unclesTck.mapTo(uncles) { BlockHeaderBuilder.build(it) }
+        unclesTck?.mapTo(uncles) { BlockHeaderBuilder.build(it) }
 
         val transactions = ArrayList<Transaction>()
-        if (transactionsTck != null)
-            transactionsTck.mapTo(transactions) { TransactionBuilder.build(it) }
+        transactionsTck?.mapTo(transactions) { TransactionBuilder.build(it) }
 
         val blockHeader = BlockHeaderBuilder.build(header)
         val block = Block(

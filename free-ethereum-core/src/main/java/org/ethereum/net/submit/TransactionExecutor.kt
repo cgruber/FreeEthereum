@@ -45,10 +45,7 @@ class TransactionExecutor {
 
     companion object {
 
-        val instance: TransactionExecutor
+        val instance: TransactionExecutor = TransactionExecutor()
 
-        init {
-            instance = TransactionExecutor()
-        }
     }
 }

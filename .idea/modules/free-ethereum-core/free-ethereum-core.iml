@@ -51,6 +51,14 @@
         </option>
       </configuration>
     </facet>
+    <facet type="Spring" name="Spring">
+      <configuration>
+        <fileset id="fileset" name="Spring Application Context" removed="false">
+          <file>file://$MODULE_DIR$/../../../free-ethereum-core/src/main/java/org/ethereum/config/CommonConfig.java</file>
+          <file>file://$MODULE_DIR$/../../../free-ethereum-core/src/main/java/org/ethereum/config/DefaultConfig.java</file>
+        </fileset>
+      </configuration>
+    </facet>
   </component>
   <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/../../../free-ethereum-core/build/classes/main" />

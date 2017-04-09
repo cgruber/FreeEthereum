@@ -39,11 +39,7 @@ import org.ethereum.core.BlockHeader
  */
 class ExtraDataRule(config: SystemProperties) : BlockHeaderRule() {
 
-    private val MAXIMUM_EXTRA_DATA_SIZE: Int
-
-    init {
-        MAXIMUM_EXTRA_DATA_SIZE = config.blockchainConfig.commonConstants.maximumExtraDataSize
-    }
+    private val MAXIMUM_EXTRA_DATA_SIZE: Int = config.blockchainConfig.commonConstants.maximumExtraDataSize
 
     public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
         if (header.extraData != null && header.extraData.size > MAXIMUM_EXTRA_DATA_SIZE) {
