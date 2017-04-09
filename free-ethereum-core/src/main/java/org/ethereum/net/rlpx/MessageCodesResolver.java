@@ -54,18 +54,18 @@ public class MessageCodesResolver {
         int offset = P2pMessageCodes.USER.asByte() + 1;
 
         for (final Capability capability : caps) {
-            if (capability.getName().equals(Capability.ETH)) {
+            if (capability.getName().equals(Capability.Companion.getETH())) {
                 setEthOffset(offset);
                 final EthVersion v = EthVersion.Companion.fromCode(capability.getVersion());
                 offset += EthMessageCodes.values(v).length;
             }
 
-            if (capability.getName().equals(Capability.SHH)) {
+            if (capability.getName().equals(Capability.Companion.getSHH())) {
                 setShhOffset(offset);
                 offset += ShhMessageCodes.values().length;
             }
 
-            if (capability.getName().equals(Capability.BZZ)) {
+            if (capability.getName().equals(Capability.Companion.getBZZ())) {
                 setBzzOffset(offset);
                 offset += BzzMessageCodes.values().length + 4;
                 // FIXME: for some reason Go left 4 codes between BZZ and ETH message codes
@@ -74,19 +74,19 @@ public class MessageCodesResolver {
     }
 
     public byte withP2pOffset(final byte code) {
-        return withOffset(code, Capability.P2P);
+        return withOffset(code, Capability.Companion.getP2P());
     }
 
     public byte withBzzOffset(final byte code) {
-        return withOffset(code, Capability.BZZ);
+        return withOffset(code, Capability.Companion.getBZZ());
     }
 
     public byte withEthOffset(final byte code) {
-        return withOffset(code, Capability.ETH);
+        return withOffset(code, Capability.Companion.getETH());
     }
 
     public byte withShhOffset(final byte code) {
-        return withOffset(code, Capability.SHH);
+        return withOffset(code, Capability.Companion.getSHH());
     }
 
     private byte withOffset(final byte code, final String cap) {
@@ -95,19 +95,19 @@ public class MessageCodesResolver {
     }
 
     public byte resolveP2p(final byte code) {
-        return resolve(code, Capability.P2P);
+        return resolve(code, Capability.Companion.getP2P());
     }
 
     public byte resolveBzz(final byte code) {
-        return resolve(code, Capability.BZZ);
+        return resolve(code, Capability.Companion.getBZZ());
     }
 
     public byte resolveEth(final byte code) {
-        return resolve(code, Capability.ETH);
+        return resolve(code, Capability.Companion.getETH());
     }
 
     public byte resolveShh(final byte code) {
-        return resolve(code, Capability.SHH);
+        return resolve(code, Capability.Companion.getSHH());
     }
 
     private byte resolve(final byte code, final String cap) {
@@ -121,15 +121,15 @@ public class MessageCodesResolver {
     }
 
     private void setBzzOffset(final int offset) {
-        setOffset(Capability.BZZ, offset);
+        setOffset(Capability.Companion.getBZZ(), offset);
     }
 
     public void setEthOffset(final int offset) {
-        setOffset(Capability.ETH, offset);
+        setOffset(Capability.Companion.getETH(), offset);
     }
 
     public void setShhOffset(final int offset) {
-        setOffset(Capability.SHH, offset);
+        setOffset(Capability.Companion.getSHH(), offset);
     }
 
     private void setOffset(final String cap, final int offset) {

@@ -163,7 +163,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
                 msgQueue.receivedMessage(msg);
 
                 if (peerDiscoveryMode ||
-                        !handshakeHelloMessage.getCapabilities().contains(Capability.ETH)) {
+                        !handshakeHelloMessage.getCapabilities().contains(Capability.Companion.getETH())) {
                     disconnect(ReasonCode.REQUESTED);
                     killTimers();
                     ctx.close().sync();
@@ -232,18 +232,18 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
             final List<Capability> capInCommon = getSupportedCapabilities(msg);
             channel.initMessageCodes(capInCommon);
             for (final Capability capability : capInCommon) {
-                if (capability.getName().equals(Capability.ETH)) {
+                if (capability.getName().equals(Capability.Companion.getETH())) {
 
                     // Activate EthHandler for this peer
                     channel.activateEth(ctx, EthVersion.Companion.fromCode(capability.getVersion()));
                 } else if
-                   (capability.getName().equals(Capability.SHH) &&
+                        (capability.getName().equals(Capability.Companion.getSHH()) &&
                     capability.getVersion() == ShhHandler.VERSION) {
 
                     // Activate ShhHandler for this peer
                     channel.activateShh(ctx);
                 } else if
-                   (capability.getName().equals(Capability.BZZ) &&
+                        (capability.getName().equals(Capability.Companion.getBZZ()) &&
                     capability.getVersion() == BzzHandler.VERSION) {
 
                     // Activate ShhHandler for this peer

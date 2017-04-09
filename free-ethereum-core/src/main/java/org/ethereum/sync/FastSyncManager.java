@@ -75,7 +75,7 @@ public class FastSyncManager {
     private final static int FORCE_SYNC_TIMEOUT = 60 * 1000;
     private final static int PIVOT_DISTANCE_FROM_HEAD = 1024;
     private final static int MSX_DB_QUEUE_SIZE = 20000;
-    private static final Capability ETH63_CAPABILITY = new Capability(Capability.ETH, (byte) 63);
+    private static final Capability ETH63_CAPABILITY = new Capability(Capability.Companion.getETH(), (byte) 63);
     private final Deque<TrieNodeRequest> nodesQueue = new LinkedBlockingDeque<>();
     private final ByteArrayMap<TrieNodeRequest> pendingNodes = new ByteArrayMap<>();
     private final BlockingQueue<TrieNodeRequest> dbWriteQueue = new LinkedBlockingQueue<>();

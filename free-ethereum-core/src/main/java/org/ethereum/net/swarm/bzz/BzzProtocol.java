@@ -106,7 +106,7 @@ public class BzzProtocol implements Functional.Consumer<BzzMessage> {
             handshakeOut = true;
             final BzzStatusMessage outStatus = new BzzStatusMessage(Version, "honey",
                     netStore.getSelfAddress(), NetworkId,
-                    Collections.singletonList(new Capability(Capability.BZZ, (byte) 0)));
+                    Collections.singletonList(new Capability(Capability.Companion.getBZZ(), (byte) 0)));
             LOG.info("Outbound handshake: " + outStatus);
             sendMessageImpl(outStatus);
         }

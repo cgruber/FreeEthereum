@@ -24,26 +24,24 @@
  *
  */
 
-package org.ethereum.net.dht;
+package org.ethereum.net.dht
 
-import java.util.List;
+import org.ethereum.net.dht.Bucket.SaveLeaf
 
-import static org.ethereum.net.dht.Bucket.SaveLeaf;
+internal object DHTUtils {
 
-class DHTUtils {
+    fun printAllLeafs(root: Bucket) {
+        val saveLeaf = SaveLeaf()
+        root.traverseTree(saveLeaf)
 
-    public static void printAllLeafs(final Bucket root) {
-        final SaveLeaf saveLeaf = new SaveLeaf();
-        root.traverseTree(saveLeaf);
-
-        for (final Bucket bucket : saveLeaf.getLeafs())
-            System.out.println(bucket);
+        for (bucket in saveLeaf.getLeafs())
+            println(bucket)
     }
 
-    public static List<Bucket> getAllLeafs(final Bucket root) {
-        final SaveLeaf saveLeaf = new SaveLeaf();
-        root.traverseTree(saveLeaf);
+    fun getAllLeafs(root: Bucket): List<Bucket> {
+        val saveLeaf = SaveLeaf()
+        root.traverseTree(saveLeaf)
 
-        return saveLeaf.getLeafs();
+        return saveLeaf.getLeafs()
     }
 }

@@ -161,7 +161,7 @@ public class Channel {
             final FrameCodecHandler frameCodecHandler = new FrameCodecHandler(frameCodec, this);
             ctx.pipeline().addLast("medianFrameCodec", frameCodecHandler);
             ctx.pipeline().addLast("messageCodec", messageCodec);
-            ctx.pipeline().addLast(Capability.P2P, p2pHandler);
+            ctx.pipeline().addLast(Capability.Companion.getP2P(), p2pHandler);
 
             p2pHandler.setChannel(this);
             p2pHandler.setHandshake(helloRemote, ctx);
@@ -197,7 +197,7 @@ public class Channel {
 
         logger.debug("Eth{} [ address = {} | id = {} ]", handler.getVersion(), inetSocketAddress, getPeerIdShort());
 
-        ctx.pipeline().addLast(Capability.ETH, handler);
+        ctx.pipeline().addLast(Capability.Companion.getETH(), handler);
 
         handler.setMsgQueue(msgQueue);
         handler.setChannel(this);
@@ -217,12 +217,12 @@ public class Channel {
     }
 
     public void activateShh(final ChannelHandlerContext ctx) {
-        ctx.pipeline().addLast(Capability.SHH, shhHandler);
+        ctx.pipeline().addLast(Capability.Companion.getSHH(), shhHandler);
         shhHandler.activate();
     }
 
     public void activateBzz(final ChannelHandlerContext ctx) {
-        ctx.pipeline().addLast(Capability.BZZ, bzzHandler);
+        ctx.pipeline().addLast(Capability.Companion.getBZZ(), bzzHandler);
         bzzHandler.activate();
     }
 

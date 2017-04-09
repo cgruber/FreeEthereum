@@ -24,68 +24,51 @@
  *
  */
 
-package org.ethereum.net.client;
+package org.ethereum.net.client
 
 /**
  * The protocols and versions of those protocols that this peer support
  */
-public class Capability implements Comparable<Capability> {
+class Capability(val name: String?, val version: Byte) : Comparable<Capability> {
 
-    public final static String P2P = "p2p";
-    public final static String ETH = "eth";
-    public final static String SHH = "shh";
-    public final static String BZZ = "bzz";
+    val isEth: Boolean
+        get() = ETH == name
 
-    private final String name;
-    private final byte version;
+    override fun equals(obj: Any?): Boolean {
+        if (this === obj) return true
+        if (obj !is Capability) return false
 
-    public Capability(final String name, final byte version) {
-        this.name = name;
-        this.version = version;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public byte getVersion() {
-        return version;
-    }
-
-    public boolean isEth() {
-        return ETH.equals(name);
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof Capability)) return false;
-
-        final Capability other = (Capability) obj;
+        val other = obj
         if (this.name == null)
-            return other.name == null;
+            return other.name == null
         else
-            return this.name.equals(other.name) && this.version == other.version;
+            return this.name == other.name && this.version == other.version
     }
 
-    @Override
-    public int compareTo(final Capability o) {
-        final int cmp = this.name.compareTo(o.name);
+    override fun compareTo(o: Capability): Int {
+        val cmp = this.name!!.compareTo(o.name!!)
         if (cmp != 0) {
-            return cmp;
+            return cmp
         } else {
-            return Byte.valueOf(this.version).compareTo(o.version);
+            return java.lang.Byte.valueOf(this.version)!!.compareTo(o.version)
         }
     }
 
-    @Override
-    public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + (int) version;
-        return result;
+    override fun hashCode(): Int {
+        var result = name!!.hashCode()
+        result = 31 * result + version.toInt()
+        return result
     }
 
-    public String toString() {
-        return name + ":" + version;
+    override fun toString(): String {
+        return name + ":" + version
+    }
+
+    companion object {
+
+        val P2P = "p2p"
+        val ETH = "eth"
+        val SHH = "shh"
+        val BZZ = "bzz"
     }
 }

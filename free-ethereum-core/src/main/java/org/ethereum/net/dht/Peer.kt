@@ -24,71 +24,70 @@
  *
  */
 
-package org.ethereum.net.dht;
+package org.ethereum.net.dht
 
-import org.ethereum.crypto.HashUtil;
-import org.spongycastle.util.BigIntegers;
-import org.spongycastle.util.encoders.Hex;
+import org.ethereum.crypto.HashUtil
+import org.spongycastle.util.BigIntegers
+import org.spongycastle.util.encoders.Hex
 
-import java.math.BigInteger;
+import java.math.BigInteger
 
-class Peer {
-    private byte[] id;
-    private String host = "127.0.0.1";
-    private int port = 0;
+internal class Peer {
+    private var id: ByteArray? = null
+    private var host = "127.0.0.1"
+    private var port = 0
 
-    public Peer(final byte[] id, final String host, final int port) {
-        this.id = id;
-        this.host = host;
-        this.port = port;
+    constructor(id: ByteArray, host: String, port: Int) {
+        this.id = id
+        this.host = host
+        this.port = port
     }
 
-    public Peer(final byte[] ip) {
-        this.id= ip;
+    constructor(ip: ByteArray) {
+        this.id = ip
     }
 
-    public Peer() {
-        HashUtil.randomPeerId();
+    constructor() {
+        HashUtil.randomPeerId()
     }
 
-    public byte nextBit(final String startPattern) {
+    fun nextBit(startPattern: String): Byte {
 
         if (this.toBinaryString().startsWith(startPattern + "1"))
-            return 1;
+            return 1
         else
-            return 0;
+            return 0
     }
 
-    public byte[] calcDistance(final Peer toPeer) {
+    fun calcDistance(toPeer: Peer): ByteArray {
 
-        final BigInteger aPeer = new BigInteger(getId());
-        final BigInteger bPeer = new BigInteger(toPeer.getId());
+        val aPeer = BigInteger(getId())
+        val bPeer = BigInteger(toPeer.getId())
 
-        final BigInteger distance = aPeer.xor(bPeer);
-        return BigIntegers.asUnsignedByteArray(distance);
+        val distance = aPeer.xor(bPeer)
+        return BigIntegers.asUnsignedByteArray(distance)
     }
 
 
-    private byte[] getId() {
-        return id;
+    private fun getId(): ByteArray {
+        return id!!
     }
 
-    public void setId(final byte[] ip) {
-        this.id = id;
+    fun setId(ip: ByteArray) {
+        this.id = id
     }
 
-    @Override
-    public String toString() {
-        return String.format("Peer {\n id=%s, \n host=%s, \n port=%d\n}", Hex.toHexString(id), host, port);
+    override fun toString(): String {
+        return String.format("Peer {\n id=%s, \n host=%s, \n port=%d\n}", Hex.toHexString(id!!), host, port)
     }
 
-    public String toBinaryString() {
+    fun toBinaryString(): String {
 
-        final BigInteger bi = new BigInteger(1, id);
-        String out = String.format("%512s", bi.toString(2));
-        out = out.replace(' ', '0');
+        val bi = BigInteger(1, id!!)
+        var out = String.format("%512s", bi.toString(2))
+        out = out.replace(' ', '0')
 
-        return out;
+        return out
     }
 
 }
