@@ -130,7 +130,7 @@ class BlockTxForwardTest {
                     }
                     EthMessageCodes.TRANSACTIONS -> {
                         val msgCopy = TransactionsMessage(message.getEncoded())
-                        for (transaction in msgCopy.transactions) {
+                        for (transaction in msgCopy.transactions!!) {
                             if (txs.put(Hex.toHexString(transaction.hash), java.lang.Boolean.TRUE) == null) {
                                 testLogger.error("Received strange transaction at miner: {}", transaction)
                                 fatalErrors.incrementAndGet()
@@ -185,8 +185,8 @@ class BlockTxForwardTest {
                 if (message.command == EthMessageCodes.TRANSACTIONS) {
                     val msgCopy = TransactionsMessage(message.getEncoded())
                     msgCopy.transactions
-                            .map { Transaction(it.encoded) }
-                            .forEach { txs.put(Hex.toHexString(it.hash), java.lang.Boolean.FALSE) }
+                            ?.map { Transaction(it.encoded) }
+                            ?.forEach { txs.put(Hex.toHexString(it.hash), java.lang.Boolean.FALSE) }
                 }
             }
         })
