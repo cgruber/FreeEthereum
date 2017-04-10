@@ -24,59 +24,22 @@
  *
  */
 
-package org.ethereum.sync;
+package org.ethereum.sync
 
 /**
- * Manages sync measurements
- *
  * @author Mikhail Kalinin
- * @since 20.08.2015
+ * *
+ * @since 14.07.2015
  */
-public class SyncStatistics {
-    private long updatedAt;
-    private long blocksCount;
-    private long headersCount;
-    private int headerBunchesCount;
+enum class PeerState {
 
-    public SyncStatistics() {
-        reset();
-    }
+    // Common
+    IDLE,
+    HEADER_RETRIEVING,
+    BLOCK_RETRIEVING,
+    NODE_RETRIEVING,
+    RECEIPT_RETRIEVING,
 
-    public void reset() {
-        updatedAt = System.currentTimeMillis();
-        blocksCount = 0;
-        headersCount = 0;
-        headerBunchesCount = 0;
-    }
-
-    public void addBlocks(final long cnt) {
-        blocksCount += cnt;
-        fixCommon(cnt);
-    }
-
-    public void addHeaders(final long cnt) {
-        headerBunchesCount++;
-        headersCount += cnt;
-        fixCommon(cnt);
-    }
-
-    private void fixCommon(final long cnt) {
-        updatedAt = System.currentTimeMillis();
-    }
-
-    public long getBlocksCount() {
-        return blocksCount;
-    }
-
-    public long getHeadersCount() {
-        return headersCount;
-    }
-
-    public long secondsSinceLastUpdate() {
-        return (System.currentTimeMillis() - updatedAt) / 1000;
-    }
-
-    public int getHeaderBunchesCount() {
-        return headerBunchesCount;
-    }
+    // Peer
+    DONE_HASH_RETRIEVING
 }
