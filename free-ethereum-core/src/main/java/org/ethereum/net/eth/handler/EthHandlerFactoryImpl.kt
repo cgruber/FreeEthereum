@@ -24,31 +24,31 @@
  *
  */
 
-package org.ethereum.net.eth.handler;
+package org.ethereum.net.eth.handler
 
-import org.ethereum.net.eth.EthVersion;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
+import org.ethereum.net.eth.EthVersion
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationContext
+import org.springframework.stereotype.Component
 
 /**
  * Default factory implementation
- *
+
  * @author Mikhail Kalinin
+ * *
  * @since 20.08.2015
  */
 @Component
-public class EthHandlerFactoryImpl implements EthHandlerFactory {
+class EthHandlerFactoryImpl : EthHandlerFactory {
 
     @Autowired
-    private ApplicationContext ctx;
+    private val ctx: ApplicationContext? = null
 
-    @Override
-    public EthHandler create(final EthVersion version) {
-        switch (version) {
-            case V62:   return (EthHandler) ctx.getBean("Eth62");
-            case V63:   return (EthHandler) ctx.getBean("Eth63");
-            default:    throw new IllegalArgumentException("Eth " + version + " is not supported");
+    override fun create(version: EthVersion): EthHandler {
+        when (version) {
+            EthVersion.V62 -> return ctx!!.getBean("Eth62") as EthHandler
+            EthVersion.V63 -> return ctx!!.getBean("Eth63") as EthHandler
+            else -> throw IllegalArgumentException("Eth $version is not supported")
         }
     }
 }

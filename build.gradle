@@ -24,8 +24,6 @@
  *
  */
 
-//wrapper.gradleVersion = '3.4.1'
-
 allprojects {
     if (JavaVersion.current().isJava8Compatible()) {
         //Disable lint of javadoc until someone fixes all the html

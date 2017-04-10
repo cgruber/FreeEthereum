@@ -24,43 +24,38 @@
  *
  */
 
-package org.ethereum.solidity.compiler;
+package org.ethereum.net.eth.handler
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.util.concurrent.SettableFuture
+import org.ethereum.core.BlockHeader
+import org.ethereum.net.eth.message.GetBlockHeadersMessage
 
-class Sources {
+/**
+ * Wraps [GetBlockHeadersMessage],
+ * adds some additional info required by get headers queue
 
-    private final Map<String, SourceArtifact> artifacts = new HashMap<>();
-    private String targetArtifact;
+ * @author Mikhail Kalinin
+ * *
+ * @since 16.02.2016
+ */
+class GetBlockHeadersMessageWrapper {
 
-    public Sources(final File[] files) {
-        for (final File file : files) {
-            artifacts.put(file.getName(), new SourceArtifact(file));
-        }
+    val message: GetBlockHeadersMessage
+    val futureHeaders = SettableFuture.create<List<BlockHeader>>()
+    var isNewHashesHandling = false
+    var isSent = false
+        private set
+
+    constructor(message: GetBlockHeadersMessage) {
+        this.message = message
     }
 
-    public void resolveDependencies() {
-        for (final String srcName : artifacts.keySet()) {
-            final SourceArtifact src = artifacts.get(srcName);
-            for (final String dep : src.getDependencies()) {
-                final SourceArtifact depArtifact = artifacts.get(dep);
-                if (depArtifact == null) {
-                    throw ContractException.Companion.assembleError("can't resolve dependency: dependency '%s' not found.", dep);
-                }
-                src.injectDependency(depArtifact);
-            }
-        }
-
-        for (final SourceArtifact artifact : artifacts.values()) {
-            if (!artifact.hasDependentArtifacts()) {
-                targetArtifact = artifact.getName();
-            }
-        }
+    constructor(message: GetBlockHeadersMessage, newHashesHandling: Boolean) {
+        this.message = message
+        this.isNewHashesHandling = newHashesHandling
     }
-    
-    public String plainSource() {
-        return artifacts.get(targetArtifact).plainSource();
+
+    fun send() {
+        this.isSent = true
     }
 }
