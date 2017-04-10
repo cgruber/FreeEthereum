@@ -24,59 +24,36 @@
  *
  */
 
-package org.ethereum.sync;
+package org.ethereum.net.swarm
 
-/**
- * Manages sync measurements
- *
- * @author Mikhail Kalinin
- * @since 20.08.2015
- */
-public class SyncStatistics {
-    private long updatedAt;
-    private long blocksCount;
-    private long headersCount;
-    private int headerBunchesCount;
+import org.ethereum.net.client.Capability
+import org.ethereum.net.swarm.bzz.BzzStatusMessage
+import org.ethereum.net.swarm.bzz.PeerAddress
+import org.junit.Assert
+import org.junit.Test
+import java.util.*
 
-    public SyncStatistics() {
-        reset();
+class MessageTest {
+
+    @Test
+    fun statusMessageTest() {
+        val m1 = BzzStatusMessage(777, "IdString",
+                PeerAddress(byteArrayOf(127, 0, 0, 255.toByte()), 1010, byteArrayOf(1, 2, 3, 4)), 888,
+                Arrays.asList(Capability("bzz", 0.toByte()),
+                        Capability("shh", 202.toByte())))
+        val encoded = m1.encoded
+        val m2 = BzzStatusMessage(encoded)
+        println(m1)
+        println(m2)
+
+        Assert.assertEquals(m1.version, m2.version)
+        Assert.assertEquals(m1.id, m2.id)
+        Assert.assertTrue(Arrays.equals(m1.addr.ip, m2.addr.ip))
+        Assert.assertTrue(Arrays.equals(m1.addr.id, m2.addr.id))
+        Assert.assertEquals(m1.addr.port.toLong(), m2.addr.port.toLong())
+        Assert.assertEquals(m1.networkId, m2.networkId)
+        Assert.assertEquals(m1.capabilities, m2.capabilities)
     }
 
-    public void reset() {
-        updatedAt = System.currentTimeMillis();
-        blocksCount = 0;
-        headersCount = 0;
-        headerBunchesCount = 0;
-    }
 
-    public void addBlocks(final long cnt) {
-        blocksCount += cnt;
-        fixCommon(cnt);
-    }
-
-    public void addHeaders(final long cnt) {
-        headerBunchesCount++;
-        headersCount += cnt;
-        fixCommon(cnt);
-    }
-
-    private void fixCommon(final long cnt) {
-        updatedAt = System.currentTimeMillis();
-    }
-
-    public long getBlocksCount() {
-        return blocksCount;
-    }
-
-    public long getHeadersCount() {
-        return headersCount;
-    }
-
-    public long secondsSinceLastUpdate() {
-        return (System.currentTimeMillis() - updatedAt) / 1000;
-    }
-
-    public int getHeaderBunchesCount() {
-        return headerBunchesCount;
-    }
 }

@@ -24,45 +24,22 @@
  *
  */
 
-package org.ethereum.jsontestsuite;
+package org.ethereum.sync
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.JavaType;
-import org.ethereum.jsontestsuite.suite.CryptoTestCase;
-import org.ethereum.jsontestsuite.suite.JSONReader;
-import org.json.simple.parser.ParseException;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
+/**
+ * @author Mikhail Kalinin
+ * *
+ * @since 14.07.2015
+ */
+enum class PeerState {
 
-import java.io.IOException;
-import java.util.HashMap;
+    // Common
+    IDLE,
+    HEADER_RETRIEVING,
+    BLOCK_RETRIEVING,
+    NODE_RETRIEVING,
+    RECEIPT_RETRIEVING,
 
-
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class GitHubCryptoTest {
-
-
-    @Test
-    public void testAllInCryptoSute() throws ParseException, IOException {
-
-        final String json = JSONReader.loadJSON("BasicTests/crypto.json");
-
-        final ObjectMapper mapper = new ObjectMapper();
-        final JavaType type = mapper.getTypeFactory().
-                constructMapType(HashMap.class, String.class, CryptoTestCase.class);
-
-
-        final HashMap<String, CryptoTestCase> testSuite =
-                mapper.readValue(json, type);
-
-        for (final String key : testSuite.keySet()) {
-
-            System.out.println("executing: " + key);
-            testSuite.get(key).execute();
-
-        }
-    }
-
-
+    // Peer
+    DONE_HASH_RETRIEVING
 }

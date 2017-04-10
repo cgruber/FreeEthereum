@@ -24,21 +24,51 @@
  *
  */
 
-package org.ethereum.sync;
+package org.ethereum.sync
 
 /**
+ * Manages sync measurements
+
  * @author Mikhail Kalinin
- * @since 14.07.2015
+ * *
+ * @since 20.08.2015
  */
-public enum PeerState {
+class SyncStatistics {
+    private var updatedAt: Long = 0
+    var blocksCount: Long = 0
+        private set
+    var headersCount: Long = 0
+        private set
+    var headerBunchesCount: Int = 0
+        private set
 
-    // Common
-    IDLE,
-    HEADER_RETRIEVING,
-    BLOCK_RETRIEVING,
-    NODE_RETRIEVING,
-    RECEIPT_RETRIEVING,
+    init {
+        reset()
+    }
 
-    // Peer
-    DONE_HASH_RETRIEVING
+    fun reset() {
+        updatedAt = System.currentTimeMillis()
+        blocksCount = 0
+        headersCount = 0
+        headerBunchesCount = 0
+    }
+
+    fun addBlocks(cnt: Long) {
+        blocksCount += cnt
+        fixCommon(cnt)
+    }
+
+    fun addHeaders(cnt: Long) {
+        headerBunchesCount++
+        headersCount += cnt
+        fixCommon(cnt)
+    }
+
+    private fun fixCommon(cnt: Long) {
+        updatedAt = System.currentTimeMillis()
+    }
+
+    fun secondsSinceLastUpdate(): Long {
+        return (System.currentTimeMillis() - updatedAt) / 1000
+    }
 }
