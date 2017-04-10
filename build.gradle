@@ -24,7 +24,7 @@
  *
  */
 
-wrapper.gradleVersion = '3.4.1'
+//wrapper.gradleVersion = '3.4.1'
 
 allprojects {
     if (JavaVersion.current().isJava8Compatible()) {
