@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 ./gradlew clean shadowJar
-java -Xss2M -jar ethereumj-core/build/libs/ethereumj-core-*-all.jar
+java -Xss2M -jar free-ethereum-core/build/libs/free-ethereum-core-*-all.jar

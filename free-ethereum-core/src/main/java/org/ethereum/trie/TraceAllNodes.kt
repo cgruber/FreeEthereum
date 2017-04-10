@@ -24,29 +24,27 @@
  *
  */
 
-package org.ethereum.trie;
+package org.ethereum.trie
 
-import org.spongycastle.util.encoders.Hex;
+import org.spongycastle.util.encoders.Hex
 
 /**
  * @author Roman Mandeleil
+ * *
  * @since 29.08.2014
  */
-public class TraceAllNodes implements TrieImpl.ScanAction {
+class TraceAllNodes : TrieImpl.ScanAction {
 
-    private final StringBuilder output = new StringBuilder();
+    private val output = StringBuilder()
 
-    @Override
-    public void doOnNode(final byte[] hash, final TrieImpl.Node node) {
+    override fun doOnNode(hash: ByteArray, node: TrieImpl.Node) {
 
-        output.append(Hex.toHexString(hash)).append(" ==> ").append(node.toString()).append("\n");
+        output.append(Hex.toHexString(hash)).append(" ==> ").append(node.toString()).append("\n")
     }
 
-    @Override
-    public void doOnValue(final byte[] nodeHash, final TrieImpl.Node node, final byte[] key, final byte[] value) {
-    }
+    override fun doOnValue(nodeHash: ByteArray, node: TrieImpl.Node, key: ByteArray, value: ByteArray) {}
 
-    public String getOutput() {
-        return output.toString();
+    fun getOutput(): String {
+        return output.toString()
     }
 }
