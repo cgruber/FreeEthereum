@@ -24,39 +24,38 @@
  *
  */
 
-package org.ethereum.net.p2p;
+package org.ethereum.net.p2p
 
-import org.spongycastle.util.encoders.Hex;
+import org.spongycastle.util.encoders.Hex
 
 /**
- * Wrapper around an Ethereum GetPeers message on the network
- *
- * @see org.ethereum.net.p2p.P2pMessageCodes#GET_PEERS
+ * Wrapper around an Ethereum Ping message on the network
+
+ * @see org.ethereum.net.p2p.P2pMessageCodes.PING
  */
-public class GetPeersMessage extends P2pMessage {
+class PingMessage : P2pMessage() {
 
-    /**
-     * GetPeers message is always a the same single command payload
-     */
-    private final static byte[] FIXED_PAYLOAD = Hex.decode("C104");
-
-    @Override
-    public byte[] getEncoded() {
-        return FIXED_PAYLOAD;
+    override fun getEncoded(): ByteArray {
+        return FIXED_PAYLOAD
     }
 
-    @Override
-    public P2pMessageCodes getCommand() {
-        return P2pMessageCodes.GET_PEERS;
+    override fun getAnswerMessage(): Class<PongMessage> {
+        return PongMessage::class.java
     }
 
-    @Override
-    public Class<PeersMessage> getAnswerMessage() {
-        return null;
+    override fun getCommand(): P2pMessageCodes {
+        return P2pMessageCodes.PING
     }
 
-    @Override
-    public String toString() {
-        return "[" + this.getCommand().name() + "]";
+    override fun toString(): String {
+        return "[" + command.name + "]"
+    }
+
+    companion object {
+
+        /**
+         * Ping message is always a the same single command payload
+         */
+        private val FIXED_PAYLOAD = Hex.decode("C0")
     }
 }

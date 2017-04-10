@@ -24,20 +24,38 @@
  *
  */
 
-package org.ethereum.net.p2p;
+package org.ethereum.net.p2p
 
-import org.ethereum.net.message.Message;
+import org.spongycastle.util.encoders.Hex
 
-public abstract class P2pMessage extends Message {
+/**
+ * Wrapper around an Ethereum GetPeers message on the network
 
-    P2pMessage() {
+ * @see org.ethereum.net.p2p.P2pMessageCodes.GET_PEERS
+ */
+class GetPeersMessage : P2pMessage() {
+
+    override fun getEncoded(): ByteArray {
+        return FIXED_PAYLOAD
     }
 
-    P2pMessage(final byte[] encoded) {
-        super(encoded);
+    override fun getCommand(): P2pMessageCodes {
+        return P2pMessageCodes.GET_PEERS
     }
 
-    public P2pMessageCodes getCommand() {
-        return P2pMessageCodes.fromByte(code);
+    override fun getAnswerMessage(): Class<PeersMessage>? {
+        return null
+    }
+
+    override fun toString(): String {
+        return "[" + this.command.name + "]"
+    }
+
+    companion object {
+
+        /**
+         * GetPeers message is always a the same single command payload
+         */
+        private val FIXED_PAYLOAD = Hex.decode("C104")
     }
 }

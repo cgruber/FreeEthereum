@@ -32,6 +32,7 @@ import org.ethereum.listener.EthereumListener;
 import org.ethereum.net.eth.message.EthMessage;
 import org.ethereum.net.message.Message;
 import org.ethereum.net.message.ReasonCode;
+import org.ethereum.net.message.StaticMessages;
 import org.ethereum.net.p2p.DisconnectMessage;
 import org.ethereum.net.p2p.PingMessage;
 import org.ethereum.net.server.Channel;
@@ -44,8 +45,6 @@ import org.springframework.stereotype.Component;
 import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.ethereum.net.message.StaticMessages.DISCONNECT_MESSAGE;
 
 /**
  * This class contains the logic for sending messages in a queue
@@ -116,7 +115,7 @@ public class MessageQueue {
     }
 
     public void disconnect() {
-        disconnect(DISCONNECT_MESSAGE);
+        disconnect(StaticMessages.Companion.getDISCONNECT_MESSAGE());
     }
 
     public void disconnect(final ReasonCode reason) {

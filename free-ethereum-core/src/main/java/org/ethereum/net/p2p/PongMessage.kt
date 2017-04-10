@@ -24,39 +24,38 @@
  *
  */
 
-package org.ethereum.net.p2p;
+package org.ethereum.net.p2p
 
-import org.spongycastle.util.encoders.Hex;
+import org.spongycastle.util.encoders.Hex
 
 /**
  * Wrapper around an Ethereum Pong message on the network
- *
- * @see org.ethereum.net.p2p.P2pMessageCodes#PONG
+
+ * @see org.ethereum.net.p2p.P2pMessageCodes.PONG
  */
-public class PongMessage extends P2pMessage {
+class PongMessage : P2pMessage() {
 
-    /**
-     * Pong message is always a the same single command payload
-     */
-    private final static byte[] FIXED_PAYLOAD = Hex.decode("C0");
-
-    @Override
-    public byte[] getEncoded() {
-        return FIXED_PAYLOAD;
+    override fun getEncoded(): ByteArray {
+        return FIXED_PAYLOAD
     }
 
-    @Override
-    public Class<?> getAnswerMessage() {
-        return null;
+    override fun getAnswerMessage(): Class<*>? {
+        return null
     }
 
-    @Override
-    public P2pMessageCodes getCommand() {
-        return P2pMessageCodes.PONG;
+    override fun getCommand(): P2pMessageCodes {
+        return P2pMessageCodes.PONG
     }
 
-    @Override
-    public String toString() {
-        return "[" + this.getCommand().name() + "]";
+    override fun toString(): String {
+        return "[" + this.command.name + "]"
+    }
+
+    companion object {
+
+        /**
+         * Pong message is always a the same single command payload
+         */
+        private val FIXED_PAYLOAD = Hex.decode("C0")
     }
 }

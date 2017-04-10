@@ -24,16 +24,15 @@
  *
  */
 
-package org.ethereum.net.message;
+package org.ethereum.net.message
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*
 
 /**
  * Reason is an optional integer specifying one
  * of a number of reasons for disconnect
  */
-public enum ReasonCode {
+enum class ReasonCode constructor(private val reason: Int) {
 
     /**
      * [0x00] Disconnect request by other peer
@@ -94,28 +93,23 @@ public enum ReasonCode {
      */
     UNKNOWN(0xFF);
 
-    private static final Map<Integer, ReasonCode> intToTypeMap = new HashMap<>();
+    fun asByte(): Byte {
+        return reason.toByte()
+    }
 
-    static {
-        for (final ReasonCode type : ReasonCode.values()) {
-            intToTypeMap.put(type.reason, type);
+    companion object {
+
+        private val intToTypeMap = HashMap<Int, ReasonCode>()
+
+        init {
+            for (type in ReasonCode.values()) {
+                intToTypeMap.put(type.reason, type)
+            }
         }
-    }
 
-    private int reason;
-
-    ReasonCode(final int reason) {
-        this.reason = reason;
-    }
-
-    public static ReasonCode fromInt(final int i) {
-        final ReasonCode type = intToTypeMap.get(i);
-        if (type == null)
-            return ReasonCode.UNKNOWN;
-        return type;
-    }
-
-    public byte asByte() {
-        return (byte) reason;
+        fun fromInt(i: Int): ReasonCode {
+            val type = intToTypeMap[i] ?: return ReasonCode.UNKNOWN
+            return type
+        }
     }
 }

@@ -58,7 +58,7 @@ public class DisconnectMessage extends P2pMessage {
             if (reasonBytes == null)
                 this.reason = UNKNOWN;
             else
-                this.reason = ReasonCode.fromInt(reasonBytes[0]);
+                this.reason = ReasonCode.Companion.fromInt(reasonBytes[0]);
         } else {
             this.reason = UNKNOWN;
         }

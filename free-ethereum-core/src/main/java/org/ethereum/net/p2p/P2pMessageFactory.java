@@ -48,11 +48,11 @@ public class P2pMessageFactory implements MessageFactory {
             case DISCONNECT:
                 return new DisconnectMessage(encoded);
             case PING:
-                return StaticMessages.PING_MESSAGE;
+                return StaticMessages.Companion.getPING_MESSAGE();
             case PONG:
-                return StaticMessages.PONG_MESSAGE;
+                return StaticMessages.Companion.getPONG_MESSAGE();
             case GET_PEERS:
-                return StaticMessages.GET_PEERS_MESSAGE;
+                return StaticMessages.Companion.getGET_PEERS_MESSAGE();
             case PEERS:
                 return new PeersMessage(encoded);
             default:

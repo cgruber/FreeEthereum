@@ -57,9 +57,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static org.ethereum.net.message.StaticMessages.PING_MESSAGE;
-import static org.ethereum.net.message.StaticMessages.PONG_MESSAGE;
-
 /**
  * Process the basic protocol messages between every peer on the network.
  *
@@ -153,7 +150,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
                 break;
             case PING:
                 msgQueue.receivedMessage(msg);
-                ctx.writeAndFlush(PONG_MESSAGE);
+                ctx.writeAndFlush(StaticMessages.Companion.getPONG_MESSAGE());
                 break;
             case PONG:
                 msgQueue.receivedMessage(msg);
@@ -212,7 +209,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
     }
 
     private void sendGetPeers() {
-        msgQueue.sendMessage(StaticMessages.GET_PEERS_MESSAGE);
+        msgQueue.sendMessage(StaticMessages.Companion.getGET_PEERS_MESSAGE());
     }
 
     public void setHandshake(final HelloMessage msg, final ChannelHandlerContext ctx) {
@@ -286,7 +283,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
         // sample for pinging in background
         pingTask = pingTimer.scheduleAtFixedRate(() -> {
             try {
-                msgQueue.sendMessage(PING_MESSAGE);
+                msgQueue.sendMessage(StaticMessages.Companion.getPING_MESSAGE());
             } catch (final Throwable t) {
                 logger.error("Unhandled exception", t);
             }
