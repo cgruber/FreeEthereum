@@ -30,8 +30,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ethereum.solidity.compiler.ContractException.assembleError;
-
 class Sources {
 
     private final Map<String, SourceArtifact> artifacts = new HashMap<>();
@@ -49,7 +47,7 @@ class Sources {
             for (final String dep : src.getDependencies()) {
                 final SourceArtifact depArtifact = artifacts.get(dep);
                 if (depArtifact == null) {
-                    throw assembleError("can't resolve dependency: dependency '%s' not found.", dep);
+                    throw ContractException.Companion.assembleError("can't resolve dependency: dependency '%s' not found.", dep);
                 }
                 src.injectDependency(depArtifact);
             }

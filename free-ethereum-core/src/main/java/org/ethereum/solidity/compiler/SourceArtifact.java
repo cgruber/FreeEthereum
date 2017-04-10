@@ -35,7 +35,6 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.collections4.CollectionUtils.disjunction;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.substringsBetween;
-import static org.ethereum.solidity.compiler.ContractException.assembleError;
 
 class SourceArtifact {
 
@@ -89,7 +88,7 @@ class SourceArtifact {
     public String plainSource() {
         final Collection<String> unresolvedDeps = getUnresolvedDependencies();
         if (isNotEmpty(unresolvedDeps)) {
-            throw assembleError("Followed dependencies aren't resolved: %s", unresolvedDeps);
+            throw ContractException.Companion.assembleError("Followed dependencies aren't resolved: %s", unresolvedDeps);
         }
 
         String result = this.source;

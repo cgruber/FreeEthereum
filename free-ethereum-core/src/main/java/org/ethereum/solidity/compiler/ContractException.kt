@@ -24,31 +24,29 @@
  *
  */
 
-package org.ethereum.solidity.compiler;
+package org.ethereum.solidity.compiler
 
-public class ContractException extends RuntimeException {
+class ContractException private constructor(message: String) : RuntimeException(message) {
+    companion object {
 
-    private ContractException(final String message) {
-        super(message);
-    }
+        fun permissionError(msg: String, vararg args: Any): ContractException {
+            return error("contract permission error", msg, *args)
+        }
 
-    public static ContractException permissionError(final String msg, final Object... args) {
-        return error("contract permission error", msg, args);
-    }
+        fun compilationError(msg: String, vararg args: Any): ContractException {
+            return error("contract compilation error", msg, *args)
+        }
 
-    public static ContractException compilationError(final String msg, final Object... args) {
-        return error("contract compilation error", msg, args);
-    }
+        fun validationError(msg: String, vararg args: Any): ContractException {
+            return error("contract validation error", msg, *args)
+        }
 
-    public static ContractException validationError(final String msg, final Object... args) {
-        return error("contract validation error", msg, args);
-    }
+        fun assembleError(msg: String, vararg args: Any): ContractException {
+            return error("contract assemble error", msg, *args)
+        }
 
-    public static ContractException assembleError(final String msg, final Object... args) {
-        return error("contract assemble error", msg, args);
-    }
-
-    private static ContractException error(final String title, final String message, final Object... args) {
-        return new ContractException(title + ": " + String.format(message, args));
+        private fun error(title: String, message: String, vararg args: Any): ContractException {
+            return ContractException(title + ": " + String.format(message, *args))
+        }
     }
 }
