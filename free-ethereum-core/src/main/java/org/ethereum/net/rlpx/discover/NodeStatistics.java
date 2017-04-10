@@ -96,7 +96,7 @@ public class NodeStatistics {
 
     public NodeStatistics(final Node node) {
         this.node = node;
-        discoverMessageLatency = (Statter.SimpleStatter) Statter.create(getStatName() + ".discoverMessageLatency");
+        discoverMessageLatency = (Statter.SimpleStatter) Statter.Companion.create(getStatName() + ".discoverMessageLatency");
     }
 
     private int getSessionReputation() {

@@ -24,20 +24,20 @@
  *
  */
 
-package org.ethereum.net.swarm;
+package org.ethereum.net.swarm
 
 /**
  * Interface similar to ByteBuffer for reading large streaming or random access data
- *
+
  * Created by Anton Nashatyrev on 18.06.2015.
  */
-public interface SectionReader {
+interface SectionReader {
 
-    long seek(long offset, int whence /* ??? */);
+    fun seek(offset: Long, whence: Int /* ??? */): Long
 
-    int read(byte[] dest, int destOff);
+    fun read(dest: ByteArray, destOff: Int): Int
 
-    int readAt(byte[] dest, int destOff, long readerOffset);
+    fun readAt(dest: ByteArray, destOff: Int, readerOffset: Long): Int
 
-    long getSize();
+    val size: Long
 }

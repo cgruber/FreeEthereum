@@ -24,7 +24,7 @@
  *
  */
 
-package org.ethereum.net.swarm;
+package org.ethereum.net.swarm
 
 /**
  * The interface for gathering statistical information.
@@ -33,60 +33,42 @@ package org.ethereum.net.swarm;
  * The implementation might be substituted to allow some advanced
  * information processing like streaming it to the database
  * or aggregating and displaying as graphics
- *
+
  * Created by Anton Nashatyrev on 01.07.2015.
  */
-public abstract class Statter {
+abstract class Statter {
 
-    /**
-     * Used as a factory to create statters.
-     *
-     * @param name Normally the name is assumed to be a hierarchical path with '.' delimiters
-     *             similar to full Java class names.
-     */
-    public static Statter create(final String name) {
-        return new SimpleStatter(name);
+    abstract fun add(value: Double)
+
+    class SimpleStatter(val name: String) : Statter() {
+        @Volatile var last: Double = 0.toDouble()
+            private set
+        @Volatile var sum: Double = 0.toDouble()
+            private set
+        @Volatile var count: Int = 0
+            private set
+
+        override fun add(value: Double) {
+            last = value
+            sum += value
+            count++
+        }
+
+        val avrg: Double
+            get() = sum / count
+
     }
 
-    public abstract void add(double value);
+    companion object {
 
-    public static class SimpleStatter extends Statter {
+        /**
+         * Used as a factory to create statters.
 
-        private final String name;
-        private volatile double last;
-        private volatile double sum;
-        private volatile int count;
-
-        public SimpleStatter(final String name) {
-            this.name = name;
+         * @param name Normally the name is assumed to be a hierarchical path with '.' delimiters
+         * *             similar to full Java class names.
+         */
+        fun create(name: String): Statter {
+            return SimpleStatter(name)
         }
-
-        @Override
-        public void add(final double value) {
-            last = value;
-            sum += value;
-            count++;
-        }
-
-        public double getLast() {
-            return last;
-        }
-
-        public int getCount() {
-            return count;
-        }
-
-        public double getSum() {
-            return sum;
-        }
-
-        public double getAvrg() {
-            return getSum() / getCount();
-        }
-
-        public String getName() {
-            return name;
-        }
-
     }
 }

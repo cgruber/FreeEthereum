@@ -38,8 +38,8 @@ import java.util.Map;
  * Created by Anton Nashatyrev on 18.06.2015.
  */
 public class MemStore implements ChunkStore {
-    public final Statter statCurChunks = Statter.create("net.swarm.memstore.curChunkCnt");
-    private final Statter statCurSize = Statter.create("net.swarm.memstore.curSize");
+    public final Statter statCurChunks = Statter.Companion.create("net.swarm.memstore.curChunkCnt");
+    private final Statter statCurSize = Statter.Companion.create("net.swarm.memstore.curSize");
     private long maxSizeBytes = 10 * 1000000;
     private long curSizeBytes = 0;
     // TODO: SoftReference for Chunks?

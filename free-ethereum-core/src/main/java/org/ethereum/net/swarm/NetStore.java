@@ -51,13 +51,13 @@ import java.util.concurrent.Future;
 public class NetStore implements ChunkStore {
     private static NetStore INST;
     // Statistics gathers
-    public final Statter statInMsg = Statter.create("net.swarm.bzz.inMessages");
-    public final Statter statOutMsg = Statter.create("net.swarm.bzz.outMessages");
-    public final Statter statHandshakes = Statter.create("net.swarm.bzz.handshakes");
-    private final Statter statInStoreReq = Statter.create("net.swarm.in.storeReq");
-    private final Statter statInGetReq = Statter.create("net.swarm.in.getReq");
-    private final Statter statOutStoreReq = Statter.create("net.swarm.out.storeReq");
-    private final Statter statOutGetReq = Statter.create("net.swarm.out.getReq");
+    public final Statter statInMsg = Statter.Companion.create("net.swarm.bzz.inMessages");
+    public final Statter statOutMsg = Statter.Companion.create("net.swarm.bzz.outMessages");
+    public final Statter statHandshakes = Statter.Companion.create("net.swarm.bzz.handshakes");
+    private final Statter statInStoreReq = Statter.Companion.create("net.swarm.in.storeReq");
+    private final Statter statInGetReq = Statter.Companion.create("net.swarm.in.getReq");
+    private final Statter statOutStoreReq = Statter.Companion.create("net.swarm.out.storeReq");
+    private final Statter statOutGetReq = Statter.Companion.create("net.swarm.out.getReq");
     private final int maxSearchPeers = 6;
     private final int timeout = 600 * 1000;
     private final LocalStore localStore;
