@@ -24,23 +24,21 @@
  *
  */
 
-package org.ethereum.net.server;
+package org.ethereum.net.server
 
 /**
  * @author Mikhail Kalinin
+ * *
  * @since 29.02.2016
  */
-public class PeerStatistics {
+class PeerStatistics {
 
-    private double avgLatency = 0;
-    private long pingCount = 0;
+    var avgLatency = 0.0
+        private set
+    private var pingCount: Long = 0
 
-    public void pong(final long pingStamp) {
-        final long latency = System.currentTimeMillis() - pingStamp;
-        avgLatency = ((avgLatency * pingCount) + latency) / ++pingCount;
-    }
-
-    public double getAvgLatency() {
-        return avgLatency;
+    fun pong(pingStamp: Long) {
+        val latency = System.currentTimeMillis() - pingStamp
+        avgLatency = (avgLatency * pingCount + latency) / ++pingCount
     }
 }
