@@ -147,13 +147,13 @@ class JsonRpcTest {
 
             val blockResult = jsonRpc!!.eth_getBlockByNumber("pending", true)
             println(blockResult)
-            assertEquals(txHash1, (blockResult.transactions[0] as TransactionResultDTO).hash)
+            assertEquals(txHash1, (blockResult.transactions!![0] as TransactionResultDTO).hash)
 
             val hash1 = mineBlock()
 
             val blockResult1 = jsonRpc!!.eth_getBlockByHash(hash1, true)
             assertEquals(hash1, blockResult1.hash)
-            assertEquals(txHash1, (blockResult1.transactions[0] as TransactionResultDTO).hash)
+            assertEquals(txHash1, (blockResult1.transactions!![0] as TransactionResultDTO).hash)
             val receipt1 = jsonRpc!!.eth_getTransactionReceipt(txHash1)
             assertEquals(1, receipt1.blockNumber)
             assertTrue(receipt1.gasUsed > 0)
@@ -170,9 +170,9 @@ class JsonRpcTest {
                             "  num = a; " +
                             "  log1(0x1111, 0x2222);" +
                             "}}")
-            assertEquals(compRes.info.abiDefinition[0].name, "num")
-            assertEquals(compRes.info.abiDefinition[1].name, "set")
-            assertTrue(compRes.code.length > 10)
+            assertEquals(compRes.info?.abiDefinition!![0].name, "num")
+            assertEquals(compRes.info?.abiDefinition!![1].name, "set")
+            assertTrue(compRes.code?.length!! > 10)
 
             val callArgs = JsonRpc.CallArguments()
             callArgs.from = cowAcct
@@ -186,7 +186,7 @@ class JsonRpcTest {
 
             val blockResult2 = jsonRpc!!.eth_getBlockByHash(hash2, true)
             assertEquals(hash2, blockResult2.hash)
-            assertEquals(txHash2, (blockResult2.transactions[0] as TransactionResultDTO).hash)
+            assertEquals(txHash2, (blockResult2.transactions!![0] as TransactionResultDTO).hash)
             val receipt2 = jsonRpc!!.eth_getTransactionReceipt(txHash2)
             assertTrue(receipt2.blockNumber > 1)
             assertTrue(receipt2.gasUsed > 0)
@@ -220,7 +220,7 @@ class JsonRpcTest {
 
             val blockResult3 = jsonRpc!!.eth_getBlockByHash(hash3, true)
             assertEquals(hash3, blockResult3.hash)
-            assertEquals(txHash3, (blockResult3.transactions[0] as TransactionResultDTO).hash)
+            assertEquals(txHash3, (blockResult3.transactions!![0] as TransactionResultDTO).hash)
             val receipt3 = jsonRpc!!.eth_getTransactionReceipt(txHash3)
             assertTrue(receipt3.blockNumber > 2)
             assertTrue(receipt3.gasUsed > 0)
@@ -231,7 +231,7 @@ class JsonRpcTest {
                     (logs[0] as JsonRpc.LogFilterElement).data)
             assertEquals(0, jsonRpc!!.eth_getFilterLogs(filterId).size.toLong())
 
-            val ret1 = jsonRpc!!.eth_call(callArgs2, blockResult2.number)
+            val ret1 = jsonRpc!!.eth_call(callArgs2, blockResult2.number!!)
             val ret2 = jsonRpc!!.eth_call(callArgs2, "latest")
 
             assertEquals("0x0000000000000000000000000000000000000000000000000000000000000000", ret1)

@@ -292,9 +292,9 @@ public class JsonRpcImpl implements JsonRpc {
     public SyncingResult eth_syncing(){
         final SyncingResult s = new SyncingResult();
         try {
-            s.startingBlock = TypeConverter.toJsonHex(initialBlockNumber);
-            s.currentBlock = TypeConverter.toJsonHex(blockchain.getBestBlock().getNumber());
-            s.highestBlock = TypeConverter.toJsonHex(syncManager.getLastKnownBlockNumber());
+            s.setStartingBlock(TypeConverter.toJsonHex(initialBlockNumber));
+            s.setCurrentBlock(TypeConverter.toJsonHex(blockchain.getBestBlock().getNumber()));
+            s.setHighestBlock(TypeConverter.toJsonHex(syncManager.getLastKnownBlockNumber()));
 
             return s;
         }finally {
@@ -489,21 +489,21 @@ public class JsonRpcImpl implements JsonRpc {
 
         String s = null;
         try {
-            final Account account = getAccount(JSonHexToHex(args.from));
+            final Account account = getAccount(JSonHexToHex(args.getFrom()));
 
             if (account == null)
                 throw new Exception("From address private key could not be found in this node");
 
-            if (args.data != null && args.data.startsWith("0x"))
-                args.data = args.data.substring(2);
+            if (args.getData() != null && args.getData().startsWith("0x"))
+                args.setData(args.getData().substring(2));
 
             final Transaction tx = new Transaction(
-                    args.nonce != null ? StringHexToByteArray(args.nonce) : bigIntegerToBytes(pendingState.getRepository().getNonce(account.getAddress())),
-                    args.gasPrice != null ? StringHexToByteArray(args.gasPrice) : ByteUtil.longToBytesNoLeadZeroes(eth.getGasPrice()),
-                    args.gas != null ? StringHexToByteArray(args.gas) : ByteUtil.longToBytes(90_000),
-                    args.to != null ? StringHexToByteArray(args.to) : EMPTY_BYTE_ARRAY,
-                    args.value != null ? StringHexToByteArray(args.value) : EMPTY_BYTE_ARRAY,
-                    args.data != null ? StringHexToByteArray(args.data) : EMPTY_BYTE_ARRAY,
+                    args.getNonce() != null ? StringHexToByteArray(args.getNonce()) : bigIntegerToBytes(pendingState.getRepository().getNonce(account.getAddress())),
+                    args.getGasPrice() != null ? StringHexToByteArray(args.getGasPrice()) : ByteUtil.longToBytesNoLeadZeroes(eth.getGasPrice()),
+                    args.getGas() != null ? StringHexToByteArray(args.getGas()) : ByteUtil.longToBytes(90_000),
+                    args.getTo() != null ? StringHexToByteArray(args.getTo()) : EMPTY_BYTE_ARRAY,
+                    args.getValue() != null ? StringHexToByteArray(args.getValue()) : EMPTY_BYTE_ARRAY,
+                    args.getData() != null ? StringHexToByteArray(args.getData()) : EMPTY_BYTE_ARRAY,
                     eth.getChainIdForNextBlock());
             tx.sign(account.getEcKey().getPrivKeyBytes());
 
@@ -630,24 +630,24 @@ public class JsonRpcImpl implements JsonRpc {
             return null;
         final boolean isPending = ByteUtil.byteArrayToLong(b.getNonce()) == 0;
         final BlockResult br = new BlockResult();
-        br.number = isPending ? null : TypeConverter.toJsonHex(b.getNumber());
-        br.hash = isPending ? null : TypeConverter.toJsonHex(b.getHash());
-        br.parentHash = TypeConverter.toJsonHex(b.getParentHash());
-        br.nonce = isPending ? null : TypeConverter.toJsonHex(b.getNonce());
-        br.sha3Uncles= TypeConverter.toJsonHex(b.getUnclesHash());
-        br.logsBloom = isPending ? null : TypeConverter.toJsonHex(b.getLogBloom());
-        br.transactionsRoot =TypeConverter.toJsonHex(b.getTxTrieRoot());
-        br.stateRoot = TypeConverter.toJsonHex(b.getStateRoot());
-        br.receiptsRoot =TypeConverter.toJsonHex(b.getReceiptsRoot());
-        br.miner = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase());
-        br.difficulty = TypeConverter.toJsonHex(b.getDifficulty());
-        br.totalDifficulty = TypeConverter.toJsonHex(blockchain.getTotalDifficulty());
+        br.setNumber(isPending ? null : TypeConverter.toJsonHex(b.getNumber()));
+        br.setHash(isPending ? null : TypeConverter.toJsonHex(b.getHash()));
+        br.setParentHash(TypeConverter.toJsonHex(b.getParentHash()));
+        br.setNonce(isPending ? null : TypeConverter.toJsonHex(b.getNonce()));
+        br.setSha3Uncles(TypeConverter.toJsonHex(b.getUnclesHash()));
+        br.setLogsBloom(isPending ? null : TypeConverter.toJsonHex(b.getLogBloom()));
+        br.setTransactionsRoot(TypeConverter.toJsonHex(b.getTxTrieRoot()));
+        br.setStateRoot(TypeConverter.toJsonHex(b.getStateRoot()));
+        br.setReceiptsRoot(TypeConverter.toJsonHex(b.getReceiptsRoot()));
+        br.setMiner(isPending ? null : TypeConverter.toJsonHex(b.getCoinbase()));
+        br.setDifficulty(TypeConverter.toJsonHex(b.getDifficulty()));
+        br.setTotalDifficulty(TypeConverter.toJsonHex(blockchain.getTotalDifficulty()));
         if (b.getExtraData() != null)
-            br.extraData =TypeConverter.toJsonHex(b.getExtraData());
-        br.size = TypeConverter.toJsonHex(b.getEncoded().length);
-        br.gasLimit =TypeConverter.toJsonHex(b.getGasLimit());
-        br.gasUsed =TypeConverter.toJsonHex(b.getGasUsed());
-        br.timestamp =TypeConverter.toJsonHex(b.getTimestamp());
+            br.setExtraData(TypeConverter.toJsonHex(b.getExtraData()));
+        br.setSize(TypeConverter.toJsonHex(b.getEncoded().length));
+        br.setGasLimit(TypeConverter.toJsonHex(b.getGasLimit()));
+        br.setGasUsed(TypeConverter.toJsonHex(b.getGasUsed()));
+        br.setTimestamp(TypeConverter.toJsonHex(b.getTimestamp()));
 
         final List<Object> txes = new ArrayList<>();
         if (fullTx) {
@@ -659,13 +659,13 @@ public class JsonRpcImpl implements JsonRpc {
                 txes.add(toJsonHex(tx.getHash()));
             }
         }
-        br.transactions = txes.toArray();
+        br.setTransactions(txes.toArray());
 
         final List<String> ul = new ArrayList<>();
         for (final BlockHeader header : b.getUncleList()) {
             ul.add(toJsonHex(header.getHash()));
         }
-        br.uncles = ul.toArray(new String[ul.size()]);
+        br.setUncles(ul.toArray(new String[ul.size()]));
 
         return br;
     }
@@ -882,13 +882,13 @@ public class JsonRpcImpl implements JsonRpc {
             final org.ethereum.solidity.compiler.CompilationResult result = org.ethereum.solidity.compiler.CompilationResult.parse(res.output);
             final CompilationResult ret = new CompilationResult();
             final org.ethereum.solidity.compiler.CompilationResult.ContractMetadata contractMetadata = result.contracts.values().iterator().next();
-            ret.code = toJsonHex(contractMetadata.bin);
-            ret.info = new CompilationInfo();
-            ret.info.source = contract;
-            ret.info.language = "Solidity";
-            ret.info.languageVersion = "0";
-            ret.info.compilerVersion = result.version;
-            ret.info.abiDefinition = new CallTransaction.Contract(contractMetadata.abi).functions;
+            ret.setCode(toJsonHex(contractMetadata.bin));
+            ret.setInfo(new CompilationInfo());
+            ret.getInfo().setSource(contract);
+            ret.getInfo().setLanguage("Solidity");
+            ret.getInfo().setLanguageVersion("0");
+            ret.getInfo().setCompilerVersion(result.version);
+            ret.getInfo().setAbiDefinition(new CallTransaction.Contract(contractMetadata.abi).functions);
             return s = ret;
         } finally {
             if (logger.isDebugEnabled()) logger.debug("eth_compileSolidity(" + contract + ")" + s);
@@ -916,18 +916,18 @@ public class JsonRpcImpl implements JsonRpc {
         try {
             final LogFilter logFilter = new LogFilter();
 
-            if (fr.address instanceof String) {
-                logFilter.withContractAddress(StringHexToByteArray((String) fr.address));
-            } else if (fr.address instanceof String[]) {
+            if (fr.getAddress() instanceof String) {
+                logFilter.withContractAddress(StringHexToByteArray((String) fr.getAddress()));
+            } else if (fr.getAddress() instanceof String[]) {
                 final List<byte[]> addr = new ArrayList<>();
-                for (final String s : ((String[]) fr.address)) {
+                for (final String s : ((String[]) fr.getAddress())) {
                     addr.add(StringHexToByteArray(s));
                 }
                 logFilter.withContractAddress(addr.toArray(new byte[0][]));
             }
 
-            if (fr.topics != null) {
-                for (final Object topic : fr.topics) {
+            if (fr.getTopics() != null) {
+                for (final Object topic : fr.getTopics()) {
                     if (topic == null) {
                         logFilter.withTopic(null);
                     } else if (topic instanceof String) {
@@ -946,8 +946,8 @@ public class JsonRpcImpl implements JsonRpc {
             final int id = filterCounter.getAndIncrement();
             installedFilters.put(id, filter);
 
-            final Block blockFrom = fr.fromBlock == null ? null : getByJsonBlockId(fr.fromBlock);
-            Block blockTo = fr.toBlock == null ? null : getByJsonBlockId(fr.toBlock);
+            final Block blockFrom = fr.getFromBlock() == null ? null : getByJsonBlockId(fr.getFromBlock());
+            Block blockTo = fr.getToBlock() == null ? null : getByJsonBlockId(fr.getToBlock());
 
             if (blockFrom != null) {
                 // need to add historical data
@@ -958,9 +958,9 @@ public class JsonRpcImpl implements JsonRpc {
             }
 
             // the following is not precisely documented
-            if ("pending".equalsIgnoreCase(fr.fromBlock) || "pending".equalsIgnoreCase(fr.toBlock)) {
+            if ("pending".equalsIgnoreCase(fr.getFromBlock()) || "pending".equalsIgnoreCase(fr.getToBlock())) {
                 filter.onPendingTx = true;
-            } else if ("latest".equalsIgnoreCase(fr.fromBlock) || "latest".equalsIgnoreCase(fr.toBlock)) {
+            } else if ("latest".equalsIgnoreCase(fr.getFromBlock()) || "latest".equalsIgnoreCase(fr.getToBlock())) {
                 filter.onNewBlock = true;
             }
 
@@ -1429,29 +1429,29 @@ public class JsonRpcImpl implements JsonRpc {
 
         public void setArguments(final CallArguments args) throws Exception {
             nonce = 0;
-            if (args.nonce != null && args.nonce.length() != 0)
-                nonce = JSonHexToLong(args.nonce);
+            if (args.getNonce() != null && args.getNonce().length() != 0)
+                nonce = JSonHexToLong(args.getNonce());
 
             gasPrice = 0;
-            if (args.gasPrice != null && args.gasPrice.length() != 0)
-                gasPrice = JSonHexToLong(args.gasPrice);
+            if (args.getGasPrice() != null && args.getGasPrice().length() != 0)
+                gasPrice = JSonHexToLong(args.getGasPrice());
 
             gasLimit = 4_000_000;
-            if (args.gas != null && args.gas.length() != 0)
-                gasLimit = JSonHexToLong(args.gas);
+            if (args.getGas() != null && args.getGas().length() != 0)
+                gasLimit = JSonHexToLong(args.getGas());
 
             toAddress = null;
-            if (args.to != null && !args.to.isEmpty())
-                toAddress = JSonHexToHex(args.to);
+            if (args.getTo() != null && !args.getTo().isEmpty())
+                toAddress = JSonHexToHex(args.getTo());
 
             value = 0;
-            if (args.value != null && args.value.length() != 0)
-                value = JSonHexToLong(args.value);
+            if (args.getValue() != null && args.getValue().length() != 0)
+                value = JSonHexToLong(args.getValue());
 
             data = null;
 
-            if (args.data != null && args.data.length() != 0)
-                data = TypeConverter.StringHexToByteArray(args.data);
+            if (args.getData() != null && args.getData().length() != 0)
+                data = TypeConverter.StringHexToByteArray(args.getData());
         }
     }
 
