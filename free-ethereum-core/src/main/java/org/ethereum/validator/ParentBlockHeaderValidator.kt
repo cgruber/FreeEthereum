@@ -43,7 +43,7 @@ class ParentBlockHeaderValidator(private val rules: List<DependentBlockHeaderRul
 
         for (rule in rules) {
             if (!rule.validate(header, parent)) {
-                errors.addAll(rule.getErrors())
+                errors.addAll(rule.errors)
                 return false
             }
         }

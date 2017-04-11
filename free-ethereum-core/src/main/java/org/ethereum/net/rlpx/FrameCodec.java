@@ -58,14 +58,14 @@ public class FrameCodec {
     private int totalFrameSize = -1;
 
     public FrameCodec(final EncryptionHandshake.Secrets secrets) {
-        this.mac = secrets.mac;
-        final int blockSize = secrets.aes.length * 8;
+        this.mac = secrets.getMac();
+        final int blockSize = secrets.getAes().length * 8;
         enc = new SICBlockCipher(new AESFastEngine());
-        enc.init(true, new ParametersWithIV(new KeyParameter(secrets.aes), new byte[blockSize / 8]));
+        enc.init(true, new ParametersWithIV(new KeyParameter(secrets.getAes()), new byte[blockSize / 8]));
         dec = new SICBlockCipher(new AESFastEngine());
-        dec.init(false, new ParametersWithIV(new KeyParameter(secrets.aes), new byte[blockSize / 8]));
-        egressMac = secrets.egressMac;
-        ingressMac = secrets.ingressMac;
+        dec.init(false, new ParametersWithIV(new KeyParameter(secrets.getAes()), new byte[blockSize / 8]));
+        egressMac = secrets.getEgressMac();
+        ingressMac = secrets.getIngressMac();
     }
 
     private AESFastEngine makeMacCipher() {
