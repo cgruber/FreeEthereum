@@ -24,18 +24,30 @@
  *
  */
 
-package org.ethereum.validator;
+package org.ethereum.util
 
-import org.ethereum.core.BlockHeader;
+import org.spongycastle.util.encoders.Hex
 
-/**
- * @author Mikhail Kalinin
- * @since 25.09.2015
- */
-public class DependentBlockHeaderRuleAdapter extends DependentBlockHeaderRule {
+import java.io.Serializable
 
-    @Override
-    public boolean validate(final BlockHeader header, final BlockHeader dependency) {
-        return true;
+class DecodeResult(val pos: Int, val decoded: Any) : Serializable {
+
+    override fun toString(): String {
+        return asString(this.decoded)
+    }
+
+    private fun asString(decoded: Any): String {
+        if (decoded is String) {
+            return decoded
+        } else if (decoded is ByteArray) {
+            return Hex.toHexString(decoded)
+        } else if (decoded is Array<*>) {
+            val result = StringBuilder()
+            for (item in decoded) {
+                result.append(asString(item!!))
+            }
+            return result.toString()
+        }
+        throw RuntimeException("Not a valid type. Should not occur")
     }
 }

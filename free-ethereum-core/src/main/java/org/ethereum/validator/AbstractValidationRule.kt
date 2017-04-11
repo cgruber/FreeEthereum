@@ -24,47 +24,16 @@
  *
  */
 
-package org.ethereum.util;
+package org.ethereum.validator
 
-import org.spongycastle.util.encoders.Hex;
+/**
+ * Holds errors list to share between all rules
 
-import java.io.Serializable;
+ * @author Mikhail Kalinin
+ * *
+ * @since 02.09.2015
+ */
+abstract class AbstractValidationRule {
 
-@SuppressWarnings("serial")
-public class DecodeResult implements Serializable {
-
-    private final int pos;
-    private final Object decoded;
-
-    public DecodeResult(final int pos, final Object decoded) {
-        this.pos = pos;
-        this.decoded = decoded;
-    }
-
-    public int getPos() {
-        return pos;
-    }
-
-    public Object getDecoded() {
-        return decoded;
-    }
-
-    public String toString() {
-        return asString(this.decoded);
-    }
-
-    private String asString(final Object decoded) {
-        if (decoded instanceof String) {
-            return (String) decoded;
-        } else if (decoded instanceof byte[]) {
-            return Hex.toHexString((byte[]) decoded);
-        } else if (decoded instanceof Object[]) {
-            final StringBuilder result = new StringBuilder();
-            for (final Object item : (Object[]) decoded) {
-                result.append(asString(item));
-            }
-            return result.toString();
-        }
-        throw new RuntimeException("Not a valid type. Should not occur");
-    }
+    abstract val entityClass: Class<*>
 }

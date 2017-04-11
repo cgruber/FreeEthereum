@@ -24,15 +24,18 @@
  *
  */
 
-package org.ethereum.validator;
+package org.ethereum.validator
+
+import org.ethereum.core.BlockHeader
 
 /**
- * Holds errors list to share between all rules
- *
  * @author Mikhail Kalinin
- * @since 02.09.2015
+ * *
+ * @since 25.09.2015
  */
-abstract class AbstractValidationRule {
+class DependentBlockHeaderRuleAdapter : DependentBlockHeaderRule() {
 
-    abstract public Class getEntityClass();
+    override fun validate(header: BlockHeader, dependency: BlockHeader): Boolean {
+        return true
+    }
 }
