@@ -325,11 +325,11 @@ public class SystemProperties {
                 }
             }
 
-            if (genesisJson.getConfig() != null && genesisJson.getConfig().headerValidators != null) {
-                for (final GenesisConfig.HashValidator validator : genesisJson.getConfig().headerValidators) {
-                    final BlockHeaderValidator headerValidator = new BlockHeaderValidator(new BlockCustomHashRule(ByteUtil.hexStringToBytes(validator.hash)));
-                    blockchainConfig.getConfigForBlock(validator.number).headerValidators().add(
-                            Pair.of(validator.number, headerValidator));
+            if (genesisJson.getConfig() != null && genesisJson.getConfig().getHeaderValidators() != null) {
+                for (final GenesisConfig.HashValidator validator : genesisJson.getConfig().getHeaderValidators()) {
+                    final BlockHeaderValidator headerValidator = new BlockHeaderValidator(new BlockCustomHashRule(ByteUtil.hexStringToBytes(validator.getHash())));
+                    blockchainConfig.getConfigForBlock(validator.getNumber()).headerValidators().add(
+                            Pair.of(validator.getNumber(), headerValidator));
                 }
             }
         }
@@ -851,14 +851,14 @@ public class SystemProperties {
     
     private GenesisJson getGenesisJson() {
         if (genesisJson == null) {
-            genesisJson = GenesisLoader.loadGenesisJson(this, classLoader);
+            genesisJson = GenesisLoader.INSTANCE.loadGenesisJson(this, classLoader);
         }
         return genesisJson;
     }
 
     public Genesis getGenesis() {
         if (genesis == null) {
-            genesis = GenesisLoader.parseGenesis(getBlockchainConfig(), getGenesisJson());
+            genesis = GenesisLoader.INSTANCE.parseGenesis(getBlockchainConfig(), getGenesisJson());
         }
         return genesis;
     }
@@ -867,8 +867,8 @@ public class SystemProperties {
      * Method used in StandaloneBlockchain.
      */
     public Genesis useGenesis(final InputStream inputStream) {
-        genesisJson = GenesisLoader.loadGenesisJson(inputStream);
-        genesis = GenesisLoader.parseGenesis(getBlockchainConfig(), getGenesisJson());
+        genesisJson = GenesisLoader.INSTANCE.loadGenesisJson(inputStream);
+        genesis = GenesisLoader.INSTANCE.parseGenesis(getBlockchainConfig(), getGenesisJson());
         return genesis;
     }
 

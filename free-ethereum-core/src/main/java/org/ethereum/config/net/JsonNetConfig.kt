@@ -63,9 +63,9 @@ constructor(config: GenesisConfig) : BaseNetConfig() {
 
             if (config.daoForkBlock != null) {
                 val daoConfig = if (config.daoForkSupport)
-                    DaoHFConfig(lastCandidate.right, config.daoForkBlock.toLong())
+                    DaoHFConfig(lastCandidate.right, config.daoForkBlock!!.toLong())
                 else
-                    DaoNoHFConfig(lastCandidate.right, config.daoForkBlock.toLong())
+                    DaoNoHFConfig(lastCandidate.right, config.daoForkBlock!!.toLong())
                 lastCandidate = Pair.of(config.daoForkBlock, daoConfig)
                 candidates.add(lastCandidate)
             }
@@ -81,9 +81,9 @@ constructor(config: GenesisConfig) : BaseNetConfig() {
                     if (config.eip158Block != null && config.eip155Block != config.eip158Block) {
                         throw RuntimeException("Unable to build config with different blocks for EIP155 (" + config.eip155Block + ") and EIP158 (" + config.eip158Block + ")")
                     }
-                    block = config.eip155Block
+                    block = config.eip155Block!!
                 } else {
-                    block = config.eip158Block
+                    block = config.eip158Block!!
                 }
 
                 if (config.chainId != null) {

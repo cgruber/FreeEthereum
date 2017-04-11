@@ -24,29 +24,26 @@
  *
  */
 
-package org.ethereum.core.genesis;
+package org.ethereum.core.genesis
 
-import java.util.List;
-
-public class GenesisConfig {
-    public Integer homesteadBlock;
-    public Integer daoForkBlock;
-    public Integer eip150Block;
-    public Integer eip155Block;
-    public boolean daoForkSupport;
-    public Integer eip158Block;
-    public Integer chainId;
+class GenesisConfig {
+    var homesteadBlock: Int? = null
+    var daoForkBlock: Int? = null
+    var eip150Block: Int? = null
+    var eip155Block: Int? = null
+    var daoForkSupport: Boolean = false
+    var eip158Block: Int? = null
+    var chainId: Int? = null
 
     // EthereumJ private options
-    public List<HashValidator> headerValidators;
+    var headerValidators: List<HashValidator>? = null
 
-    public boolean isCustomConfig() {
-        return homesteadBlock != null || daoForkBlock != null || eip150Block != null ||
-                eip155Block != null || eip158Block != null;
-    }
+    val isCustomConfig: Boolean
+        get() = homesteadBlock != null || daoForkBlock != null || eip150Block != null ||
+                eip155Block != null || eip158Block != null
 
-    public static class HashValidator {
-        public long number;
-        public String hash;
+    class HashValidator {
+        var number: Long = 0
+        var hash: String? = null
     }
 }

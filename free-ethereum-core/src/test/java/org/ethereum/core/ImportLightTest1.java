@@ -117,7 +117,7 @@ public class ImportLightTest1 {
     public void importBlocks() throws Exception {
         final Logger logger = LoggerFactory.getLogger("VM");
         logger.info("#######################################");
-        final BlockchainImpl blockchain = createBlockchain(GenesisLoader.loadGenesis(
+        final BlockchainImpl blockchain = createBlockchain(GenesisLoader.INSTANCE.loadGenesis(
                 getClass().getResourceAsStream("/genesis/frontier.json")));
         final Scanner scanner = new Scanner(new FileInputStream("D:\\ws\\ethereumj\\work\\blocks-rec.dmp"));
         while (scanner.hasNext()) {
@@ -178,7 +178,7 @@ public class ImportLightTest1 {
     @Test
     public void createFork() throws Exception {
         // importing forked chain
-        final BlockchainImpl blockchain = createBlockchain(GenesisLoader.loadGenesis(
+        final BlockchainImpl blockchain = createBlockchain(GenesisLoader.INSTANCE.loadGenesis(
                 getClass().getResourceAsStream("/genesis/genesis-light.json")));
         blockchain.setMinerCoinbase(Hex.decode("ee0250c19ad59305b2bdb61f34b45b72fe37154f"));
         final Block parent = blockchain.getBestBlock();
@@ -224,7 +224,7 @@ public class ImportLightTest1 {
     public void invalidBlockTest() throws Exception {
         // testing that bad block import effort doesn't affect the repository state
 
-        final BlockchainImpl blockchain = createBlockchain(GenesisLoader.loadGenesis(
+        final BlockchainImpl blockchain = createBlockchain(GenesisLoader.INSTANCE.loadGenesis(
                 getClass().getResourceAsStream("/genesis/genesis-light.json")));
         blockchain.setMinerCoinbase(Hex.decode("ee0250c19ad59305b2bdb61f34b45b72fe37154f"));
         final Block parent = blockchain.getBestBlock();
@@ -258,7 +258,7 @@ public class ImportLightTest1 {
     public void doubleTransactionTest() throws Exception {
         // Testing that blocks containing tx with invalid nonce are rejected
 
-        final BlockchainImpl blockchain = createBlockchain(GenesisLoader.loadGenesis(
+        final BlockchainImpl blockchain = createBlockchain(GenesisLoader.INSTANCE.loadGenesis(
                 getClass().getResourceAsStream("/genesis/genesis-light.json")));
         blockchain.setMinerCoinbase(Hex.decode("ee0250c19ad59305b2bdb61f34b45b72fe37154f"));
         final Block parent = blockchain.getBestBlock();
@@ -344,7 +344,7 @@ public class ImportLightTest1 {
     public void invalidBlockTotalDiff() throws Exception {
         // Check that importing invalid block doesn't affect totalDifficulty
 
-        final BlockchainImpl blockchain = createBlockchain(GenesisLoader.loadGenesis(
+        final BlockchainImpl blockchain = createBlockchain(GenesisLoader.INSTANCE.loadGenesis(
                 getClass().getResourceAsStream("/genesis/genesis-light.json")));
         blockchain.setMinerCoinbase(Hex.decode("ee0250c19ad59305b2bdb61f34b45b72fe37154f"));
         final Block parent = blockchain.getBestBlock();

@@ -87,7 +87,7 @@ public class StandaloneBlockchain implements LocalBlockchain {
     private BlockSummary lastSummary;
 
     public StandaloneBlockchain() {
-        final Genesis genesis = GenesisLoader.loadGenesis(
+        final Genesis genesis = GenesisLoader.INSTANCE.loadGenesis(
                 getClass().getResourceAsStream("/genesis/genesis-light-sb.json"));
 
         withGenesis(genesis);
@@ -126,7 +126,7 @@ public class StandaloneBlockchain implements LocalBlockchain {
     public StandaloneBlockchain withAccountBalance(final byte[] address, final BigInteger weis) {
         final AccountState state = new AccountState(BigInteger.ZERO, weis);
         genesis.addPremine(wrap(address), state);
-        genesis.setStateRoot(GenesisLoader.generateRootHash(genesis.getPremine()));
+        genesis.setStateRoot(GenesisLoader.INSTANCE.generateRootHash(genesis.getPremine()));
 
         return this;
     }
