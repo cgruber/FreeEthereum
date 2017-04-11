@@ -56,15 +56,12 @@ class ReceiptsMessage : EthMessage {
         for (aParamsList in paramsList) {
             val blockRLP = aParamsList as RLPList
 
-            val blockReceipts = ArrayList<TransactionReceipt>()
-            for (txReceipt in blockRLP) {
-                val receiptRLP = txReceipt as RLPList
-                if (receiptRLP.size != 4) {
-                    continue
-                }
-                val receipt = TransactionReceipt(receiptRLP)
-                blockReceipts.add(receipt)
-            }
+            val blockReceipts = blockRLP
+                    .asSequence()
+                    .map { it as RLPList }
+                    .filter { it.size == 4 }
+                    .map { TransactionReceipt(it) }
+                    .toList()
             this.receipts!!.add(blockReceipts)
         }
         this.parsed = true
@@ -75,10 +72,7 @@ class ReceiptsMessage : EthMessage {
 
         for (blockReceipts in receipts!!) {
 
-            val encodedBlockReceipts = ArrayList<ByteArray>()
-            for (txReceipt in blockReceipts) {
-                encodedBlockReceipts.add(txReceipt.getEncoded(true))
-            }
+            val encodedBlockReceipts = blockReceipts.map { it.getEncoded(true) }
             val encodedElementArray = encodedBlockReceipts.toTypedArray()
             val blockReceiptsEncoded = RLP.encodeList(*encodedElementArray)
 

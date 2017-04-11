@@ -103,7 +103,7 @@ constructor(config: GenesisConfig) : BaseNetConfig() {
             // add candidate per each block (take last in row for same block)
             var last = candidates.removeAt(0)
             for (current in candidates) {
-                if (current.left.compareTo(last.left) > 0) {
+                if (current.left > last.left) {
                     add(last.left.toLong(), last.right)
                 }
                 last = current

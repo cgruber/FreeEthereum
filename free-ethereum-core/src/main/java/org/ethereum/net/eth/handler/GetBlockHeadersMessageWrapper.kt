@@ -41,7 +41,7 @@ import org.ethereum.net.eth.message.GetBlockHeadersMessage
 class GetBlockHeadersMessageWrapper {
 
     val message: GetBlockHeadersMessage
-    val futureHeaders = SettableFuture.create<List<BlockHeader>>()
+    val futureHeaders = SettableFuture.create<List<BlockHeader>>()!!
     var isNewHashesHandling = false
     var isSent = false
         private set

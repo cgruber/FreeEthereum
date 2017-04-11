@@ -30,8 +30,6 @@ import org.ethereum.core.AccountState
 import org.ethereum.db.ContractDetails
 import org.ethereum.vm.DataWord
 import org.spongycastle.util.encoders.Hex
-
-import java.math.BigInteger
 import java.util.*
 
 internal object AccountValidator {

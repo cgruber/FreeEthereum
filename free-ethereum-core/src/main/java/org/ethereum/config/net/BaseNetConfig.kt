@@ -47,10 +47,10 @@ open class BaseNetConfig : BlockchainNetConfig {
     }
 
     override fun getConfigForBlock(blockNumber: Long): BlockchainConfig {
-        for (i in 0..count - 1) {
-            if (blockNumber < blockNumbers[i]) return configs[i - 1]!!
-        }
-        return configs[count - 1]!!
+        return (0..count - 1)
+                .firstOrNull { blockNumber < blockNumbers[it] }
+                ?.let { configs[it - 1]!! }
+                ?: configs[count - 1]!!
     }
 
     override // TODO make a guard wrapper which throws exception if the requested constant differs among configs

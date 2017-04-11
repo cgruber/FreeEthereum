@@ -29,7 +29,6 @@ package org.ethereum.net.message
 import org.ethereum.config.SystemProperties
 import org.ethereum.net.client.ConfigCapabilities
 import org.ethereum.net.p2p.*
-import org.spongycastle.util.encoders.Hex
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.util.regex.Pattern
@@ -88,6 +87,5 @@ class StaticMessages {
         val PONG_MESSAGE = PongMessage()
         val GET_PEERS_MESSAGE = GetPeersMessage()
         val DISCONNECT_MESSAGE = DisconnectMessage(ReasonCode.REQUESTED)
-        val SYNC_TOKEN = Hex.decode("22400891")
     }
 }

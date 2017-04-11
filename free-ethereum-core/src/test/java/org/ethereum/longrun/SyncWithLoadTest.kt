@@ -31,7 +31,6 @@ import org.apache.commons.lang3.mutable.MutableObject
 import org.ethereum.config.CommonConfig
 import org.ethereum.config.SystemProperties
 import org.ethereum.core.*
-import org.ethereum.db.ContractDetails
 import org.ethereum.facade.Ethereum
 import org.ethereum.facade.EthereumFactory
 import org.ethereum.listener.EthereumListener
@@ -41,20 +40,17 @@ import org.ethereum.util.FastByteComparisons
 import org.ethereum.vm.program.invoke.ProgramInvokeFactory
 import org.junit.Ignore
 import org.junit.Test
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
-import java.util.Random
+import java.lang.Thread.sleep
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
-
-import java.lang.Thread.sleep
 
 /**
  * Regular sync with load
@@ -84,9 +80,9 @@ constructor() {
         if (java.lang.Boolean.parseBoolean(resetDb)) {
             resetDBOnFirstRun.setValue(true)
         } else if (resetDb != null && resetDb.equals("false", ignoreCase = true)) {
-            resetDBOnFirstRun.setValue(false)
+            resetDBOnFirstRun.value = false
         }
-        if (overrideConfigPath != null) configPath.setValue(overrideConfigPath)
+        if (overrideConfigPath != null) configPath.value = overrideConfigPath
 
         statTimer.scheduleAtFixedRate({
             // Adds error if no successfully imported blocks for LAST_IMPORT_TIMEOUT
@@ -205,7 +201,7 @@ constructor() {
                     val randomBlock = ethereum!!.blockchain.getBlockByNumber(rnd.nextInt(bestBlock.number.toInt()).toLong())
                     val sender = receipt.transaction.sender
                     val senderState = (ethereum!!.repository as Repository).getSnapshotTo(randomBlock.stateRoot).getAccountState(sender)
-                    senderState?.balance
+                    senderState.balance
 
                     // Getting receiver's nonce somewhere in the past
                     val anotherRandomBlock = ethereum!!.blockchain.getBlockByNumber(rnd.nextInt(bestBlock.number.toInt()).toLong())

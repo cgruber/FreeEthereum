@@ -40,7 +40,7 @@ internal class Chain {
 
     private val chain = ArrayList<Block>()
     private val index = HashMap<ByteArrayWrapper, Block>()
-    var totalDifficulty = BigInteger.ZERO
+    var totalDifficulty: BigInteger = BigInteger.ZERO!!
 
     fun tryToConnect(block: Block): Boolean {
 

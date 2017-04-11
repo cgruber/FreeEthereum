@@ -26,14 +26,10 @@
 
 package org.ethereum.jsontestsuite.suite.validators
 
-import org.ethereum.core.AccountState
 import org.ethereum.core.Repository
-import org.ethereum.db.ContractDetails
-import org.spongycastle.util.encoders.Hex
-
-import java.util.ArrayList
-
 import org.ethereum.util.ByteUtil.difference
+import org.spongycastle.util.encoders.Hex
+import java.util.*
 
 object RepositoryValidator {
 

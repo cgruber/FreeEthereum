@@ -64,20 +64,14 @@ class KademliaTest {
     }
 
     private fun showBuckets(t: NodeTable) {
-        for (b in t.buckets) {
-            if (b.nodesCount > 0) {
-                println(String.format("Bucket %d nodes %d depth %d", b.depth, b.nodesCount, b.depth))
-            }
-        }
+        t.buckets
+                .asSequence()
+                .filter { it.nodesCount > 0 }
+                .forEach { println(String.format("Bucket %d nodes %d depth %d", it.depth, it.nodesCount, it.depth)) }
     }
 
     private fun containsNode(t: NodeTable, n: Node): Boolean {
-        for (e in t.allNodes) {
-            if (e.node.toString() == n.toString()) {
-                return true
-            }
-        }
-        return false
+        return t.allNodes.any { it.node.toString() == n.toString() }
     }
 
     @Ignore
@@ -129,10 +123,10 @@ class KademliaTest {
         assertEquals(t.bucketsCount.toLong(), 1)
 
         //creates very close nodes
-        for (i in 1..KademliaOptions.BUCKET_SIZE - 1) {
-            val n = getNode(homeNode.id, i)
-            t.addNode(n)
-        }
+        (1..KademliaOptions.BUCKET_SIZE - 1)
+                .asSequence()
+                .map { getNode(homeNode.id, it) }
+                .forEach { t.addNode(it) }
 
         assertEquals(t.bucketsCount.toLong(), 1)
         assertEquals(t.buckets[0].nodesCount.toLong(), KademliaOptions.BUCKET_SIZE.toLong())

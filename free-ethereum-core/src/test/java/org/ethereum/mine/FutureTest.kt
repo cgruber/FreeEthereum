@@ -69,20 +69,22 @@ class FutureTest {
         //                new ThreadPoolExecutor(2, 16, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>()));
         val executor = ThreadPoolExecutor(16, 16, 1L, TimeUnit.SECONDS, ArrayBlockingQueue<Runnable>(1))
         var future: Future<Any>? = null
-        for (i in 0..3) {
-            val ii = i
-            future = executor.submit(Callable<Any> {
-                try {
-                    println("Waiting " + ii)
-                    Thread.sleep(5000)
-                    println("Complete " + ii)
-                    return@Callable null
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    throw e
+        (0..3)
+                .asSequence()
+                .map { it }
+                .forEach {
+                    future = executor.submit(Callable<Any> {
+                        try {
+                            println("Waiting " + it)
+                            Thread.sleep(5000)
+                            println("Complete " + it)
+                            return@Callable null
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            throw e
+                        }
+                    })
                 }
-            })
-        }
         future!!.get()
     }
 

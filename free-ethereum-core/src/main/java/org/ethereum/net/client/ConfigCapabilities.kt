@@ -48,8 +48,7 @@ constructor(private val config: SystemProperties) {
             val eth = EthVersion.fromCode(config.syncVersion()!!)
             if (eth != null) AllCaps.add(Capability(ETH, eth.code))
         } else {
-            for (v in EthVersion.supported())
-                AllCaps.add(Capability(ETH, v.code))
+            EthVersion.supported().mapTo(AllCaps) { Capability(ETH, it.code) }
         }
 
         AllCaps.add(Capability(SHH, ShhHandler.VERSION))
@@ -62,13 +61,8 @@ constructor(private val config: SystemProperties) {
      */
     val configCapabilities: List<Capability>
         get() {
-            val ret = ArrayList<Capability>()
             val caps = config.peerCapabilities()
-            for (capability in AllCaps) {
-                if (caps.contains(capability.name)) {
-                    ret.add(capability)
-                }
-            }
+            val ret = AllCaps.filter { caps.contains(it.name) }
             return ret
         }
 
