@@ -230,11 +230,11 @@ class BlockTxForwardTest {
             }
 
             override fun onEthStatusUpdated(channel: Channel, statusMessage: StatusMessage) {
-                ethNodes.put(channel.node, statusMessage)
+                ethNodes.put(channel.node!!, statusMessage)
             }
 
             override fun onPeerAddedToSyncPool(peer: Channel) {
-                syncPeers.add(peer.node)
+                syncPeers.add(peer.node!!)
             }
 
             override fun onBlock(block: Block, receipts: List<TransactionReceipt>) {
