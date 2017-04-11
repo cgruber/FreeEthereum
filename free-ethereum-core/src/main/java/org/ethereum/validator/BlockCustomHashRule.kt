@@ -24,43 +24,19 @@
  *
  */
 
-package org.ethereum.validator;
+package org.ethereum.validator
 
-import org.ethereum.config.Constants;
-import org.ethereum.config.SystemProperties;
-import org.ethereum.core.BlockHeader;
+import org.ethereum.core.BlockHeader
+import org.ethereum.util.FastByteComparisons
+import org.spongycastle.util.encoders.Hex
 
-/**
- * Checks diff between number of some block and number of our best block. <br>
- * The diff must be more than -1 * {@link Constants#getBestNumberDiffLimit}
- *
- * @author Mikhail Kalinin
- * @since 02.09.2015
- */
-public class BestNumberRule extends DependentBlockHeaderRule {
+class BlockCustomHashRule(private val blockHash: ByteArray) : BlockHeaderRule() {
 
-    private final int BEST_NUMBER_DIFF_LIMIT;
-
-    public BestNumberRule(final SystemProperties config) {
-        BEST_NUMBER_DIFF_LIMIT = config.getBlockchainConfig().
-                getCommonConstants().getBestNumberDiffLimit();
-    }
-
-    @Override
-    public boolean validate(final BlockHeader header, final BlockHeader bestHeader) {
-
-        getErrors().clear();
-
-        final long diff = header.getNumber() - bestHeader.getNumber();
-
-        if (diff > -1 * BEST_NUMBER_DIFF_LIMIT) {
-            getErrors().add(String.format(
-                    "#%d: (header.getNumber() - bestHeader.getNumber()) <= BEST_NUMBER_DIFF_LIMIT",
-                    header.getNumber()
-            ));
-            return false;
+    public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
+        if (!FastByteComparisons.equal(header.hash, blockHash)) {
+            return fault("Block " + header.number + " hash constraint violated. Expected:" +
+                    Hex.toHexString(blockHash) + ", got: " + Hex.toHexString(header.hash))
         }
-
-        return true;
+        return BlockHeaderRule.Success
     }
 }

@@ -24,26 +24,34 @@
  *
  */
 
-package org.ethereum.validator;
+package org.ethereum.validator
 
-import org.ethereum.core.BlockHeader;
-import org.ethereum.util.FastByteComparisons;
-import org.spongycastle.util.encoders.Hex;
+import org.ethereum.config.BlockchainNetConfig
+import org.ethereum.config.SystemProperties
+import org.ethereum.core.BlockHeader
 
-public class BlockCustomHashRule extends BlockHeaderRule {
+/**
+ * Checks if the block is from the right fork
+ */
+class BlockHashRule(config: SystemProperties) : BlockHeaderRule() {
 
-    private final byte[] blockHash;
+    private val blockchainConfig: BlockchainNetConfig
 
-    public BlockCustomHashRule(final byte[] blockHash) {
-        this.blockHash = blockHash;
+    init {
+        blockchainConfig = config.blockchainConfig
     }
 
-    @Override
-    public ValidationResult validate(final BlockHeader header) {
-        if (!FastByteComparisons.equal(header.getHash(), blockHash)) {
-            return fault("Block " + header.getNumber() + " hash constraint violated. Expected:" +
-                    Hex.toHexString(blockHash) + ", got: " + Hex.toHexString(header.getHash()));
+    public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
+        val validators = blockchainConfig.getConfigForBlock(header.number).headerValidators()
+        for (pair in validators) {
+            if (header.number == pair.left) {
+                val result = pair.right.validate(header)
+                if (!result.success) {
+                    return fault("Block " + header.number + " header constraint violated. " + result.error)
+                }
+            }
         }
-        return Success;
+
+        return BlockHeaderRule.Success
     }
 }
