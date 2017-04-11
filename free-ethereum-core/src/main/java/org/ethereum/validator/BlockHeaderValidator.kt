@@ -24,60 +24,38 @@
  *
  */
 
-package org.ethereum.vm.program.invoke;
+package org.ethereum.validator
 
-import org.ethereum.core.Repository;
-import org.ethereum.db.BlockStore;
-import org.ethereum.vm.DataWord;
+import org.ethereum.core.BlockHeader
+import java.util.*
 
 /**
- * @author Roman Mandeleil
- * @since 03.06.2014
+ * Composite [BlockHeader] validator
+ * aggregating list of simple validation rules
+
+ * @author Mikhail Kalinin
+ * *
+ * @since 02.09.2015
  */
-public interface ProgramInvoke {
+class BlockHeaderValidator : BlockHeaderRule {
 
-    DataWord getOwnerAddress();
+    private val rules: List<BlockHeaderRule>
 
-    DataWord getBalance();
+    constructor(rules: List<BlockHeaderRule>) {
+        this.rules = rules
+    }
 
-    DataWord getOriginAddress();
+    constructor(vararg rules: BlockHeaderRule) {
+        this.rules = Arrays.asList(*rules)
+    }
 
-    DataWord getCallerAddress();
-
-    DataWord getMinGasPrice();
-
-    DataWord getGas();
-
-    long getGasLong();
-
-    DataWord getCallValue();
-
-    DataWord getDataSize();
-
-    DataWord getDataValue(DataWord indexData);
-
-    byte[] getDataCopy(DataWord offsetData, DataWord lengthData);
-
-    DataWord getPrevHash();
-
-    DataWord getCoinbase();
-
-    DataWord getTimestamp();
-
-    DataWord getNumber();
-
-    DataWord getDifficulty();
-
-    DataWord getGaslimit();
-
-    boolean byTransaction();
-
-    boolean byTestingSuite();
-
-    int getCallDeep();
-
-    Repository getRepository();
-
-    BlockStore getBlockStore();
-
+    public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
+        for (rule in rules) {
+            val result = rule.validate(header)
+            if (!result.success) {
+                return result
+            }
+        }
+        return BlockHeaderRule.Success
+    }
 }

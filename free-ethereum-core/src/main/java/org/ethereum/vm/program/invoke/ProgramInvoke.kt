@@ -24,40 +24,61 @@
  *
  */
 
-package org.ethereum.validator;
+package org.ethereum.vm.program.invoke
 
-import org.ethereum.core.BlockHeader;
-
-import java.util.Arrays;
-import java.util.List;
+import org.ethereum.core.Repository
+import org.ethereum.db.BlockStore
+import org.ethereum.vm.DataWord
 
 /**
- * Composite {@link BlockHeader} validator
- * aggregating list of simple validation rules
- *
- * @author Mikhail Kalinin
- * @since 02.09.2015
+ * @author Roman Mandeleil
+ * *
+ * @since 03.06.2014
  */
-public class BlockHeaderValidator extends BlockHeaderRule {
+interface ProgramInvoke {
 
-    private final List<BlockHeaderRule> rules;
+    val ownerAddress: DataWord
 
-    public BlockHeaderValidator(final List<BlockHeaderRule> rules) {
-        this.rules = rules;
-    }
+    val balance: DataWord
 
-    public BlockHeaderValidator(final BlockHeaderRule... rules) {
-        this.rules = Arrays.asList(rules);
-    }
+    val originAddress: DataWord
 
-    @Override
-    public ValidationResult validate(final BlockHeader header) {
-        for (final BlockHeaderRule rule : rules) {
-            final ValidationResult result = rule.validate(header);
-            if (!result.success) {
-                return result;
-            }
-        }
-        return Success;
-    }
+    val callerAddress: DataWord
+
+    val minGasPrice: DataWord
+
+    val gas: DataWord
+
+    val gasLong: Long
+
+    val callValue: DataWord
+
+    val dataSize: DataWord
+
+    fun getDataValue(indexData: DataWord): DataWord
+
+    fun getDataCopy(offsetData: DataWord, lengthData: DataWord): ByteArray
+
+    val prevHash: DataWord
+
+    val coinbase: DataWord
+
+    val timestamp: DataWord
+
+    val number: DataWord
+
+    val difficulty: DataWord
+
+    val gaslimit: DataWord
+
+    fun byTransaction(): Boolean
+
+    fun byTestingSuite(): Boolean
+
+    val callDeep: Int
+
+    val repository: Repository
+
+    val blockStore: BlockStore
+
 }
