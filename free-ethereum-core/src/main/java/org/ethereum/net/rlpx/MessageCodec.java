@@ -263,7 +263,7 @@ public class MessageCodec extends MessageToMessageCodec<Frame, Message> {
         }
 
         resolved = messageCodesResolver.resolveShh(code);
-        if (shhMessageFactory != null && ShhMessageCodes.inRange(resolved)) {
+        if (shhMessageFactory != null && ShhMessageCodes.Companion.inRange(resolved)) {
             return shhMessageFactory.create(resolved, payload);
         }
 

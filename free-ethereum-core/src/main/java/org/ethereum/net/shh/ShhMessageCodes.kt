@@ -24,20 +24,19 @@
  *
  */
 
-package org.ethereum.net.shh;
+package org.ethereum.net.shh
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*
 
 /**
  * A list of commands for the Whisper network protocol.
- * <br>
+ * <br></br>
  * The codes for these commands are the first byte in every packet.
- *
- * @see <a href="https://github.com/ethereum/wiki/wiki/Wire-Protocol">
- * https://github.com/ethereum/wiki/wiki/Wire-Protocol</a>
+
+ * @see [
+ * https://github.com/ethereum/wiki/wiki/Wire-Protocol](https://github.com/ethereum/wiki/wiki/Wire-Protocol)
  */
-public enum ShhMessageCodes {
+enum class ShhMessageCodes constructor(private val cmd: Int) {
 
     /* Whisper Protocol */
 
@@ -56,29 +55,26 @@ public enum ShhMessageCodes {
      */
     FILTER(0x02);
 
-    private static final Map<Integer, ShhMessageCodes> intToTypeMap = new HashMap<>();
+    fun asByte(): Byte {
+        return cmd.toByte()
+    }
 
-    static {
-        for (final ShhMessageCodes type : ShhMessageCodes.values()) {
-            intToTypeMap.put(type.cmd, type);
+    companion object {
+
+        private val intToTypeMap = HashMap<Int, ShhMessageCodes>()
+
+        init {
+            for (type in ShhMessageCodes.values()) {
+                intToTypeMap.put(type.cmd, type)
+            }
         }
-    }
 
-    private final int cmd;
+        fun fromByte(i: Byte): ShhMessageCodes {
+            return intToTypeMap[i.toInt()]!!
+        }
 
-    ShhMessageCodes(final int cmd) {
-        this.cmd = cmd;
-    }
-
-    public static ShhMessageCodes fromByte(final byte i) {
-        return intToTypeMap.get((int) i);
-    }
-
-    public static boolean inRange(final byte code) {
-        return code >= STATUS.asByte() && code <= FILTER.asByte();
-    }
-
-    public byte asByte() {
-        return (byte) (cmd);
+        fun inRange(code: Byte): Boolean {
+            return code >= STATUS.asByte() && code <= FILTER.asByte()
+        }
     }
 }

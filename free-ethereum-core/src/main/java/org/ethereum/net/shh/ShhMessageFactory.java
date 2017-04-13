@@ -38,7 +38,7 @@ public class ShhMessageFactory implements MessageFactory {
     @Override
     public Message create(final byte code, final byte[] encoded) {
 
-        final ShhMessageCodes receivedCommand = ShhMessageCodes.fromByte(code);
+        final ShhMessageCodes receivedCommand = ShhMessageCodes.Companion.fromByte(code);
         switch (receivedCommand) {
             case STATUS:
                 return new ShhStatusMessage(encoded);
