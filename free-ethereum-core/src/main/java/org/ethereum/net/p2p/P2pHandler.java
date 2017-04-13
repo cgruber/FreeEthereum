@@ -235,7 +235,7 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
                     channel.activateEth(ctx, EthVersion.Companion.fromCode(capability.getVersion()));
                 } else if
                         (capability.getName().equals(Capability.Companion.getSHH()) &&
-                    capability.getVersion() == ShhHandler.VERSION) {
+                    capability.getVersion() == ShhHandler.Companion.getVERSION()) {
 
                     // Activate ShhHandler for this peer
                     channel.activateShh(ctx);

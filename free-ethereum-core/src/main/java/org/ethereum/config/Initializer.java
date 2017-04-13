@@ -65,7 +65,7 @@ class Initializer implements BeanPostProcessor {
             versions.delete(versions.length() - 2, versions.length());
             logger.info("capability eth version: [{}]", versions);
         }
-        logger.info("capability shh version: [{}]", ShhHandler.VERSION);
+        logger.info("capability shh version: [{}]", ShhHandler.Companion.getVERSION());
         logger.info("capability bzz version: [{}]", BzzHandler.VERSION);
 
         // forcing loading blockchain config
