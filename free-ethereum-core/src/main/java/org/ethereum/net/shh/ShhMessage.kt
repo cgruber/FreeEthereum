@@ -24,20 +24,17 @@
  *
  */
 
-package org.ethereum.net.shh;
+package org.ethereum.net.shh
 
-import org.ethereum.net.message.Message;
+import org.ethereum.net.message.Message
 
-public abstract class ShhMessage extends Message {
+abstract class ShhMessage : Message {
 
-    ShhMessage() {
-    }
+    internal constructor()
 
-    ShhMessage(final byte[] encoded) {
-        super(encoded);
-    }
+    internal constructor(encoded: ByteArray) : super(encoded)
 
-    public ShhMessageCodes getCommand() {
-        return ShhMessageCodes.fromByte(code);
+    override fun getCommand(): ShhMessageCodes {
+        return ShhMessageCodes.fromByte(code)
     }
 }
