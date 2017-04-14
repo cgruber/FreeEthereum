@@ -162,8 +162,8 @@ open class SanityLongRunTest {
         var cnt = 0
         val end = System.currentTimeMillis() + 60 * 60 * 1000
         while (semaphoreBlocks.count > 0) {
-            ethereum1.whisper.send(identity2, "Hello Eth2!".toByteArray(), null)
-            ethereum2.whisper.send(identity1, "Hello Eth1!".toByteArray(), null)
+            ethereum1.whisper.send(identity2, "Hello Eth2!".toByteArray(), null!!)
+            ethereum2.whisper.send(identity1, "Hello Eth1!".toByteArray(), null!!)
             cnt++
             Thread.sleep((10 * 1000).toLong())
             if (counter1[0] != cnt || counter2[0] != cnt) {

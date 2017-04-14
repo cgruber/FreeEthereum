@@ -24,41 +24,41 @@
  *
  */
 
-package org.ethereum.net.shh;
+package org.ethereum.net.shh
 
-import org.ethereum.crypto.ECKey;
-import org.springframework.stereotype.Component;
+import org.ethereum.crypto.ECKey
+import org.springframework.stereotype.Component
 
 @Component
-public abstract class Whisper {
+abstract class Whisper {
 
-    public abstract String addIdentity(ECKey key);
+    abstract fun addIdentity(key: ECKey): String
 
-    public abstract String newIdentity();
+    abstract fun newIdentity(): String
 
-    public abstract void watch(MessageWatcher f);
+    abstract fun watch(f: MessageWatcher)
 
-    public abstract void unwatch(MessageWatcher f);
+    abstract fun unwatch(f: MessageWatcher)
 
-    public void send(final byte[] payload, final Topic[] topics) {
-        send(null, null, payload, topics, 50, 50);
+    fun send(payload: ByteArray, topics: Array<Topic>) {
+        send(null, null, payload, topics, 50, 50)
     }
 
-    public void send(final byte[] payload, final Topic[] topics, final int ttl, final int workToProve) {
-        send(null, null, payload, topics, ttl, workToProve);
+    fun send(payload: ByteArray, topics: Array<Topic>, ttl: Int, workToProve: Int) {
+        send(null, null, payload, topics, ttl, workToProve)
     }
 
-    public void send(final String toIdentity, final byte[] payload, final Topic[] topics) {
-        send(null, toIdentity, payload, topics, 50, 50);
+    fun send(toIdentity: String, payload: ByteArray, topics: Array<Topic>) {
+        send(null, toIdentity, payload, topics, 50, 50)
     }
 
-    public void send(final String toIdentity, final byte[] payload, final Topic[] topics, final int ttl, final int workToProve) {
-        send(null, toIdentity, payload, topics, ttl, workToProve);
+    fun send(toIdentity: String, payload: ByteArray, topics: Array<Topic>, ttl: Int, workToProve: Int) {
+        send(null, toIdentity, payload, topics, ttl, workToProve)
     }
 
-    public void send(final String fromIdentity, final String toIdentity, final byte[] payload, final Topic[] topics) {
-        send(fromIdentity, toIdentity, payload, topics, 50, 50);
+    fun send(fromIdentity: String, toIdentity: String, payload: ByteArray, topics: Array<Topic>) {
+        send(fromIdentity, toIdentity, payload, topics, 50, 50)
     }
 
-    protected abstract void send(String fromIdentity, String toIdentity, byte[] payload, Topic[] topics, int ttl, int workToProve);
+    protected abstract fun send(fromIdentity: String?, toIdentity: String?, payload: ByteArray, topics: Array<Topic>, ttl: Int, workToProve: Int)
 }
