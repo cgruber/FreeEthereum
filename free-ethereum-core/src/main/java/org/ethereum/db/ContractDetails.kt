@@ -24,63 +24,47 @@
  *
  */
 
-package org.ethereum.db;
+package org.ethereum.db
 
-import org.ethereum.vm.DataWord;
+import org.ethereum.vm.DataWord
 
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+interface ContractDetails {
 
-public interface ContractDetails {
+    fun put(key: DataWord, value: DataWord)
 
-    void put(DataWord key, DataWord value);
+    operator fun get(key: DataWord): DataWord
 
-    DataWord get(DataWord key);
+    var code: ByteArray
 
-    byte[] getCode();
+    fun getCode(codeHash: ByteArray): ByteArray
 
-    byte[] getCode(byte[] codeHash);
+    val storageHash: ByteArray
 
-    void setCode(byte[] code);
+    fun decode(rlpCode: ByteArray)
 
-    byte[] getStorageHash();
+    var isDirty: Boolean
 
-    void decode(byte[] rlpCode);
+    var isDeleted: Boolean
 
-    void setDirty(boolean dirty);
+    val encoded: ByteArray
 
-    void setDeleted(boolean deleted);
+    val storageSize: Int
 
-    boolean isDirty();
+    val storageKeys: Set<DataWord>
 
-    boolean isDeleted();
+    fun getStorage(keys: Collection<DataWord>?): Map<DataWord, DataWord>
 
-    byte[] getEncoded();
+    var storage: Map<DataWord, DataWord>
 
-    int getStorageSize();
+    fun setStorage(storageKeys: List<DataWord>, storageValues: List<DataWord>)
 
-    Set<DataWord> getStorageKeys();
+    var address: ByteArray
 
-    Map<DataWord,DataWord> getStorage(@Nullable Collection<DataWord> keys);
+    fun clone(): ContractDetails
 
-    Map<DataWord, DataWord> getStorage();
+    override fun toString(): String
 
-    void setStorage(List<DataWord> storageKeys, List<DataWord> storageValues);
+    fun syncStorage()
 
-    void setStorage(Map<DataWord, DataWord> storage);
-
-    byte[] getAddress();
-
-    void setAddress(byte[] address);
-
-    ContractDetails clone();
-
-    String toString();
-
-    void syncStorage();
-
-    ContractDetails getSnapshotTo(byte[] hash);
+    fun getSnapshotTo(hash: ByteArray): ContractDetails
 }

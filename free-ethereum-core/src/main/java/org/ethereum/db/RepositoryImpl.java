@@ -38,6 +38,7 @@ import org.ethereum.datasource.WriteCache;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.FastByteComparisons;
 import org.ethereum.vm.DataWord;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Nullable;
@@ -385,23 +386,28 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
             throw new RuntimeException("Not supported");
         }
 
-        @Override
-        public Map<DataWord, DataWord> getStorage(@Nullable final Collection<DataWord> keys) {
-            throw new RuntimeException("Not supported");
-        }
+//        @Override
+//        public Map<DataWord, DataWord> getStorage(@Nullable final Collection<DataWord> keys) {
+//            throw new RuntimeException("Not supported");
+//        }
 
         @Override
         public Map<DataWord, DataWord> getStorage() {
             throw new RuntimeException("Not supported");
         }
 
-        @Override
-        public void setStorage(final Map<DataWord, DataWord> storage) {
-            throw new RuntimeException("Not supported");
-        }
+//        @Override
+//        public void setStorage(final Map<DataWord, DataWord> storage) {
+//            throw new RuntimeException("Not supported");
+//        }
+//
+//        @Override
+//        public void setStorage(final List<DataWord> storageKeys, final List<DataWord> storageValues) {
+//            throw new RuntimeException("Not supported");
+//        }
 
         @Override
-        public void setStorage(final List<DataWord> storageKeys, final List<DataWord> storageValues) {
+        public void setStorage(@NotNull Map<DataWord, ? extends DataWord> map) {
             throw new RuntimeException("Not supported");
         }
 
@@ -427,6 +433,17 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
 
         @Override
         public ContractDetails getSnapshotTo(final byte[] hash) {
+            throw new RuntimeException("Not supported");
+        }
+
+        @NotNull
+        @Override
+        public Map<DataWord, DataWord> getStorage(@org.jetbrains.annotations.Nullable Collection<? extends DataWord> keys) {
+            return null;
+        }
+
+        @Override
+        public void setStorage(@NotNull List<? extends DataWord> storageKeys, @NotNull List<? extends DataWord> storageValues) {
             throw new RuntimeException("Not supported");
         }
     }

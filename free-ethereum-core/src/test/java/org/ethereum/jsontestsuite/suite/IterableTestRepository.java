@@ -34,6 +34,7 @@ import org.ethereum.db.ContractDetails;
 import org.ethereum.util.ByteArrayMap;
 import org.ethereum.util.ByteArraySet;
 import org.ethereum.vm.DataWord;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.math.BigInteger;
@@ -349,10 +350,10 @@ public class IterableTestRepository implements Repository {
             return getStorage().keySet();
         }
 
-        @Override
-        public Map<DataWord, DataWord> getStorage(@Nullable final Collection<DataWord> keys) {
-            throw new RuntimeException();
-        }
+//        @Override
+//        public Map<DataWord, DataWord> getStorage(@Nullable final Collection<DataWord> keys) {
+//            throw new RuntimeException();
+//        }
 
         @Override
         public Map<DataWord, DataWord> getStorage() {
@@ -370,14 +371,19 @@ public class IterableTestRepository implements Repository {
             return ret;
         }
 
-        @Override
-        public void setStorage(final Map<DataWord, DataWord> storage) {
-            src.setStorage(storage);
-        }
+//        @Override
+//        public void setStorage(final Map<DataWord, DataWord> storage) {
+//            src.setStorage(storage);
+//        }
+
+//        @Override
+//        public void setStorage(final List<DataWord> storageKeys, final List<DataWord> storageValues) {
+//            src.setStorage(storageKeys, storageValues);
+//        }
 
         @Override
-        public void setStorage(final List<DataWord> storageKeys, final List<DataWord> storageValues) {
-            src.setStorage(storageKeys, storageValues);
+        public void setStorage(@NotNull Map<DataWord, ? extends DataWord> map) {
+            src.setStorage(map);
         }
 
         @Override
@@ -408,6 +414,17 @@ public class IterableTestRepository implements Repository {
         @Override
         public ContractDetails getSnapshotTo(final byte[] hash) {
             return new IterableContractDetails(src.getSnapshotTo(hash));
+        }
+
+        @NotNull
+        @Override
+        public Map<DataWord, DataWord> getStorage(@org.jetbrains.annotations.Nullable Collection<? extends DataWord> keys) {
+            throw new RuntimeException();
+        }
+
+        @Override
+        public void setStorage(@NotNull List<? extends DataWord> storageKeys, @NotNull List<? extends DataWord> storageValues) {
+            src.setStorage(storageKeys, storageValues);
         }
     }
 }

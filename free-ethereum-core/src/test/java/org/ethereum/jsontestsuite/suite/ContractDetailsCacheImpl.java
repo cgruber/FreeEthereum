@@ -30,6 +30,8 @@ import org.ethereum.db.ContractDetails;
 import org.ethereum.trie.SecureTrie;
 import org.ethereum.util.RLP;
 import org.ethereum.vm.DataWord;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -110,20 +112,25 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
         return unmodifiableMap(storage);
     }
 
-    @Override
-    public void setStorage(final Map<DataWord, DataWord> storage) {
-        this.storage = storage;
-    }
+//    @Override
+//    public void setStorage(final Map<DataWord, DataWord> storage) {
+//        this.storage = storage;
+//    }
+
+//    @Override
+//    public Map<DataWord, DataWord> getStorage(final Collection<DataWord> keys) {
+////        if (keys == null) return getStorage();
+////
+////        final Map<DataWord, DataWord> result = new HashMap<>();
+////        for (final DataWord key : keys) {
+////            result.put(key, storage.get(key));
+////        }
+////        return unmodifiableMap(result);
+//    }
 
     @Override
-    public Map<DataWord, DataWord> getStorage(final Collection<DataWord> keys) {
-        if (keys == null) return getStorage();
-
-        final Map<DataWord, DataWord> result = new HashMap<>();
-        for (final DataWord key : keys) {
-            result.put(key, storage.get(key));
-        }
-        return unmodifiableMap(result);
+    public void setStorage(@NotNull Map<DataWord, ? extends DataWord> map) {
+        this.storage = (Map<DataWord, DataWord>) map;
     }
 
     @Override
@@ -133,25 +140,25 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
                 : origContract.getStorageSize();
     }
 
+//    @Override
+//    public void setStorage(final List<DataWord> storageKeys, final List<DataWord> storageValues) {
+//
+//        for (int i = 0; i < storageKeys.size(); ++i){
+//
+//            final DataWord key = storageKeys.get(i);
+//            final DataWord value = storageValues.get(i);
+//
+//            if (value.isZero())
+//                storage.put(key, null);
+//        }
+//
+//    }
+
     @Override
     public Set<DataWord> getStorageKeys() {
         return (origContract == null)
                 ? storage.keySet()
                 : origContract.getStorageKeys();
-    }
-
-    @Override
-    public void setStorage(final List<DataWord> storageKeys, final List<DataWord> storageValues) {
-
-        for (int i = 0; i < storageKeys.size(); ++i){
-
-            final DataWord key = storageKeys.get(i);
-            final DataWord value = storageValues.get(i);
-
-            if (value.isZero())
-                storage.put(key, null);
-        }
-
     }
 
     @Override
@@ -197,10 +204,34 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
         origContract.setDirty(this.isDirty() || origContract.isDirty());
     }
 
-
     @Override
     public ContractDetails getSnapshotTo(final byte[] hash) {
         throw new UnsupportedOperationException("No snapshot option during cache state");
+    }
+
+    @NotNull
+    @Override
+    public Map<DataWord, DataWord> getStorage(@Nullable Collection<? extends DataWord> keys) {
+        if (keys == null) return getStorage();
+
+        final Map<DataWord, DataWord> result = new HashMap<>();
+        for (final DataWord key : keys) {
+            result.put(key, storage.get(key));
+        }
+        return unmodifiableMap(result);
+    }
+
+    @Override
+    public void setStorage(@NotNull List<? extends DataWord> storageKeys, @NotNull List<? extends DataWord> storageValues) {
+        for (int i = 0; i < storageKeys.size(); ++i) {
+
+            final DataWord key = storageKeys.get(i);
+            final DataWord value = storageValues.get(i);
+
+            if (value.isZero())
+                storage.put(key, null);
+        }
+
     }
 }
 

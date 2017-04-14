@@ -35,6 +35,8 @@ import org.ethereum.db.ContractDetails;
 import org.ethereum.trie.SecureTrie;
 import org.ethereum.util.RLP;
 import org.ethereum.vm.DataWord;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -125,49 +127,64 @@ public class ContractDetailsImpl extends AbstractContractDetails {
         throw new RuntimeException("Not supported");
     }
 
-    @Override
-    public Map<DataWord, DataWord> getStorage(final Collection<DataWord> keys) {
-        final Map<DataWord, DataWord> storage = new HashMap<>();
-        if (keys == null) {
-            for (final ByteArrayWrapper keyBytes : this.keys) {
-                final DataWord key = new DataWord(keyBytes);
-                final DataWord value = get(key);
-
-                // we check if the value is not null,
-                // cause we keep all historical keys
-                if (value != null)
-                    storage.put(key, value);
-            }
-        } else {
-            for (final DataWord key : keys) {
-                final DataWord value = get(key);
-
-                // we check if the value is not null,
-                // cause we keep all historical keys
-                if (value != null)
-                    storage.put(key, value);
-            }
-        }
-
-        return storage;
-    }
+//    @Override
+//    public Map<DataWord, DataWord> getStorage(final Collection<DataWord> keys) {
+//        final Map<DataWord, DataWord> storage = new HashMap<>();
+//        if (keys == null) {
+//            for (final ByteArrayWrapper keyBytes : this.keys) {
+//                final DataWord key = new DataWord(keyBytes);
+//                final DataWord value = get(key);
+//
+//                // we check if the value is not null,
+//                // cause we keep all historical keys
+//                if (value != null)
+//                    storage.put(key, value);
+//            }
+//        } else {
+//            for (final DataWord key : keys) {
+//                final DataWord value = get(key);
+//
+//                // we check if the value is not null,
+//                // cause we keep all historical keys
+//                if (value != null)
+//                    storage.put(key, value);
+//            }
+//        }
+//
+//        return storage;
+//    }
 
     @Override
     public Map<DataWord, DataWord> getStorage() {
         return getStorage(null);
     }
 
+//    @Override
+//    public void setStorage(final Map<DataWord, DataWord> storage) {
+//        for (final DataWord key : storage.keySet()) {
+//            put(key, storage.get(key));
+//        }
+//    }
+
     @Override
-    public void setStorage(final Map<DataWord, DataWord> storage) {
-        for (final DataWord key : storage.keySet()) {
-            put(key, storage.get(key));
+    public void setStorage(@NotNull Map<DataWord, ? extends DataWord> map) {
+        for (final DataWord key : map.keySet()) {
+            put(key, map.get(key));
         }
+
     }
 
     @Override
     public int getStorageSize() {
         return keys.size();
     }
+
+//    @Override
+//    public void setStorage(final List<DataWord> storageKeys, final List<DataWord> storageValues) {
+//
+//        for (int i = 0; i < storageKeys.size(); ++i)
+//            put(storageKeys.get(i), storageValues.get(i));
+//    }
 
     @Override
     public Set<DataWord> getStorageKeys() {
@@ -176,13 +193,6 @@ public class ContractDetailsImpl extends AbstractContractDetails {
             result.add(new DataWord(key));
         }
         return result;
-    }
-
-    @Override
-    public void setStorage(final List<DataWord> storageKeys, final List<DataWord> storageValues) {
-
-        for (int i = 0; i < storageKeys.size(); ++i)
-            put(storageKeys.get(i), storageValues.get(i));
     }
 
     @Override
@@ -232,6 +242,42 @@ public class ContractDetailsImpl extends AbstractContractDetails {
         details.dataSource = dataSource;
 
         return details;
+    }
+
+    @NotNull
+    @Override
+    public Map<DataWord, DataWord> getStorage(@Nullable Collection<? extends DataWord> keys) {
+        final Map<DataWord, DataWord> storage = new HashMap<>();
+        if (keys == null) {
+            for (final ByteArrayWrapper keyBytes : this.keys) {
+                final DataWord key = new DataWord(keyBytes);
+                final DataWord value = get(key);
+
+                // we check if the value is not null,
+                // cause we keep all historical keys
+                if (value != null)
+                    storage.put(key, value);
+            }
+        } else {
+            for (final DataWord key : keys) {
+                final DataWord value = get(key);
+
+                // we check if the value is not null,
+                // cause we keep all historical keys
+                if (value != null)
+                    storage.put(key, value);
+            }
+        }
+
+        return storage;
+
+    }
+
+    @Override
+    public void setStorage(@NotNull List<? extends DataWord> storageKeys, @NotNull List<? extends DataWord> storageValues) {
+        for (int i = 0; i < storageKeys.size(); ++i)
+            put(storageKeys.get(i), storageValues.get(i));
+
     }
 }
 
