@@ -32,6 +32,7 @@ import org.ethereum.net.message.Message;
 import org.ethereum.net.p2p.HelloMessage;
 import org.ethereum.net.rlpx.Node;
 import org.ethereum.net.server.Channel;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -65,9 +66,9 @@ public class EthereumListenerAdapter implements EthereumListener {
     public void onPeerDisconnect(final String host, final long port) {
     }
 
-    @Override
-    public void onPendingTransactionsReceived(final List<Transaction> transactions) {
-    }
+//    @Override
+//    public void onPendingTransactionsReceived(final List<Transaction> transactions) {
+//    }
 
     @Override
     public void onPendingStateChanged(final PendingState pendingState) {
@@ -116,6 +117,11 @@ public class EthereumListenerAdapter implements EthereumListener {
 
     @Override
     public void onPendingTransactionUpdate(final TransactionReceipt txReceipt, final PendingTransactionState state, final Block block) {
+
+    }
+
+    @Override
+    public void onPendingTransactionsReceived(@NotNull List<? extends Transaction> transactions) {
 
     }
 }

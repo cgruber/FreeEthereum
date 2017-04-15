@@ -35,6 +35,7 @@ import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.facade.EthereumFactory;
 import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.util.ByteUtil;
+import org.jetbrains.annotations.NotNull;
 import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -90,7 +91,8 @@ public class PendingStateSample extends TestNetSample {
         ethereum.addListener(new EthereumListenerAdapter() {
             // listening here when the PendingState is updated with new transactions
             @Override
-            public void onPendingTransactionsReceived(final List<Transaction> transactions) {
+//            public void onPendingTransactionsReceived(final List<Transaction> transactions) {
+            public void onPendingTransactionsReceived(@NotNull List<? extends Transaction> transactions) {
                 for (final Transaction tx : transactions) {
                     PendingStateSample.this.onPendingTransactionReceived(tx);
                 }

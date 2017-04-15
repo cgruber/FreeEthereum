@@ -24,30 +24,29 @@
  *
  */
 
-package org.ethereum.listener;
+package org.ethereum.listener
 
-import org.ethereum.core.*;
-import org.ethereum.net.eth.message.StatusMessage;
-import org.ethereum.net.message.Message;
-import org.ethereum.net.p2p.HelloMessage;
-import org.ethereum.net.rlpx.Node;
-import org.ethereum.net.server.Channel;
-
-import java.util.List;
+import org.ethereum.core.*
+import org.ethereum.net.eth.message.StatusMessage
+import org.ethereum.net.message.Message
+import org.ethereum.net.p2p.HelloMessage
+import org.ethereum.net.rlpx.Node
+import org.ethereum.net.server.Channel
 
 /**
  * @author Roman Mandeleil
+ * *
  * @since 27.07.2014
  */
-public interface EthereumListener {
+interface EthereumListener {
 
-    enum PendingTransactionState {
+    enum class PendingTransactionState {
         /**
          * Transaction may be dropped due to:
          * - Invalid transaction (invalid nonce, low gas price, insufficient account funds,
-         *         invalid signature)
+         * invalid signature)
          * - Timeout (when pending transaction is not included to any block for
-         *         last [transaction.outdated.threshold] blocks
+         * last [transaction.outdated.threshold] blocks
          * This is the final state
          */
         DROPPED,
@@ -71,17 +70,16 @@ public interface EthereumListener {
          * This could be the final state, however next state could also be
          * PENDING: when a fork became the main chain but doesn't include this tx
          * INCLUDED: when a fork became the main chain and tx is included into another
-         *           block from the new main chain
+         * block from the new main chain
          * DROPPED: If switched to a new (long enough) main chain without this Tx
          */
         INCLUDED;
 
-        public boolean isPending() {
-            return this == NEW_PENDING || this == PENDING;
-        }
+        val isPending: Boolean
+            get() = this == NEW_PENDING || this == PENDING
     }
 
-    enum SyncState {
+    enum class SyncState {
         /**
          * When doing fast sync UNSECURE sync means that the full state is downloaded,
          * chain is on the latest block, and blockchain operations may be executed
@@ -106,27 +104,25 @@ public interface EthereumListener {
         COMPLETE
     }
 
-    void trace(String output);
+    fun trace(output: String)
 
-    void onNodeDiscovered(Node node);
+    fun onNodeDiscovered(node: Node)
 
-    void onHandShakePeer(Channel channel, HelloMessage helloMessage);
+    fun onHandShakePeer(channel: Channel, helloMessage: HelloMessage)
 
-    void onEthStatusUpdated(Channel channel, StatusMessage status);
+    fun onEthStatusUpdated(channel: Channel, status: StatusMessage)
 
-    void onRecvMessage(Channel channel, Message message);
+    fun onRecvMessage(channel: Channel, message: Message)
 
-    void onSendMessage(Channel channel, Message message);
+    fun onSendMessage(channel: Channel, message: Message)
 
-    void onBlock(BlockSummary blockSummary);
+    fun onBlock(blockSummary: BlockSummary)
 
-    void onPeerDisconnect(String host, long port);
+    fun onPeerDisconnect(host: String, port: Long)
 
-    /**
-     * @deprecated use onPendingTransactionUpdate filtering state NEW_PENDING
-     * Will be removed in the next release
-     */
-    void onPendingTransactionsReceived(List<Transaction> transactions);
+
+    @Deprecated("use onPendingTransactionUpdate filtering state NEW_PENDING\n      Will be removed in the next release")
+    fun onPendingTransactionsReceived(transactions: List<Transaction>)
 
     /**
      * PendingState changes on either new pending transaction or new best block receive
@@ -134,25 +130,27 @@ public interface EthereumListener {
      * When a new best block arrives the PendingState is adjusted to the new Repository state
      * and all transactions which remain pending are executed on top of the new PendingState
      */
-    void onPendingStateChanged(PendingState pendingState);
+    fun onPendingStateChanged(pendingState: PendingState)
 
     /**
      * Is called when PendingTransaction arrives, executed or dropped and included to a block
-     *
+
      * @param txReceipt Receipt of the tx execution on the current PendingState
+     * *
      * @param state Current state of pending tx
+     * *
      * @param block The block which the current pending state is based on (for PENDING tx state)
-     *              or the block which tx was included to (for INCLUDED state)
+     * *              or the block which tx was included to (for INCLUDED state)
      */
-    void onPendingTransactionUpdate(TransactionReceipt txReceipt, PendingTransactionState state, Block block);
+    fun onPendingTransactionUpdate(txReceipt: TransactionReceipt, state: PendingTransactionState, block: Block)
 
-    void onSyncDone(SyncState state);
+    fun onSyncDone(state: SyncState)
 
-    void onNoConnections();
+    fun onNoConnections()
 
-    void onVMTraceCreated(String transactionHash, String trace);
+    fun onVMTraceCreated(transactionHash: String, trace: String)
 
-    void onTransactionExecuted(TransactionExecutionSummary summary);
+    fun onTransactionExecuted(summary: TransactionExecutionSummary)
 
-    void onPeerAddedToSyncPool(Channel peer);
+    fun onPeerAddedToSyncPool(peer: Channel)
 }

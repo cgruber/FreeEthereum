@@ -32,6 +32,7 @@ import org.ethereum.net.message.Message;
 import org.ethereum.net.p2p.HelloMessage;
 import org.ethereum.net.rlpx.Node;
 import org.ethereum.net.server.Channel;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -118,17 +119,17 @@ public class CompositeEthereumListener implements EthereumListener {
         }
     }
 
-    @Override
-    public void onPendingTransactionsReceived(final List<Transaction> transactions) {
-        for (final EthereumListener listener : listeners) {
-            eventDispatchThread.invokeLater(new RunnableInfo(listener, "onPendingTransactionsReceived") {
-                @Override
-                public void run() {
-                    listener.onPendingTransactionsReceived(transactions);
-                }
-            });
-        }
-    }
+//    @Override
+//    public void onPendingTransactionsReceived(final List<Transaction> transactions) {
+//        for (final EthereumListener listener : listeners) {
+//            eventDispatchThread.invokeLater(new RunnableInfo(listener, "onPendingTransactionsReceived") {
+//                @Override
+//                public void run() {
+//                    listener.onPendingTransactionsReceived(transactions);
+//                }
+//            });
+//        }
+//    }
 
     @Override
     public void onPendingStateChanged(final PendingState pendingState) {
@@ -246,6 +247,18 @@ public class CompositeEthereumListener implements EthereumListener {
                 @Override
                 public void run() {
                     listener.onPendingTransactionUpdate(txReceipt, state, block);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onPendingTransactionsReceived(@NotNull List<? extends Transaction> transactions) {
+        for (final EthereumListener listener : listeners) {
+            eventDispatchThread.invokeLater(new RunnableInfo(listener, "onPendingTransactionsReceived") {
+                @Override
+                public void run() {
+                    listener.onPendingTransactionsReceived(transactions);
                 }
             });
         }

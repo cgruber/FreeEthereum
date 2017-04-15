@@ -53,6 +53,7 @@ import org.ethereum.util.RLP;
 import org.ethereum.vm.DataWord;
 import org.ethereum.vm.LogInfo;
 import org.ethereum.vm.program.invoke.ProgramInvokeFactory;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,7 +136,7 @@ public class JsonRpcImpl implements JsonRpc {
             }
 
             @Override
-            public void onPendingTransactionsReceived(final List<Transaction> transactions) {
+            public void onPendingTransactionsReceived(@NotNull List<? extends Transaction> transactions) {
                 for (final Filter filter : installedFilters.values()) {
                     for (final Transaction tx : transactions) {
                         filter.newPendingTx(tx);

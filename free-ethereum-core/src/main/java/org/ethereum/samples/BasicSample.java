@@ -44,6 +44,7 @@ import org.ethereum.net.p2p.HelloMessage;
 import org.ethereum.net.rlpx.Node;
 import org.ethereum.net.server.Channel;
 import org.ethereum.util.ByteUtil;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,7 +136,7 @@ public class BasicSample implements Runnable {
         }
 
         @Override
-        public void onPendingTransactionsReceived(final List<Transaction> transactions) {
+        public void onPendingTransactionsReceived(@NotNull List<? extends Transaction> transactions) {
         }
 
         @Override
