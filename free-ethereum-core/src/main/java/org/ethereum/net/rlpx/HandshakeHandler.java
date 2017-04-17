@@ -149,7 +149,7 @@ public class HandshakeHandler extends ByteToMessageDecoder {
         if (handshake.isInitiator()) {
             if (frameCodec == null) {
 
-                byte[] responsePacket = new byte[AuthResponseMessage.getLength() + ECIESCoder.getOverhead()];
+                byte[] responsePacket = new byte[AuthResponseMessage.Companion.getLength() + ECIESCoder.getOverhead()];
                 if (!buffer.isReadable(responsePacket.length))
                     return;
                 buffer.readBytes(responsePacket);

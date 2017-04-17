@@ -92,7 +92,7 @@ class Handshaker {
         final byte[] initiatePacket = initiator.encryptAuthMessage(initiateMessage);
 
         out.write(initiatePacket);
-        final byte[] responsePacket = new byte[AuthResponseMessage.getLength() + ECIESCoder.getOverhead()];
+        final byte[] responsePacket = new byte[AuthResponseMessage.Companion.getLength() + ECIESCoder.getOverhead()];
         final int n = inp.read(responsePacket);
         if (n < responsePacket.length)
             throw new IOException("could not read, got " + n);
