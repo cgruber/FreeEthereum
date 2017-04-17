@@ -24,60 +24,49 @@
  *
  */
 
-package org.ethereum.net.rlpx.discover.table;
+package org.ethereum.net.rlpx.discover.table
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*
 
-public class NodeBucket {
+class NodeBucket internal constructor(val depth: Int) {
+    private val nodes = ArrayList<NodeEntry>()
 
-    private final int depth;
-    private final List<NodeEntry> nodes = new ArrayList<>();
-
-    NodeBucket(final int depth) {
-        this.depth = depth;
-    }
-
-    public int getDepth() {
-        return depth;
-    }
-
-    public synchronized NodeEntry addNode(final NodeEntry e) {
+    @Synchronized fun addNode(e: NodeEntry): NodeEntry? {
         if (!nodes.contains(e)) {
-            if (nodes.size() >= KademliaOptions.BUCKET_SIZE) {
-                return getLastSeen();
+            if (nodes.size >= KademliaOptions.BUCKET_SIZE) {
+                return lastSeen
             } else {
-                nodes.add(e);
+                nodes.add(e)
             }
         }
 
-        return null;
+        return null
     }
 
-    private NodeEntry getLastSeen() {
-        final List<NodeEntry> sorted = nodes;
-        sorted.sort(new TimeComparator());
-        return sorted.get(0);
-    }
+    private val lastSeen: NodeEntry
+        get() {
+            val sorted = nodes
+            sorted.sortWith(TimeComparator())
+            return sorted[0]
+        }
 
-    public synchronized void dropNode(final NodeEntry entry) {
-        for (final NodeEntry e : nodes) {
-            if (e.getId().equals(entry.getId())) {
-                nodes.remove(e);
-                break;
+    @Synchronized fun dropNode(entry: NodeEntry) {
+        for (e in nodes) {
+            if (e.id == entry.id) {
+                nodes.remove(e)
+                break
             }
         }
     }
 
-    public int getNodesCount() {
-        return nodes.size();
-    }
+    val nodesCount: Int
+        get() = nodes.size
 
-    public List<NodeEntry> getNodes() {
-//        List<NodeEntry> nodes = new ArrayList<>();
-//        for (NodeEntry e : this.nodes) {
-//            nodes.add(e);
-//        }
-        return nodes;
+    fun getNodes(): List<NodeEntry> {
+        //        List<NodeEntry> nodes = new ArrayList<>();
+        //        for (NodeEntry e : this.nodes) {
+        //            nodes.add(e);
+        //        }
+        return nodes
     }
 }
