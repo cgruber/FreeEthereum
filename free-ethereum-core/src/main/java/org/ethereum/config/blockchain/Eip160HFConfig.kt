@@ -24,17 +24,14 @@
  *
  */
 
-package org.ethereum.config.blockchain;
+package org.ethereum.config.blockchain
 
-import org.ethereum.config.BlockchainConfig;
-import org.ethereum.config.Constants;
-import org.ethereum.config.ConstantsAdapter;
-import org.ethereum.core.Transaction;
-import org.ethereum.vm.GasCost;
-
-import java.util.Objects;
-
-import static org.ethereum.config.blockchain.HomesteadConfig.SECP256K1N_HALF;
+import org.ethereum.config.BlockchainConfig
+import org.ethereum.config.Constants
+import org.ethereum.config.ConstantsAdapter
+import org.ethereum.config.blockchain.HomesteadConfig.SECP256K1N_HALF
+import org.ethereum.core.Transaction
+import org.ethereum.vm.GasCost
 
 /**
  * Hard fork includes following EIPs:
@@ -42,52 +39,41 @@ import static org.ethereum.config.blockchain.HomesteadConfig.SECP256K1N_HALF;
  * EIP 160 - EXP cost increase
  * EIP 161 - State trie clearing (invariant-preserving alternative)
  */
-public class Eip160HFConfig extends Eip150HFConfig {
+open class Eip160HFConfig(parent: BlockchainConfig) : Eip150HFConfig(parent) {
+    override val constants: Constants
 
-    private static final GasCost NEW_GAS_COST = new GasCostEip160HF();
-    private final Constants constants;
-
-    public Eip160HFConfig(final BlockchainConfig parent) {
-        super(parent);
-        constants = new ConstantsAdapter(parent.getConstants()) {
-            @Override
-            public int getMaxContractSize() {
-                return 0x6000;
-            }
-        };
-    }
-
-    @Override
-    public GasCost getGasCost() {
-        return NEW_GAS_COST;
-    }
-
-    @Override
-    public boolean eip161() {
-        return true;
-    }
-
-    @Override
-    public Integer getChainId() {
-        return 1;
-    }
-
-    @Override
-    public Constants getConstants() {
-        return constants;
-    }
-
-    @Override
-    public boolean acceptTransactionSignature(final Transaction tx) {
-        // Restoring old logic. Making this through inheritance stinks too much
-        if (!tx.getSignature().validateComponents() ||
-                tx.getSignature().s.compareTo(SECP256K1N_HALF) > 0) return false;
-        return  tx.getChainId() == null || Objects.equals(getChainId(), tx.getChainId());
-    }
-
-    static class GasCostEip160HF extends GasCostEip150HF {
-        public int getEXP_BYTE_GAS() {
-            return 50;
+    init {
+        constants = object : ConstantsAdapter(parent.constants) {
+            override val maxContractSize: Int
+                get() = 0x6000
         }
+    }
+
+    override val gasCost: GasCost
+        get() = NEW_GAS_COST
+
+    override fun eip161(): Boolean {
+        return true
+    }
+
+    override val chainId: Int?
+        get() = 1
+
+    override fun acceptTransactionSignature(tx: Transaction): Boolean {
+        // Restoring old logic. Making this through inheritance stinks too much
+        if (!tx.signature.validateComponents() || tx.signature.s.compareTo(SECP256K1N_HALF) > 0)
+            return false
+        return tx.chainId == null || chainId == tx.chainId
+    }
+
+    internal class GasCostEip160HF : Eip150HFConfig.GasCostEip150HF() {
+        override fun getEXP_BYTE_GAS(): Int {
+            return 50
+        }
+    }
+
+    companion object {
+
+        private val NEW_GAS_COST = GasCostEip160HF()
     }
 }
