@@ -24,18 +24,15 @@
  *
  */
 
-package org.ethereum.net.eth.message;
+package org.ethereum.net.eth.message
 
-import org.ethereum.net.message.Message;
+import org.ethereum.net.message.Message
 
-public abstract class EthMessage extends Message {
+abstract class EthMessage : Message {
 
-    EthMessage() {
-    }
+    internal constructor()
 
-    EthMessage(final byte[] encoded) {
-        super(encoded);
-    }
+    internal constructor(encoded: ByteArray) : super(encoded)
 
-    abstract public EthMessageCodes getCommand();
+    abstract override fun getCommand(): EthMessageCodes
 }
