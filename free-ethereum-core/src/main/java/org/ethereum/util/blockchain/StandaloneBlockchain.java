@@ -228,7 +228,7 @@ public class StandaloneBlockchain implements LocalBlockchain {
                     .divide(BigInteger.valueOf(GAS_LIMIT_BOUND_DIVISOR * 100));
             b.getHeader().setGasLimit(ByteUtil.bigIntegerToBytes(newGas));
 
-            Ethash.getForBlock(SystemProperties.getDefault(), b.getNumber()).mineLight(b).get();
+            Ethash.Companion.getForBlock(SystemProperties.getDefault(), b.getNumber()).mineLight(b).get();
             final ImportResult importResult = getBlockchain().tryToConnect(b);
             if (importResult != ImportResult.IMPORTED_BEST && importResult != ImportResult.IMPORTED_NOT_BEST) {
                 throw new RuntimeException("Invalid block import result " + importResult + " for block " + b);

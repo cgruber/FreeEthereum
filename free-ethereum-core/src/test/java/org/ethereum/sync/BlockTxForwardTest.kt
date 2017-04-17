@@ -387,7 +387,7 @@ class BlockTxForwardTest {
                 logger.info("Generating Full Dataset (may take up to 10 min if not cached)...")
                 // calling this just for indication of the dataset generation
                 // basically this is not required
-                val ethash = Ethash.getForBlock(config, ethereum!!.blockchain.bestBlock.number)
+                val ethash = Ethash.getForBlock(config!!, ethereum!!.blockchain.bestBlock.number)
                 ethash.fullDataset
                 logger.info("Full dataset generated (loaded).")
             }

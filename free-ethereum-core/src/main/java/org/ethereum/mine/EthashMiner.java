@@ -52,12 +52,12 @@ public class EthashMiner implements MinerIfc {
     @Override
     public ListenableFuture<MiningResult> mine(final Block block) {
         return fullMining ?
-                Ethash.getForBlock(config, block.getNumber()).mine(block, cpuThreads) :
-                Ethash.getForBlock(config, block.getNumber()).mineLight(block, cpuThreads);
+                Ethash.Companion.getForBlock(config, block.getNumber()).mine(block, cpuThreads) :
+                Ethash.Companion.getForBlock(config, block.getNumber()).mineLight(block, cpuThreads);
     }
 
     @Override
     public boolean validate(final BlockHeader blockHeader) {
-        return Ethash.getForBlock(config, blockHeader.getNumber()).validate(blockHeader);
+        return Ethash.Companion.getForBlock(config, blockHeader.getNumber()).validate(blockHeader);
     }
 }
