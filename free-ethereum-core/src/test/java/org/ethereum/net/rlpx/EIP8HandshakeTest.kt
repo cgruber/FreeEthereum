@@ -189,12 +189,12 @@ class EIP8HandshakeTest {
         val msg2 = handshakerA!!.decryptAuthResponseV4(encrypted, keyA)
         assertEquals(4, msg2.version.toLong())
         assertArrayEquals(nonceB, msg2.nonce)
-        assertArrayEquals(ephemeralKeyB.pubKey, msg2.ephemeralPublicKey.getEncoded(false))
+        assertArrayEquals(ephemeralKeyB.pubKey, msg2.ephemeralPublicKey!!.getEncoded(false))
 
         val msg3 = handshakerA!!.decryptAuthResponseV4(authResponseData, keyA)
         assertEquals(4, msg3.version.toLong())
         assertArrayEquals(nonceB, msg3.nonce)
-        assertArrayEquals(ephemeralKeyB.pubKey, msg3.ephemeralPublicKey.getEncoded(false))
+        assertArrayEquals(ephemeralKeyB.pubKey, msg3.ephemeralPublicKey!!.getEncoded(false))
     }
 
     // AuthResponse EIP-8 format with version 57 and 3 additional list elements (sent from B to A)

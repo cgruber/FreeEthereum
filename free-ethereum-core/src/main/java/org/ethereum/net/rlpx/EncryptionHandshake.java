@@ -158,7 +158,7 @@ public class EncryptionHandshake {
 
             final byte[] plaintext = ECIESCoder.decrypt(myKey.getPrivKey(), ciphertext, prefix);
 
-            return AuthResponseMessageV4.decode(plaintext);
+            return AuthResponseMessageV4.Companion.decode(plaintext);
         } catch (IOException | InvalidCipherTextException e) {
             throw Throwables.propagate(e);
         }
@@ -180,15 +180,15 @@ public class EncryptionHandshake {
         }
         remoteEphemeralKey = ephemeral.getPubKeyPoint();
         final AuthResponseMessageV4 response = new AuthResponseMessageV4();
-        response.ephemeralPublicKey = ephemeralKey.getPubKeyPoint();
-        response.nonce = responderNonce;
+        response.setEphemeralPublicKey(ephemeralKey.getPubKeyPoint());
+        response.setNonce(responderNonce);
         return response;
     }
 
     public AuthResponseMessageV4 handleAuthResponseV4(final ECKey myKey, final byte[] initiatePacket, final byte[] responsePacket) {
         final AuthResponseMessageV4 response = decryptAuthResponseV4(responsePacket, myKey);
-        remoteEphemeralKey = response.ephemeralPublicKey;
-        responderNonce = response.nonce;
+        remoteEphemeralKey = response.getEphemeralPublicKey();
+        responderNonce = response.getNonce();
         agreeSecret(initiatePacket, responsePacket);
         return response;
     }

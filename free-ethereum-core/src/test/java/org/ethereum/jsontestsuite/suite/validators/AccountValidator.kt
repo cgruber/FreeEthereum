@@ -116,13 +116,13 @@ internal object AccountValidator {
             checked.add(key)
         }
 
-        for (key in expectedKeys) {
-            if (!checked.contains(key)) {
-                val formattedString = String.format("Account: %s: doesn't exist expected storage key: %s",
-                        address, key.toString())
-                results.add(formattedString)
-            }
-        }
+        expectedKeys
+                .asSequence()
+                .filterNot { checked.contains(it) }
+                .mapTo(results) {
+                    String.format("Account: %s: doesn't exist expected storage key: %s",
+                            address, it.toString())
+                }
 
         return results
     }

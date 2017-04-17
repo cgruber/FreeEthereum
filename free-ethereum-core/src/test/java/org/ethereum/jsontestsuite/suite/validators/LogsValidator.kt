@@ -82,8 +82,7 @@ object LogsValidator {
             val postTopics = postLog.topics
             val realTopics = realLog.topics
 
-            var j = 0
-            for (postTopic in postTopics) {
+            for ((j, postTopic) in postTopics.withIndex()) {
 
                 val realTopic = realTopics[j]
 
@@ -93,7 +92,6 @@ object LogsValidator {
                             i, j, postTopic, realTopic)
                     results.add(formattedString)
                 }
-                ++j
             }
 
             ++i

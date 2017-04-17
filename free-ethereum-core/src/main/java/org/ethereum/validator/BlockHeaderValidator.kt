@@ -50,12 +50,11 @@ class BlockHeaderValidator : BlockHeaderRule {
     }
 
     public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
-        for (rule in rules) {
-            val result = rule.validate(header)
-            if (!result.success) {
-                return result
-            }
-        }
+        rules
+                .asSequence()
+                .map { it.validate(header) }
+                .filterNot { it.success }
+                .forEach { return it }
         return BlockHeaderRule.Success
     }
 }

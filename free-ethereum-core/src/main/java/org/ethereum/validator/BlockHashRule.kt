@@ -43,15 +43,13 @@ class BlockHashRule(config: SystemProperties) : BlockHeaderRule() {
 
     public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
         val validators = blockchainConfig.getConfigForBlock(header.number).headerValidators()
-        for (pair in validators) {
-            if (header.number == pair.left) {
-                val result = pair.right.validate(header)
-                if (!result.success) {
-                    return fault("Block " + header.number + " header constraint violated. " + result.error)
-                }
-            }
-        }
 
-        return BlockHeaderRule.Success
+        return validators
+                .asSequence()
+                .filter { header.number == it.left }
+                .map { it.right.validate(header) }
+                .firstOrNull { !it.success }
+                ?.let { fault("Block " + header.number + " header constraint violated. " + it.error) }
+                ?: BlockHeaderRule.Success
     }
 }
