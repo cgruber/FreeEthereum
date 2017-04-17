@@ -24,44 +24,23 @@
  *
  */
 
-package org.ethereum.vm.program.listener;
+package org.ethereum.vm.program.listener
 
-import org.ethereum.vm.DataWord;
+import org.ethereum.vm.DataWord
 
-public class ProgramListenerAdaptor implements ProgramListener {
+interface ProgramListener {
 
-    @Override
-    public void onMemoryExtend(final int delta) {
+    fun onMemoryExtend(delta: Int)
 
-    }
+    fun onMemoryWrite(address: Int, data: ByteArray, size: Int)
 
-    @Override
-    public void onMemoryWrite(final int address, final byte[] data, final int size) {
+    fun onStackPop()
 
-    }
+    fun onStackPush(value: DataWord)
 
-    @Override
-    public void onStackPop() {
+    fun onStackSwap(from: Int, to: Int)
 
-    }
+    fun onStoragePut(key: DataWord, value: DataWord)
 
-    @Override
-    public void onStackPush(final DataWord value) {
-
-    }
-
-    @Override
-    public void onStackSwap(final int from, final int to) {
-
-    }
-
-    @Override
-    public void onStoragePut(final DataWord key, final DataWord value) {
-
-    }
-
-    @Override
-    public void onStorageClear() {
-
-    }
+    fun onStorageClear()
 }

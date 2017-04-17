@@ -24,23 +24,28 @@
  *
  */
 
-package org.ethereum.vm.program.listener;
+package org.ethereum.vm.program.listener
 
-import org.ethereum.vm.DataWord;
+import org.ethereum.vm.DataWord
+import java.util.*
 
-public interface ProgramListener {
+class ProgramStorageChangeListener : ProgramListenerAdaptor() {
 
-    void onMemoryExtend(int delta);
+    private val diff = HashMap<DataWord, DataWord>()
 
-    void onMemoryWrite(int address, byte[] data, int size);
+    override fun onStoragePut(key: DataWord, value: DataWord) {
+        diff.put(key, value)
+    }
 
-    void onStackPop();
+    override fun onStorageClear() {
+        // TODO: ...
+    }
 
-    void onStackPush(DataWord value);
+    fun getDiff(): Map<DataWord, DataWord> {
+        return HashMap(diff)
+    }
 
-    void onStackSwap(int from, int to);
-
-    void onStoragePut(DataWord key, DataWord value);
-
-    void onStorageClear();
+    fun merge(diff: Map<DataWord, DataWord>) {
+        this.diff.putAll(diff)
+    }
 }

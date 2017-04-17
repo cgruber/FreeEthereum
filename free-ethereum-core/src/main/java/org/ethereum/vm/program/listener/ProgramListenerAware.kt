@@ -24,32 +24,9 @@
  *
  */
 
-package org.ethereum.vm.program.listener;
+package org.ethereum.vm.program.listener
 
-import org.ethereum.vm.DataWord;
+interface ProgramListenerAware {
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class ProgramStorageChangeListener extends ProgramListenerAdaptor {
-
-    private final Map<DataWord, DataWord> diff = new HashMap<>();
-
-    @Override
-    public void onStoragePut(final DataWord key, final DataWord value) {
-        diff.put(key, value);
-    }
-
-    @Override
-    public void onStorageClear() {
-        // TODO: ...
-    }
-
-    public Map<DataWord, DataWord> getDiff() {
-        return new HashMap<>(diff);
-    }
-
-    public void merge(final Map<DataWord, DataWord> diff) {
-        this.diff.putAll(diff);
-    }
+    fun setProgramListener(listener: ProgramListener)
 }

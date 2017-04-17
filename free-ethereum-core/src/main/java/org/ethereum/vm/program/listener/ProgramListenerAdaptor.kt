@@ -24,9 +24,37 @@
  *
  */
 
-package org.ethereum.vm.program.listener;
+package org.ethereum.vm.program.listener
 
-public interface ProgramListenerAware {
-    
-    void setProgramListener(ProgramListener listener);
+import org.ethereum.vm.DataWord
+
+open class ProgramListenerAdaptor : ProgramListener {
+
+    override fun onMemoryExtend(delta: Int) {
+
+    }
+
+    override fun onMemoryWrite(address: Int, data: ByteArray, size: Int) {
+
+    }
+
+    override fun onStackPop() {
+
+    }
+
+    override fun onStackPush(value: DataWord) {
+
+    }
+
+    override fun onStackSwap(from: Int, to: Int) {
+
+    }
+
+    override fun onStoragePut(key: DataWord, value: DataWord) {
+
+    }
+
+    override fun onStorageClear() {
+
+    }
 }
