@@ -24,38 +24,30 @@
  *
  */
 
-package org.ethereum.net.rlpx.discover;
+package org.ethereum.net.rlpx.discover
 
-import org.ethereum.net.rlpx.discover.table.KademliaOptions;
+import org.ethereum.net.rlpx.discover.table.KademliaOptions
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+internal class DiscoveryExecutor(private val nodeManager: NodeManager) {
 
-class DiscoveryExecutor {
+    private val discoverer = Executors.newSingleThreadScheduledExecutor()
+    private val refresher = Executors.newSingleThreadScheduledExecutor()
 
-    private final ScheduledExecutorService discoverer = Executors.newSingleThreadScheduledExecutor();
-    private final ScheduledExecutorService refresher = Executors.newSingleThreadScheduledExecutor();
-
-    private final NodeManager nodeManager;
-
-    public DiscoveryExecutor(final NodeManager nodeManager) {
-        this.nodeManager = nodeManager;
-    }
-
-    public void start() {
+    fun start() {
         discoverer.scheduleWithFixedDelay(
-                new DiscoverTask(nodeManager),
-                1, KademliaOptions.DISCOVER_CYCLE, TimeUnit.SECONDS);
+                DiscoverTask(nodeManager),
+                1, KademliaOptions.DISCOVER_CYCLE, TimeUnit.SECONDS)
 
         refresher.scheduleWithFixedDelay(
-                new RefreshTask(nodeManager),
-                1, KademliaOptions.BUCKET_REFRESH, TimeUnit.MILLISECONDS);
+                RefreshTask(nodeManager),
+                1, KademliaOptions.BUCKET_REFRESH, TimeUnit.MILLISECONDS)
 
     }
 
-    public void close() {
-        discoverer.shutdownNow();
-        refresher.shutdownNow();
+    fun close() {
+        discoverer.shutdownNow()
+        refresher.shutdownNow()
     }
 }
