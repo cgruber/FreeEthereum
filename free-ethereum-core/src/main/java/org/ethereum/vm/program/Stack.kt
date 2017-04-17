@@ -57,6 +57,6 @@ class Stack : java.util.Stack<DataWord>(), ProgramListenerAware {
     }
 
     private fun isAccessible(from: Int): Boolean {
-        return from >= 0 && from < size
+        return from in 0..(size - 1)
     }
 }

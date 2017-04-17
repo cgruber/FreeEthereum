@@ -58,7 +58,7 @@ enum class EthVersion constructor(val code: Byte) {
         }
 
         private fun isSupported(code: Byte): Boolean {
-            return code >= LOWER && code <= UPPER
+            return code in LOWER..UPPER
         }
 
         fun supported(): List<EthVersion> {

@@ -60,7 +60,7 @@ class ReceiptsMessage : EthMessage {
                     .asSequence()
                     .map { it as RLPList }
                     .filter { it.size == 4 }
-                    .map { TransactionReceipt(it) }
+                    .map(::TransactionReceipt)
                     .toList()
             this.receipts!!.add(blockReceipts)
         }

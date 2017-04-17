@@ -230,7 +230,7 @@ class Value {
                 return true
             }
 
-            val readableChars = data.count { it > 32 && it < 126 }
+            val readableChars = data.count { it in 33..125 }
 
             return readableChars.toDouble() / data.size.toDouble() > 0.55
         }
@@ -242,7 +242,7 @@ class Value {
             decode()
             val data = value as ByteArray?
 
-            val hexChars = data!!.count { it >= 48 && it <= 57 || it >= 97 && it <= 102 }
+            val hexChars = data!!.count { it in 48..57 || it in 97..102 }
 
             return hexChars.toDouble() / data.size.toDouble() > 0.9
         }

@@ -82,7 +82,7 @@ internal object AccountValidator {
 
         for (key in expectedKeys) {
             // force to load known keys to cache to enumerate them
-            currentDetails.get(key)
+            currentDetails[key]
         }
 
         val currentKeys = currentDetails.storage.keys
