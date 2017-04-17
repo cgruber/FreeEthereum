@@ -106,12 +106,12 @@ class RlpxConnectionTest {
     @Test
     @Throws(IOException::class)
     fun testHandshake() {
-        val iConn = RlpxConnection(initiator!!.secrets, from, toOut)
-        val rConn = RlpxConnection(responder!!.secrets, to, fromOut)
-        iConn.sendProtocolHandshake(iMessage)
+        val iConn = RlpxConnection(initiator!!.secrets, from!!, toOut!!)
+        val rConn = RlpxConnection(responder!!.secrets, to!!, fromOut!!)
+        iConn.sendProtocolHandshake(iMessage!!)
         rConn.handleNextMessage()
         val receivedMessage = rConn.handshakeMessage
         assertNotNull(receivedMessage)
-        assertArrayEquals(iMessage!!.nodeId, receivedMessage.nodeId)
+        assertArrayEquals(iMessage!!.nodeId, receivedMessage!!.nodeId)
     }
 }
