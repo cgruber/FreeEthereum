@@ -38,6 +38,7 @@ import org.ethereum.listener.EthereumListenerAdapter;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.FastByteComparisons;
 import org.ethereum.vm.program.invoke.ProgramInvokeFactory;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -138,7 +139,8 @@ public class PendingStateImpl implements PendingState {
     }
 
     @Override
-    public synchronized List<Transaction> addPendingTransactions(final List<Transaction> transactions) {
+//    public synchronized List<Transaction> addPendingTransactions(final List<Transaction> transactions) {
+    public synchronized List<Transaction> addPendingTransactions(@NotNull List<? extends Transaction> transactions) {
         int unknownTx = 0;
         final List<Transaction> newPending = new ArrayList<>();
         for (final Transaction tx : transactions) {
@@ -256,7 +258,8 @@ public class PendingStateImpl implements PendingState {
     }
 
     @Override
-    public synchronized void processBest(final Block newBlock, final List<TransactionReceipt> receipts) {
+//    public synchronized void processBest(final Block newBlock, final List<TransactionReceipt> receipts) {
+    public synchronized void processBest(@NotNull Block newBlock, @NotNull List<? extends TransactionReceipt> receipts) {
 
         if (getBestBlock() != null && !getBestBlock().isParentOf(newBlock)) {
             // need to switch the state to another fork
@@ -296,7 +299,7 @@ public class PendingStateImpl implements PendingState {
             }
         } else {
             logger.debug("PendingStateImpl.processBest: " + newBlock.getShortDescr());
-            processBestInternal(newBlock, receipts);
+            processBestInternal(newBlock, (List<TransactionReceipt>) receipts);
         }
 
         best = newBlock;
@@ -423,6 +426,17 @@ public class PendingStateImpl implements PendingState {
     public void setBlockchain(final BlockchainImpl blockchain) {
         this.blockchain = blockchain;
     }
+
+//    @NotNull
+//    @Override
+//    public List<Transaction> addPendingTransactions(@NotNull List<? extends Transaction> transactions) {
+//        return null;
+//    }
+//
+//    @Override
+//    public void processBest(@NotNull Block block, @NotNull List<? extends TransactionReceipt> receipts) {
+//
+//    }
 
     public static class TransactionSortedSet extends TreeSet<Transaction> {
         public TransactionSortedSet() {
