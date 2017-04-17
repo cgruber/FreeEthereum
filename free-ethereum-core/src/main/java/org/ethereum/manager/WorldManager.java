@@ -28,6 +28,7 @@ package org.ethereum.manager;
 
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.*;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.BlockStore;
 import org.ethereum.db.DbFlushManager;
 import org.ethereum.listener.CompositeEthereumListener;
@@ -52,8 +53,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-
-import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
 
 /**
  * WorldManager is a singleton containing references to different parts of the system.
@@ -228,7 +227,7 @@ public class WorldManager {
             // Update world state to latest loaded block from db
             // if state is not generated from empty premine list
             // todo this is just a workaround, move EMPTY_TRIE_HASH logic to Trie implementation
-            if (!Arrays.equals(blockchain.getBestBlock().getStateRoot(), EMPTY_TRIE_HASH)) {
+            if (!Arrays.equals(blockchain.getBestBlock().getStateRoot(), HashUtil.INSTANCE.getEMPTY_TRIE_HASH())) {
                 this.repository.syncToRoot(blockchain.getBestBlock().getStateRoot());
             }
         }

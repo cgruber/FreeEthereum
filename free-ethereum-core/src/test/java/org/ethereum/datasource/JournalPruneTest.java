@@ -166,7 +166,7 @@ public class JournalPruneTest {
     }
 
     private byte[] hashInt(final int i) {
-        return HashUtil.sha3(ByteUtil.intToBytes(i));
+        return HashUtil.INSTANCE.sha3(ByteUtil.intToBytes(i));
     }
 
     class StringJDS extends JournalSource<byte[]> {

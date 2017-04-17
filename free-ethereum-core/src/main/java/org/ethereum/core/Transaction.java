@@ -280,13 +280,13 @@ public class Transaction {
 
         rlpParse();
         final byte[] plainMsg = this.getEncoded();
-        return HashUtil.sha3(plainMsg);
+        return HashUtil.INSTANCE.sha3(plainMsg);
     }
 
     private byte[] getRawHash() {
         rlpParse();
         final byte[] plainMsg = this.getEncodedRaw();
-        return HashUtil.sha3(plainMsg);
+        return HashUtil.INSTANCE.sha3(plainMsg);
     }
 
     public byte[] getNonce() {
@@ -384,7 +384,7 @@ public class Transaction {
 
     public byte[] getContractAddress() {
         if (!isContractCreation()) return null;
-        return HashUtil.calcNewAddr(this.getSender(), this.getNonce());
+        return HashUtil.INSTANCE.calcNewAddr(this.getSender(), this.getNonce());
     }
 
     public boolean isContractCreation() {

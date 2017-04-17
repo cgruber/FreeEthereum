@@ -130,7 +130,7 @@ public class CommonConfig {
     @Bean
     @Scope("prototype")
     public Source<byte[], byte[]> blockchainSource(final String name) {
-        return new XorDataSource<>(blockchainDbCache(), HashUtil.sha3(name.getBytes()));
+        return new XorDataSource<>(blockchainDbCache(), HashUtil.INSTANCE.sha3(name.getBytes()));
     }
 
     @Bean

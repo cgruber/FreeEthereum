@@ -37,7 +37,6 @@ import java.util.Random;
 
 import static java.lang.System.arraycopy;
 import static java.math.BigInteger.valueOf;
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.*;
 import static org.spongycastle.util.Arrays.reverse;
 
@@ -97,15 +96,15 @@ class EthashAlgo {
     private byte[][] makeCacheBytes(final long cacheSize, final byte[] seed) {
         final int n = (int) (cacheSize / params.getHASH_BYTES());
         final byte[][] o = new byte[n][];
-        o[0] = HashUtil.sha512(seed);
+        o[0] = HashUtil.INSTANCE.sha512(seed);
         for (int i = 1; i < n; i++) {
-            o[i] = HashUtil.sha512(o[i - 1]);
+            o[i] = HashUtil.INSTANCE.sha512(o[i - 1]);
         }
 
         for (int cacheRound = 0; cacheRound < params.getCACHE_ROUNDS(); cacheRound++) {
             for (int i = 0; i < n; i++) {
                 final int v = remainderUnsigned(getWord(o[i], 0), n);
-                o[i] = HashUtil.sha512(xor(o[(i - 1 + n) % n], o[v]));
+                o[i] = HashUtil.INSTANCE.sha512(xor(o[(i - 1 + n) % n], o[v]));
             }
         }
         return o;
@@ -125,7 +124,7 @@ class EthashAlgo {
     private int[] sha512(final int[] arr, final boolean bigEndian) {
         byte[] bytesTmp = new byte[arr.length << 2];
         intsToBytes(arr, bytesTmp, bigEndian);
-        bytesTmp = HashUtil.sha512(bytesTmp);
+        bytesTmp = HashUtil.INSTANCE.sha512(bytesTmp);
         bytesToInts(bytesTmp, arr, bigEndian);
         return arr;
     }
@@ -167,7 +166,7 @@ class EthashAlgo {
         final int hashWords = params.getHASH_BYTES() / 4;
         final int w = params.getMIX_BYTES() / params.getWORD_BYTES();
         final int mixhashes = params.getMIX_BYTES() / params.getHASH_BYTES();
-        final int[] s = bytesToInts(HashUtil.sha512(merge(blockHeaderTruncHash, reverse(nonce))), false);
+        final int[] s = bytesToInts(HashUtil.INSTANCE.sha512(merge(blockHeaderTruncHash, reverse(nonce))), false);
         final int[] mix = new int[params.getMIX_BYTES() / 4];
         for (int i = 0; i < mixhashes; i++) {
             arraycopy(s, 0, mix, i * s.length, s.length);
@@ -200,7 +199,7 @@ class EthashAlgo {
             cmix[i >> 2] = fnv3;
         }
 
-        return Pair.of(intsToBytes(cmix, false), sha3(merge(intsToBytes(s, false), intsToBytes(cmix, false))));
+        return Pair.of(intsToBytes(cmix, false), HashUtil.INSTANCE.sha3(merge(intsToBytes(s, false), intsToBytes(cmix, false))));
     }
 
     public Pair<byte[], byte[]> hashimotoLight(final long fullSize, final int[] cache, final byte[] blockHeaderTruncHash,
@@ -252,7 +251,7 @@ class EthashAlgo {
     public byte[] getSeedHash(final long blockNumber) {
         byte[] ret = new byte[32];
         for (int i = 0; i < blockNumber / params.getEPOCH_LENGTH(); i++) {
-            ret = sha3(ret);
+            ret = HashUtil.INSTANCE.sha3(ret);
         }
         return ret;
     }

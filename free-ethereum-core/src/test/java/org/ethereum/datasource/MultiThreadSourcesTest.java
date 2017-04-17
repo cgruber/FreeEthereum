@@ -29,6 +29,7 @@ package org.ethereum.datasource;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.db.StateSource;
 import org.ethereum.mine.AnyFuture;
@@ -48,7 +49,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static java.lang.Math.max;
 import static java.lang.Thread.sleep;
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.intToBytes;
 import static org.ethereum.util.ByteUtil.longToBytes;
 import static org.junit.Assert.assertEquals;
@@ -64,11 +64,11 @@ public class MultiThreadSourcesTest {
     private volatile int maxReadWriteConcurrency = 0;
 
     private static byte[] key(final int key) {
-        return sha3(intToBytes(key));
+        return HashUtil.INSTANCE.sha3(intToBytes(key));
     }
 
     private byte[] intToKey(final int i) {
-        return sha3(longToBytes(i));
+        return HashUtil.INSTANCE.sha3(longToBytes(i));
     }
 
     private byte[] intToValue(final int i) {

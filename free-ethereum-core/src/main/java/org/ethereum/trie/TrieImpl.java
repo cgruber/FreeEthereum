@@ -43,7 +43,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.apache.commons.lang3.concurrent.ConcurrentUtils.constantFuture;
-import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.ethereum.util.RLP.*;
 
@@ -104,7 +103,7 @@ public class TrieImpl implements Trie<byte[]> {
     }
 
     public void setRoot(final byte[] root) {
-        if (root != null && !FastByteComparisons.equal(root, EMPTY_TRIE_HASH)) {
+        if (root != null && !FastByteComparisons.equal(root, HashUtil.INSTANCE.getEMPTY_TRIE_HASH())) {
             this.root = new Node(root);
         } else {
             this.root = null;
@@ -289,7 +288,7 @@ public class TrieImpl implements Trie<byte[]> {
     @Override
     public byte[] getRootHash() {
         encode();
-        return root != null ? root.hash : EMPTY_TRIE_HASH;
+        return root != null ? root.hash : HashUtil.INSTANCE.getEMPTY_TRIE_HASH();
     }
 
     @Override
@@ -494,7 +493,7 @@ public class TrieImpl implements Trie<byte[]> {
                     rlp = ret;
                     return ret;
                 } else {
-                    hash = HashUtil.sha3(ret);
+                    hash = HashUtil.INSTANCE.sha3(ret);
                     addHash(hash, ret);
                     return encodeElement(hash);
                 }

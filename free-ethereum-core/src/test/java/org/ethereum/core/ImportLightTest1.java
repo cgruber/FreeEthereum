@@ -147,7 +147,7 @@ public class ImportLightTest1 {
         final StandaloneBlockchain sb = new StandaloneBlockchain();
         final Block b0 = sb.getBlockchain().getBestBlock();
 
-        final ECKey addr1 = ECKey.fromPrivate(HashUtil.sha3("1".getBytes()));
+        final ECKey addr1 = ECKey.fromPrivate(HashUtil.INSTANCE.sha3("1".getBytes()));
         final BigInteger bal2 = sb.getBlockchain().getRepository().getBalance(sb.getSender().getAddress());
 
         sb.sendEther(addr1.getAddress(), BigInteger.valueOf(100));

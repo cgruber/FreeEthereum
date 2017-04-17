@@ -38,6 +38,7 @@ import org.ethereum.core.genesis.GenesisConfig;
 import org.ethereum.core.genesis.GenesisJson;
 import org.ethereum.core.genesis.GenesisLoader;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.net.p2p.P2pHandler;
 import org.ethereum.net.rlpx.MessageCodec;
 import org.ethereum.net.rlpx.Node;
@@ -61,7 +62,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.*;
 
-import static org.ethereum.crypto.HashUtil.sha3;
+
 
 /**
  * Utility class to retrieve property values from the ethereumj.conf files
@@ -438,7 +439,7 @@ public class SystemProperties {
                     if (configObject.toConfig().hasPath("nodeName")) {
                         final String nodeName = configObject.toConfig().getString("nodeName").trim();
                         // FIXME should be keccak-512 here ?
-                        nodeId = ECKey.fromPrivate(sha3(nodeName.getBytes())).getNodeId();
+                        nodeId = ECKey.fromPrivate(HashUtil.INSTANCE.sha3(nodeName.getBytes())).getNodeId();
                     } else {
                         throw new RuntimeException("Either nodeId or nodeName should be specified: " + configObject);
                     }

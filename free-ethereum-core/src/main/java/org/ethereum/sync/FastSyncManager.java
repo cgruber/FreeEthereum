@@ -65,8 +65,8 @@ import static org.ethereum.util.CompactEncoder.hasTerminator;
 
 @Component
 public class FastSyncManager {
-    public static final byte[] FASTSYNC_DB_KEY_SYNC_STAGE = HashUtil.sha3("Key in state DB indicating fastsync stage in progress".getBytes());
-    private static final byte[] FASTSYNC_DB_KEY_PIVOT = HashUtil.sha3("Key in state DB with encoded selected pivot block".getBytes());
+    public static final byte[] FASTSYNC_DB_KEY_SYNC_STAGE = HashUtil.INSTANCE.sha3("Key in state DB indicating fastsync stage in progress".getBytes());
+    private static final byte[] FASTSYNC_DB_KEY_PIVOT = HashUtil.INSTANCE.sha3("Key in state DB with encoded selected pivot block".getBytes());
     private final static Logger logger = LoggerFactory.getLogger("sync");
     private final static long REQUEST_TIMEOUT = 5 * 1000;
     private final static int REQUEST_MAX_NODES = 384;
@@ -786,10 +786,10 @@ public class FastSyncManager {
                     final byte[] nodeValue = (byte[]) node.get(1);
                     final AccountState state = new AccountState(nodeValue);
 
-                    if (!FastByteComparisons.equal(HashUtil.EMPTY_DATA_HASH, state.getCodeHash())) {
+                    if (!FastByteComparisons.equal(HashUtil.INSTANCE.getEMPTY_DATA_HASH(), state.getCodeHash())) {
                         ret.add(new TrieNodeRequest(TrieNodeType.CODE, state.getCodeHash()));
                     }
-                    if (!FastByteComparisons.equal(HashUtil.EMPTY_TRIE_HASH, state.getStateRoot())) {
+                    if (!FastByteComparisons.equal(HashUtil.INSTANCE.getEMPTY_TRIE_HASH(), state.getStateRoot())) {
                         ret.add(new TrieNodeRequest(TrieNodeType.STORAGE, state.getStateRoot()));
                     }
                     return ret;

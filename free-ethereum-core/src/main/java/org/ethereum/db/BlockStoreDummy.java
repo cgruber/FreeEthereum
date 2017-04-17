@@ -43,7 +43,7 @@ public class BlockStoreDummy implements BlockStore {
     public byte[] getBlockHashByNumber(final long blockNumber) {
 
         final byte[] data = String.valueOf(blockNumber).getBytes();
-        return HashUtil.sha3(data);
+        return HashUtil.INSTANCE.sha3(data);
     }
 
     @Override

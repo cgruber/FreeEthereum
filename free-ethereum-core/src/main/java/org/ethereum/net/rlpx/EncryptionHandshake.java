@@ -30,6 +30,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import org.ethereum.crypto.ECIESCoder;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.ByteUtil;
 import org.spongycastle.crypto.InvalidCipherTextException;
 import org.spongycastle.crypto.digests.KeccakDigest;
@@ -40,7 +41,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-import static org.ethereum.crypto.HashUtil.sha3;
+
 
 public class EncryptionHandshake {
     private static final int NONCE_SIZE = 32;
@@ -229,7 +230,7 @@ public class EncryptionHandshake {
         final byte[] signed = xor(token, nonce);
         message.signature = ephemeralKey.sign(signed);
         message.isTokenUsed = isToken;
-        message.ephemeralPublicHash = sha3(ephemeralKey.getPubKey(), 1, 64);
+        message.ephemeralPublicHash = HashUtil.INSTANCE.sha3(ephemeralKey.getPubKey(), 1, 64);
         message.publicKey = key.getPubKeyPoint();
         message.nonce = initiatorNonce;
         return message;
@@ -272,12 +273,12 @@ public class EncryptionHandshake {
     void agreeSecret(final byte[] initiatePacket, final byte[] responsePacket) {
         final BigInteger secretScalar = ephemeralKey.keyAgreement(remoteEphemeralKey);
         final byte[] agreedSecret = ByteUtil.bigIntegerToBytes(secretScalar, SECRET_SIZE);
-        final byte[] sharedSecret = sha3(agreedSecret, sha3(responderNonce, initiatorNonce));
-        final byte[] aesSecret = sha3(agreedSecret, sharedSecret);
+        final byte[] sharedSecret = HashUtil.INSTANCE.sha3(agreedSecret, HashUtil.INSTANCE.sha3(responderNonce, initiatorNonce));
+        final byte[] aesSecret = HashUtil.INSTANCE.sha3(agreedSecret, sharedSecret);
         secrets = new Secrets();
         secrets.aes = aesSecret;
-        secrets.mac = sha3(agreedSecret, aesSecret);
-        secrets.token = sha3(sharedSecret);
+        secrets.mac = HashUtil.INSTANCE.sha3(agreedSecret, aesSecret);
+        secrets.token = HashUtil.INSTANCE.sha3(sharedSecret);
 //        System.out.println("mac " + Hex.toHexString(secrets.mac));
 //        System.out.println("aes " + Hex.toHexString(secrets.aes));
 //        System.out.println("shared " + Hex.toHexString(sharedSecret));

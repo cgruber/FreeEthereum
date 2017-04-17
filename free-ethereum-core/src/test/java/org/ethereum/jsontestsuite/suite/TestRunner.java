@@ -29,6 +29,7 @@ package org.ethereum.jsontestsuite.suite;
 import org.ethereum.config.CommonConfig;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.core.*;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.db.*;
 import org.ethereum.jsontestsuite.suite.builder.BlockBuilder;
@@ -54,7 +55,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigInteger;
 import java.util.*;
 
-import static org.ethereum.crypto.HashUtil.shortHash;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.ethereum.vm.VMUtils.saveProgramTraceFile;
 
@@ -147,7 +147,7 @@ public class TestRunner {
         for (final Block block : blockTraffic) {
 
             final ImportResult importResult = blockchain.tryToConnect(block);
-            logger.debug("{} ~ {} difficulty: {} ::: {}", block.getShortHash(), shortHash(block.getParentHash()),
+            logger.debug("{} ~ {} difficulty: {} ::: {}", block.getShortHash(), HashUtil.INSTANCE.shortHash(block.getParentHash()),
                     block.getCumulativeDifficulty(), importResult.toString());
         }
 

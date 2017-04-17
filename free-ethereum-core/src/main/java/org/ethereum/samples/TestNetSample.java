@@ -29,10 +29,11 @@ package org.ethereum.samples;
 import com.typesafe.config.ConfigFactory;
 import org.ethereum.config.SystemProperties;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.facade.EthereumFactory;
 import org.springframework.context.annotation.Bean;
 
-import static org.ethereum.crypto.HashUtil.sha3;
+
 
 /**
  * This class just extends the BasicSample with the config which connect the peer to the test network
@@ -45,7 +46,7 @@ public class TestNetSample extends BasicSample {
     /**
      * Use that sender key to sign transactions
      */
-    final byte[] senderPrivateKey = sha3("cow".getBytes());
+    final byte[] senderPrivateKey = HashUtil.INSTANCE.sha3("cow".getBytes());
     // sender address is derived from the private key
     final byte[] senderAddress = ECKey.fromPrivate(senderPrivateKey).getAddress();
 

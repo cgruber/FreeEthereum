@@ -26,6 +26,7 @@
 
 package org.ethereum.net.swarm;
 
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.net.rlpx.Node;
 import org.ethereum.net.swarm.bzz.BzzMessage;
 import org.ethereum.net.swarm.bzz.BzzProtocol;
@@ -42,7 +43,7 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static org.ethereum.crypto.HashUtil.sha3;
+
 
 public class BzzProtocolTest {
 
@@ -149,7 +150,7 @@ public class BzzProtocolTest {
         final Chunk[] chunks = new Chunk[10];
         final int shift = 1;
         for (int i = 0; i < chunks.length; i++) {
-            final Key key = new Key(sha3(new byte[]{0x22, (byte) (i + shift)}));
+            final Key key = new Key(HashUtil.INSTANCE.sha3(new byte[]{0x22, (byte) (i + shift)}));
 //            stdout.setFilter(Hex.toHexString(key.getBytes()));
             chunks[i] = new Chunk(key, new byte[] {0,0,0,0,0,0,0,0, 77, (byte) i});
             System.out.println("==== Storage statistics before:\n" + dumpPeers(allPeers, key));
@@ -181,7 +182,7 @@ public class BzzProtocolTest {
 //        TestPeer.MessageOut = true;
         System.out.println("Requesting chunk from the last...");
         for (int i = 0; i < chunks.length; i++) {
-            final Key key = new Key(sha3(new byte[]{0x22, (byte) (i + shift)}));
+            final Key key = new Key(HashUtil.INSTANCE.sha3(new byte[]{0x22, (byte) (i + shift)}));
             System.out.println("======== Looking for " + key);
             final Chunk chunk1 = allPeers[allPeers.length - 1].netStore.get(key);
             System.out.println("########### Found: " + chunk1);
@@ -532,7 +533,7 @@ public class BzzProtocolTest {
 
         public TestPeer(final int num) {
             this(new PeerAddress(new byte[]{0, 0, (byte) ((num >> 8) & 0xFF), (byte) (num & 0xFF)}, 1000 + num,
-                    sha3(new byte[]{(byte) ((num >> 8) & 0xFF), (byte) (num & 0xFF)})), "" + num);
+                    HashUtil.INSTANCE.sha3(new byte[]{(byte) ((num >> 8) & 0xFF), (byte) (num & 0xFF)})), "" + num);
         }
 
         public TestPeer(final PeerAddress peerAddress, final String name) {

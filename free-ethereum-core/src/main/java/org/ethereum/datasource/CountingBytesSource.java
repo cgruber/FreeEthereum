@@ -50,7 +50,7 @@ import java.util.Arrays;
 public class CountingBytesSource extends AbstractChainedSource<byte[], byte[], byte[], byte[]>
         implements HashedKeySource<byte[], byte[]> {
 
-    private final byte[] filterKey = HashUtil.sha3("countingStateFilter".getBytes());
+    private final byte[] filterKey = HashUtil.INSTANCE.sha3("countingStateFilter".getBytes());
     private QuotientFilter filter;
     private boolean dirty = false;
 

@@ -106,10 +106,10 @@ public class LogInfo {
     }
 
     public Bloom getBloom() {
-        final Bloom ret = Bloom.create(HashUtil.sha3(address));
+        final Bloom ret = Bloom.create(HashUtil.INSTANCE.sha3(address));
         for (final DataWord topic : topics) {
             final byte[] topicData = topic.getData();
-            ret.or(Bloom.create(HashUtil.sha3(topicData)));
+            ret.or(Bloom.create(HashUtil.INSTANCE.sha3(topicData)));
         }
         return ret;
     }

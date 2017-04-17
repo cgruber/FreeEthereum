@@ -26,6 +26,7 @@
 
 package org.ethereum.datasource;
 
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.SlowHashMapDb;
 import org.ethereum.db.StateSource;
 import org.ethereum.util.Utils;
@@ -35,7 +36,6 @@ import org.junit.Test;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.intToBytes;
 import static org.spongycastle.util.encoders.Hex.decode;
 
@@ -130,8 +130,8 @@ public class AsyncWriteCacheTest {
         final StateSource stateSource = new StateSource(db, false);
         stateSource.getReadCache().withMaxCapacity(1);
 
-        stateSource.put(sha3(intToBytes(1)), intToBytes(1));
-        stateSource.put(sha3(intToBytes(2)), intToBytes(2));
+        stateSource.put(HashUtil.INSTANCE.sha3(intToBytes(1)), intToBytes(1));
+        stateSource.put(HashUtil.INSTANCE.sha3(intToBytes(2)), intToBytes(2));
 
         System.out.println("Flush...");
         stateSource.flush();
@@ -139,9 +139,9 @@ public class AsyncWriteCacheTest {
 
         Thread.sleep(100);
         System.out.println("Get...");
-        final byte[] bytes1 = stateSource.get(sha3(intToBytes(1)));
+        final byte[] bytes1 = stateSource.get(HashUtil.INSTANCE.sha3(intToBytes(1)));
         System.out.println("Get!: " + bytes1);
-        final byte[] bytes2 = stateSource.get(sha3(intToBytes(2)));
+        final byte[] bytes2 = stateSource.get(HashUtil.INSTANCE.sha3(intToBytes(2)));
         System.out.println("Get!: " + bytes2);
 
 

@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public class BloomedSource extends AbstractChainedSource<byte[], byte[], byte[], byte[]> {
     private final static Logger logger = LoggerFactory.getLogger("db");
 
-    private final byte[] filterKey = HashUtil.sha3("filterKey".getBytes());
+    private final byte[] filterKey = HashUtil.INSTANCE.sha3("filterKey".getBytes());
     private final int maxBloomSize;
     private QuotientFilter filter;
     private int hits = 0;

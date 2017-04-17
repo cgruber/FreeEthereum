@@ -27,6 +27,7 @@
 package org.ethereum;
 
 import org.ethereum.core.Block;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.vm.DataWord;
 import org.spongycastle.util.BigIntegers;
 
@@ -34,9 +35,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
-import static org.ethereum.crypto.HashUtil.randomHash;
 
 public final class TestUtils {
 
@@ -68,10 +66,10 @@ public final class TestUtils {
         for (int i = 0; i < length; ++i){
 
             final byte[] difficulty = BigIntegers.asUnsignedByteArray(new BigInteger(8, new Random()));
-            final byte[] newHash = randomHash();
+            final byte[] newHash = HashUtil.INSTANCE.randomHash();
 
             final Block block = new Block(lastHash, newHash, null, null, difficulty, lastIndex, new byte[]{0}, 0, 0, null, null,
-                    null, null, EMPTY_TRIE_HASH, randomHash(), null, null);
+                    null, null, HashUtil.INSTANCE.getEMPTY_TRIE_HASH(), HashUtil.INSTANCE.randomHash(), null, null);
 
             ++lastIndex;
             lastHash = block.getHash();
@@ -99,10 +97,10 @@ public final class TestUtils {
             for (int j = 0; j < curMaxHeight; ++j){
                 final byte[] parentHash = lastHashes.get(rnd.nextInt(lastHashes.size()));
                 final byte[] difficulty = BigIntegers.asUnsignedByteArray(new BigInteger(8, new Random()));
-                final byte[] newHash = randomHash();
+                final byte[] newHash = HashUtil.INSTANCE.randomHash();
 
                 final Block block = new Block(parentHash, newHash, null, null, difficulty, lastIndex, new byte[]{0}, 0, 0, null, null,
-                        null, null, EMPTY_TRIE_HASH, randomHash(), null, null);
+                        null, null, HashUtil.INSTANCE.getEMPTY_TRIE_HASH(), HashUtil.INSTANCE.randomHash(), null, null);
                 currentHashes.add(block.getHash());
                 result.add(block);
             }

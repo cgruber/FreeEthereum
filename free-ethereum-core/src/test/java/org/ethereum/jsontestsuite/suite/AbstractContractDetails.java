@@ -26,6 +26,7 @@
 
 package org.ethereum.jsontestsuite.suite;
 
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.db.ContractDetails;
 import org.spongycastle.util.encoders.Hex;
@@ -33,8 +34,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ethereum.crypto.HashUtil.EMPTY_DATA_HASH;
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 
 /**
@@ -57,13 +56,13 @@ public abstract class AbstractContractDetails implements ContractDetails {
     @Override
     public void setCode(final byte[] code) {
         if (code == null) return;
-        codes.put(new ByteArrayWrapper(sha3(code)), code);
+        codes.put(new ByteArrayWrapper(HashUtil.INSTANCE.sha3(code)), code);
         setDirty(true);
     }
 
     @Override
     public byte[] getCode(final byte[] codeHash) {
-        if (java.util.Arrays.equals(codeHash, EMPTY_DATA_HASH))
+        if (java.util.Arrays.equals(codeHash, HashUtil.INSTANCE.getEMPTY_DATA_HASH()))
             return EMPTY_BYTE_ARRAY;
         final byte[] code = codes.get(new ByteArrayWrapper(codeHash));
         return code == null ? EMPTY_BYTE_ARRAY : code;

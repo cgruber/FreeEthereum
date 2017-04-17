@@ -27,6 +27,7 @@
 package org.ethereum.mine;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.ethereum.crypto.HashUtil;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -35,8 +36,6 @@ import java.util.Random;
 
 import static java.lang.System.arraycopy;
 import static java.math.BigInteger.valueOf;
-import static org.ethereum.crypto.HashUtil.sha3;
-import static org.ethereum.crypto.HashUtil.sha512;
 import static org.ethereum.util.ByteUtil.*;
 import static org.spongycastle.util.Arrays.reverse;
 
@@ -79,15 +78,15 @@ public class EthashAlgoSlow {
     public byte[][] makeCache(final long cacheSize, final byte[] seed) {
         final int n = (int) (cacheSize / params.getHASH_BYTES());
         final byte[][] o = new byte[n][];
-        o[0] = sha512(seed);
+        o[0] = HashUtil.INSTANCE.sha512(seed);
         for (int i = 1; i < n; i++) {
-            o[i] = sha512(o[i - 1]);
+            o[i] = HashUtil.INSTANCE.sha512(o[i - 1]);
         }
 
         for (int cacheRound = 0; cacheRound < params.getCACHE_ROUNDS(); cacheRound++) {
             for (int i = 0; i < n; i++) {
                 final int v = (int) (getWord(o[i], 0) % n);
-                o[i] = sha512(xor(o[(i - 1 + n) % n], o[v]));
+                o[i] = HashUtil.INSTANCE.sha512(xor(o[(i - 1 + n) % n], o[v]));
             }
         }
         return o;
@@ -115,12 +114,12 @@ public class EthashAlgoSlow {
         byte[] mix = cache[i % n].clone();
 
         setWord(mix, 0, i ^ getWord(mix, 0));
-        mix = sha512(mix);
+        mix = HashUtil.INSTANCE.sha512(mix);
         for (int j = 0; j < params.getDATASET_PARENTS(); j++) {
             final long cacheIdx = fnv(i ^ j, getWord(mix, j % r));
             mix = fnv(mix, cache[(int) (cacheIdx % n)]);
         }
-        return sha512(mix);
+        return HashUtil.INSTANCE.sha512(mix);
     }
 
     public byte[][] calcDataset(final long fullSize, final byte[][] cache) {
@@ -136,7 +135,7 @@ public class EthashAlgoSlow {
 
         final int w = params.getMIX_BYTES() / params.getWORD_BYTES();
         final int mixhashes = params.getMIX_BYTES() / params.getHASH_BYTES();
-        final byte[] s = sha512(merge(blockHeaderTruncHash, reverse(nonce)));
+        final byte[] s = HashUtil.INSTANCE.sha512(merge(blockHeaderTruncHash, reverse(nonce)));
         byte[] mix = new byte[params.getMIX_BYTES()];
         for (int i = 0; i < mixhashes; i++) {
             arraycopy(s, 0, mix, i * s.length, s.length);
@@ -161,7 +160,7 @@ public class EthashAlgoSlow {
             setWord(cmix, i / 4, fnv3);
         }
 
-        return Pair.of(cmix, sha3(merge(s, cmix)));
+        return Pair.of(cmix, HashUtil.INSTANCE.sha3(merge(s, cmix)));
     }
 
     private Pair<byte[], byte[]> hashimotoLight(final long fullSize, final byte[][] cache, final byte[] blockHeaderTruncHash,
@@ -205,7 +204,7 @@ public class EthashAlgoSlow {
     public byte[] getSeedHash(final long blockNumber) {
         byte[] ret = new byte[32];
         for (int i = 0; i < blockNumber / params.getEPOCH_LENGTH(); i++) {
-            ret = sha3(ret);
+            ret = HashUtil.INSTANCE.sha3(ret);
         }
         return ret;
     }

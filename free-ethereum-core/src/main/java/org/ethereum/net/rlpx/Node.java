@@ -27,6 +27,7 @@
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPList;
 import org.ethereum.util.Utils;
@@ -37,7 +38,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.*;
 
 public class Node implements Serializable {
@@ -106,7 +106,7 @@ public class Node implements Serializable {
             // continue
         }
 
-        final ECKey generatedNodeKey = ECKey.fromPrivate(sha3(addressOrEnode.getBytes()));
+        final ECKey generatedNodeKey = ECKey.fromPrivate(HashUtil.INSTANCE.sha3(addressOrEnode.getBytes()));
         final String generatedNodeId = Hex.toHexString(generatedNodeKey.getNodeId());
         final Node node = new Node("enode://" + generatedNodeId + "@" + addressOrEnode);
         node.isFakeNodeId = true;

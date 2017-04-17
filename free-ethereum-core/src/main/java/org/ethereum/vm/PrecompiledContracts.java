@@ -100,8 +100,8 @@ public class PrecompiledContracts {
         @Override
         public byte[] execute(final byte[] data) {
 
-            if (data == null) return HashUtil.sha256(ByteUtil.EMPTY_BYTE_ARRAY);
-            return HashUtil.sha256(data);
+            if (data == null) return HashUtil.INSTANCE.sha256(ByteUtil.EMPTY_BYTE_ARRAY);
+            return HashUtil.INSTANCE.sha256(data);
         }
     }
 
@@ -123,8 +123,8 @@ public class PrecompiledContracts {
         public byte[] execute(final byte[] data) {
 
             byte[] result = null;
-            if (data == null) result = HashUtil.ripemd160(ByteUtil.EMPTY_BYTE_ARRAY);
-            else result = HashUtil.ripemd160(data);
+            if (data == null) result = HashUtil.INSTANCE.ripemd160(ByteUtil.EMPTY_BYTE_ARRAY);
+            else result = HashUtil.INSTANCE.ripemd160(data);
 
             return new DataWord(result).getData();
         }

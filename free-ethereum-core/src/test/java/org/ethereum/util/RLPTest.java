@@ -366,7 +366,7 @@ public class RLPTest {
         prevHash = encodeElement(prevHash);
 
    /* 2 */
-        final byte[] uncleList = HashUtil.sha3(encodeList(new byte[]{}));
+        final byte[] uncleList = HashUtil.INSTANCE.sha3(encodeList(new byte[]{}));
 
    /* 3 */
         byte[] coinbase =

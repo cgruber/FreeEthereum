@@ -28,6 +28,7 @@ package org.ethereum.vm;
 
 import org.ethereum.config.BlockchainConfig;
 import org.ethereum.config.SystemProperties;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.db.ContractDetails;
 import org.ethereum.vm.MessageCall.MsgType;
 import org.ethereum.vm.program.Program;
@@ -42,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.ethereum.vm.OpCode.*;
 
@@ -690,7 +690,7 @@ public class VM {
                     final DataWord lengthData = program.stackPop();
                     final byte[] buffer = program.memoryChunk(memOffsetData.intValueSafe(), lengthData.intValueSafe());
 
-                    final byte[] encoded = sha3(buffer);
+                    final byte[] encoded = HashUtil.INSTANCE.sha3(buffer);
                     final DataWord word = new DataWord(encoded);
 
                     if (logger.isInfoEnabled())

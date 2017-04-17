@@ -24,15 +24,14 @@
  *
  */
 
-package org.ethereum.crypto;
+package org.ethereum.crypto
 
-import org.spongycastle.crypto.KeyEncoder;
-import org.spongycastle.crypto.params.AsymmetricKeyParameter;
-import org.spongycastle.crypto.params.ECPublicKeyParameters;
+import org.spongycastle.crypto.KeyEncoder
+import org.spongycastle.crypto.params.AsymmetricKeyParameter
+import org.spongycastle.crypto.params.ECPublicKeyParameters
 
-class ECIESPublicKeyEncoder implements KeyEncoder {
-    @Override
-    public byte[] getEncoded(final AsymmetricKeyParameter asymmetricKeyParameter) {
-        return ((ECPublicKeyParameters) asymmetricKeyParameter).getQ().getEncoded(false);
+internal class ECIESPublicKeyEncoder : KeyEncoder {
+    override fun getEncoded(asymmetricKeyParameter: AsymmetricKeyParameter): ByteArray {
+        return (asymmetricKeyParameter as ECPublicKeyParameters).q.getEncoded(false)
     }
 }

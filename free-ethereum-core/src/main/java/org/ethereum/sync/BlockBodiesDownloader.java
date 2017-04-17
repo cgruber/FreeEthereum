@@ -113,8 +113,8 @@ public class BlockBodiesDownloader extends BlockDownloader {
                 wrappers.add(new BlockHeaderWrapper(header, new byte[0]));
 
                 // Skip bodies download for blocks with empty body
-                boolean emptyBody = FastByteComparisons.equal(header.getTxTrieRoot(), HashUtil.EMPTY_TRIE_HASH);
-                emptyBody &= FastByteComparisons.equal(header.getUnclesHash(), HashUtil.EMPTY_LIST_HASH);
+                boolean emptyBody = FastByteComparisons.equal(header.getTxTrieRoot(), HashUtil.INSTANCE.getEMPTY_TRIE_HASH());
+                emptyBody &= FastByteComparisons.equal(header.getUnclesHash(), HashUtil.INSTANCE.getEMPTY_LIST_HASH());
                 if (emptyBody) emptyBodyHeaders.add(header);
             }
 

@@ -28,6 +28,7 @@ package org.ethereum.jsontestsuite.suite;
 
 import org.ethereum.config.CommonConfig;
 import org.ethereum.config.SystemProperties;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.DbSource;
 import org.ethereum.datasource.Source;
 import org.ethereum.db.ByteArrayWrapper;
@@ -44,7 +45,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.ethereum.util.ByteUtil.wrap;
 
@@ -229,7 +229,7 @@ public class ContractDetailsImpl extends AbstractContractDetails {
 
         final Source<byte[], byte[]> cache = this.storageTrie.getCache();
 
-        final SecureTrie snapStorage = wrap(hash).equals(wrap(EMPTY_TRIE_HASH)) ?
+        final SecureTrie snapStorage = wrap(hash).equals(wrap(HashUtil.INSTANCE.getEMPTY_TRIE_HASH())) ?
             new SecureTrie(cache, "".getBytes()):
             new SecureTrie(cache, hash);
 

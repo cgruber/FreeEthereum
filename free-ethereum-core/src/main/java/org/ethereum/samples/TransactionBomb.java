@@ -29,6 +29,7 @@ package org.ethereum.samples;
 import org.ethereum.core.Block;
 import org.ethereum.core.Transaction;
 import org.ethereum.core.TransactionReceipt;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.facade.Ethereum;
 import org.ethereum.facade.EthereumFactory;
 import org.ethereum.listener.EthereumListenerAdapter;
@@ -37,7 +38,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.util.Collections;
 import java.util.List;
 
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.longToBytesNoLeadZeroes;
 
 public class TransactionBomb extends EthereumListenerAdapter {
@@ -98,7 +98,7 @@ public class TransactionBomb extends EthereumListenerAdapter {
                 null,
                 ethereum.getChainIdForNextBlock());
 
-        final byte[] privKey = sha3("cow".getBytes());
+        final byte[] privKey = HashUtil.INSTANCE.sha3("cow".getBytes());
         tx.sign(privKey);
 
         ethereum.getChannelManager().sendTransaction(Collections.singletonList(tx), null);

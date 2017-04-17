@@ -26,12 +26,12 @@
 
 package org.ethereum.datasource;
 
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.vm.DataWord;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.longToBytes;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertNull;
 public class SourceCodecTest {
 
     private byte[] intToKey(final int i) {
-        return sha3(longToBytes(i));
+        return HashUtil.INSTANCE.sha3(longToBytes(i));
     }
 
     private byte[] intToValue(final int i) {

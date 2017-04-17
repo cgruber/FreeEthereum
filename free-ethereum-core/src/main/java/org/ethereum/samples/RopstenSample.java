@@ -47,7 +47,7 @@ public class RopstenSample extends BasicSample {
     /**
      * Use that sender key to sign transactions
      */
-    private final byte[] senderPrivateKey = HashUtil.sha3("cow".getBytes());
+    private final byte[] senderPrivateKey = HashUtil.INSTANCE.sha3("cow".getBytes());
     // sender address is derived from the private key aacc23ff079d96a5502b31fefcda87a6b3fbdcfb
     protected final byte[] senderAddress = ECKey.fromPrivate(senderPrivateKey).getAddress();
 

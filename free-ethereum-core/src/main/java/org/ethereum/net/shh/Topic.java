@@ -26,12 +26,13 @@
 
 package org.ethereum.net.shh;
 
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.RLP;
 import org.spongycastle.util.encoders.Hex;
 
 import java.util.Arrays;
 
-import static org.ethereum.crypto.HashUtil.sha3;
+
 
 /**
  * @author by Konstantin Shabalin
@@ -47,7 +48,7 @@ public class Topic {
 
     public Topic(final String data) {
         originalTopic = data;
-        fullTopic = sha3(RLP.encode(originalTopic));
+        fullTopic = HashUtil.INSTANCE.sha3(RLP.encode(originalTopic));
         this.abrigedTopic = buildAbrigedTopic(fullTopic);
     }
 
@@ -65,7 +66,7 @@ public class Topic {
     }
 
     private byte[] buildAbrigedTopic(final byte[] data) {
-        final byte[] hash = sha3(data);
+        final byte[] hash = HashUtil.INSTANCE.sha3(data);
         final byte[] topic = new byte[4];
         System.arraycopy(hash, 0, topic, 0, 4);
         return topic;

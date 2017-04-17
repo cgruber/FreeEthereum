@@ -89,7 +89,7 @@ public class TransactionTest {
 
         // step 1: serialize + RLP encode
         // step 2: hash = keccak(step1)
-        final byte[] txHash = HashUtil.sha3(data);
+        final byte[] txHash = HashUtil.INSTANCE.sha3(data);
 
         final String signature = key.doSign(txHash).toBase64();
         System.out.println(signature);
@@ -104,10 +104,10 @@ public class TransactionTest {
 
         final BigInteger value = new BigInteger("1000000000000000000000");
 
-        final byte[] privKey = HashUtil.sha3("cat".getBytes());
+        final byte[] privKey = HashUtil.INSTANCE.sha3("cat".getBytes());
         final ECKey ecKey = ECKey.fromPrivate(privKey);
 
-        final byte[] senderPrivKey = HashUtil.sha3("cow".getBytes());
+        final byte[] senderPrivKey = HashUtil.INSTANCE.sha3("cow".getBytes());
 
         final byte[] gasPrice = Hex.decode("09184e72a000");
         final byte[] gas = Hex.decode("4255");
@@ -147,8 +147,8 @@ public class TransactionTest {
         // cat --> 79b08ad8787060333663d19704909ee7b1903e58
         // cow --> cd2a3d9f938e13cd947ec05abc7fe734df8dd826
 
-        final ECKey ecKey = ECKey.fromPrivate(HashUtil.sha3("cat".getBytes()));
-        final byte[] senderPrivKey = HashUtil.sha3("cow".getBytes());
+        final ECKey ecKey = ECKey.fromPrivate(HashUtil.INSTANCE.sha3("cat".getBytes()));
+        final byte[] senderPrivKey = HashUtil.INSTANCE.sha3("cow".getBytes());
 
         final byte[] nonce = {0x01};
         final byte[] gasPrice = Hex.decode("09184e72a000");
@@ -280,7 +280,7 @@ public class TransactionTest {
 //        String rlp =
 // "f89f808609184e72a0008203e8808203e8b84b4560005444602054600f60056002600a02010b0d630000001d596002602054630000003b5860066000530860056006600202010a0d6300000036596004604054630000003b5860056060541ca0ddc901d83110ea50bc40803f42083afea1bbd420548f6392a679af8e24b21345a06620b3b512bea5f0a272703e8d6933177c23afc79516fd0ca4a204aa6e34c7e9";
 
-        final byte[] senderPrivKey = HashUtil.sha3("cow".getBytes());
+        final byte[] senderPrivKey = HashUtil.INSTANCE.sha3("cow".getBytes());
 
         final byte[] nonce = BigIntegers.asUnsignedByteArray(BigInteger.ZERO);
         final byte[] gasPrice = Hex.decode("09184e72a000");       // 10000000000000

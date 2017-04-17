@@ -26,9 +26,9 @@
 
 package org.ethereum.trie;
 
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.Source;
 
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 
 public class SecureTrie extends TrieImpl {
@@ -47,12 +47,12 @@ public class SecureTrie extends TrieImpl {
 
     @Override
     public byte[] get(final byte[] key) {
-        return super.get(sha3(key));
+        return super.get(HashUtil.INSTANCE.sha3(key));
     }
 
     @Override
     public void put(final byte[] key, final byte[] value) {
-        super.put(sha3(key), value);
+        super.put(HashUtil.INSTANCE.sha3(key), value);
     }
 
     @Override

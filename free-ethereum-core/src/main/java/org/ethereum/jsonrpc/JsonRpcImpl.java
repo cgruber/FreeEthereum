@@ -65,7 +65,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.Math.max;
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.jsonrpc.TypeConverter.*;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.ethereum.util.ByteUtil.bigIntegerToBytes;
@@ -219,7 +218,7 @@ public class JsonRpcImpl implements JsonRpc {
     }
 
     private Account addAccount(final String seed) {
-        return addAccount(ECKey.fromPrivate(sha3(seed.getBytes())));
+        return addAccount(ECKey.fromPrivate(HashUtil.INSTANCE.sha3(seed.getBytes())));
     }
 
     private Account addAccount(final ECKey key) {
@@ -240,7 +239,7 @@ public class JsonRpcImpl implements JsonRpc {
     public String web3_sha3(final String data) throws Exception {
         String s = null;
         try {
-            final byte[] result = HashUtil.sha3(TypeConverter.StringHexToByteArray(data));
+            final byte[] result = HashUtil.INSTANCE.sha3(TypeConverter.StringHexToByteArray(data));
             return s = TypeConverter.toJsonHex(result);
         } finally {
             if (logger.isDebugEnabled()) logger.debug("web3_sha3(" + data + "): " + s);
@@ -476,7 +475,7 @@ public class JsonRpcImpl implements JsonRpc {
                 throw new Exception("Inexistent account");
 
             // Todo: is not clear from the spec what hash function must be used to sign
-            final byte[] masgHash = HashUtil.sha3(TypeConverter.StringHexToByteArray(data));
+            final byte[] masgHash = HashUtil.INSTANCE.sha3(TypeConverter.StringHexToByteArray(data));
             final ECKey.ECDSASignature signature = account.getEcKey().sign(masgHash);
             // Todo: is not clear if result should be RlpEncoded or serialized by other means
             final byte[] rlpSig = RLP.encode(signature);

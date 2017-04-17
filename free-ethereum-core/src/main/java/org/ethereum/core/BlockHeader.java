@@ -39,7 +39,6 @@ import org.spongycastle.util.encoders.Hex;
 import java.math.BigInteger;
 import java.util.List;
 
-import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
 import static org.ethereum.util.ByteUtil.toHexString;
 
 /**
@@ -116,11 +115,11 @@ public class BlockHeader {
 
         this.txTrieRoot = rlpHeader.get(4).getRLPData();
         if (this.txTrieRoot == null)
-            this.txTrieRoot = EMPTY_TRIE_HASH;
+            this.txTrieRoot = HashUtil.INSTANCE.getEMPTY_TRIE_HASH();
 
         this.receiptTrieRoot = rlpHeader.get(5).getRLPData();
         if (this.receiptTrieRoot == null)
-            this.receiptTrieRoot = EMPTY_TRIE_HASH;
+            this.receiptTrieRoot = HashUtil.INSTANCE.getEMPTY_TRIE_HASH();
 
         this.logsBloom = rlpHeader.get(6).getRLPData();
         this.difficulty = rlpHeader.get(7).getRLPData();
@@ -157,7 +156,7 @@ public class BlockHeader {
         this.extraData = extraData;
         this.mixHash = mixHash;
         this.nonce = nonce;
-        this.stateRoot = HashUtil.EMPTY_TRIE_HASH;
+        this.stateRoot = HashUtil.INSTANCE.getEMPTY_TRIE_HASH();
     }
 
     public boolean isGenesis() {
@@ -301,7 +300,7 @@ public class BlockHeader {
 
     public byte[] getHash() {
         if (hashCache == null) {
-            hashCache = HashUtil.sha3(getEncoded());
+            hashCache = HashUtil.INSTANCE.sha3(getEncoded());
         }
         return hashCache;
     }
@@ -322,10 +321,10 @@ public class BlockHeader {
 
         final byte[] stateRoot = RLP.encodeElement(this.stateRoot);
 
-        if (txTrieRoot == null) this.txTrieRoot = EMPTY_TRIE_HASH;
+        if (txTrieRoot == null) this.txTrieRoot = HashUtil.INSTANCE.getEMPTY_TRIE_HASH();
         final byte[] txTrieRoot = RLP.encodeElement(this.txTrieRoot);
 
-        if (receiptTrieRoot == null) this.receiptTrieRoot = EMPTY_TRIE_HASH;
+        if (receiptTrieRoot == null) this.receiptTrieRoot = HashUtil.INSTANCE.getEMPTY_TRIE_HASH();
         final byte[] receiptTrieRoot = RLP.encodeElement(this.receiptTrieRoot);
 
         final byte[] logsBloom = RLP.encodeElement(this.logsBloom);
@@ -368,13 +367,13 @@ public class BlockHeader {
 
         // nonce bytes are expected in Little Endian order, reverting
         final byte[] nonceReverted = Arrays.reverse(nonce);
-        final byte[] hashWithoutNonce = HashUtil.sha3(getEncodedWithoutNonce());
+        final byte[] hashWithoutNonce = HashUtil.INSTANCE.sha3(getEncodedWithoutNonce());
 
         final byte[] seed = Arrays.concatenate(hashWithoutNonce, nonceReverted);
-        final byte[] seedHash = HashUtil.sha512(seed);
+        final byte[] seedHash = HashUtil.INSTANCE.sha512(seed);
 
         final byte[] concat = Arrays.concatenate(seedHash, mixHash);
-        return HashUtil.sha3(concat);
+        return HashUtil.INSTANCE.sha3(concat);
     }
 
     public BigInteger calcDifficulty(final BlockchainNetConfig config, final BlockHeader parent) {

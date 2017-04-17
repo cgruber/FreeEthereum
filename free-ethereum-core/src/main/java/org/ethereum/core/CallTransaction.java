@@ -30,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.solidity.SolidityType;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.util.FastByteComparisons;
@@ -44,7 +45,6 @@ import java.util.List;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.ArrayUtils.subarray;
 import static org.apache.commons.lang3.StringUtils.stripEnd;
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.solidity.SolidityType.IntType;
 import static org.ethereum.util.ByteUtil.longToBytesNoLeadZeroes;
 
@@ -213,7 +213,7 @@ public class CallTransaction {
 
         public byte[] encodeSignatureLong() {
             final String signature = formatSignature();
-            final byte[] sha3Fingerprint = sha3(signature.getBytes());
+            final byte[] sha3Fingerprint = HashUtil.INSTANCE.sha3(signature.getBytes());
             return sha3Fingerprint;
         }
 

@@ -26,13 +26,13 @@
 
 package org.ethereum.datasource;
 
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.inmem.HashMapDB;
 import org.ethereum.vm.DataWord;
 import org.junit.Before;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.longToBytes;
 import static org.junit.Assert.*;
 
@@ -44,7 +44,7 @@ public class CountingBytesSourceTest {
     private Source<byte[], byte[]> src;
 
     private byte[] intToKey(final int i) {
-        return sha3(longToBytes(i));
+        return HashUtil.INSTANCE.sha3(longToBytes(i));
     }
 
     private byte[] intToValue(final int i) {

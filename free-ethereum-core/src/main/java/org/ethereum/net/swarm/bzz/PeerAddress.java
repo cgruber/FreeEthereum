@@ -26,6 +26,7 @@
 
 package org.ethereum.net.swarm.bzz;
 
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.net.rlpx.Node;
 import org.ethereum.net.swarm.Key;
 import org.ethereum.net.swarm.Util;
@@ -38,7 +39,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import static org.ethereum.crypto.HashUtil.sha3;
+
 
 /**
  * Class similar for {@link Node} used in the swarm
@@ -92,7 +93,7 @@ public class PeerAddress {
      */
     public Key getAddrKey() {
         if (addrKeyCached == null) {
-            addrKeyCached = new Key(sha3(id));
+            addrKeyCached = new Key(HashUtil.INSTANCE.sha3(id));
         }
         return addrKeyCached;
     }

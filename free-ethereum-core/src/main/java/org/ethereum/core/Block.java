@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static org.ethereum.crypto.HashUtil.sha3;
+
 
 /**
  * The block in Ethereum is the collection of relevant pieces of information
@@ -420,7 +420,7 @@ public class Block {
 
     public void addUncle(final BlockHeader uncle) {
         uncleList.add(uncle);
-        this.getHeader().setUnclesHash(sha3(getUnclesEncoded()));
+        this.getHeader().setUnclesHash(HashUtil.INSTANCE.sha3(getUnclesEncoded()));
         rlpEncoded = null;
     }
 
@@ -505,7 +505,7 @@ public class Block {
                 return null;
             }
 
-            final byte[] unclesHash = HashUtil.sha3(uncles.getRLPData());
+            final byte[] unclesHash = HashUtil.INSTANCE.sha3(uncles.getRLPData());
             if (!java.util.Arrays.equals(header.getUnclesHash(), unclesHash)) {
                 return null;
             }

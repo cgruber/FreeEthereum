@@ -63,7 +63,6 @@ import static java.math.BigInteger.ZERO;
 import static java.util.Collections.emptyList;
 import static org.ethereum.core.Denomination.SZABO;
 import static org.ethereum.core.ImportResult.*;
-import static org.ethereum.crypto.HashUtil.sha3;
 
 /**
  * The Ethereum blockchain is in many ways similar to the Bitcoin blockchain,
@@ -98,7 +97,7 @@ import static org.ethereum.crypto.HashUtil.sha3;
 public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchain {
 
 
-    public static final byte[] EMPTY_LIST_HASH = sha3(RLP.encodeList(new byte[0]));
+    public static final byte[] EMPTY_LIST_HASH = HashUtil.INSTANCE.sha3(RLP.encodeList(new byte[0]));
     private static final Logger logger = LoggerFactory.getLogger("blockchain");
     private static final Logger stateLogger = LoggerFactory.getLogger("state");
     // to avoid using minGasPrice=0 from Genesis for the wallet
@@ -183,7 +182,7 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
         final Trie txsState = new TrieImpl();
 
         if (transactions == null || transactions.isEmpty())
-            return HashUtil.EMPTY_TRIE_HASH;
+            return HashUtil.INSTANCE.getEMPTY_TRIE_HASH();
 
         for (int i = 0; i < transactions.size(); i++) {
             txsState.put(RLP.encodeInt(i), transactions.get(i).getEncoded());
@@ -195,7 +194,7 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
         final Trie receiptsTrie = new TrieImpl();
 
         if (receipts == null || receipts.isEmpty())
-            return HashUtil.EMPTY_TRIE_HASH;
+            return HashUtil.INSTANCE.getEMPTY_TRIE_HASH();
 
         for (int i = 0; i < receipts.size(); i++) {
             receiptsTrie.put(RLP.encodeInt(i), receipts.get(i).getReceiptTrieEncoded());
@@ -759,7 +758,7 @@ public class BlockchainImpl implements Blockchain, org.ethereum.facade.Blockchai
 
     public boolean validateUncles(final Block block) {
         final String unclesHash = Hex.toHexString(block.getHeader().getUnclesHash());
-        final String unclesListHash = Hex.toHexString(HashUtil.sha3(block.getHeader().getUnclesEncoded(block.getUncleList())));
+        final String unclesListHash = Hex.toHexString(HashUtil.INSTANCE.sha3(block.getHeader().getUnclesEncoded(block.getUncleList())));
 
         if (!unclesHash.equals(unclesListHash)) {
             logger.warn("Block's given Uncle Hash doesn't match: {} != {}", unclesHash, unclesListHash);

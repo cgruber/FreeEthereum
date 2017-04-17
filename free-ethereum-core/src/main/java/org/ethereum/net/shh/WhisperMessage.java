@@ -28,6 +28,7 @@ package org.ethereum.net.shh;
 
 import org.ethereum.crypto.ECIESCoder;
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.SignatureException;
 import java.util.*;
 
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.net.swarm.Util.rlpDecodeInt;
 import static org.ethereum.util.ByteUtil.merge;
 import static org.ethereum.util.ByteUtil.xor;
@@ -91,13 +91,13 @@ public class WhisperMessage extends ShhMessage {
         return payload;
     }
 
-    public WhisperMessage setPayload(final byte[] payload) {
-        this.payload = payload;
+    public WhisperMessage setPayload(final String payload) {
+        this.payload = payload.getBytes(StandardCharsets.UTF_8);
         return this;
     }
 
-    public WhisperMessage setPayload(final String payload) {
-        this.payload = payload.getBytes(StandardCharsets.UTF_8);
+    public WhisperMessage setPayload(final byte[] payload) {
+        this.payload = payload;
         return this;
     }
 
@@ -123,11 +123,6 @@ public class WhisperMessage extends ShhMessage {
         return from == null ? null : WhisperImpl.toIdentity(from);
     }
 
-    public WhisperMessage setFrom(final String from) {
-        this.from = WhisperImpl.fromIdentityToPub(from);
-        return this;
-    }
-
     /**
      * If set the message will be signed by the sender key
      *
@@ -135,6 +130,11 @@ public class WhisperMessage extends ShhMessage {
      */
     public WhisperMessage setFrom(final ECKey from) {
         this.from = from;
+        return this;
+    }
+
+    public WhisperMessage setFrom(final String from) {
+        this.from = WhisperImpl.fromIdentityToPub(from);
         return this;
     }
 
@@ -246,7 +246,7 @@ public class WhisperMessage extends ShhMessage {
                     final byte[] encryptedKey = Arrays.copyOfRange(payload, i * 2 * 32, i * 2 * 32 + 32);
                     final byte[] salt = Arrays.copyOfRange(payload, (i * 2 + 1) * 32, (i * 2 + 2) * 32);
                     final byte[] cipherText = Arrays.copyOfRange(payload, (topics.length * 2) * 32, payload.length);
-                    final byte[] gamma = sha3(xor(kTopic.getFullTopic(), salt));
+                    final byte[] gamma = HashUtil.INSTANCE.sha3(xor(kTopic.getFullTopic(), salt));
                     final ECKey key = ECKey.fromPrivate(xor(gamma, encryptedKey));
                     try {
                         payload = ECIESCoder.decryptSimple(key.getPrivKey(), cipherText);
@@ -299,14 +299,14 @@ public class WhisperMessage extends ShhMessage {
     }
 
     private byte[] hash() {
-        return sha3(payload);
+        return HashUtil.INSTANCE.sha3(payload);
     }
 
     private int workProved() {
         final byte[] d = new byte[64];
-        System.arraycopy(sha3(encode(false)), 0, d, 0, 32);
+        System.arraycopy(HashUtil.INSTANCE.sha3(encode(false)), 0, d, 0, 32);
         ByteBuffer.wrap(d).putInt(32, nonce);
-        return getFirstBitSet(sha3(d));
+        return getFirstBitSet(HashUtil.INSTANCE.sha3(d));
     }
 
     public WhisperMessage setWorkToProve(final long ms) {
@@ -353,14 +353,14 @@ public class WhisperMessage extends ShhMessage {
         int ret = 0;
         final byte[] d = new byte[64];
         final ByteBuffer byteBuffer = ByteBuffer.wrap(d);
-        System.arraycopy(sha3(encoded), 0, d, 0, 32);
+        System.arraycopy(HashUtil.INSTANCE.sha3(encoded), 0, d, 0, 32);
 
         final long then = System.currentTimeMillis() + pow;
         int nonce = 0;
         for (int bestBit = 0; System.currentTimeMillis() < then;) {
             for (int i = 0; i < 1024; ++i, ++nonce) {
                 byteBuffer.putInt(32, nonce);
-                final int fbs = getFirstBitSet(sha3(d));
+                final int fbs = getFirstBitSet(HashUtil.INSTANCE.sha3(d));
                 if (fbs > bestBit) {
                     ret = nonce;
                     bestBit = fbs;
@@ -402,7 +402,7 @@ public class WhisperMessage extends ShhMessage {
                 final byte[] salt = new byte[32];
                 for (int i = 0; i < topics.length; i++) {
                     rnd.nextBytes(salt);
-                    final byte[] gamma = sha3(xor(topics[i].getFullTopic(), salt));
+                    final byte[] gamma = HashUtil.INSTANCE.sha3(xor(topics[i].getFullTopic(), salt));
                     final byte[] encodedKey = xor(gamma, key.getPrivKeyBytes());
                     System.arraycopy(encodedKey, 0, topicKeys, i * 64, 32);
                     System.arraycopy(salt, 0, topicKeys, i * 64 + 32, 32);

@@ -28,6 +28,7 @@ package org.ethereum.db;
 
 import org.ethereum.core.Block;
 import org.ethereum.core.BlockHeader;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.DataSourceArray;
 import org.ethereum.datasource.ObjectDataSource;
 import org.ethereum.datasource.Serializer;
@@ -42,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.math.BigInteger.ZERO;
-import static org.ethereum.crypto.HashUtil.shortHash;
 import static org.spongycastle.util.Arrays.areEqual;
 
 public class IndexedBlockStore extends AbstractBlockstore{
@@ -454,9 +454,9 @@ public class IndexedBlockStore extends AbstractBlockstore{
                 System.out.print(i);
                 for (final BlockInfo blockInfo : levelInfos) {
                     if (blockInfo.isMainChain())
-                        System.out.print(" [" + shortHash(blockInfo.getHash()) + "] ");
+                        System.out.print(" [" + HashUtil.INSTANCE.shortHash(blockInfo.getHash()) + "] ");
                     else
-                        System.out.print(" " + shortHash(blockInfo.getHash()) + " ");
+                        System.out.print(" " + HashUtil.INSTANCE.shortHash(blockInfo.getHash()) + " ");
                 }
                 System.out.println();
             }

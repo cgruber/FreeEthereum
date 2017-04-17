@@ -106,7 +106,7 @@ class ReceiptsDownloader {
                 final BlockHeader header = headerStore.get((int) i);
 
                 // Skipping download for blocks with no transactions
-                if (FastByteComparisons.equal(header.getReceiptsRoot(), HashUtil.EMPTY_TRIE_HASH)) {
+                if (FastByteComparisons.equal(header.getReceiptsRoot(), HashUtil.INSTANCE.getEMPTY_TRIE_HASH())) {
                     finalizeBlock(header.getNumber());
                     continue;
                 }

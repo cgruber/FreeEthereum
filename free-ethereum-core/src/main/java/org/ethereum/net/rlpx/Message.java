@@ -27,13 +27,13 @@
 package org.ethereum.net.rlpx;
 
 import org.ethereum.crypto.ECKey;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.FastByteComparisons;
 import org.spongycastle.util.BigIntegers;
 import org.spongycastle.util.encoders.Hex;
 
 import java.security.SignatureException;
 
-import static org.ethereum.crypto.HashUtil.sha3;
 import static org.ethereum.util.ByteUtil.merge;
 
 public abstract class Message {
@@ -61,7 +61,7 @@ public abstract class Message {
         final byte[] data = new byte[wire.length - 98];
         System.arraycopy(wire, 98, data, 0, data.length);
 
-        final byte[] mdcCheck = sha3(wire, 32, wire.length - 32);
+        final byte[] mdcCheck = HashUtil.INSTANCE.sha3(wire, 32, wire.length - 32);
 
         final int check = FastByteComparisons.compareTo(mdc, 0, mdc.length, mdcCheck, 0, mdcCheck.length);
 
@@ -92,7 +92,7 @@ public abstract class Message {
         final byte[] payload = new byte[type.length + data.length];
         payload[0] = type[0];
         System.arraycopy(data, 0, payload, 1, data.length);
-        final byte[] forSig = sha3(payload);
+        final byte[] forSig = HashUtil.INSTANCE.sha3(payload);
 
         /* [2] Crate signature*/
         final ECKey.ECDSASignature signature = privKey.sign(forSig);
@@ -105,7 +105,7 @@ public abstract class Message {
 
         // [3] calculate MDC
         final byte[] forSha = merge(sigBytes, type, data);
-        final byte[] mdc = sha3(forSha);
+        final byte[] mdc = HashUtil.INSTANCE.sha3(forSha);
 
         // wrap all the data in to the packet
         this.mdc = mdc;
@@ -132,7 +132,7 @@ public abstract class Message {
         System.arraycopy(signature, 32, s, 0, 32);
 
         final ECKey.ECDSASignature signature = ECKey.ECDSASignature.fromComponents(r, s, v);
-        final byte[] msgHash = sha3(wire, 97, wire.length - 97);
+        final byte[] msgHash = HashUtil.INSTANCE.sha3(wire, 97, wire.length - 97);
 
         ECKey outKey = null;
         try {

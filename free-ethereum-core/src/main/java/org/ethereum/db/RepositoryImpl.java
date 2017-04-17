@@ -134,7 +134,7 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
 
     @Override
     public synchronized void saveCode(final byte[] addr, final byte[] code) {
-        final byte[] codeHash = HashUtil.sha3(code);
+        final byte[] codeHash = HashUtil.INSTANCE.sha3(code);
         codeCache.put(codeHash, code);
         final AccountState accountState = getOrCreateAccountState(addr);
         accountStateCache.put(addr, accountState.withCodeHash(codeHash));
@@ -143,14 +143,14 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
     @Override
     public synchronized byte[] getCode(final byte[] addr) {
         final byte[] codeHash = getCodeHash(addr);
-        return FastByteComparisons.equal(codeHash, HashUtil.EMPTY_DATA_HASH) ?
+        return FastByteComparisons.equal(codeHash, HashUtil.INSTANCE.getEMPTY_DATA_HASH()) ?
                 ByteUtil.EMPTY_BYTE_ARRAY : codeCache.get(codeHash);
     }
 
     @Override
     public byte[] getCodeHash(final byte[] addr) {
         final AccountState accountState = getAccountState(addr);
-        return accountState != null ? accountState.getCodeHash() : HashUtil.EMPTY_DATA_HASH;
+        return accountState != null ? accountState.getCodeHash() : HashUtil.INSTANCE.getEMPTY_DATA_HASH();
     }
 
     @Override

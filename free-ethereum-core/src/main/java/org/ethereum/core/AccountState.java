@@ -27,6 +27,7 @@
 package org.ethereum.core;
 
 import org.ethereum.config.SystemProperties;
+import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.FastByteComparisons;
 import org.ethereum.util.RLP;
 import org.ethereum.util.RLPList;
@@ -34,8 +35,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.math.BigInteger;
 
-import static org.ethereum.crypto.HashUtil.EMPTY_DATA_HASH;
-import static org.ethereum.crypto.HashUtil.EMPTY_TRIE_HASH;
 import static org.ethereum.util.FastByteComparisons.equal;
 
 public class AccountState {
@@ -71,14 +70,14 @@ public class AccountState {
     }
 
     public AccountState(final BigInteger nonce, final BigInteger balance) {
-        this(nonce, balance, EMPTY_TRIE_HASH, EMPTY_DATA_HASH);
+        this(nonce, balance, HashUtil.INSTANCE.getEMPTY_TRIE_HASH(), HashUtil.INSTANCE.getEMPTY_DATA_HASH());
     }
 
     private AccountState(final BigInteger nonce, final BigInteger balance, final byte[] stateRoot, final byte[] codeHash) {
         this.nonce = nonce;
         this.balance = balance;
-        this.stateRoot = stateRoot == EMPTY_TRIE_HASH || equal(stateRoot, EMPTY_TRIE_HASH) ? EMPTY_TRIE_HASH : stateRoot;
-        this.codeHash = codeHash == EMPTY_DATA_HASH || equal(codeHash, EMPTY_DATA_HASH) ? EMPTY_DATA_HASH : codeHash;
+        this.stateRoot = stateRoot == HashUtil.INSTANCE.getEMPTY_TRIE_HASH() || equal(stateRoot, HashUtil.INSTANCE.getEMPTY_TRIE_HASH()) ? HashUtil.INSTANCE.getEMPTY_TRIE_HASH() : stateRoot;
+        this.codeHash = codeHash == HashUtil.INSTANCE.getEMPTY_DATA_HASH() || equal(codeHash, HashUtil.INSTANCE.getEMPTY_DATA_HASH()) ? HashUtil.INSTANCE.getEMPTY_DATA_HASH() : codeHash;
     }
 
     public AccountState(final byte[] rlpData) {
@@ -141,7 +140,7 @@ public class AccountState {
     }
 
     public boolean isEmpty() {
-        return FastByteComparisons.equal(codeHash, EMPTY_DATA_HASH) &&
+        return FastByteComparisons.equal(codeHash, HashUtil.INSTANCE.getEMPTY_DATA_HASH()) &&
                 BigInteger.ZERO.equals(balance) &&
                 BigInteger.ZERO.equals(nonce);
     }

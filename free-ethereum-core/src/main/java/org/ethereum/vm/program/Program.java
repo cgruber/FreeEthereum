@@ -121,7 +121,7 @@ public class Program {
         this.invoke = programInvoke;
         this.transaction = transaction;
 
-        this.codeHash = codeHash == null || FastByteComparisons.equal(HashUtil.EMPTY_DATA_HASH, codeHash) ? null : codeHash;
+        this.codeHash = codeHash == null || FastByteComparisons.equal(HashUtil.INSTANCE.getEMPTY_DATA_HASH(), codeHash) ? null : codeHash;
         this.ops = nullToEmpty(ops);
 
         traceListener = new ProgramTraceListener(config.vmTrace());
@@ -375,16 +375,16 @@ public class Program {
         return pc;
     }
 
-    public void setPC(final DataWord pc) {
-        this.setPC(pc.intValue());
-    }
-
     public void setPC(final int pc) {
         this.pc = pc;
 
         if (this.pc >= ops.length) {
             stop();
         }
+    }
+
+    public void setPC(final DataWord pc) {
+        this.setPC(pc.intValue());
     }
 
     public boolean isStopped() {
@@ -549,7 +549,7 @@ public class Program {
 
         // [2] CREATE THE CONTRACT ADDRESS
         final byte[] nonce = getStorage().getNonce(senderAddress).toByteArray();
-        final byte[] newAddress = HashUtil.calcNewAddr(getOwnerAddress().getLast20Bytes(), nonce);
+        final byte[] newAddress = HashUtil.INSTANCE.calcNewAddr(getOwnerAddress().getLast20Bytes(), nonce);
 
         if (byTestingSuite()) {
             // This keeps track of the contracts created for a test
