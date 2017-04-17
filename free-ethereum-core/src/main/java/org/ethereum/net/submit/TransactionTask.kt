@@ -48,7 +48,7 @@ class TransactionTask(private val tx: List<Transaction>, private val channelMana
 
         try {
             logger.info("submit tx: {}", tx.toString())
-            channelManager.sendTransaction(tx, receivedFrom)
+            channelManager.sendTransaction(tx, receivedFrom!!)
             return tx
 
         } catch (th: Throwable) {
