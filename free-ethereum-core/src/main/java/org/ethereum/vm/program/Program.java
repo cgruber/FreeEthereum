@@ -272,7 +272,7 @@ public class Program {
                 programPrecompile = commonConfig.precompileSource().get(codeHash);
             }
             if (programPrecompile == null) {
-                programPrecompile = ProgramPrecompile.compile(ops);
+                programPrecompile = ProgramPrecompile.Companion.compile(ops);
 
                 if (codeHash != null && commonConfig.precompileSource() != null) {
                     commonConfig.precompileSource().put(codeHash, programPrecompile);
@@ -375,16 +375,16 @@ public class Program {
         return pc;
     }
 
+    public void setPC(final DataWord pc) {
+        this.setPC(pc.intValue());
+    }
+
     public void setPC(final int pc) {
         this.pc = pc;
 
         if (this.pc >= ops.length) {
             stop();
         }
-    }
-
-    public void setPC(final DataWord pc) {
-        this.setPC(pc.intValue());
     }
 
     public boolean isStopped() {

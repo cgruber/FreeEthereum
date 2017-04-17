@@ -229,7 +229,7 @@ public class CommonConfig {
             }
 
             public ProgramPrecompile deserialize(final byte[] stream) {
-                return stream == null ? null : ProgramPrecompile.deserialize(stream);
+                return stream == null ? null : ProgramPrecompile.Companion.deserialize(stream);
             }
         });
     }
