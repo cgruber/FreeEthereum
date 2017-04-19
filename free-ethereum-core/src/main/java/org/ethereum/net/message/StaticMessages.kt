@@ -42,7 +42,7 @@ import java.util.regex.Pattern
  * @since 13.04.14
  */
 @Component
-class StaticMessages {
+open class StaticMessages {
     @Autowired
     private val config: SystemProperties? = null
     @Autowired

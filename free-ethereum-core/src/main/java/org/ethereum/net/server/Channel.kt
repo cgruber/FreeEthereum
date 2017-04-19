@@ -72,7 +72,7 @@ import java.util.concurrent.TimeUnit
  */
 @Component
 @Scope("prototype")
-class Channel {
+open class Channel {
     val peerStats = PeerStatistics()
     @Autowired
     private var config: SystemProperties? = null

@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component
  * @since 20.08.2015
  */
 @Component
-class EthHandlerFactoryImpl : EthHandlerFactory {
+open class EthHandlerFactoryImpl : EthHandlerFactory {
 
     @Autowired
     private val ctx: ApplicationContext? = null

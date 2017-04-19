@@ -54,7 +54,7 @@ import java.util.concurrent.*
  * @since 11.11.2014
  */
 @Component
-class ChannelManager @Autowired
+open class ChannelManager @Autowired
 private constructor(config: SystemProperties, private val syncManager: SyncManager,
                     private val peerServer: PeerServer) {
     private val activePeers = ConcurrentHashMap<ByteArrayWrapper, Channel>()

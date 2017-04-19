@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 @Scope("prototype")
-class ShhHandler : SimpleChannelInboundHandler<ShhMessage> {
+open class ShhHandler : SimpleChannelInboundHandler<ShhMessage> {
     private var msgQueue: MessageQueue? = null
     private var isActive = false
 

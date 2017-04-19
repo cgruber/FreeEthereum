@@ -51,7 +51,7 @@ import org.springframework.stereotype.Component
  * @since 01.11.2014
  */
 @Component
-class PeerServer @Autowired
+open class PeerServer @Autowired
 constructor(private val config: SystemProperties, private val ctx: ApplicationContext,
             private val ethereumListener: EthereumListener) {
 

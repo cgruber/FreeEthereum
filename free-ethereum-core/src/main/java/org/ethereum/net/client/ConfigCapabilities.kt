@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component
 import java.util.*
 
 @Component
-class ConfigCapabilities @Autowired
+open class ConfigCapabilities @Autowired
 constructor(private val config: SystemProperties) {
 
     private val AllCaps = TreeSet<Capability>()

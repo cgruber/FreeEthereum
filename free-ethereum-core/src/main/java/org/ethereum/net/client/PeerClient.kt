@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * @see [http://netty.io](http://netty.io)
  */
 @Component
-class PeerClient {
+open class PeerClient {
     private val workerGroup: EventLoopGroup
     @Autowired
     private val config: SystemProperties? = null
