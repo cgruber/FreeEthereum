@@ -38,12 +38,8 @@ import org.spongycastle.crypto.params.MGFParameters
  * conform to Crypto++ capabilities
  */
 internal class MGF1BytesGeneratorExt(val digest: Digest, private val counterStart: Int) : DerivationFunction {
-    private val hLen: Int
+    private val hLen: Int = digest.digestSize
     private var seed: ByteArray? = null
-
-    init {
-        this.hLen = digest.digestSize
-    }
 
     override fun init(param: DerivationParameters) {
         if (param !is MGFParameters) {

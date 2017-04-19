@@ -67,10 +67,9 @@ object RepositoryValidator {
         }
 
         val expectedButAbsent = difference(expectedKeys, currentKeys)
-        for (address in expectedButAbsent) {
-            val formattedString = String.format("Account: %s: expected but doesn't exist",
-                    Hex.toHexString(address))
-            results.add(formattedString)
+        expectedButAbsent.mapTo(results) {
+            String.format("Account: %s: expected but doesn't exist",
+                    Hex.toHexString(it))
         }
 
         // Compare roots

@@ -33,11 +33,7 @@ import java.util.*
 
 open class DiscoverTask(private val nodeManager: NodeManager) : Runnable {
 
-    private val nodeId: ByteArray
-
-    init {
-        nodeId = nodeManager.homeNode.id
-    }
+    private val nodeId: ByteArray = nodeManager.homeNode.id
 
     override fun run() {
         discover(nodeId, 0, ArrayList<Node>())

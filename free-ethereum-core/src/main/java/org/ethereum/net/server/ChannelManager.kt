@@ -36,20 +36,17 @@ import org.ethereum.core.Transaction
 import org.ethereum.db.ByteArrayWrapper
 import org.ethereum.facade.Ethereum
 import org.ethereum.net.message.ReasonCode
+import org.ethereum.net.message.ReasonCode.DUPLICATE_PEER
+import org.ethereum.net.message.ReasonCode.TOO_MANY_PEERS
 import org.ethereum.net.rlpx.Node
 import org.ethereum.sync.SyncManager
 import org.ethereum.sync.SyncPool
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-
 import java.net.InetAddress
 import java.util.*
 import java.util.concurrent.*
-
-import org.ethereum.net.message.ReasonCode.DUPLICATE_PEER
-import org.ethereum.net.message.ReasonCode.TOO_MANY_PEERS
 
 /**
  * @author Roman Mandeleil
@@ -129,13 +126,11 @@ private constructor(config: SystemProperties, private val syncManager: SyncManag
     }
 
     private fun nodesInUse(): Set<String> {
-        val ids = HashSet<String>()
-        for (peer in getActivePeers()) {
-            ids.add(peer.peerId)
-        }
-        for (peer in newPeers) {
-            ids.add(peer.peerId)
-        }
+        val ids = getActivePeers()
+                .asSequence()
+                .map { it.peerId }
+                .toMutableSet()
+        newPeers.mapTo(ids) { it.peerId }
         return ids
     }
 
@@ -217,11 +212,10 @@ private constructor(config: SystemProperties, private val syncManager: SyncManag
      * *                     the transactions were originated by this peer
      */
     fun sendTransaction(tx: List<Transaction>, receivedFrom: Channel) {
-        for (channel in activePeers.values) {
-            if (channel !== receivedFrom) {
-                channel.sendTransaction(tx)
-            }
-        }
+        activePeers.values
+                .asSequence()
+                .filter { it !== receivedFrom }
+                .forEach { it.sendTransaction(tx) }
     }
 
     /**
@@ -302,14 +296,16 @@ private constructor(config: SystemProperties, private val syncManager: SyncManag
      * @param receivedFrom the peer which sent original message
      */
     private fun sendNewBlock(block: Block, receivedFrom: Channel) {
-        for (channel in activePeers.values) {
-            if (channel === receivedFrom) continue
-            if (rnd.nextInt(10) < 3) {  // 30%
-                channel.sendNewBlock(block)
-            } else {                    // 70%
-                channel.sendNewBlockHashes(block)
-            }
-        }
+        activePeers.values
+                .asSequence()
+                .filter { it !== receivedFrom }
+                .forEach {
+                    if (rnd.nextInt(10) < 3) {  // 30%
+                        it.sendNewBlock(block)
+                    } else {                    // 70%
+                        it.sendNewBlockHashes(block)
+                    }
+                }
     }
 
     fun add(peer: Channel) {

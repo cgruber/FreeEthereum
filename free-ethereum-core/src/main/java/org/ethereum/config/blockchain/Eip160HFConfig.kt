@@ -40,7 +40,7 @@ import org.ethereum.vm.GasCost
  * EIP 161 - State trie clearing (invariant-preserving alternative)
  */
 open class Eip160HFConfig(parent: BlockchainConfig) : Eip150HFConfig(parent) {
-    override val constants: Constants
+    final override val constants: Constants
 
     init {
         constants = object : ConstantsAdapter(parent.constants) {

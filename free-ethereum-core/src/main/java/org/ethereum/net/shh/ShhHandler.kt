@@ -30,7 +30,6 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 import org.ethereum.listener.EthereumListener
 import org.ethereum.net.MessageQueue
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Scope
@@ -53,7 +52,7 @@ class ShhHandler : SimpleChannelInboundHandler<ShhMessage> {
     @Autowired
     private val whisper: WhisperImpl? = null
 
-    constructor() {}
+    constructor()
 
     constructor(msgQueue: MessageQueue) {
         this.msgQueue = msgQueue

@@ -53,31 +53,28 @@ class ReceiptsMessage : EthMessage {
         val paramsList = RLP.decode2(encoded)[0] as RLPList
 
         this.receipts = ArrayList<List<TransactionReceipt>>()
-        for (aParamsList in paramsList) {
-            val blockRLP = aParamsList as RLPList
-
-            val blockReceipts = blockRLP
-                    .asSequence()
-                    .map { it as RLPList }
-                    .filter { it.size == 4 }
-                    .map(::TransactionReceipt)
-                    .toList()
-            this.receipts!!.add(blockReceipts)
-        }
+        paramsList
+                .asSequence()
+                .map { it as RLPList }
+                .map { blockRLP ->
+                    blockRLP
+                            .asSequence()
+                            .map { it as RLPList }
+                            .filter { it.size == 4 }
+                            .map(::TransactionReceipt)
+                            .toList()
+                }
+                .forEach { this.receipts!!.add(it) }
         this.parsed = true
     }
 
     private fun encode() {
-        val blocks = ArrayList<ByteArray>()
-
-        for (blockReceipts in receipts!!) {
-
-            val encodedBlockReceipts = blockReceipts.map { it.getEncoded(true) }
-            val encodedElementArray = encodedBlockReceipts.toTypedArray()
-            val blockReceiptsEncoded = RLP.encodeList(*encodedElementArray)
-
-            blocks.add(blockReceiptsEncoded)
-        }
+        val blocks = receipts!!
+                .asSequence()
+                .map { blockReceipts -> blockReceipts.map { it.getEncoded(true) } }
+                .map { it.toTypedArray() }
+                .map { RLP.encodeList(*it) }
+                .toList()
 
         val encodedElementArray = blocks.toTypedArray()
         this.encoded = RLP.encodeList(*encodedElementArray)

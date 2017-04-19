@@ -35,11 +35,7 @@ import org.ethereum.core.BlockHeader
  */
 class BlockHashRule(config: SystemProperties) : BlockHeaderRule() {
 
-    private val blockchainConfig: BlockchainNetConfig
-
-    init {
-        blockchainConfig = config.blockchainConfig
-    }
+    private val blockchainConfig: BlockchainNetConfig = config.blockchainConfig
 
     public override fun validate(header: BlockHeader): BlockHeaderRule.ValidationResult {
         val validators = blockchainConfig.getConfigForBlock(header.number).headerValidators()

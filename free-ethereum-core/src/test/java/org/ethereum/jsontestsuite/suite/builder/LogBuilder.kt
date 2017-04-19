@@ -30,7 +30,6 @@ import org.ethereum.jsontestsuite.suite.Utils.parseData
 import org.ethereum.jsontestsuite.suite.model.LogTck
 import org.ethereum.vm.DataWord
 import org.ethereum.vm.LogInfo
-import java.util.*
 
 object LogBuilder {
 
@@ -39,19 +38,14 @@ object LogBuilder {
         val address = parseData(logTck.address)
         val data = parseData(logTck.data)
 
-        val topics = ArrayList<DataWord>()
-        for (topicTck in logTck.topics!!)
-            topics.add(DataWord(parseData(topicTck)))
+        val topics = logTck.topics!!.map { DataWord(parseData(it)) }
 
         return LogInfo(address, topics, data)
     }
 
     fun build(logs: List<LogTck>): List<LogInfo> {
 
-        val outLogs = ArrayList<LogInfo>()
-
-        for (log in logs)
-            outLogs.add(build(log))
+        val outLogs = logs.map { build(it) }
 
         return outLogs
     }

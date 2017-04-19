@@ -233,7 +233,7 @@ internal class EthereumIESEngine
         if (P2 != null) {
             mac.update(P2, 0, P2.size)
         }
-        if (V!!.size != 0 && P2 != null) {
+        if (V!!.isNotEmpty() && P2 != null) {
             val L2 = ByteArray(4)
             Pack.intToBigEndian(P2.size * 8, L2, 0)
             mac.update(L2, 0, L2.size)
@@ -344,7 +344,7 @@ internal class EthereumIESEngine
             mac.update(P2, 0, P2.size)
         }
 
-        if (V!!.size != 0 && P2 != null) {
+        if (V!!.isNotEmpty() && P2 != null) {
             val L2 = ByteArray(4)
             Pack.intToBigEndian(P2.size * 8, L2, 0)
             mac.update(L2, 0, L2.size)

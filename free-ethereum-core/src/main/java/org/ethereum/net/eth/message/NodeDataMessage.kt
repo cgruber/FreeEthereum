@@ -62,11 +62,14 @@ class NodeDataMessage : EthMessage {
     }
 
     private fun encode() {
-        val dataListRLP = ArrayList<ByteArray>()
-        for (value in dataList!!) {
-            if (value == null) continue // Bad sign
-            dataListRLP.add(RLP.encodeElement(value.data))
-        }
+        val dataListRLP = dataList!!
+                .asSequence()
+                .filterNotNull()
+                .map {
+                    // Bad sign
+                    RLP.encodeElement(it.data)
+                }
+                .toList()
         val encodedElementArray = dataListRLP.toTypedArray()
         this.encoded = RLP.encodeList(*encodedElementArray)
     }

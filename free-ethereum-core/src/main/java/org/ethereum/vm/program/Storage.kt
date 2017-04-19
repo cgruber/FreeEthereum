@@ -40,13 +40,9 @@ import java.util.*
 
 class Storage(programInvoke: ProgramInvoke) : Repository, ProgramListenerAware {
 
-    private val repository: Repository
+    private val repository: Repository = programInvoke.repository
     private val address: DataWord = programInvoke.ownerAddress
     private var programListener: ProgramListener? = null
-
-    init {
-        this.repository = programInvoke.repository
-    }
 
     override fun setProgramListener(listener: ProgramListener) {
         this.programListener = listener
