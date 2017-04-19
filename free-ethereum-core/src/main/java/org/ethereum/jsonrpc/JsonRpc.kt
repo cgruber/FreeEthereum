@@ -420,7 +420,7 @@ interface JsonRpc {
     class LogFilterElement(logInfo: LogInfo, b: Block?, txIndex: Int, tx: Transaction, logIdx: Int) {
         val logIndex: String = toJsonHex(logIdx.toLong())
         val blockNumber: String? = if (b == null) null else toJsonHex(b.number)
-        val blockHash: String?
+        val blockHash: String? = if (b == null) null else toJsonHex(b.hash)
         val transactionHash: String
         val transactionIndex: String?
         val address: String
@@ -428,7 +428,6 @@ interface JsonRpc {
         val topics: Array<String?>
 
         init {
-            blockHash = if (b == null) null else toJsonHex(b.hash)
             transactionIndex = if (b == null) null else toJsonHex(txIndex.toLong())
             transactionHash = toJsonHex(tx.hash)
             address = toJsonHex(tx.receiveAddress)

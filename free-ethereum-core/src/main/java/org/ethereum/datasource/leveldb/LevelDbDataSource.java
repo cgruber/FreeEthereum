@@ -62,8 +62,7 @@ public class LevelDbDataSource implements DbSource<byte[]> {
     // This ReadWriteLock still permits concurrent execution of insert/delete/update operations
     // however blocks them on init/close/delete operations
     private final ReadWriteLock resetDbLock = new ReentrantReadWriteLock();
-    @Autowired
-    private
+    private 
     SystemProperties config = SystemProperties.getDefault(); // initialized for standalone test
     private String name;
     private DB db;
@@ -75,6 +74,11 @@ public class LevelDbDataSource implements DbSource<byte[]> {
     public LevelDbDataSource(final String name) {
         this.name = name;
         logger.debug("New LevelDbDataSource: " + name);
+    }
+
+    @Autowired
+    public LevelDbDataSource(SystemProperties config) {
+        this.config = config;
     }
 
     @Override

@@ -78,8 +78,7 @@ public class MessageCodec extends MessageToMessageCodec<Frame, Message> {
     private MessageFactory shhMessageFactory;
     private MessageFactory bzzMessageFactory;
     private EthVersion ethVersion;
-    @Autowired
-    private
+    private 
     EthereumListener ethereumListener;
     private boolean supportChunkedFrames = true;
 
@@ -87,9 +86,10 @@ public class MessageCodec extends MessageToMessageCodec<Frame, Message> {
     }
 
     @Autowired
-    private MessageCodec(final SystemProperties config) {
+    private MessageCodec(final SystemProperties config, EthereumListener ethereumListener) {
         final SystemProperties config1 = config;
         setMaxFramePayloadSize(config.rlpxMaxFrameSize());
+        this.ethereumListener = ethereumListener;
     }
 
     @Override

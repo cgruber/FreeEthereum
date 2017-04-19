@@ -49,19 +49,21 @@ import org.springframework.context.annotation.Import;
 public class DefaultConfig {
     private static final Logger logger = LoggerFactory.getLogger("general");
 
-    @Autowired
+    final
     ApplicationContext appCtx;
 
-    @Autowired
-    private
+    private final
     CommonConfig commonConfig;
 
-    @Autowired
-    private
+    private final
     SystemProperties config;
 
-    public DefaultConfig() {
+    @Autowired
+    public DefaultConfig(ApplicationContext appCtx, CommonConfig commonConfig, SystemProperties config) {
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> logger.error("Uncaught exception", e));
+        this.appCtx = appCtx;
+        this.commonConfig = commonConfig;
+        this.config = config;
     }
 
     @Bean

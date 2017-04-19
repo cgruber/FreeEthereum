@@ -48,15 +48,16 @@ public class EthereumChannelInitializer extends ChannelInitializer<NioSocketChan
 
     private static final Logger logger = LoggerFactory.getLogger("net");
     private final String remoteId;
-    @Autowired
-    private ApplicationContext ctx;
-    @Autowired
-    private
+    private final ApplicationContext ctx;
+    private final
     ChannelManager channelManager;
     private boolean peerDiscoveryMode = false;
 
-    public EthereumChannelInitializer(final String remoteId) {
+    @Autowired
+    public EthereumChannelInitializer(final String remoteId, ApplicationContext ctx, ChannelManager channelManager) {
         this.remoteId = remoteId;
+        this.ctx = ctx;
+        this.channelManager = channelManager;
     }
 
     @Override

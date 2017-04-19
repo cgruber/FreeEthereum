@@ -60,7 +60,6 @@ public class Eth63 extends Eth62 {
 
     private static final EthVersion version = V63;
 
-    @Autowired
     private StateSource stateSource;
 
     private List<byte[]> requestedReceipts;
@@ -74,8 +73,9 @@ public class Eth63 extends Eth62 {
 
     @Autowired
     public Eth63(final SystemProperties config, final Blockchain blockchain, final BlockStore blockStore,
-                 final CompositeEthereumListener ethereumListener) {
+                 final CompositeEthereumListener ethereumListener, StateSource stateSource) {
         super(version, config, blockchain, blockStore, ethereumListener);
+        this.stateSource = stateSource;
     }
 
     @Override

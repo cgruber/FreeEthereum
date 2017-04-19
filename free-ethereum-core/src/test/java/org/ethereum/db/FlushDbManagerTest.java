@@ -67,7 +67,7 @@ public class FlushDbManagerTest {
                         cache1.put(intToBytes(i_), intToBytes(i_));
                         try {
                             Thread.sleep(5);
-                        } catch (final InterruptedException e) {
+                        } catch (final InterruptedException ignored) {
                         }
                         cache2.put(intToBytes(i_), intToBytes(i_));
                     });

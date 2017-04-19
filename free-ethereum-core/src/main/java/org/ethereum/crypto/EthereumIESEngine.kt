@@ -186,7 +186,7 @@ internal class EthereumIESEngine
             C = ByteArray(inLen)
 
             for (i in 0..inLen - 1) {
-                C[i] = (`in`[inOff + i] xor K1[i]).toByte()
+                C[i] = (`in`[inOff + i] xor K1[i])
             }
             len = inLen
         } else {
@@ -292,7 +292,7 @@ internal class EthereumIESEngine
             M = ByteArray(K1.size)
 
             for (i in K1.indices) {
-                M[i] = (in_enc[inOff + V!!.size + i] xor K1[i]).toByte()
+                M[i] = (in_enc[inOff + V!!.size + i] xor K1[i])
             }
 
             len = K1.size
