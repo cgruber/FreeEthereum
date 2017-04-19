@@ -88,7 +88,7 @@ public class DataWord implements Comparable<DataWord> {
         else if (data.length <= 32)
             System.arraycopy(data, 0, this.data, 32 - data.length, data.length);
         else
-            throw new RuntimeException("Data word can't exceed 32 bytes: " + data);
+            throw new RuntimeException("Data word can't exceed 32 bytes: " + java.util.Arrays.toString(data));
     }
 
     public byte[] getData() {

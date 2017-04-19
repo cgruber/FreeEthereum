@@ -205,7 +205,7 @@ public class PriceFeedSample extends BasicSample {
         }
 
         public String nameOf(final byte[] addr) {
-            return (String) callFunction("nameOf", new String[]{"address"}, new String[]{"bytes32"}, addr)[0];
+            return (String) callFunction("nameOf", new String[]{"address"}, new String[]{"bytes32"}, (Object) addr)[0];
         }
     }
 

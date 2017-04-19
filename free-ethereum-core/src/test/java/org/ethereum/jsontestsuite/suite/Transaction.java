@@ -29,6 +29,7 @@ package org.ethereum.jsontestsuite.suite;
 import org.json.simple.JSONObject;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import static org.ethereum.util.ByteUtil.toHexString;
 
@@ -109,7 +110,7 @@ class Transaction {
     public String toString() {
         return "Transaction{" +
                 "data=" + toHexString(data) +
-                ", gasLimit=" + gasLimit +
+                ", gasLimit=" + Arrays.toString(gasLimit) +
                 ", gasPrice=" + gasPrice +
                 ", nonce=" + nonce +
                 ", secretKey=" + toHexString(secretKey) +

@@ -33,6 +33,7 @@ import org.ethereum.util.Utils;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 
@@ -140,9 +141,9 @@ public class AsyncWriteCacheTest {
         Thread.sleep(100);
         System.out.println("Get...");
         final byte[] bytes1 = stateSource.get(HashUtil.INSTANCE.sha3(intToBytes(1)));
-        System.out.println("Get!: " + bytes1);
+        System.out.println("Get!: " + Arrays.toString(bytes1));
         final byte[] bytes2 = stateSource.get(HashUtil.INSTANCE.sha3(intToBytes(2)));
-        System.out.println("Get!: " + bytes2);
+        System.out.println("Get!: " + Arrays.toString(bytes2));
 
 
 //        int cnt = 0;

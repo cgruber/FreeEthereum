@@ -58,7 +58,7 @@ public class RLPTest {
             final RLPList l1 = (RLPList) RLP.decode2(e).get(0);
 
             System.out.println(new String (l1.get(0).getRLPData()));
-            System.out.println(l1.get(1).getRLPData());
+            System.out.println(Arrays.toString(l1.get(1).getRLPData()));
 
             final byte[] rlpData = l1.get(1).getRLPData();
             final byte ourByte = rlpData == null ? 0 : rlpData[0];

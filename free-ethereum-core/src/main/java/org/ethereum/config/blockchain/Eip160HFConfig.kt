@@ -61,7 +61,7 @@ open class Eip160HFConfig(parent: BlockchainConfig) : Eip150HFConfig(parent) {
 
     override fun acceptTransactionSignature(tx: Transaction): Boolean {
         // Restoring old logic. Making this through inheritance stinks too much
-        if (!tx.signature.validateComponents() || tx.signature.s.compareTo(SECP256K1N_HALF) > 0)
+        if (!tx.signature.validateComponents() || tx.signature.s > SECP256K1N_HALF)
             return false
         return tx.chainId == null || chainId == tx.chainId
     }

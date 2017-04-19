@@ -61,7 +61,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("discover");
     private static final int NODES_TRIM_THRESHOLD = 3000;
     private static final long LISTENER_REFRESH_RATE = 1000;
-    private static final long DB_COMMIT_RATE = 1 * 60 * 1000;
+    private static final long DB_COMMIT_RATE = 60 * 1000;
     final ECKey key;
     final Node homeNode;
     final NodeTable table;
@@ -100,7 +100,7 @@ public class NodeManager implements Functional.Consumer<DiscoveryEvent>{
             public void run() {
                 logger.trace("Statistics:\n {}", dumpAllStatistics());
             }
-        }, 1 * 1000, 60 * 1000);
+        }, 1000, 60 * 1000);
 
         this.pongTimer = Executors.newSingleThreadScheduledExecutor();
         for (final Node node : config.peerActive()) {

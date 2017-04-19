@@ -369,7 +369,7 @@ public class BzzProtocolTest {
 
         private BzzMessage serialize(final BzzMessage msg) {
             try {
-                return msg.getClass().getConstructor(byte[].class).newInstance(msg.getEncoded());
+                return msg.getClass().getConstructor(byte[].class).newInstance((Object) msg.getEncoded());
             } catch (final Exception e) {
                 throw new RuntimeException(e);
             }

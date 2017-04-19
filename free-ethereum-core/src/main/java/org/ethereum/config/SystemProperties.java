@@ -433,7 +433,7 @@ public class SystemProperties {
                 if (configObject.toConfig().hasPath("nodeId")) {
                     nodeId = Hex.decode(configObject.toConfig().getString("nodeId").trim());
                     if (nodeId.length != 64) {
-                        throw new RuntimeException("Invalid config nodeId '" + nodeId + "' at " + configObject);
+                        throw new RuntimeException("Invalid config nodeId '" + Arrays.toString(nodeId) + "' at " + configObject);
                     }
                 } else {
                     if (configObject.toConfig().hasPath("nodeName")) {
