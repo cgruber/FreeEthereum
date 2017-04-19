@@ -418,7 +418,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public String eth_getBlockTransactionCountByNumber(final String bnOrId) throws Exception {
+    public String eth_getBlockTransactionCountByNumber(final String bnOrId) {
         String s = null;
         try {
             final List<Transaction> list = getTransactionsByJsonBlockId(bnOrId);
@@ -442,7 +442,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public String eth_getUncleCountByBlockNumber(final String bnOrId) throws Exception {
+    public String eth_getUncleCountByBlockNumber(final String bnOrId) {
         String s = null;
         try {
             final Block b = getByJsonBlockId(bnOrId);
@@ -680,7 +680,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public BlockResult eth_getBlockByNumber(final String bnOrId, final Boolean fullTransactionObjects) throws Exception {
+    public BlockResult eth_getBlockByNumber(final String bnOrId, final Boolean fullTransactionObjects) {
         BlockResult s = null;
         try {
             final Block b;

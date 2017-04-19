@@ -126,7 +126,7 @@ public abstract class AsyncWriteCache<Key, Value> extends AbstractCachedSource<K
         }
     }
 
-    public synchronized ListenableFuture<Boolean> flushAsync() throws InterruptedException {
+    public synchronized ListenableFuture<Boolean> flushAsync() {
         logger.debug("AsyncWriteCache (" + name + "): flush submitted");
         lastFlush = flushExecutor.submit(() -> {
             logger.debug("AsyncWriteCache (" + name + "): flush started");

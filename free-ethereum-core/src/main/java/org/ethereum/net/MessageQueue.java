@@ -127,7 +127,7 @@ public class MessageQueue {
         ctx.close();
     }
 
-    public void receivedMessage(final Message msg) throws InterruptedException {
+    public void receivedMessage(final Message msg) {
 
         ethereumListener.trace("[Recv: " + msg + "]");
 

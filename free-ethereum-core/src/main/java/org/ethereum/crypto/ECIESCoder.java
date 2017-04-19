@@ -114,7 +114,7 @@ public class ECIESCoder {
      *
      *  Used for Whisper V3
      */
-    public static byte[] decryptSimple(final BigInteger privKey, final byte[] cipher) throws IOException, InvalidCipherTextException {
+    public static byte[] decryptSimple(final BigInteger privKey, final byte[] cipher) throws InvalidCipherTextException {
         final EthereumIESEngine iesEngine = new EthereumIESEngine(
                 new ECDHBasicAgreement(),
                 new MGF1BytesGeneratorExt(new SHA1Digest(), 1),
@@ -185,7 +185,7 @@ public class ECIESCoder {
      *
      *  Used for Whisper V3
      */
-    public static byte[] encryptSimple(final ECPoint pub, final byte[] plaintext) throws IOException, InvalidCipherTextException {
+    public static byte[] encryptSimple(final ECPoint pub, final byte[] plaintext) throws InvalidCipherTextException {
         final EthereumIESEngine iesEngine = new EthereumIESEngine(
                 new ECDHBasicAgreement(),
                 new MGF1BytesGeneratorExt(new SHA1Digest(), 1),

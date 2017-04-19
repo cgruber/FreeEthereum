@@ -358,7 +358,7 @@ public class MultiThreadSourcesTest {
             this.cache = cache;
         }
 
-        public void start(final long time) throws InterruptedException, TimeoutException, ExecutionException {
+        public void start(final long time) throws InterruptedException, ExecutionException {
             final List<Callable<Object>> all = new ArrayList<>();
 
             for (int i = 0; i < writerThreads; i++) {

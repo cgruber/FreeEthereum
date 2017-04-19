@@ -37,7 +37,7 @@ class TypeConverter {
         return ByteUtil.bigIntegerToBytes(StringDecimalToBigInteger(input));
     }
 
-    public static BigInteger StringNumberAsBigInt(final String input) throws Exception {
+    public static BigInteger StringNumberAsBigInt(final String input) {
         if (input.startsWith("0x"))
             return TypeConverter.StringHexToBigInteger(input);
         else
@@ -53,7 +53,7 @@ class TypeConverter {
         return new BigInteger(input);
     }
 
-    public static byte[] StringHexToByteArray(String x) throws Exception {
+    public static byte[] StringHexToByteArray(String x) {
         if (x.startsWith("0x")) {
             x = x.substring(2);
         }
