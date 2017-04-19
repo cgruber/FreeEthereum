@@ -35,7 +35,7 @@ public class TransactionReceiptDTOExt extends TransactionReceiptDTO {
 
     public TransactionReceiptDTOExt(final Block block, final TransactionInfo txInfo) {
         super(block, txInfo);
-        String returnData = toJsonHex(txInfo.getReceipt().getExecutionResult());
-        String error = txInfo.getReceipt().getError();
+        final String returnData = toJsonHex(txInfo.getReceipt().getExecutionResult());
+        final String error = txInfo.getReceipt().getError();
     }
 }

@@ -135,7 +135,7 @@ public class JsonRpcImpl implements JsonRpc {
             }
 
             @Override
-            public void onPendingTransactionsReceived(@NotNull List<? extends Transaction> transactions) {
+            public void onPendingTransactionsReceived(@NotNull final List<? extends Transaction> transactions) {
                 for (final Filter filter : installedFilters.values()) {
                     for (final Transaction tx : transactions) {
                         filter.newPendingTx(tx);

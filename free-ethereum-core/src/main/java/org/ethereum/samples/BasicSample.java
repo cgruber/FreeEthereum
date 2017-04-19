@@ -136,7 +136,7 @@ public class BasicSample implements Runnable {
         }
 
         @Override
-        public void onPendingTransactionsReceived(@NotNull List<? extends Transaction> transactions) {
+        public void onPendingTransactionsReceived(@NotNull final List<? extends Transaction> transactions) {
         }
 
         @Override

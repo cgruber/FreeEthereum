@@ -217,7 +217,7 @@ public class StandaloneBlockchain implements LocalBlockchain {
         try {
             final Map<PendingTx, Transaction> txes = createTransactions(parent);
 
-            long timeIncrement = 13;
+            final long timeIncrement = 13;
             time += timeIncrement;
             final Block b = getBlockchain().createNewBlock(parent, new ArrayList<>(txes.values()), Collections.emptyList(), time);
 
@@ -455,7 +455,7 @@ public class StandaloneBlockchain implements LocalBlockchain {
 
         stateDS = new HashMapDB<>();
         pruningStateDS = new JournalSource<>(new CountingBytesSource(stateDS));
-        PruneManager pruneManager = new PruneManager(blockStore, pruningStateDS, SystemProperties.getDefault().databasePruneDepth());
+        final PruneManager pruneManager = new PruneManager(blockStore, pruningStateDS, SystemProperties.getDefault().databasePruneDepth());
 
         final RepositoryRoot repository = new RepositoryRoot(pruningStateDS);
 

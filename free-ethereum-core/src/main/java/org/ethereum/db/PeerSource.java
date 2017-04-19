@@ -76,7 +76,7 @@ public class PeerSource {
 
     public PeerSource(final Source<byte[], byte[]> src) {
         this.src = src;
-        PeerSource INST = this;
+        final PeerSource INST = this;
         this.nodes = new DataSourceArray<>(
                 new ObjectDataSource<>(src, NODE_SERIALIZER, 512));
     }

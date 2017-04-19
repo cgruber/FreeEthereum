@@ -253,7 +253,7 @@ public class CompositeEthereumListener implements EthereumListener {
     }
 
     @Override
-    public void onPendingTransactionsReceived(@NotNull List<? extends Transaction> transactions) {
+    public void onPendingTransactionsReceived(@NotNull final List<? extends Transaction> transactions) {
         for (final EthereumListener listener : listeners) {
             eventDispatchThread.invokeLater(new RunnableInfo(listener, "onPendingTransactionsReceived") {
                 @Override

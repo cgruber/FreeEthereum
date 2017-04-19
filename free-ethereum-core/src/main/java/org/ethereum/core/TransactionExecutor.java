@@ -208,7 +208,7 @@ public class TransactionExecutor {
         if (!readyToExecute) return;
 
         final byte[] targetAddress = tx.getReceiveAddress();
-        PrecompiledContracts.PrecompiledContract precompiledContract = PrecompiledContracts.getContractForAddress(new DataWord(targetAddress));
+        final PrecompiledContracts.PrecompiledContract precompiledContract = PrecompiledContracts.getContractForAddress(new DataWord(targetAddress));
 
         if (precompiledContract != null) {
             final long requiredGas = precompiledContract.getGasForData(tx.getData());

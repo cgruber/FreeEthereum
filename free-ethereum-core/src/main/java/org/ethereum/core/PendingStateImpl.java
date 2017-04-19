@@ -140,7 +140,7 @@ public class PendingStateImpl implements PendingState {
 
     @Override
 //    public synchronized List<Transaction> addPendingTransactions(final List<Transaction> transactions) {
-    public synchronized List<Transaction> addPendingTransactions(@NotNull List<? extends Transaction> transactions) {
+    public synchronized List<Transaction> addPendingTransactions(@NotNull final List<? extends Transaction> transactions) {
         int unknownTx = 0;
         final List<Transaction> newPending = new ArrayList<>();
         for (final Transaction tx : transactions) {
@@ -259,7 +259,7 @@ public class PendingStateImpl implements PendingState {
 
     @Override
 //    public synchronized void processBest(final Block newBlock, final List<TransactionReceipt> receipts) {
-    public synchronized void processBest(@NotNull Block newBlock, @NotNull List<? extends TransactionReceipt> receipts) {
+    public synchronized void processBest(@NotNull final Block newBlock, @NotNull final List<? extends TransactionReceipt> receipts) {
 
         if (getBestBlock() != null && !getBestBlock().isParentOf(newBlock)) {
             // need to switch the state to another fork

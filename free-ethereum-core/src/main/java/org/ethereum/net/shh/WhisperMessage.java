@@ -91,13 +91,13 @@ public class WhisperMessage extends ShhMessage {
         return payload;
     }
 
-    public WhisperMessage setPayload(final String payload) {
-        this.payload = payload.getBytes(StandardCharsets.UTF_8);
+    public WhisperMessage setPayload(final byte[] payload) {
+        this.payload = payload;
         return this;
     }
 
-    public WhisperMessage setPayload(final byte[] payload) {
-        this.payload = payload;
+    public WhisperMessage setPayload(final String payload) {
+        this.payload = payload.getBytes(StandardCharsets.UTF_8);
         return this;
     }
 
@@ -123,6 +123,11 @@ public class WhisperMessage extends ShhMessage {
         return from == null ? null : WhisperImpl.toIdentity(from);
     }
 
+    public WhisperMessage setFrom(final String from) {
+        this.from = WhisperImpl.fromIdentityToPub(from);
+        return this;
+    }
+
     /**
      * If set the message will be signed by the sender key
      *
@@ -130,11 +135,6 @@ public class WhisperMessage extends ShhMessage {
      */
     public WhisperMessage setFrom(final ECKey from) {
         this.from = from;
-        return this;
-    }
-
-    public WhisperMessage setFrom(final String from) {
-        this.from = WhisperImpl.fromIdentityToPub(from);
         return this;
     }
 
@@ -287,7 +287,7 @@ public class WhisperMessage extends ShhMessage {
 
         final byte[] msgHash = hash();
 
-        ECKey outKey;
+        final ECKey outKey;
         try {
             outKey = ECKey.signatureToKey(msgHash, signature);
         } catch (final SignatureException e) {

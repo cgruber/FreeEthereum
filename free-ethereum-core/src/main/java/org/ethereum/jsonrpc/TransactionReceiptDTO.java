@@ -43,16 +43,16 @@ public class TransactionReceiptDTO {
     public TransactionReceiptDTO(final Block block, final TransactionInfo txInfo) {
         final TransactionReceipt receipt = txInfo.getReceipt();
 
-        String transactionHash = toJsonHex(receipt.getTransaction().getHash());
-        int transactionIndex = txInfo.getIndex();
-        long cumulativeGasUsed = ByteUtil.byteArrayToLong(receipt.getCumulativeGas());
+        final String transactionHash = toJsonHex(receipt.getTransaction().getHash());
+        final int transactionIndex = txInfo.getIndex();
+        final long cumulativeGasUsed = ByteUtil.byteArrayToLong(receipt.getCumulativeGas());
         gasUsed = ByteUtil.byteArrayToLong(receipt.getGasUsed());
         if (receipt.getTransaction().getContractAddress() != null)
             contractAddress = toJsonHex(receipt.getTransaction().getContractAddress());
-        JsonRpc.LogFilterElement[] logs = new JsonRpc.LogFilterElement[receipt.getLogInfoList().size()];
+        final JsonRpc.LogFilterElement[] logs = new JsonRpc.LogFilterElement[receipt.getLogInfoList().size()];
         if (block != null) {
             blockNumber = block.getNumber();
-            String blockHash = toJsonHex(txInfo.getBlockHash());
+            final String blockHash = toJsonHex(txInfo.getBlockHash());
             for (int i = 0; i < logs.length; i++) {
                 final LogInfo logInfo = receipt.getLogInfoList().get(i);
                 logs[i] = new JsonRpc.LogFilterElement(logInfo, block, txInfo.getIndex(),

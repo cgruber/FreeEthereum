@@ -92,7 +92,7 @@ public class PendingStateSample extends TestNetSample {
             // listening here when the PendingState is updated with new transactions
             @Override
 //            public void onPendingTransactionsReceived(final List<Transaction> transactions) {
-            public void onPendingTransactionsReceived(@NotNull List<? extends Transaction> transactions) {
+            public void onPendingTransactionsReceived(@NotNull final List<? extends Transaction> transactions) {
                 for (final Transaction tx : transactions) {
                     PendingStateSample.this.onPendingTransactionReceived(tx);
                 }

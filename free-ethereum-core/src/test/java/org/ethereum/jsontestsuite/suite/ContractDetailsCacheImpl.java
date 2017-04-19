@@ -129,7 +129,7 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
 //    }
 
     @Override
-    public void setStorage(@NotNull Map<DataWord, ? extends DataWord> map) {
+    public void setStorage(@NotNull final Map<DataWord, ? extends DataWord> map) {
         this.storage = (Map<DataWord, DataWord>) map;
     }
 
@@ -211,7 +211,7 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
 
     @NotNull
     @Override
-    public Map<DataWord, DataWord> getStorage(@Nullable Collection<? extends DataWord> keys) {
+    public Map<DataWord, DataWord> getStorage(@Nullable final Collection<? extends DataWord> keys) {
         if (keys == null) return getStorage();
 
         final Map<DataWord, DataWord> result = new HashMap<>();
@@ -222,7 +222,7 @@ public class ContractDetailsCacheImpl extends AbstractContractDetails {
     }
 
     @Override
-    public void setStorage(@NotNull List<? extends DataWord> storageKeys, @NotNull List<? extends DataWord> storageValues) {
+    public void setStorage(@NotNull final List<? extends DataWord> storageKeys, @NotNull final List<? extends DataWord> storageValues) {
         for (int i = 0; i < storageKeys.size(); ++i) {
 
             final DataWord key = storageKeys.get(i);

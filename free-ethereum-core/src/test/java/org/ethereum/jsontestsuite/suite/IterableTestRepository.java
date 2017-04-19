@@ -382,7 +382,7 @@ public class IterableTestRepository implements Repository {
 //        }
 
         @Override
-        public void setStorage(@NotNull Map<DataWord, ? extends DataWord> map) {
+        public void setStorage(@NotNull final Map<DataWord, ? extends DataWord> map) {
             src.setStorage(map);
         }
 
@@ -418,12 +418,12 @@ public class IterableTestRepository implements Repository {
 
         @NotNull
         @Override
-        public Map<DataWord, DataWord> getStorage(@org.jetbrains.annotations.Nullable Collection<? extends DataWord> keys) {
+        public Map<DataWord, DataWord> getStorage(@org.jetbrains.annotations.Nullable final Collection<? extends DataWord> keys) {
             throw new RuntimeException();
         }
 
         @Override
-        public void setStorage(@NotNull List<? extends DataWord> storageKeys, @NotNull List<? extends DataWord> storageValues) {
+        public void setStorage(@NotNull final List<? extends DataWord> storageKeys, @NotNull final List<? extends DataWord> storageValues) {
             src.setStorage(storageKeys, storageValues);
         }
     }

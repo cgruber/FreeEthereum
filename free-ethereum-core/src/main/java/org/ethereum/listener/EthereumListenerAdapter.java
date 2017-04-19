@@ -121,7 +121,7 @@ public class EthereumListenerAdapter implements EthereumListener {
     }
 
     @Override
-    public void onPendingTransactionsReceived(@NotNull List<? extends Transaction> transactions) {
+    public void onPendingTransactionsReceived(@NotNull final List<? extends Transaction> transactions) {
 
     }
 }

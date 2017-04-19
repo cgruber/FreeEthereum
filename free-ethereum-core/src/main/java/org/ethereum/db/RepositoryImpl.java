@@ -407,7 +407,7 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
 //        }
 
         @Override
-        public void setStorage(@NotNull Map<DataWord, ? extends DataWord> map) {
+        public void setStorage(@NotNull final Map<DataWord, ? extends DataWord> map) {
             throw new RuntimeException("Not supported");
         }
 
@@ -438,12 +438,12 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
 
         @NotNull
         @Override
-        public Map<DataWord, DataWord> getStorage(@org.jetbrains.annotations.Nullable Collection<? extends DataWord> keys) {
+        public Map<DataWord, DataWord> getStorage(@org.jetbrains.annotations.Nullable final Collection<? extends DataWord> keys) {
             return null;
         }
 
         @Override
-        public void setStorage(@NotNull List<? extends DataWord> storageKeys, @NotNull List<? extends DataWord> storageValues) {
+        public void setStorage(@NotNull final List<? extends DataWord> storageKeys, @NotNull final List<? extends DataWord> storageValues) {
             throw new RuntimeException("Not supported");
         }
     }

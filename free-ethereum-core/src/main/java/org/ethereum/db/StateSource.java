@@ -48,12 +48,12 @@ public class StateSource extends SourceChainBox<byte[], byte[], byte[], byte[]>
 
     public StateSource(final Source<byte[], byte[]> src, final boolean pruningEnabled, final int maxBloomSize) {
         super(src);
-        StateSource INST = this;
+        final StateSource INST = this;
         add(bloomedSource = new BloomedSource(src, maxBloomSize));
         bloomedSource.setFlushSource(false);
         add(readCache = new ReadCache.BytesKey<>(bloomedSource).withMaxCapacity(16 * 1024 * 1024 / 512)); // 512 - approx size of a node
         readCache.setFlushSource(true);
-        CountingBytesSource countingSource;
+        final CountingBytesSource countingSource;
         add(countingSource = new CountingBytesSource(readCache, true));
         countingSource.setFlushSource(true);
         writeCache = new AsyncWriteCache<byte[], byte[]>(countingSource) {
@@ -71,7 +71,7 @@ public class StateSource extends SourceChainBox<byte[], byte[], byte[], byte[]>
         if (pruningEnabled) {
             add(journalSource = new JournalSource<>(writeCache));
         } else {
-            NoDeleteSource<byte[], byte[]> noDeleteSource;
+            final NoDeleteSource<byte[], byte[]> noDeleteSource;
             add(noDeleteSource = new NoDeleteSource<>(writeCache));
         }
     }

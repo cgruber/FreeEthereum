@@ -232,7 +232,7 @@ public class TransactionTest {
         assertEquals("", Hex.toHexString(txNew.getData()));
         assertNull(txNew.getSignature());
 
-        String RLP_ENCODED_RAW_TX = "e88085e8d4a510008227109413978aee95f38490e9769c39b2773ed763d9cd5f872386f26fc1000080";
+        final String RLP_ENCODED_RAW_TX = "e88085e8d4a510008227109413978aee95f38490e9769c39b2773ed763d9cd5f872386f26fc1000080";
         assertEquals(RLP_ENCODED_RAW_TX, Hex.toHexString(txNew.getEncodedRaw()));
         assertEquals(HASH_TX, Hex.toHexString(txNew.getHash()));
         assertEquals(RLP_ENCODED_UNSIGNED_TX, Hex.toHexString(txNew.getEncoded()));
