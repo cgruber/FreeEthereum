@@ -177,7 +177,7 @@ public class JsonRpcImpl implements JsonRpc {
         return x;
     }
 
-    private Block getBlockByJSonHash(final String blockHash) throws Exception {
+    private Block getBlockByJSonHash(final String blockHash) {
         final byte[] bhash = TypeConverter.StringHexToByteArray(blockHash);
         return worldManager.getBlockchain().getBlockByHash(bhash);
     }
@@ -213,7 +213,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    private Account getAccount(final String address) throws Exception {
+    private Account getAccount(final String address) {
         return accounts.get(new ByteArrayWrapper(StringHexToByteArray(address)));
     }
 
@@ -236,7 +236,7 @@ public class JsonRpcImpl implements JsonRpc {
         return s;
     }
 
-    public String web3_sha3(final String data) throws Exception {
+    public String web3_sha3(final String data) {
         String s = null;
         try {
             final byte[] result = HashUtil.INSTANCE.sha3(TypeConverter.StringHexToByteArray(data));
@@ -361,7 +361,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public String eth_getBalance(final String address, final String blockId) throws Exception {
+    public String eth_getBalance(final String address, final String blockId) {
         String s = null;
         try {
             final byte[] addressAsByteArray = TypeConverter.StringHexToByteArray(address);
@@ -382,7 +382,7 @@ public class JsonRpcImpl implements JsonRpc {
     }
 
     @Override
-    public String eth_getStorageAt(final String address, final String storageIdx, final String blockId) throws Exception {
+    public String eth_getStorageAt(final String address, final String storageIdx, final String blockId) {
         String s = null;
         try {
             final byte[] addressAsByteArray = StringHexToByteArray(address);
@@ -395,7 +395,7 @@ public class JsonRpcImpl implements JsonRpc {
     }
 
     @Override
-    public String eth_getTransactionCount(final String address, final String blockId) throws Exception {
+    public String eth_getTransactionCount(final String address, final String blockId) {
         String s = null;
         try {
             final byte[] addressAsByteArray = TypeConverter.StringHexToByteArray(address);
@@ -454,7 +454,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public String eth_getCode(final String address, final String blockId) throws Exception {
+    public String eth_getCode(final String address, final String blockId) {
         String s = null;
         try {
             final byte[] addressAsByteArray = TypeConverter.StringHexToByteArray(address);
@@ -543,7 +543,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public String eth_sendRawTransaction(final String rawData) throws Exception {
+    public String eth_sendRawTransaction(final String rawData) {
         String s = null;
         try {
             final Transaction tx = new Transaction(StringHexToByteArray(rawData));
@@ -695,7 +695,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public TransactionResultDTO eth_getTransactionByHash(final String transactionHash) throws Exception {
+    public TransactionResultDTO eth_getTransactionByHash(final String transactionHash) {
         TransactionResultDTO s = null;
         try {
             final byte[] txHash = StringHexToByteArray(transactionHash);
@@ -755,7 +755,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public TransactionReceiptDTO eth_getTransactionReceipt(final String transactionHash) throws Exception {
+    public TransactionReceiptDTO eth_getTransactionReceipt(final String transactionHash) {
         TransactionReceiptDTO s = null;
         try {
             final byte[] hash = TypeConverter.StringHexToByteArray(transactionHash);
@@ -790,7 +790,7 @@ public class JsonRpcImpl implements JsonRpc {
     }
 
     @Override
-    public TransactionReceiptDTOExt ethj_getTransactionReceipt(final String transactionHash) throws Exception {
+    public TransactionReceiptDTOExt ethj_getTransactionReceipt(final String transactionHash) {
         TransactionReceiptDTOExt s = null;
         try {
             final byte[] hash = TypeConverter.StringHexToByteArray(transactionHash);
@@ -911,7 +911,7 @@ public class JsonRpcImpl implements JsonRpc {
     }
 
     @Override
-    public String eth_newFilter(final FilterRequest fr) throws Exception {
+    public String eth_newFilter(final FilterRequest fr) {
         String str = null;
         try {
             final LogFilter logFilter = new LogFilter();
@@ -1241,13 +1241,13 @@ public class JsonRpcImpl implements JsonRpc {
     }
 
     @Override
-    public boolean miner_setEtherbase(final String coinBase) throws Exception {
+    public boolean miner_setEtherbase(final String coinBase) {
         blockchain.setMinerCoinbase(TypeConverter.StringHexToByteArray(coinBase));
         return true;
     }
 
     @Override
-    public boolean miner_setExtra(final String data) throws Exception {
+    public boolean miner_setExtra(final String data) {
         blockchain.setMinerExtraData(TypeConverter.StringHexToByteArray(data));
         return true;
     }
