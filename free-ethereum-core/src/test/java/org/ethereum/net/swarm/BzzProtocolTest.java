@@ -292,7 +292,6 @@ public class BzzProtocolTest {
         final Key key = new Key(new byte[]{0x22, 0x33});
         final Chunk chunk = new Chunk(key, new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 77, 88});
         netStore1.put(chunk);
-//        netStore1.put(chunk);
         localStore1.clean();
         final Chunk chunk1 = netStore1.get(key);
         Assert.assertEquals(key, chunk1.getKey());
@@ -314,7 +313,6 @@ public class BzzProtocolTest {
         @Override
         public void println(final String x) {
             if (pFilter == null || pFilter.test(x)) {
-//            if (filter == null || x.contains(filter)) {
                 super.println(x);
             }
         }

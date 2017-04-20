@@ -51,7 +51,8 @@ plugins {
 apply plugin: 'propdeps-maven'
 apply plugin: 'kotlin'
 
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 mainClassName = 'org.ethereum.Start'
 applicationDefaultJvmArgs = ["-server", "-Xss4m", "-Xmx2G", "-XX:-OmitStackTraceInFastThrow"]

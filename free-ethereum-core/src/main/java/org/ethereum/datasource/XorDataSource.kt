@@ -24,50 +24,41 @@
  *
  */
 
-package org.ethereum.datasource;
+package org.ethereum.datasource
 
-import org.ethereum.util.ByteUtil;
+import org.ethereum.util.ByteUtil
 
 /**
  * When propagating changes to the backing Source XORs keys
  * with the specified value
- *
+
  * May be useful for merging several Sources into a single
- *
+
  * Created by Anton Nashatyrev on 18.02.2016.
  */
-public class XorDataSource<V> extends AbstractChainedSource<byte[], V, byte[], V> {
-    private final byte[] subKey;
+class XorDataSource<V>
+/**
+ * Creates instance with a value all keys are XORed with
+ */
+(source: Source<ByteArray, V>, private val subKey: ByteArray) : AbstractChainedSource<ByteArray, V, ByteArray, V>(source) {
 
-    /**
-     * Creates instance with a value all keys are XORed with
-     */
-    public XorDataSource(final Source<byte[], V> source, final byte[] subKey) {
-        super(source);
-        this.subKey = subKey;
+    private fun convertKey(key: ByteArray): ByteArray {
+        return ByteUtil.xorAlignRight(key, subKey)
     }
 
-    private byte[] convertKey(final byte[] key) {
-        return ByteUtil.xorAlignRight(key, subKey);
+    override fun get(key: ByteArray): V {
+        return source[convertKey(key)]
     }
 
-    @Override
-    public V get(final byte[] key) {
-        return getSource().get(convertKey(key));
+    override fun put(key: ByteArray, value: V) {
+        source.put(convertKey(key), value)
     }
 
-    @Override
-    public void put(final byte[] key, final V value) {
-        getSource().put(convertKey(key), value);
+    override fun delete(key: ByteArray) {
+        source.delete(convertKey(key))
     }
 
-    @Override
-    public void delete(final byte[] key) {
-        getSource().delete(convertKey(key));
-    }
-
-    @Override
-    protected boolean flushImpl() {
-        return false;
+    override fun flushImpl(): Boolean {
+        return false
     }
 }
