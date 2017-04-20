@@ -69,41 +69,41 @@ public class WorldManager {
     private final Blockchain blockchain;
     private final Repository repository;
     private final BlockStore blockStore;
-    @Autowired
-    private PeerClient activePeer;
-    @Autowired
-    private ChannelManager channelManager;
-    @Autowired
-    private AdminInfo adminInfo;
-    @Autowired
-    private NodeManager nodeManager;
-    @Autowired
-    private SyncManager syncManager;
-    @Autowired
-    private FastSyncManager fastSyncManager;
-    @Autowired
-    private SyncPool pool;
-    @Autowired
-    private PendingState pendingState;
-    @Autowired
-    private UDPListener discoveryUdpListener;
-    @Autowired
-    private EventDispatchThread eventDispatchThread;
-    @Autowired
-    private DbFlushManager dbFlushManager;
-    @Autowired
-    private ApplicationContext ctx;
+    private final PeerClient activePeer;
+    private final ChannelManager channelManager;
+    private final AdminInfo adminInfo;
+    private final NodeManager nodeManager;
+    private final SyncManager syncManager;
+    private final FastSyncManager fastSyncManager;
+    private final SyncPool pool;
+    private final PendingState pendingState;
+    private final UDPListener discoveryUdpListener;
+    private final EventDispatchThread eventDispatchThread;
+    private final DbFlushManager dbFlushManager;
+    private final ApplicationContext ctx;
 
     @Autowired
     public WorldManager(final SystemProperties config, final Repository repository,
                         final EthereumListener listener, final Blockchain blockchain,
-                        final BlockStore blockStore) {
+                        final BlockStore blockStore, ApplicationContext ctx, DbFlushManager dbFlushManager, EventDispatchThread eventDispatchThread, UDPListener discoveryUdpListener, PendingState pendingState, SyncPool pool, FastSyncManager fastSyncManager, SyncManager syncManager, NodeManager nodeManager, AdminInfo adminInfo, ChannelManager channelManager, PeerClient activePeer) {
         this.listener = listener;
         this.blockchain = blockchain;
         this.repository = repository;
         this.blockStore = blockStore;
         this.config = config;
         loadBlockchain();
+        this.ctx = ctx;
+        this.dbFlushManager = dbFlushManager;
+        this.eventDispatchThread = eventDispatchThread;
+        this.discoveryUdpListener = discoveryUdpListener;
+        this.pendingState = pendingState;
+        this.pool = pool;
+        this.fastSyncManager = fastSyncManager;
+        this.syncManager = syncManager;
+        this.nodeManager = nodeManager;
+        this.adminInfo = adminInfo;
+        this.channelManager = channelManager;
+        this.activePeer = activePeer;
     }
 
     @PostConstruct

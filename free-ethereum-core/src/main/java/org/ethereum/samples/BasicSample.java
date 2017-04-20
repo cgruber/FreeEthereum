@@ -70,16 +70,13 @@ public class BasicSample implements Runnable {
 
     public static final Logger sLogger = LoggerFactory.getLogger("sample");
     private static CustomFilter CUSTOM_FILTER;
-
-    private final String loggerName;
     private final List<Node> nodesDiscovered = new Vector<>();
     private final Map<Node, StatusMessage> ethNodes = new Hashtable<>();
     private final List<Node> syncPeers = new Vector<>();
     Logger logger;
-    @Autowired
     Ethereum ethereum;
-    @Autowired
     SystemProperties config;
+    private String loggerName;
     private volatile long txCount;
     private volatile long gasSpent;
     private Block bestBlock = null;
@@ -170,6 +167,16 @@ public class BasicSample implements Runnable {
      */
     public BasicSample(final String loggerName) {
         this.loggerName = loggerName;
+    }
+
+    @Autowired
+    public BasicSample(SystemProperties config) {
+        this.config = config;
+    }
+
+    @Autowired
+    public BasicSample(Ethereum ethereum) {
+        this.ethereum = ethereum;
     }
 
     public static void main(final String[] args) throws Exception {

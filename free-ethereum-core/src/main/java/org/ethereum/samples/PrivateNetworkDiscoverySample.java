@@ -39,7 +39,6 @@ import org.ethereum.net.rlpx.discover.table.NodeEntry;
 import org.ethereum.net.server.Channel;
 import org.ethereum.net.server.ChannelManager;
 import org.spongycastle.util.encoders.Hex;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 
 import java.util.ArrayList;
@@ -115,10 +114,8 @@ public class PrivateNetworkDiscoverySample {
         public BasicSample node() {
             return new BasicSample("sampleNode-" + nodeIndex) {
 
-                @Autowired
                 ChannelManager channelManager;
 
-                @Autowired
                 NodeManager nodeManager;
 
                 {

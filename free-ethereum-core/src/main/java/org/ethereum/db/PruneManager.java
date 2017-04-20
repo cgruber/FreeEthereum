@@ -37,13 +37,13 @@ import java.util.List;
 public class PruneManager {
 
     private final int pruneBlocksCnt;
+    private final IndexedBlockStore blockStore;
     private JournalSource journal;
-    @Autowired
-    private IndexedBlockStore blockStore;
 
     @Autowired
-    private PruneManager(final SystemProperties config) {
+    private PruneManager(final SystemProperties config, IndexedBlockStore blockStore) {
         pruneBlocksCnt = config.databasePruneDepth();
+        this.blockStore = blockStore;
     }
 
     public PruneManager(final IndexedBlockStore blockStore, final JournalSource journal, final int pruneBlocksCnt) {
