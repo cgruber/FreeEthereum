@@ -56,20 +56,16 @@ public class BlockBodiesDownloader extends BlockDownloader {
 
     private final static byte[] EMPTY_BODY = new byte[]{-62, -64, -64};
 
-    @Autowired
-    private
+    private final
     SyncPool syncPool;
 
-    @Autowired
-    private
+    private final
     IndexedBlockStore blockStore;
 
-    @Autowired @Qualifier("headerSource")
-    private
+    private final
     DataSourceArray<BlockHeader> headerStore;
 
-    @Autowired
-    private
+    private final
     DbFlushManager dbFlushManager;
 
     private long t;
@@ -82,8 +78,12 @@ public class BlockBodiesDownloader extends BlockDownloader {
     private int downloadCnt = 0;
 
     @Autowired
-    public BlockBodiesDownloader(final BlockHeaderValidator headerValidator) {
+    public BlockBodiesDownloader(final BlockHeaderValidator headerValidator, SyncPool syncPool, IndexedBlockStore blockStore, @Qualifier("headerSource") DataSourceArray<BlockHeader> headerStore, DbFlushManager dbFlushManager) {
         super(headerValidator);
+        this.syncPool = syncPool;
+        this.blockStore = blockStore;
+        this.headerStore = headerStore;
+        this.dbFlushManager = dbFlushManager;
     }
 
     public void startImporting() {

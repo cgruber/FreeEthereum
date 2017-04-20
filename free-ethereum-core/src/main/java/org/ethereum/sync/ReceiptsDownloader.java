@@ -55,29 +55,30 @@ class ReceiptsDownloader {
     private final long toBlock;
     private final Set<Long> completedBlocks = new HashSet<>();
     private final CountDownLatch stopLatch = new CountDownLatch(1);
-    long t;
-    @Autowired
-    private
+    private final
     SyncPool syncPool;
-    @Autowired
-    private
+    private final
     IndexedBlockStore blockStore;
-    @Autowired
-    private
+    private final
     DbFlushManager dbFlushManager;
-    @Autowired
-    private
+    private final
     TransactionStore txStore;
-    @Autowired @Qualifier("headerSource")
-    private
+    private final
     DataSourceArray<BlockHeader> headerStore;
+    long t;
     private long fromBlock;
     private int cnt;
     private Thread retrieveThread;
 
-    public ReceiptsDownloader(final long fromBlock, final long toBlock) {
+    @Autowired
+    public ReceiptsDownloader(final long fromBlock, final long toBlock, @Qualifier("headerSource") DataSourceArray<BlockHeader> headerStore, TransactionStore txStore, DbFlushManager dbFlushManager, IndexedBlockStore blockStore, SyncPool syncPool) {
         this.fromBlock = fromBlock;
         this.toBlock = toBlock;
+        this.headerStore = headerStore;
+        this.txStore = txStore;
+        this.dbFlushManager = dbFlushManager;
+        this.blockStore = blockStore;
+        this.syncPool = syncPool;
     }
 
     public void startImporting() {

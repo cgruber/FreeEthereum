@@ -51,18 +51,22 @@ import java.util.Scanner;
 public class BlockLoader {
     private static final Logger logger = LoggerFactory.getLogger("blockqueue");
     private final DateFormat df = new SimpleDateFormat("HH:mm:ss.SSSS");
-    @Autowired
-    private
+    private final
     SystemProperties config;
-    @Autowired
-    private
+    private final
     DbFlushManager dbFlushManager;
+    private final BlockHeaderValidator headerValidator;
+    private final BlockchainImpl blockchain;
     private ExecutorPipeline<Block, Block> exec1;
     private ExecutorPipeline<Block, ?> exec2;
+
     @Autowired
-    private BlockHeaderValidator headerValidator;
-    @Autowired
-    private BlockchainImpl blockchain;
+    public BlockLoader(SystemProperties config, DbFlushManager dbFlushManager, BlockHeaderValidator headerValidator, BlockchainImpl blockchain) {
+        this.config = config;
+        this.dbFlushManager = dbFlushManager;
+        this.headerValidator = headerValidator;
+        this.blockchain = blockchain;
+    }
 
     private void blockWork(final Block block) {
         if (block.getNumber() >= blockchain.getBlockStore().getBestBlock().getNumber() || blockchain.getBlockStore().getBlockByHash(block.getHash()) == null) {
