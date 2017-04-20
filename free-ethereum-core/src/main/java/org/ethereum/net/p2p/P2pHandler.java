@@ -82,14 +82,11 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
 
     private static final ScheduledExecutorService pingTimer =
             Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "P2pPingTimer"));
-    @Autowired
     private
     EthereumListener ethereumListener;
-    @Autowired
     private
     ConfigCapabilities configCapabilities;
-    @Autowired
-    private
+    private 
     SystemProperties config;
     private MessageQueue msgQueue;
     private boolean peerDiscoveryMode = false;
@@ -108,6 +105,13 @@ public class P2pHandler extends SimpleChannelInboundHandler<P2pMessage> {
     public P2pHandler(final MessageQueue msgQueue, final boolean peerDiscoveryMode) {
         this.msgQueue = msgQueue;
         this.peerDiscoveryMode = peerDiscoveryMode;
+    }
+
+    @Autowired
+    public P2pHandler(EthereumListener ethereumListener, ConfigCapabilities configCapabilities, SystemProperties config) {
+        this.ethereumListener = ethereumListener;
+        this.configCapabilities = configCapabilities;
+        this.config = config;
     }
 
     public static boolean isProtocolVersionSupported(final byte ver) {

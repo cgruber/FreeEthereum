@@ -44,12 +44,10 @@ import java.util.List;
 public class FastSyncDownloader extends BlockDownloader {
     private final static Logger logger = LoggerFactory.getLogger("sync");
 
-    @Autowired
-    private
+    private final
     SyncPool syncPool;
 
-    @Autowired
-    private
+    private final
     IndexedBlockStore blockStore;
 
     private int counter;
@@ -57,8 +55,10 @@ public class FastSyncDownloader extends BlockDownloader {
     private long t;
 
     @Autowired
-    public FastSyncDownloader(final BlockHeaderValidator headerValidator) {
+    public FastSyncDownloader(final BlockHeaderValidator headerValidator, SyncPool syncPool, IndexedBlockStore blockStore) {
         super(headerValidator);
+        this.syncPool = syncPool;
+        this.blockStore = blockStore;
     }
 
     public void startImporting(final byte[] fromHash, final int count) {

@@ -49,20 +49,16 @@ import java.util.List;
 @Lazy
 public class HeadersDownloader extends BlockDownloader {
     private final static Logger logger = LoggerFactory.getLogger("sync");
-    @Autowired
+    private final
     IndexedBlockStore blockStore;
-    @Autowired
-    private
+    private final
     SyncPool syncPool;
-    @Autowired
-    private
+    private final
     ChannelManager channelManager;
-    @Autowired @Qualifier("headerSource")
-    private
+    private final
     DataSourceArray<BlockHeader> headerStore;
 
-    @Autowired
-    private
+    private final
     DbFlushManager dbFlushManager;
 
     private byte[] genesisHash;
@@ -70,11 +66,16 @@ public class HeadersDownloader extends BlockDownloader {
     private int headersLoaded = 0;
 
     @Autowired
-    public HeadersDownloader(final BlockHeaderValidator headerValidator) {
+    public HeadersDownloader(final BlockHeaderValidator headerValidator, IndexedBlockStore blockStore, SyncPool syncPool, ChannelManager channelManager, @Qualifier("headerSource") DataSourceArray<BlockHeader> headerStore, DbFlushManager dbFlushManager) {
         super(headerValidator);
         setHeaderQueueLimit(200000);
         setBlockBodiesDownload(false);
         logger.info("HeaderDownloader created.");
+        this.blockStore = blockStore;
+        this.syncPool = syncPool;
+        this.channelManager = channelManager;
+        this.headerStore = headerStore;
+        this.dbFlushManager = dbFlushManager;
     }
 
     public void init(final byte[] startFromBlockHash) {
