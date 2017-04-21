@@ -24,38 +24,32 @@
  *
  */
 
-package org.ethereum.datasource;
+package org.ethereum.datasource
 
 /**
  * Just ignores deletes from the backing Source
  * Normally used for testing for Trie backing Sources to
  * not delete older states
- *
+
  * Created by Anton Nashatyrev on 03.11.2016.
  */
-public class NoDeleteSource<Key, Value> extends AbstractChainedSource<Key, Value, Key, Value> {
+class NoDeleteSource<Key, Value>(src: Source<Key, Value>) : AbstractChainedSource<Key, Value, Key, Value>(src) {
 
-    public NoDeleteSource(final Source<Key, Value> src) {
-        super(src);
-        setFlushSource(true);
+    init {
+        setFlushSource(true)
     }
 
-    @Override
-    public void delete(final Key key) {
+    override fun delete(key: Key) {}
+
+    override fun put(key: Key, `val`: Value?) {
+        if (`val` != null) source.put(key, `val`)
     }
 
-    @Override
-    public void put(final Key key, final Value val) {
-        if (val != null) getSource().put(key, val);
+    override fun get(key: Key): Value {
+        return source[key]
     }
 
-    @Override
-    public Value get(final Key key) {
-        return getSource().get(key);
-    }
-
-    @Override
-    protected boolean flushImpl() {
-        return false;
+    override fun flushImpl(): Boolean {
+        return false
     }
 }
