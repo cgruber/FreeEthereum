@@ -258,7 +258,6 @@ public class PendingStateImpl implements PendingState {
     }
 
     @Override
-//    public synchronized void processBest(final Block newBlock, final List<TransactionReceipt> receipts) {
     public synchronized void processBest(@NotNull final Block newBlock, @NotNull final List<? extends TransactionReceipt> receipts) {
 
         if (getBestBlock() != null && !getBestBlock().isParentOf(newBlock)) {

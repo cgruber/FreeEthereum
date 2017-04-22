@@ -133,13 +133,13 @@ public class TransactionReceipt {
         return cumulativeGas;
     }
 
-    public void setCumulativeGas(final long cumulativeGas) {
-        this.cumulativeGas = BigIntegers.asUnsignedByteArray(BigInteger.valueOf(cumulativeGas));
+    public void setCumulativeGas(final byte[] cumulativeGas) {
+        this.cumulativeGas = cumulativeGas;
         rlpEncoded = null;
     }
 
-    public void setCumulativeGas(final byte[] cumulativeGas) {
-        this.cumulativeGas = cumulativeGas;
+    public void setCumulativeGas(final long cumulativeGas) {
+        this.cumulativeGas = BigIntegers.asUnsignedByteArray(BigInteger.valueOf(cumulativeGas));
         rlpEncoded = null;
     }
 
@@ -147,13 +147,13 @@ public class TransactionReceipt {
         return gasUsed;
     }
 
-    public void setGasUsed(final byte[] gasUsed) {
-        this.gasUsed = gasUsed;
+    public void setGasUsed(final long gasUsed) {
+        this.gasUsed = BigIntegers.asUnsignedByteArray(BigInteger.valueOf(gasUsed));
         rlpEncoded = null;
     }
 
-    public void setGasUsed(final long gasUsed) {
-        this.gasUsed = BigIntegers.asUnsignedByteArray(BigInteger.valueOf(gasUsed));
+    public void setGasUsed(final byte[] gasUsed) {
+        this.gasUsed = gasUsed;
         rlpEncoded = null;
     }
 

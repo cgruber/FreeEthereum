@@ -189,7 +189,7 @@ constructor() {
             override fun onBlock(block: Block, receipts: List<TransactionReceipt>) {
                 for (receipt in receipts) {
                     // Getting contract details
-                    val contractAddress = receipt.transaction.contractAddress
+                    val contractAddress = receipt.transaction!!.contractAddress
                     if (contractAddress != null) {
                         val details = (ethereum!!.repository as Repository).getContractDetails(contractAddress)
                         assert(FastByteComparisons.equal(details.address, contractAddress))
@@ -199,13 +199,13 @@ constructor() {
                     val rnd = Random()
                     val bestBlock = ethereum!!.blockchain.bestBlock
                     val randomBlock = ethereum!!.blockchain.getBlockByNumber(rnd.nextInt(bestBlock.number.toInt()).toLong())
-                    val sender = receipt.transaction.sender
+                    val sender = receipt.transaction!!.sender
                     val senderState = (ethereum!!.repository as Repository).getSnapshotTo(randomBlock.stateRoot).getAccountState(sender)
                     senderState.balance
 
                     // Getting receiver's nonce somewhere in the past
                     val anotherRandomBlock = ethereum!!.blockchain.getBlockByNumber(rnd.nextInt(bestBlock.number.toInt()).toLong())
-                    val receiver = receipt.transaction.receiveAddress
+                    val receiver = receipt.transaction!!.receiveAddress
                     if (receiver != null) {
                         (ethereum!!.repository as Repository).getSnapshotTo(anotherRandomBlock.stateRoot).getNonce(receiver)
                     }
