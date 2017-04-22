@@ -61,7 +61,7 @@ public class RepositoryRoot extends RepositoryImpl {
         trieCache = new WriteCache.BytesKey<>(stateDS, WriteCache.CacheType.COUNTING);
         stateTrie = new SecureTrie(trieCache, root);
 
-        final SourceCodec.BytesKey<AccountState, byte[]> accountStateCodec = new SourceCodec.BytesKey<>(stateTrie, Serializers.AccountStateSerializer);
+        final SourceCodec.BytesKey<AccountState, byte[]> accountStateCodec = new SourceCodec.BytesKey<>(stateTrie, Serializers.INSTANCE.getAccountStateSerializer());
         final ReadWriteCache.BytesKey<AccountState> accountStateCache = new ReadWriteCache.BytesKey<>(accountStateCodec, WriteCache.CacheType.SIMPLE);
 
         final MultiCache<StorageCache> storageCache = new MultiStorageCache();
@@ -116,7 +116,7 @@ public class RepositoryRoot extends RepositoryImpl {
         final Trie<byte[]> trie;
 
         public StorageCache(final Trie<byte[]> trie) {
-            super(new SourceCodec<>(trie, Serializers.StorageKeySerializer, Serializers.StorageValueSerializer), WriteCache.CacheType.SIMPLE);
+            super(new SourceCodec<>(trie, Serializers.INSTANCE.getStorageKeySerializer(), Serializers.INSTANCE.getStorageValueSerializer()), WriteCache.CacheType.SIMPLE);
             this.trie = trie;
         }
     }

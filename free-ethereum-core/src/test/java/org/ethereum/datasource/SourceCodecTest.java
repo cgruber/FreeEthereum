@@ -73,7 +73,7 @@ public class SourceCodecTest {
     @Test
     public void testDataWordKeySerializer() {
         final Source<byte[], byte[]> parentSrc = new HashMapDB<>();
-        final Serializer<DataWord, byte[]> keySerializer = Serializers.StorageKeySerializer;
+        final Serializer<DataWord, byte[]> keySerializer = Serializers.INSTANCE.getStorageKeySerializer();
         final Serializer<byte[], byte[]> valueSerializer = new Serializers.Identity<>();
         final SourceCodec<DataWord, byte[], byte[], byte[]> src = new SourceCodec<>(parentSrc, keySerializer, valueSerializer);
 
@@ -98,8 +98,8 @@ public class SourceCodecTest {
     @Test
     public void testDataWordKeyValueSerializer() {
         final Source<byte[], byte[]> parentSrc = new HashMapDB<>();
-        final Serializer<DataWord, byte[]> keySerializer = Serializers.StorageKeySerializer;
-        final Serializer<DataWord, byte[]> valueSerializer = Serializers.StorageValueSerializer;
+        final Serializer<DataWord, byte[]> keySerializer = Serializers.INSTANCE.getStorageKeySerializer();
+        final Serializer<DataWord, byte[]> valueSerializer = Serializers.INSTANCE.getStorageValueSerializer();
         final SourceCodec<DataWord, DataWord, byte[], byte[]> src = new SourceCodec<>(parentSrc, keySerializer, valueSerializer);
 
         for (int i = 0; i < 10_000; ++i) {

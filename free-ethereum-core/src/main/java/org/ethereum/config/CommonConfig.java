@@ -203,7 +203,7 @@ public class CommonConfig {
         final WriteCache.BytesKey<byte[]> writeCache = new WriteCache.BytesKey<>(batchSourceWriter, WriteCache.CacheType.SIMPLE);
         writeCache.withSizeEstimators(MemSizeEstimator.ByteArrayEstimator, MemSizeEstimator.ByteArrayEstimator);
         writeCache.setFlushSource(true);
-        final ObjectDataSource<BlockHeader> objectDataSource = new ObjectDataSource<>(dataSource, Serializers.BlockHeaderSerializer, 0);
+        final ObjectDataSource<BlockHeader> objectDataSource = new ObjectDataSource<>(dataSource, Serializers.INSTANCE.getBlockHeaderSerializer(), 0);
         final DataSourceArray<BlockHeader> dataSourceArray = new DataSourceArray<>(objectDataSource);
         return dataSourceArray;
     }

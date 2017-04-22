@@ -99,7 +99,7 @@ public class ObjectDataSourceTest {
     @Test
     public void testDataWordValueSerializer() {
         final Source<byte[], byte[]> parentSrc = new HashMapDB<>();
-        final Serializer<DataWord, byte[]> serializer = Serializers.StorageValueSerializer;
+        final Serializer<DataWord, byte[]> serializer = Serializers.INSTANCE.getStorageValueSerializer();
         final ObjectDataSource<DataWord> src = new ObjectDataSource<>(parentSrc, serializer, 256);
 
         for (int i = 0; i < 10_000; ++i) {
