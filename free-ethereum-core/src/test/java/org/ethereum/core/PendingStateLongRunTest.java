@@ -66,7 +66,7 @@ public class PendingStateLongRunTest {
     @Before
     public void setup() throws URISyntaxException, IOException, InterruptedException {
 
-        blockchain = createBlockchain((Genesis) Genesis.getInstance());
+        blockchain = createBlockchain((Genesis) Genesis.Companion.getInstance());
         pendingState = ((BlockchainImpl) blockchain).getPendingState();
 
         final URL blocks = ClassLoader.getSystemResource("state/47250.dmp");
@@ -146,14 +146,14 @@ public class PendingStateLongRunTest {
         blockchain.setPendingState(pendingState);
 
         final Repository track = repository.startTracking();
-        Genesis.populateRepository(track, genesis);
+        Genesis.Companion.populateRepository(track, genesis);
 
         track.commit();
 
-        blockStore.saveBlock(Genesis.getInstance(), Genesis.getInstance().getCumulativeDifficulty(), true);
+        blockStore.saveBlock(Genesis.Companion.getInstance(), Genesis.Companion.getInstance().getCumulativeDifficulty(), true);
 
-        blockchain.setBestBlock(Genesis.getInstance());
-        blockchain.setTotalDifficulty(Genesis.getInstance().getCumulativeDifficulty());
+        blockchain.setBestBlock(Genesis.Companion.getInstance());
+        blockchain.setTotalDifficulty(Genesis.Companion.getInstance().getCumulativeDifficulty());
 
         return blockchain;
     }

@@ -78,7 +78,7 @@ public class IndexedBlockStoreTest {
         final File file = new File(scenario1.toURI());
         final List<String> strData = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
 
-        final Block genesis = Genesis.getInstance();
+        final Block genesis = Genesis.Companion.getInstance();
         blocks.add(genesis);
         cumDifficulty = cumDifficulty.add(genesis.getCumulativeDifficulty());
 
@@ -758,9 +758,9 @@ public class IndexedBlockStoreTest {
             final IndexedBlockStore indexedBlockStore = new IndexedBlockStore();
             indexedBlockStore.init(indexDB, blocksDB);
 
-            final List<Block> bestLine = getRandomChain(Genesis.getInstance().getHash(), 1, 100);
+            final List<Block> bestLine = getRandomChain(Genesis.Companion.getInstance().getHash(), 1, 100);
 
-            indexedBlockStore.saveBlock(Genesis.getInstance(), Genesis.getInstance().getCumulativeDifficulty(), true);
+            indexedBlockStore.saveBlock(Genesis.Companion.getInstance(), Genesis.Companion.getInstance().getCumulativeDifficulty(), true);
 
             for (final Block aBestLine : bestLine) {
 
@@ -788,7 +788,7 @@ public class IndexedBlockStoreTest {
 
             // calc all TDs
             final Map<ByteArrayWrapper, BigInteger> tDiffs = new HashMap<>();
-            BigInteger td = Genesis.getInstance().getCumulativeDifficulty();
+            BigInteger td = Genesis.Companion.getInstance().getCumulativeDifficulty();
             for (final Block block : bestLine) {
                 td = td.add(block.getCumulativeDifficulty());
                 tDiffs.put(wrap(block.getHash()), td);
@@ -866,9 +866,9 @@ public class IndexedBlockStoreTest {
             final IndexedBlockStore indexedBlockStore = new IndexedBlockStore();
             indexedBlockStore.init(indexDB, blocksDB);
 
-            final List<Block> bestLine = getRandomChain(Genesis.getInstance().getHash(), 1, 100);
+            final List<Block> bestLine = getRandomChain(Genesis.Companion.getInstance().getHash(), 1, 100);
 
-            indexedBlockStore.saveBlock(Genesis.getInstance(), Genesis.getInstance().getCumulativeDifficulty(), true);
+            indexedBlockStore.saveBlock(Genesis.Companion.getInstance(), Genesis.Companion.getInstance().getCumulativeDifficulty(), true);
 
             for (final Block aBestLine : bestLine) {
 
@@ -935,9 +935,9 @@ public class IndexedBlockStoreTest {
             final IndexedBlockStore indexedBlockStore = new IndexedBlockStore();
             indexedBlockStore.init(indexDB, blocksDB);
 
-            final List<Block> bestLine = getRandomChain(Genesis.getInstance().getHash(), 1, 100);
+            final List<Block> bestLine = getRandomChain(Genesis.Companion.getInstance().getHash(), 1, 100);
 
-            indexedBlockStore.saveBlock(Genesis.getInstance(), Genesis.getInstance().getCumulativeDifficulty(), true);
+            indexedBlockStore.saveBlock(Genesis.Companion.getInstance(), Genesis.Companion.getInstance().getCumulativeDifficulty(), true);
 
             for (final Block aBestLine : bestLine) {
 

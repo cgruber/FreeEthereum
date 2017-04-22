@@ -128,7 +128,7 @@ class StateTest {
     private fun generateGenesisState(): TrieImpl {
 
         val trie = TrieImpl()
-        val genesis = Genesis.getInstance() as Genesis
+        val genesis = Genesis.instance as Genesis
         for (key in genesis.premine.keys) {
             trie.put(key.data, genesis.premine[key]?.accountState?.encoded)
         }

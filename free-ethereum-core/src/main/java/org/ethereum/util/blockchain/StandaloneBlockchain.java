@@ -476,7 +476,7 @@ public class StandaloneBlockchain implements LocalBlockchain {
         pendingState.setBlockchain(blockchain);
         blockchain.setPendingState(pendingState);
 
-        Genesis.populateRepository(repository, genesis);
+        Genesis.Companion.populateRepository(repository, genesis);
 
         repository.commit();
 

@@ -86,7 +86,7 @@ public class ImportTest {
         final File file = new File(scenario1.toURI());
         final List<String> strData = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
 
-        byte[] root = Genesis.getInstance().getStateRoot();
+        byte[] root = Genesis.Companion.getInstance().getStateRoot();
         for (final String blockRLP : strData) {
             final Block block = new Block(
                     Hex.decode(blockRLP));

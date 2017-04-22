@@ -160,7 +160,7 @@ public class BlockHeader {
     }
 
     public boolean isGenesis() {
-        return this.getNumber() == Genesis.NUMBER;
+        return this.getNumber() == Genesis.Companion.getNUMBER();
     }
 
     public byte[] getParentHash() {

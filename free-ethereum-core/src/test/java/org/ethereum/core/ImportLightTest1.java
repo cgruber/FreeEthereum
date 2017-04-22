@@ -87,7 +87,7 @@ public class ImportLightTest1 {
         blockchain.setPendingState(pendingState);
 
         final Repository track = repository.startTracking();
-        Genesis.populateRepository(track, genesis);
+        Genesis.Companion.populateRepository(track, genesis);
 
         track.commit();
         repository.commit();

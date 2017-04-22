@@ -35,8 +35,8 @@ import org.ethereum.config.SystemProperties
 import org.ethereum.core.AccountState
 import org.ethereum.core.BlockHeader.NONCE_LENGTH
 import org.ethereum.core.Genesis
+import org.ethereum.core.Genesis.Companion.ZERO_HASH_2048
 import org.ethereum.core.Genesis.PremineAccount
-import org.ethereum.core.Genesis.ZERO_HASH_2048
 import org.ethereum.crypto.HashUtil
 import org.ethereum.crypto.HashUtil.EMPTY_LIST_HASH
 import org.ethereum.db.ByteArrayWrapper
@@ -198,7 +198,7 @@ object GenesisLoader {
     }
 
 
-    private fun generatePreMine(blockchainNetConfig: BlockchainNetConfig, allocs: Map<String, GenesisJson.AllocatedAccount>): Map<ByteArrayWrapper, PremineAccount> {
+    private fun generatePreMine(blockchainNetConfig: BlockchainNetConfig, allocs: Map<String, GenesisJson.AllocatedAccount>): MutableMap<ByteArrayWrapper, PremineAccount> {
 
         val premine = HashMap<ByteArrayWrapper, PremineAccount>()
 

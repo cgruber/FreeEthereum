@@ -435,12 +435,12 @@ public class RepositoryTest {
         final RepositoryRoot repository = new RepositoryRoot(new HashMapDB());
         final Repository track = repository.startTracking();
 
-        final Genesis genesis = (Genesis) Genesis.getInstance();
-        Genesis.populateRepository(track, genesis);
+        final Genesis genesis = (Genesis) Genesis.Companion.getInstance();
+        Genesis.Companion.populateRepository(track, genesis);
 
         track.commit();
 
-        assertArrayEquals(Genesis.getInstance().getStateRoot(), repository.getRoot());
+        assertArrayEquals(Genesis.Companion.getInstance().getStateRoot(), repository.getRoot());
 
         repository.close();
     }

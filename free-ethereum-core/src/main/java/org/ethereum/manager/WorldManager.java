@@ -165,18 +165,18 @@ public class WorldManager {
         if (blockStore.getBestBlock() == null) {
             logger.info("DB is empty - adding Genesis");
 
-            final Genesis genesis = Genesis.getInstance(config);
-            Genesis.populateRepository(repository, genesis);
+            final Genesis genesis = Genesis.Companion.getInstance(config);
+            Genesis.Companion.populateRepository(repository, genesis);
 
 //            repository.commitBlock(genesis.getHeader());
             repository.commit();
 
-            blockStore.saveBlock(Genesis.getInstance(config), Genesis.getInstance(config).getCumulativeDifficulty(), true);
+            blockStore.saveBlock(Genesis.Companion.getInstance(config), Genesis.Companion.getInstance(config).getCumulativeDifficulty(), true);
 
-            blockchain.setBestBlock(Genesis.getInstance(config));
-            blockchain.setTotalDifficulty(Genesis.getInstance(config).getCumulativeDifficulty());
+            blockchain.setBestBlock(Genesis.Companion.getInstance(config));
+            blockchain.setTotalDifficulty(Genesis.Companion.getInstance(config).getCumulativeDifficulty());
 
-            listener.onBlock(new BlockSummary(Genesis.getInstance(config), new HashMap<>(), new ArrayList<>(), new ArrayList<>()));
+            listener.onBlock(new BlockSummary(Genesis.Companion.getInstance(config), new HashMap<>(), new ArrayList<>(), new ArrayList<>()));
 //            repository.dumpState(Genesis.getInstance(config), 0, 0, null);
 
             logger.info("Genesis block loaded");
