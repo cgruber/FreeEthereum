@@ -258,7 +258,7 @@ public class MessageCodec extends MessageToMessageCodec<Frame, Message> {
         }
 
         resolved = messageCodesResolver.resolveEth(code);
-        if (ethMessageFactory != null && EthMessageCodes.inRange(resolved, ethVersion)) {
+        if (ethMessageFactory != null && EthMessageCodes.Companion.inRange(resolved, ethVersion)) {
             return ethMessageFactory.create(resolved, payload);
         }
 

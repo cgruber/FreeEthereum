@@ -57,7 +57,7 @@ public class MessageCodesResolver {
             if (capability.getName().equals(Capability.Companion.getETH())) {
                 setEthOffset(offset);
                 final EthVersion v = EthVersion.Companion.fromCode(capability.getVersion());
-                offset += EthMessageCodes.values(v).length;
+                offset += EthMessageCodes.Companion.values(v).length;
             }
 
             if (capability.getName().equals(Capability.Companion.getSHH())) {

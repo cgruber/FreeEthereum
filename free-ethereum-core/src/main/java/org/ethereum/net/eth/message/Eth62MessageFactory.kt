@@ -24,42 +24,33 @@
  *
  */
 
-package org.ethereum.net.eth.message;
+package org.ethereum.net.eth.message
 
-import org.ethereum.net.message.Message;
-import org.ethereum.net.message.MessageFactory;
+import org.ethereum.net.message.Message
+import org.ethereum.net.message.MessageFactory
 
-import static org.ethereum.net.eth.EthVersion.V62;
+import org.ethereum.net.eth.EthVersion.V62
 
 /**
  * @author Mikhail Kalinin
+ * *
  * @since 04.09.2015
  */
-public class Eth62MessageFactory implements MessageFactory {
+class Eth62MessageFactory : MessageFactory {
 
-    @Override
-    public Message create(final byte code, final byte[] encoded) {
+    override fun create(code: Byte, encoded: ByteArray): Message {
 
-        final EthMessageCodes receivedCommand = EthMessageCodes.fromByte(code, V62);
-        switch (receivedCommand) {
-            case STATUS:
-                return new StatusMessage(encoded);
-            case NEW_BLOCK_HASHES:
-                return new NewBlockHashesMessage(encoded);
-            case TRANSACTIONS:
-                return new TransactionsMessage(encoded);
-            case GET_BLOCK_HEADERS:
-                return new GetBlockHeadersMessage(encoded);
-            case BLOCK_HEADERS:
-                return new BlockHeadersMessage(encoded);
-            case GET_BLOCK_BODIES:
-                return new GetBlockBodiesMessage(encoded);
-            case BLOCK_BODIES:
-                return new BlockBodiesMessage(encoded);
-            case NEW_BLOCK:
-                return new NewBlockMessage(encoded);
-            default:
-                throw new IllegalArgumentException("No such message");
+        val receivedCommand = EthMessageCodes.fromByte(code, V62)
+        when (receivedCommand) {
+            EthMessageCodes.STATUS -> return StatusMessage(encoded)
+            EthMessageCodes.NEW_BLOCK_HASHES -> return NewBlockHashesMessage(encoded)
+            EthMessageCodes.TRANSACTIONS -> return TransactionsMessage(encoded)
+            EthMessageCodes.GET_BLOCK_HEADERS -> return GetBlockHeadersMessage(encoded)
+            EthMessageCodes.BLOCK_HEADERS -> return BlockHeadersMessage(encoded)
+            EthMessageCodes.GET_BLOCK_BODIES -> return GetBlockBodiesMessage(encoded)
+            EthMessageCodes.BLOCK_BODIES -> return BlockBodiesMessage(encoded)
+            EthMessageCodes.NEW_BLOCK -> return NewBlockMessage(encoded)
+            else -> throw IllegalArgumentException("No such message")
         }
     }
 }
