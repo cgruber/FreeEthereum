@@ -143,7 +143,7 @@ public class UDPListener {
                             @Override
                             public void initChannel(final NioDatagramChannel ch)
                                     throws Exception {
-                                ch.pipeline().addLast(stats.udp);
+                                ch.pipeline().addLast(stats.getUdp());
                                 ch.pipeline().addLast(new PacketDecoder());
                                 final MessageHandler messageHandler = new MessageHandler(ch, nodeManager);
                                 nodeManager.setMessageSender(messageHandler);
