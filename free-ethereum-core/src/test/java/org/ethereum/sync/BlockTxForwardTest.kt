@@ -167,7 +167,7 @@ class BlockTxForwardTest {
                         testLogger.info("Received new block message at generator: {}", message.toString())
                         val msgCopy2 = NewBlockMessage(message.getEncoded())
                         val block = msgCopy2.block
-                        if (blocks.put(Hex.toHexString(block.hash), java.lang.Boolean.TRUE) == null) {
+                        if (blocks.put(Hex.toHexString(block?.hash), java.lang.Boolean.TRUE) == null) {
                             testLogger.error("Received strange block: {}", block)
                             fatalErrors.incrementAndGet()
                         }
