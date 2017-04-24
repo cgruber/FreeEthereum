@@ -24,58 +24,62 @@
  *
  */
 
-package org.ethereum.listener;
+package org.ethereum.listener
 
-import org.ethereum.core.BlockSummary;
-import org.ethereum.core.Transaction;
-import org.ethereum.util.ByteUtil;
+import org.ethereum.core.BlockSummary
+import org.ethereum.core.Transaction
+import org.ethereum.util.ByteUtil
 
-import java.util.Arrays;
+import java.util.Arrays
 
 /**
  * Calculates a 'reasonable' Gas price based on statistics of the latest transaction's Gas prices
- *
+
  * Normally the price returned should be sufficient to execute a transaction since ~25% of the latest
  * transactions were executed at this or lower price.
- *
+
  * Created by Anton Nashatyrev on 22.09.2015.
  */
-public class GasPriceTracker extends EthereumListenerAdapter {
+class GasPriceTracker : EthereumListenerAdapter() {
 
-    private static final long defaultPrice = 70_000_000_000L;
+    private val window = LongArray(512)
+    private var idx = window.size - 1
+    private var filled = false
 
-    private final long[] window = new long[512];
-    private int idx = window.length - 1;
-    private boolean filled = false;
+    private var lastVal: Long = 0
 
-    private long lastVal;
-
-    @Override
-    public void onBlock(final BlockSummary blockSummary) {
-        for (final Transaction tx : blockSummary.getBlock().getTransactionsList()) {
-            onTransaction(tx);
+    override fun onBlock(blockSummary: BlockSummary) {
+        for (tx in blockSummary.block.transactionsList) {
+            onTransaction(tx)
         }
     }
 
-    private void onTransaction(final Transaction tx) {
+    private fun onTransaction(tx: Transaction) {
         if (idx == -1) {
-            idx = window.length - 1;
-            filled = true;
-            lastVal = 0;  // recalculate only 'sometimes'
+            idx = window.size - 1
+            filled = true
+            lastVal = 0  // recalculate only 'sometimes'
         }
-        window[idx--] = ByteUtil.byteArrayToLong(tx.getGasPrice());
+        window[idx--] = ByteUtil.byteArrayToLong(tx.gasPrice)
     }
 
-    public long getGasPrice() {
-        if (!filled) {
-            return defaultPrice;
-        } else {
-            if (lastVal == 0) {
-                final long[] longs = Arrays.copyOf(window, window.length);
-                Arrays.sort(longs);
-                lastVal = longs[longs.length / 4];  // 25% percentile
+    // 25% percentile
+    val gasPrice: Long
+        get() {
+            if (!filled) {
+                return defaultPrice
+            } else {
+                if (lastVal.equals(0)) {
+                    val longs = Arrays.copyOf(window, window.size)
+                    Arrays.sort(longs)
+                    lastVal = longs[longs.size / 4]
+                }
+                return lastVal
             }
-            return lastVal;
         }
+
+    companion object {
+
+        private val defaultPrice = 70_000_000_000L
     }
 }

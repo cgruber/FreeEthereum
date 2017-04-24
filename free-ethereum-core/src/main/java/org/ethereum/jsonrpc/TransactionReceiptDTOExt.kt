@@ -24,18 +24,17 @@
  *
  */
 
-package org.ethereum.jsonrpc;
+package org.ethereum.jsonrpc
 
-import org.ethereum.core.Block;
-import org.ethereum.core.TransactionInfo;
+import org.ethereum.core.Block
+import org.ethereum.core.TransactionInfo
 
-import static org.ethereum.jsonrpc.TypeConverter.toJsonHex;
+import org.ethereum.jsonrpc.TypeConverter.toJsonHex
 
-public class TransactionReceiptDTOExt extends TransactionReceiptDTO {
+class TransactionReceiptDTOExt(block: Block, txInfo: TransactionInfo) : TransactionReceiptDTO(block, txInfo) {
 
-    public TransactionReceiptDTOExt(final Block block, final TransactionInfo txInfo) {
-        super(block, txInfo);
-        final String returnData = toJsonHex(txInfo.getReceipt().getExecutionResult());
-        final String error = txInfo.getReceipt().getError();
+    init {
+        val returnData = toJsonHex(txInfo.receipt.executionResult)
+        val error = txInfo.receipt.error
     }
 }
