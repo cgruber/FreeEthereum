@@ -24,16 +24,16 @@
  *
  */
 
-package org.ethereum.net.swarm;
+package org.ethereum.net.swarm
 
 /**
  * Self-explanatory interface
- *
+
  * Created by Anton Nashatyrev on 18.06.2015.
  */
-public interface ChunkStore {
+interface ChunkStore {
 
-    void put(Chunk chunk);
+    fun put(chunk: Chunk)
 
-    Chunk get(Key key);
+    operator fun get(key: Key): Chunk
 }

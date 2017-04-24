@@ -67,9 +67,9 @@ class ChunkerTest {
             map.put(chunk.getKey(), chunk.data)
         }
 
-        override fun get(key: Key): Chunk? {
+        override fun get(key: Key): Chunk {
             val bytes = map[key]
-            return if (bytes == null) null else Chunk(key, bytes)
+            return if (bytes == null) null!! else Chunk(key, bytes)
         }
     }
 }
