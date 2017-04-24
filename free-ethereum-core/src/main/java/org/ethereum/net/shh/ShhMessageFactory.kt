@@ -24,30 +24,26 @@
  *
  */
 
-package org.ethereum.net.shh;
+package org.ethereum.net.shh
 
-import org.ethereum.net.message.Message;
-import org.ethereum.net.message.MessageFactory;
+import org.ethereum.net.message.Message
+import org.ethereum.net.message.MessageFactory
 
 /**
  * @author Mikhail Kalinin
+ * *
  * @since 20.08.2015
  */
-public class ShhMessageFactory implements MessageFactory {
+class ShhMessageFactory : MessageFactory {
 
-    @Override
-    public Message create(final byte code, final byte[] encoded) {
+    override fun create(code: Byte, encoded: ByteArray): Message {
 
-        final ShhMessageCodes receivedCommand = ShhMessageCodes.Companion.fromByte(code);
-        switch (receivedCommand) {
-            case STATUS:
-                return new ShhStatusMessage(encoded);
-            case MESSAGE:
-                return new ShhEnvelopeMessage(encoded);
-            case FILTER:
-                return new ShhFilterMessage(encoded);
-            default:
-                throw new IllegalArgumentException("No such message");
+        val receivedCommand = ShhMessageCodes.fromByte(code)
+        when (receivedCommand) {
+            ShhMessageCodes.STATUS -> return ShhStatusMessage(encoded)
+            ShhMessageCodes.MESSAGE -> return ShhEnvelopeMessage(encoded)
+            ShhMessageCodes.FILTER -> return ShhFilterMessage(encoded)
+            else -> throw IllegalArgumentException("No such message")
         }
     }
 }
