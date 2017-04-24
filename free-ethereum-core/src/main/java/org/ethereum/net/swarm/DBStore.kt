@@ -24,30 +24,24 @@
  *
  */
 
-package org.ethereum.net.swarm;
+package org.ethereum.net.swarm
 
-import org.ethereum.datasource.DbSource;
+import org.ethereum.datasource.DbSource
 
 /**
  * ChunkStore backed up with KeyValueDataSource
- *
+
  * Created by Admin on 18.06.2015.
  */
-public class DBStore implements ChunkStore {
-    private final DbSource<byte[]> db;
+class DBStore(db: DbSource<ByteArray>) : ChunkStore {
+    private val db: DbSource<ByteArray> = db
 
-    public DBStore(final DbSource db) {
-        this.db = db;
+    override fun put(chunk: Chunk) {
+        db.put(chunk.getKey().bytes, chunk.data)
     }
 
-    @Override
-    public void put(final Chunk chunk) {
-        db.put(chunk.getKey().getBytes(), chunk.getData());
-    }
-
-    @Override
-    public Chunk get(final Key key) {
-        final byte[] bytes = db.get(key.getBytes());
-        return bytes == null ? null : new Chunk(key, bytes);
+    override fun get(key: Key): Chunk? {
+        val bytes = db[key.bytes]
+        return if (bytes == null) null else Chunk(key, bytes)
     }
 }
