@@ -24,9 +24,7 @@
  *
  */
 
-package org.ethereum.net.swarm;
-
-import java.util.Collection;
+package org.ethereum.net.swarm
 
 /**
  * Chunker is the interface to a component that is responsible for disassembling and assembling larger data
@@ -35,12 +33,12 @@ import java.util.Collection;
  * When calling Split, the caller provides a channel (chan *Chunk) on which it receives chunks to store.
  * The DPA delegates to storage layers (implementing ChunkStore interface). NewChunkstore(DB) is a convenience
  * wrapper with which all DBs (conforming to DB interface) can serve as ChunkStores. See chunkStore.go
- *
+
  * After getting notified that all the data has been split (the error channel is closed), the caller can safely
  * read or save the root key. Optionally it times out if not all chunks get stored or not the entire stream
  * of data has been processed. By inspecting the errc channel the caller can check if any explicit errors
  * (typically IO read/write failures) occurred during splitting.
- *
+
  * When calling Join with a root key, the caller gets returned a lazy reader. The caller again provides a channel
  * and receives an error channel. The chunk channel is the one on which the caller receives placeholder chunks with
  * missing data. The DPA is supposed to forward this to the chunk stores and notify the chunker if the data
@@ -49,7 +47,7 @@ import java.util.Collection;
  * Once the DPA finds the data has been joined, it is free to deliver it back to swarm in full (if the original
  * request was via the bzz protocol) or save and serve if it it was a local client request.
  */
-interface Chunker {
+internal interface Chunker {
 
     /**
      * When splitting, data is given as a SectionReader, and the key is a hashSize long byte slice (Key),
@@ -59,7 +57,7 @@ interface Chunker {
      * The caller gets returned an error channel, if an error is encountered during splitting, it is fed to errC error channel.
      * A closed error signals process completion at which point the key can be considered final if there were no errors.
      */
-    Key split(SectionReader sectionReader, Collection<Chunk> consumer);
+    fun split(sectionReader: SectionReader, consumer: Collection<Chunk>): Key
 
     /**
      * Join reconstructs original content based on a root key.
@@ -68,10 +66,10 @@ interface Chunker {
      * If an error is encountered during joining, it appears as a reader error.
      * The SectionReader provides on-demand fetching of chunks.
      */
-    SectionReader join(ChunkStore chunkStore, Key key);
+    fun join(chunkStore: ChunkStore, key: Key): SectionReader
 
     /**
      * @return the key length
      */
-    long keySize();
+    fun keySize(): Long
 }

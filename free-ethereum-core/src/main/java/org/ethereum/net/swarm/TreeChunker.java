@@ -27,6 +27,7 @@
 package org.ethereum.net.swarm;
 
 import org.ethereum.util.ByteUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -100,10 +101,11 @@ public class TreeChunker implements Chunker {
         return chunkSize;
     }
 
+    @NotNull
     @Override
-    public Key split(final SectionReader sectionReader, final Collection<Chunk> consumer) {
+    public Key split(@NotNull SectionReader sectionReader, @NotNull Collection<? extends Chunk> consumer) {
         final TreeSize ts = new TreeSize(sectionReader.getSize());
-        return splitImpl(ts.depth, ts.treeSize/branches, sectionReader, consumer);
+        return splitImpl(ts.depth, ts.treeSize / branches, sectionReader, (Collection<Chunk>) consumer);
     }
 
     private Key splitImpl(int depth, long treeSize, final SectionReader data, final Collection<Chunk> consumer) {
@@ -163,6 +165,12 @@ public class TreeChunker implements Chunker {
     public long keySize() {
         return hashSize;
     }
+
+//    @NotNull
+//    @Override
+//    public Key split(@NotNull SectionReader sectionReader, @NotNull Collection<? extends Chunk> consumer) {
+//        return null;
+//    }
 
     /**
      * A 'subReader'

@@ -71,6 +71,6 @@ open class DPA(private val chunkStore: ChunkStore?) {
      * @return key
      */
     open fun retrieve(key: Key): SectionReader {
-        return chunker.join(chunkStore, key)
+        return chunker.join(chunkStore!!, key)
     }
 }
