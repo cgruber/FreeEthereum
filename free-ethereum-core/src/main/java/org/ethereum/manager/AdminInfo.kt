@@ -24,62 +24,59 @@
  *
  */
 
-package org.ethereum.manager;
+package org.ethereum.manager
 
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.util.LinkedList;
-import java.util.List;
+import org.springframework.stereotype.Component
+import java.util.*
+import javax.annotation.PostConstruct
 
 /**
  * @author Roman Mandeleil
+ * *
  * @since 11.12.2014
  */
 @Component
-public class AdminInfo {
-    private static final int ExecTimeListLimit = 10000;
-    private final List<Long> blockExecTime = new LinkedList<>();
-    private long startupTimeStamp;
-    private boolean consensus = true;
+class AdminInfo {
+    private val blockExecTime = LinkedList<Long>()
+    var startupTimeStamp: Long = 0
+        private set
+    var isConsensus = true
+        private set
 
     @PostConstruct
-    public void init() {
-        startupTimeStamp = System.currentTimeMillis();
+    fun init() {
+        startupTimeStamp = System.currentTimeMillis()
     }
 
-    public long getStartupTimeStamp() {
-        return startupTimeStamp;
+    fun lostConsensus() {
+        isConsensus = false
     }
 
-    public boolean isConsensus() {
-        return consensus;
-    }
-
-    public void lostConsensus() {
-        consensus = false;
-    }
-
-    public void addBlockExecTime(final long time) {
-        while (blockExecTime.size() > ExecTimeListLimit) {
-            blockExecTime.remove(0);
+    fun addBlockExecTime(time: Long) {
+        while (blockExecTime.size > ExecTimeListLimit) {
+            blockExecTime.removeAt(0)
         }
-        blockExecTime.add(time);
+        blockExecTime.add(time)
     }
 
-    public Long getExecAvg(){
+    val execAvg: Long?
+        get() {
 
-        if (blockExecTime.isEmpty()) return 0L;
+            if (blockExecTime.isEmpty()) return 0L
 
-        long sum = 0;
-        for (final Long aBlockExecTime : blockExecTime) {
-            sum += aBlockExecTime;
+            var sum: Long = 0
+            for (aBlockExecTime in blockExecTime) {
+                sum += aBlockExecTime
+            }
+
+            return sum / blockExecTime.size
         }
 
-        return sum / blockExecTime.size();
+    fun getBlockExecTime(): List<Long> {
+        return blockExecTime
     }
 
-    public List<Long> getBlockExecTime(){
-        return blockExecTime;
+    companion object {
+        private val ExecTimeListLimit = 10000
     }
 }
