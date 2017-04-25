@@ -34,7 +34,8 @@ import java.util.List;
 
 import static org.ethereum.util.ByteUtil.longToBytesNoLeadZeroes;
 
-public class NeighborsMessage extends Message {
+public class
+NeighborsMessage extends Message {
 
     private List<Node> nodes;
     private long expires;

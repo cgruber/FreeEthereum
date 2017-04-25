@@ -24,35 +24,11 @@
  *
  */
 
-package org.ethereum.net.rlpx.discover;
+package org.ethereum.net.rlpx.discover
 
 
-import org.ethereum.net.rlpx.Message;
+import org.ethereum.net.rlpx.Message
 
-import java.net.InetSocketAddress;
+import java.net.InetSocketAddress
 
-public class DiscoveryEvent {
-    private Message message;
-    private InetSocketAddress address;
-
-    public DiscoveryEvent(final Message m, final InetSocketAddress a) {
-        message = m;
-        address = a;
-    }
-
-    public Message getMessage() {
-        return message;
-    }
-
-    public void setMessage(final Message message) {
-        this.message = message;
-    }
-
-    public InetSocketAddress getAddress() {
-        return address;
-    }
-
-    public void setAddress(final InetSocketAddress address) {
-        this.address = address;
-    }
-}
+class DiscoveryEvent(var message: Message?, var address: InetSocketAddress?)

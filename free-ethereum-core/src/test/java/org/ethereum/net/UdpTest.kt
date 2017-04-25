@@ -145,7 +145,7 @@ class UdpTest {
 
         override fun accept(discoveryEvent: DiscoveryEvent) {
             val address = discoveryEvent.address
-            sendPacket(discoveryEvent.message.packet, address)
+            sendPacket(discoveryEvent.message!!.packet, address!!)
         }
 
         fun sendPacket(payload: ByteArray, address: InetSocketAddress) {
@@ -169,12 +169,12 @@ class UdpTest {
             val m = discoveryEvent.message as? FindNodeMessage ?: return
             val msg = String(m.target)
             System.out.printf("Inbound message \"%s\" from %s:%s%n", msg,
-                    discoveryEvent.address.hostString, discoveryEvent.address.port)
+                    discoveryEvent.address!!.hostString, discoveryEvent.address!!.port)
             if (msg.endsWith("+1")) {
                 messageSender?.channel?.close()
             } else {
                 val newMsg = FindNodeMessage.create((msg + "+1").toByteArray(), privKey)
-                messageSender?.sendPacket(newMsg.packet, discoveryEvent.address)
+                messageSender?.sendPacket(newMsg.packet, discoveryEvent.address!!)
             }
         }
     }

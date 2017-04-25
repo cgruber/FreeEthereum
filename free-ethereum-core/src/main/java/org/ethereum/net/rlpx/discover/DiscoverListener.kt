@@ -24,31 +24,29 @@
  *
  */
 
-package org.ethereum.net.rlpx.discover;
+package org.ethereum.net.rlpx.discover
 
 /**
  * Allows to handle discovered nodes state changes
- *
+
  * Created by Anton Nashatyrev on 21.07.2015.
  */
-public interface DiscoverListener {
+interface DiscoverListener {
 
     /**
      * Invoked whenever a new node appeared which meets criteria specified
-     * in the {@link NodeManager#addDiscoverListener} method
+     * in the [NodeManager.addDiscoverListener] method
      */
-    void nodeAppeared(NodeHandler handler);
+    fun nodeAppeared(handler: NodeHandler)
 
     /**
      * Invoked whenever a node stops meeting criteria.
      */
-    void nodeDisappeared(NodeHandler handler);
+    fun nodeDisappeared(handler: NodeHandler)
 
-    class Adapter implements DiscoverListener {
-        public void nodeAppeared(final NodeHandler handler) {
-        }
+    class Adapter : DiscoverListener {
+        override fun nodeAppeared(handler: NodeHandler) {}
 
-        public void nodeDisappeared(final NodeHandler handler) {
-        }
+        override fun nodeDisappeared(handler: NodeHandler) {}
     }
 }
