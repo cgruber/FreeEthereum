@@ -1077,7 +1077,7 @@ class TrieTest {
             return ret ?: ""
         }
 
-        override fun put(s: String, `val`: String?) {
+        fun put(s: String, `val`: String?) {
             if (`val` == null || `val`.isEmpty()) {
                 super.delete(s)
             } else {
