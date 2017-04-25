@@ -422,13 +422,12 @@ interface JsonRpc {
         val blockNumber: String? = if (b == null) null else toJsonHex(b.number)
         val blockHash: String? = if (b == null) null else toJsonHex(b.hash)
         val transactionHash: String
-        val transactionIndex: String?
+        val transactionIndex: String? = if (b == null) null else toJsonHex(txIndex.toLong())
         val address: String
         val data: String
         val topics: Array<String?>
 
         init {
-            transactionIndex = if (b == null) null else toJsonHex(txIndex.toLong())
             transactionHash = toJsonHex(tx.hash)
             address = toJsonHex(tx.receiveAddress)
             data = toJsonHex(logInfo.data)

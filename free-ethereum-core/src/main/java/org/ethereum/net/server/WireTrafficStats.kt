@@ -46,10 +46,9 @@ import javax.annotation.PreDestroy
 class WireTrafficStats : Runnable {
     internal var tcp = TrafficStatHandler()
     var udp = TrafficStatHandler()
-    private val executor: ScheduledExecutorService
+    private val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(ThreadFactoryBuilder().setNameFormat("WireTrafficStats-%d").build())
 
     init {
-        executor = Executors.newSingleThreadScheduledExecutor(ThreadFactoryBuilder().setNameFormat("WireTrafficStats-%d").build())
         executor.scheduleAtFixedRate(this, 10, 10, TimeUnit.SECONDS)
     }
 

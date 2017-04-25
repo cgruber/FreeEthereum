@@ -27,11 +27,9 @@
 package org.ethereum.net.eth.message
 
 import org.ethereum.net.eth.EthVersion
-
-import java.util.HashMap
-
 import org.ethereum.net.eth.EthVersion.V62
 import org.ethereum.net.eth.EthVersion.V63
+import java.util.*
 
 /**
  * A list of commands for the Ethereum network protocol.
@@ -41,7 +39,7 @@ import org.ethereum.net.eth.EthVersion.V63
  * @see [
  * https://github.com/ethereum/wiki/wiki/Ethereum-Wire-Protocol](https://github.com/ethereum/wiki/wiki/Ethereum-Wire-Protocol)
  */
-enum class EthMessageCodes private constructor(private val cmd: Int) {
+enum class EthMessageCodes constructor(private val cmd: Int) {
 
     /* Ethereum protocol */
 
@@ -203,7 +201,7 @@ enum class EthMessageCodes private constructor(private val cmd: Int) {
 
         fun fromByte(i: Byte, v: EthVersion): EthMessageCodes {
             val map = intToTypeMap[v]
-            return map!!.get(i.toInt())!!
+            return map!![i.toInt()]!!
         }
 
         fun inRange(code: Byte, v: EthVersion): Boolean {

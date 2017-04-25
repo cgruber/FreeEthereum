@@ -29,7 +29,6 @@ package org.ethereum.core
 import org.ethereum.config.SystemProperties
 import org.ethereum.db.ByteArrayWrapper
 import org.ethereum.util.ByteUtil
-import java.math.BigInteger
 import java.util.*
 
 /**
@@ -93,7 +92,6 @@ class Genesis(parentHash: ByteArray, unclesHash: ByteArray, coinbase: ByteArray,
 
         val ZERO_HASH_2048 = ByteArray(256)
         val NUMBER: Long = 0
-        var DIFFICULTY = BigInteger.valueOf(2).pow(17).toByteArray()
         var instance: Block = SystemProperties.getDefault()!!.genesis
 
 //        fun getInstance(): Block {

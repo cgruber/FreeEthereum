@@ -33,8 +33,7 @@ import org.ethereum.datasource.DbSource
 
  * Created by Admin on 18.06.2015.
  */
-class DBStore(db: DbSource<ByteArray>) : ChunkStore {
-    private val db: DbSource<ByteArray> = db
+class DBStore(private val db: DbSource<ByteArray>) : ChunkStore {
 
     override fun put(chunk: Chunk) {
         db.put(chunk.getKey().bytes, chunk.data)

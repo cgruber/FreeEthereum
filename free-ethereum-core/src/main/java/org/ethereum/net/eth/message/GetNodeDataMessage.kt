@@ -69,9 +69,7 @@ class GetNodeDataMessage : EthMessage {
     }
 
     private fun encode() {
-        val encodedElements = ArrayList<ByteArray>()
-        for (hash in nodeKeys!!)
-            encodedElements.add(RLP.encodeElement(hash))
+        val encodedElements = nodeKeys!!.map { RLP.encodeElement(it) }
         val encodedElementArray = encodedElements.toTypedArray()
 
         this.encoded = RLP.encodeList(*encodedElementArray)

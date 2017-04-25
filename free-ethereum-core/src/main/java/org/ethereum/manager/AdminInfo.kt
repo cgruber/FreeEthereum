@@ -64,10 +64,7 @@ class AdminInfo {
 
             if (blockExecTime.isEmpty()) return 0L
 
-            var sum: Long = 0
-            for (aBlockExecTime in blockExecTime) {
-                sum += aBlockExecTime
-            }
+            val sum: Long = blockExecTime.sum()
 
             return sum / blockExecTime.size
         }

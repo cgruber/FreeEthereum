@@ -45,13 +45,12 @@ import java.net.URISyntaxException
 import java.util.*
 
 internal class Handshaker private constructor() {
-    private val myKey: ECKey
+    private val myKey: ECKey = ECKey()
     private val nodeId: ByteArray
     var secrets: Secrets? = null
         private set
 
     init {
-        myKey = ECKey()
         nodeId = myKey.nodeId
         println("Node ID " + Hex.toHexString(nodeId))
     }

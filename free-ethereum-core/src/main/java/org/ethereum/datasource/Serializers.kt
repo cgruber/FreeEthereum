@@ -47,7 +47,7 @@ object Serializers {
         }
 
         override fun deserialize(stream: ByteArray?): AccountState? {
-            return if (stream == null || stream.size == 0) null else AccountState(stream)
+            return if (stream == null || stream.isEmpty()) null else AccountState(stream)
         }
     }
     /**
@@ -71,7 +71,7 @@ object Serializers {
         }
 
         override fun deserialize(stream: ByteArray?): DataWord? {
-            if (stream == null || stream.size == 0) return null
+            if (stream == null || stream.isEmpty()) return null
             val dataDecoded = RLP.decode2(stream)[0].rlpData
             return DataWord(dataDecoded)
         }
