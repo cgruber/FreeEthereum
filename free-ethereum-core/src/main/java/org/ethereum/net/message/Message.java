@@ -39,7 +39,7 @@ public abstract class Message {
 
     protected static final Logger logger = LoggerFactory.getLogger("net");
 
-    protected boolean parsed;
+    public boolean parsed;
     protected byte[] encoded;
     protected byte code;
 
