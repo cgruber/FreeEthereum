@@ -504,6 +504,7 @@ class GitHubStateTest {
 
     @Test // testing full suite
     @Throws(ParseException::class, IOException::class)
+    @Ignore
     fun testRandomStateGitHub() {
 
         val sha = "99db6f4f5fea3aa5cfbe8436feba8e213d06d1e8"
