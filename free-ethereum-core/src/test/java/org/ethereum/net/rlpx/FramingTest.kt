@@ -59,8 +59,8 @@ open class FramingTest {
                 "peer.privateKey", "d3a4a240b107ab443d46187306d0b947ce3d6b6ed95aead8c4941afcebde43d2",
                 "database.dir", "testDB-2")
 
-        val ethereum1 = EthereumFactory.createEthereum(SysPropConfig1.props, SysPropConfig1::class.java)
-        val ethereum2 = EthereumFactory.createEthereum(SysPropConfig2.props, SysPropConfig2::class.java)
+        val ethereum1 = EthereumFactory.createEthereum(SysPropConfig1.props!!, SysPropConfig1::class.java)
+        val ethereum2 = EthereumFactory.createEthereum(SysPropConfig2.props!!, SysPropConfig2::class.java)
 
         val semaphore = CountDownLatch(2)
 

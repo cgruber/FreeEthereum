@@ -66,7 +66,7 @@ public class SendTransaction extends BasicSample {
 
         // Based on Config class the BasicSample would be created by Spring
         // and its springInit() method would be called as an entry point
-        EthereumFactory.createEthereum(Config.class);
+        EthereumFactory.INSTANCE.createEthereum(Config.class);
 
     }
 

@@ -61,10 +61,10 @@ public class PrivateMinerSample {
         }
 
         BasicSample.sLogger.info("Starting EthtereumJ miner instance!");
-        EthereumFactory.createEthereum(MinerConfig.class);
+        EthereumFactory.INSTANCE.createEthereum(MinerConfig.class);
 
         BasicSample.sLogger.info("Starting EthtereumJ regular instance!");
-        EthereumFactory.createEthereum(RegularConfig.class);
+        EthereumFactory.INSTANCE.createEthereum(RegularConfig.class);
     }
 
     /**

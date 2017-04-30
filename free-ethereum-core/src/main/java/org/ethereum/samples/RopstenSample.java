@@ -61,7 +61,7 @@ public class RopstenSample extends BasicSample {
             }
         }
 
-        final Ethereum ethereum = EthereumFactory.createEthereum(SampleConfig.class);
+        final Ethereum ethereum = EthereumFactory.INSTANCE.createEthereum(SampleConfig.class);
     }
 
     abstract static class RopstenSampleConfig {

@@ -93,7 +93,7 @@ open class SanityLongRunTest {
 
         //        Thread.sleep(1000000000);
 
-        val ethereum2 = EthereumFactory.createEthereum(SysPropConfig2.props, SysPropConfig2::class.java)
+        val ethereum2 = EthereumFactory.createEthereum(SysPropConfig2.props!!, SysPropConfig2::class.java)
 
         val semaphore = CountDownLatch(1)
 

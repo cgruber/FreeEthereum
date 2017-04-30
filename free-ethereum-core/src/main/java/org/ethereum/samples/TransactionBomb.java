@@ -52,7 +52,7 @@ public class TransactionBomb extends EthereumListenerAdapter {
 
     public static void main(final String[] args) {
 
-        final Ethereum ethereum = EthereumFactory.createEthereum();
+        final Ethereum ethereum = EthereumFactory.INSTANCE.createEthereum();
         ethereum.addListener(new TransactionBomb(ethereum));
     }
 

@@ -44,8 +44,7 @@ subprojects {
 
     println("Building version: " + version + " (from branch " + gitCurBranch() + ")")
 
-    javadoc.options.encoding = 'UTF-8'
-//    compileJava.options.compilerArgs << '-XDignore.symbol.file'
+//    javadoc.options.encoding = 'UTF-8'
     compileTestJava.options.encoding = 'UTF-8'
 
     repositories {

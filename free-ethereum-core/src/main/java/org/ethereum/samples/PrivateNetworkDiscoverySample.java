@@ -66,13 +66,13 @@ public class PrivateNetworkDiscoverySample {
      */
     public static void main(final String[] args) throws Exception {
         BasicSample.sLogger.info("Starting main node to which others will connect to");
-        EthereumFactory.createEthereum(Node0Config.class);
+        EthereumFactory.INSTANCE.createEthereum(Node0Config.class);
 
         BasicSample.sLogger.info("Starting regular instance 1!");
-        EthereumFactory.createEthereum(Node1Config.class);
+        EthereumFactory.INSTANCE.createEthereum(Node1Config.class);
 
         BasicSample.sLogger.info("Starting regular instance 2!");
-        EthereumFactory.createEthereum(Node2Config.class);
+        EthereumFactory.INSTANCE.createEthereum(Node2Config.class);
     }
 
     private static Config getConfig(final int index, final String discoveryNode) {

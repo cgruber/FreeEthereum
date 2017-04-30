@@ -57,7 +57,7 @@ public class PriceFeedSample extends BasicSample {
 
         // Based on Config class the sample would be created by Spring
         // and its springInit() method would be called as an entry point
-        EthereumFactory.createEthereum(Config.class);
+        EthereumFactory.INSTANCE.createEthereum(Config.class);
     }
 
     @Override
