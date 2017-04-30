@@ -100,7 +100,7 @@ interface Repository : org.ethereum.facade.Repository {
      * *
      * @return value of the nonce
      */
-    override fun getNonce(addr: ByteArray?): BigInteger
+    override fun getNonce(addr: ByteArray): BigInteger
 
     /**
      * Retrieve contract details for a given account from the database
@@ -171,7 +171,7 @@ interface Repository : org.ethereum.facade.Repository {
      * *
      * @return balance of the account as a `BigInteger` value
      */
-    override fun getBalance(addr: ByteArray?): BigInteger
+    override fun getBalance(addr: ByteArray): BigInteger
 
     /**
      * Add value to the balance of an account

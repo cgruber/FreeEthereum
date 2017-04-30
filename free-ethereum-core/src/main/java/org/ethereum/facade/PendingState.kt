@@ -24,25 +24,24 @@
  *
  */
 
-package org.ethereum.facade;
+package org.ethereum.facade
 
-import org.ethereum.core.Transaction;
-
-import java.util.List;
+import org.ethereum.core.Transaction
 
 /**
  * @author Mikhail Kalinin
+ * *
  * @since 28.09.2015
  */
-public interface PendingState {
+interface PendingState {
 
     /**
      * @return pending state repository
      */
-    org.ethereum.core.Repository getRepository();
+    val repository: org.ethereum.core.Repository
 
     /**
      * @return list of pending transactions
      */
-    List<Transaction> getPendingTransactions();
+    val pendingTransactions: List<Transaction>
 }

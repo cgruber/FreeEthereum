@@ -31,10 +31,10 @@ import org.ethereum.core.Block;
 import org.ethereum.core.BlockchainImpl;
 import org.ethereum.core.Repository;
 import org.ethereum.vm.DataWord;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashMap;
@@ -222,7 +222,14 @@ public class RepositoryWrapper implements Repository {
     }
 
     @Override
-    public Map<DataWord, DataWord> getStorage(final byte[] addr, @Nullable final Collection<DataWord> keys) {
+//    public Map<DataWord, DataWord> getStorage(final byte[] addr, @Nullable final Collection<DataWord> keys) {
+    public Map<DataWord, DataWord> getStorage(@NotNull byte[] addr, @org.jetbrains.annotations.Nullable Collection<? extends DataWord> keys) {
         return blockchain.getRepository().getStorage(addr, keys);
     }
+
+//    @NotNull
+//    @Override
+//    public Map<DataWord, DataWord> getStorage(@NotNull byte[] addr, @org.jetbrains.annotations.Nullable Collection<? extends DataWord> keys) {
+//        return null;
+//    }
 }

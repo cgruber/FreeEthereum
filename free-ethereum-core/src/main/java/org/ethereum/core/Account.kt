@@ -59,13 +59,13 @@ open class Account {
     }
 
     val nonce: BigInteger
-        get() = repository!!.getNonce(address)
+        get() = repository!!.getNonce(address!!)
 
     // todo: calculate the fee for pending
     val balance: BigInteger
         get() {
 
-            var balance = repository!!.getBalance(this.address)
+            var balance = repository!!.getBalance(this.address!!)
 
             synchronized(getPendingTransactions()) {
                 if (!getPendingTransactions().isEmpty()) {

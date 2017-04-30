@@ -36,7 +36,6 @@ import org.ethereum.util.ByteArraySet;
 import org.ethereum.vm.DataWord;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -266,7 +265,7 @@ public class IterableTestRepository implements Repository {
     }
 
     @Override
-    public Map<DataWord, DataWord> getStorage(final byte[] addr, @Nullable final Collection<DataWord> keys) {
+    public Map<DataWord, DataWord> getStorage(@NotNull byte[] addr, @org.jetbrains.annotations.Nullable Collection<? extends DataWord> keys) {
         return src.getStorage(addr, keys);
     }
 

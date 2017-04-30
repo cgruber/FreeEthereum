@@ -41,7 +41,6 @@ import org.ethereum.vm.DataWord;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -283,7 +282,7 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
     }
 
     @Override
-    public Map<DataWord, DataWord> getStorage(final byte[] addr, @Nullable final Collection<DataWord> keys) {
+    public Map<DataWord, DataWord> getStorage(@NotNull byte[] addr, @org.jetbrains.annotations.Nullable Collection<? extends DataWord> keys) {
         throw new RuntimeException("Not supported");
     }
 
@@ -308,6 +307,12 @@ public class RepositoryImpl implements Repository, org.ethereum.facade.Repositor
     public void loadAccount(final byte[] addr, final HashMap<ByteArrayWrapper, AccountState> cacheAccounts, final HashMap<ByteArrayWrapper, ContractDetails> cacheDetails) {
         throw new RuntimeException("Not supported");
     }
+
+//    @NotNull
+//    @Override
+//    public Map<DataWord, DataWord> getStorage(@NotNull byte[] addr, @org.jetbrains.annotations.Nullable Collection<? extends DataWord> keys) {
+//        return null;
+//    }
 
     class ContractDetailsImpl implements ContractDetails {
         private final byte[] address;

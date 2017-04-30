@@ -24,84 +24,89 @@
  *
  */
 
-package org.ethereum.facade;
+package org.ethereum.facade
 
-import org.ethereum.vm.DataWord;
+import org.ethereum.vm.DataWord
+import java.math.BigInteger
 
-import javax.annotation.Nullable;
-import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
-public interface Repository {
+interface Repository {
 
     /**
      * @param addr - account to check
+     * *
      * @return - true if account exist,
-     *           false otherwise
+     * *           false otherwise
      */
-    boolean isExist(byte[] addr);
+    fun isExist(addr: ByteArray): Boolean
 
 
     /**
      * Retrieve balance of an account
-     *
+
      * @param addr of the account
-     * @return balance of the account as a <code>BigInteger</code> value
+     * *
+     * @return balance of the account as a `BigInteger` value
      */
-    BigInteger getBalance(byte[] addr);
+    fun getBalance(addr: ByteArray): BigInteger
 
 
     /**
      * Get current nonce of a given account
-     *
+
      * @param addr of the account
+     * *
      * @return value of the nonce
      */
-    BigInteger getNonce(byte[] addr);
+    fun getNonce(addr: ByteArray): BigInteger
 
 
     /**
      * Retrieve the code associated with an account
-     *
+
      * @param addr of the account
+     * *
      * @return code in byte-array format
      */
-    byte[] getCode(byte[] addr);
+    fun getCode(addr: ByteArray): ByteArray
 
 
     /**
      * Retrieve storage value from an account for a given key
-     *
+
      * @param addr of the account
+     * *
      * @param key associated with this value
-     * @return data in the form of a <code>DataWord</code>
+     * *
+     * @return data in the form of a `DataWord`
      */
-    DataWord getStorageValue(byte[] addr, DataWord key);
+    fun getStorageValue(addr: ByteArray, key: DataWord): DataWord
 
     /**
      * Retrieve storage size for a given account
-     *
+
      * @param addr of the account
+     * *
      * @return storage entries count
      */
-    int getStorageSize(byte[] addr);
+    fun getStorageSize(addr: ByteArray): Int
 
     /**
      * Retrieve all storage keys for a given account
-     *
+
      * @param addr of the account
+     * *
      * @return set of storage keys or empty set if account with specified address not exists
      */
-    Set<DataWord> getStorageKeys(byte[] addr);
+    fun getStorageKeys(addr: ByteArray): Set<DataWord>
 
     /**
      * Retrieve storage entries from an account for given keys
-     *
+
      * @param addr of the account
+     * *
      * @param keys
-     * @return storage entries for specified keys, or full storage if keys parameter is <code>null</code>
+     * *
+     * @return storage entries for specified keys, or full storage if keys parameter is `null`
      */
-    Map<DataWord, DataWord> getStorage(byte[] addr, @Nullable Collection<DataWord> keys);
+    fun getStorage(addr: ByteArray, keys: Collection<DataWord>?): Map<DataWord, DataWord>
 }

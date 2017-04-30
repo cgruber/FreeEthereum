@@ -73,7 +73,7 @@ class Storage(programInvoke: ProgramInvoke) : Repository, ProgramListenerAware {
         return repository.setNonce(addr, nonce)
     }
 
-    override fun getNonce(addr: ByteArray?): BigInteger {
+    override fun getNonce(addr: ByteArray): BigInteger {
         return repository.getNonce(addr)
     }
 
@@ -110,7 +110,7 @@ class Storage(programInvoke: ProgramInvoke) : Repository, ProgramListenerAware {
         return repository.getStorageValue(addr, key)
     }
 
-    override fun getBalance(addr: ByteArray?): BigInteger {
+    override fun getBalance(addr: ByteArray): BigInteger {
         return repository.getBalance(addr)
     }
 
